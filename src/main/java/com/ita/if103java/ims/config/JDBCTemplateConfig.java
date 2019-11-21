@@ -20,6 +20,15 @@ public class JDBCTemplateConfig {
     @Value("${db.password}")
     private String password;
 
+    @Value("${db.minPoolSize}")
+    private int minPoolSize;
+
+    @Value("${db.maxPoolSize}")
+    private int maxPoolSize;
+
+    @Value("${db.poolIncrement}")
+    private int poolIncrement;
+
     @Bean
     public DataSource dataSource() throws PropertyVetoException {
         ComboPooledDataSource dataSource = new ComboPooledDataSource();
@@ -28,9 +37,9 @@ public class JDBCTemplateConfig {
         dataSource.setJdbcUrl(url);
         dataSource.setUser(username);
         dataSource.setPassword(password);
-        dataSource.setMinPoolSize(3);
-        dataSource.setAcquireIncrement(3);
-        dataSource.setMaxPoolSize(18);
+        dataSource.setMinPoolSize(minPoolSize);
+        dataSource.setAcquireIncrement(poolIncrement);
+        dataSource.setMaxPoolSize(maxPoolSize);
 
         return dataSource;
     }
