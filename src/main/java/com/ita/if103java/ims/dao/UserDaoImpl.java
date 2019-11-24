@@ -112,9 +112,8 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public User findByEmail(String email) {
-        User user = null;
         try {
-            return jdbcTemplate.queryForObject(Queries.SQL_SELECT_USER_BY_ID, userRowMapper, email);
+            return jdbcTemplate.queryForObject(Queries.SQL_SELECT_USER_BY_EMAIL, userRowMapper, email);
         } catch (EmptyResultDataAccessException e) {
             throw userEntityNotFoundException("User not found", "email = " + email);
         } catch (Exception e) {
