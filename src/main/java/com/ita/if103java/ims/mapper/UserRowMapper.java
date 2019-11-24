@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 
 @Component
 public class UserRowMapper implements RowMapper<User> {
+    @Override
     public User mapRow(ResultSet resultSet, int rowNum) throws SQLException {
         User user = new User();
         user.setId(resultSet.getLong("id"));

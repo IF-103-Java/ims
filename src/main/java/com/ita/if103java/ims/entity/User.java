@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
-import java.util.UUID;
 
 public class User {
 
@@ -26,7 +25,8 @@ public class User {
     public User() {
     }
 
-    public User(Long id, String firstName, String lastName, String email, String password, Role role, LocalDateTime createdDate, LocalDateTime updatedDate, boolean active, Long accountId) {
+    public User(Long id, String firstName, String lastName, String email, String password, Role role, LocalDateTime createdDate,
+                LocalDateTime updatedDate, boolean active, String emailUUID, Long accountId) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -36,7 +36,7 @@ public class User {
         this.createdDate = createdDate;
         this.updatedDate = updatedDate;
         this.active = active;
-        this.emailUUID = UUID.randomUUID().toString();
+        this.emailUUID = email;
         this.accountId = accountId;
     }
 
