@@ -79,7 +79,6 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public User findById(Long id) {
-        User user = null;
         try {
             return jdbcTemplate.queryForObject(Queries.SQL_SELECT_USER_BY_ID, userRowMapper, id);
         } catch (EmptyResultDataAccessException e) {
@@ -92,7 +91,6 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public User findByAccountId(Long accountId) {
-        User user = null;
         try {
             return jdbcTemplate.queryForObject(Queries.SQL_SELECT_USER_BY_ACCOUNT_ID, userRowMapper, accountId);
         } catch (EmptyResultDataAccessException e) {
