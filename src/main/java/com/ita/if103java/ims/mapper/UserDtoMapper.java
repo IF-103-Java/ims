@@ -5,7 +5,10 @@ import com.ita.if103java.ims.entity.User;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 public class UserDtoMapper {
@@ -46,26 +49,23 @@ public class UserDtoMapper {
             userDto.setAccountId(user.getAccountId());
             return userDto;
         }
+
     }
 
     public List<User> convertToUserList(List<UserDto> userDtoList) {
-        if (userDtoList == null)
-            return new ArrayList<>();
-        else {
-            List<User> list = new ArrayList<>();
-            userDtoList.forEach(item -> list.add(convertUserDtoToUser(item)));
-            return list;
-        }
+        return Optional.ofNullable(userDtoList)
+            .orElse(Collections.emptyList())
+            .stream()
+            .map(this::convertUserDtoToUser)
+            .collect(Collectors.toList());
     }
 
     public List<UserDto> convertToUserDtoList(List<User> userList) {
-        if (userList == null)
-            return new ArrayList<>();
-        else {
-            List<UserDto> list = new ArrayList<>();
-            userList.forEach(item -> list.add(convertUserToUserDto(item)));
-            return list;
-        }
+        return Optional.ofNullable(userList)
+            .orElse(Collections.emptyList())
+            .stream()
+            .map(this::convertUserToUserDto)
+            .collect(Collectors.toList());
     }
 
 
