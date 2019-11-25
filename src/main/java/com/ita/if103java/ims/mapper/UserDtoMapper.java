@@ -4,7 +4,6 @@ import com.ita.if103java.ims.dto.UserDto;
 import com.ita.if103java.ims.entity.User;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;

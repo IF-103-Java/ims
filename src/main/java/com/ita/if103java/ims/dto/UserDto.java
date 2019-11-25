@@ -10,16 +10,16 @@ import org.springframework.stereotype.Component;
 
 import javax.validation.constraints.*;
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Objects;
 
 @Component
 public class UserDto implements Serializable {
 
-    @Null(groups = {NewDataAdmin.class},
+    @Null(groups = {NewData.class},
         message = "This field must be filled with the auto-generator during registration")
-    @NotNull(groups = {ExistData.class, NewDataWorker.class},
-        message = "This field must not be empty")
+    @NotNull(groups = {ExistData.class},
+        message = "This field mustn't be empty")
     private Long id;
 
     @Null(groups = {NewDataWorker.class},
@@ -51,10 +51,10 @@ public class UserDto implements Serializable {
     private Role role;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
-    private LocalDateTime createdDate;
+    private ZonedDateTime createdDate;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
-    private LocalDateTime updatedDate;
+    private ZonedDateTime updatedDate;
 
     @NotNull(groups = {NewData.class, ExistData.class})
     private boolean active;
@@ -65,13 +65,13 @@ public class UserDto implements Serializable {
     @Null(groups = {NewDataAdmin.class},
         message = "This field must be filled with the auto-generator during the creation of organization")
     @NotNull(groups = {ExistData.class, NewDataWorker.class},
-        message = "This field must not be empty")
+        message = "This field mustn't be empty")
     private Long accountId;
 
     public UserDto() {
     }
 
-    public UserDto(Long id, String firstName, String lastName, String email, String password, Role role, LocalDateTime createdDate, LocalDateTime updatedDate, boolean active, String emailUUID, Long accountId) {
+    public UserDto(Long id, String firstName, String lastName, String email, String password, Role role, ZonedDateTime createdDate, ZonedDateTime updatedDate, boolean active, String emailUUID, Long accountId) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -133,19 +133,19 @@ public class UserDto implements Serializable {
         this.role = role;
     }
 
-    public LocalDateTime getCreatedDate() {
+    public ZonedDateTime getCreatedDate() {
         return createdDate;
     }
 
-    public void setCreatedDate(LocalDateTime createdDate) {
+    public void setCreatedDate(ZonedDateTime createdDate) {
         this.createdDate = createdDate;
     }
 
-    public LocalDateTime getUpdatedDate() {
+    public ZonedDateTime getUpdatedDate() {
         return updatedDate;
     }
 
-    public void setUpdatedDate(LocalDateTime updatedDate) {
+    public void setUpdatedDate(ZonedDateTime updatedDate) {
         this.updatedDate = updatedDate;
     }
 

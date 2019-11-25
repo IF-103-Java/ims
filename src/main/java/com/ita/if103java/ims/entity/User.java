@@ -3,7 +3,7 @@ package com.ita.if103java.ims.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Objects;
 
 public class User {
@@ -15,9 +15,9 @@ public class User {
     private String password;
     private Role role;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
-    private LocalDateTime createdDate;
+    private ZonedDateTime createdDate;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
-    private LocalDateTime updatedDate;
+    private ZonedDateTime updatedDate;
     private boolean active;
     private String emailUUID;
     private Long accountId;
@@ -25,8 +25,8 @@ public class User {
     public User() {
     }
 
-    public User(Long id, String firstName, String lastName, String email, String password, Role role, LocalDateTime createdDate,
-                LocalDateTime updatedDate, boolean active, String emailUUID, Long accountId) {
+    public User(Long id, String firstName, String lastName, String email, String password, Role role, ZonedDateTime createdDate,
+                ZonedDateTime updatedDate, boolean active, String emailUUID, Long accountId) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -88,19 +88,19 @@ public class User {
         this.role = role;
     }
 
-    public LocalDateTime getCreatedDate() {
+    public ZonedDateTime getCreatedDate() {
         return createdDate;
     }
 
-    public void setCreatedDate(LocalDateTime createdDate) {
+    public void setCreatedDate(ZonedDateTime createdDate) {
         this.createdDate = createdDate;
     }
 
-    public LocalDateTime getUpdatedDate() {
+    public ZonedDateTime getUpdatedDate() {
         return updatedDate;
     }
 
-    public void setUpdatedDate(LocalDateTime updatedDate) {
+    public void setUpdatedDate(ZonedDateTime updatedDate) {
         this.updatedDate = updatedDate;
     }
 
