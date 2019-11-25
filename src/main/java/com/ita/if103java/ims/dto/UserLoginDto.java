@@ -8,9 +8,9 @@ import java.io.Serializable;
 @Component
 public class UserLoginDto implements Serializable {
 
-    @NotBlank
+    @NotBlank(message = "This field mustn't be empty. Please, enter your username")
     private String username;
-    @NotBlank
+    @NotBlank(message = "This field mustn't be empty. Please, enter your password")
     private String password;
 
     public UserLoginDto() {
