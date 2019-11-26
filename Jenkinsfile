@@ -59,13 +59,7 @@ pipeline {
                                      string(credentialsId: 'ims-staging-host', variable: 'SSH_HOST')]) {
                         sshagent(credentials: ['ims-staging-ssh-key']) {
                             SSH_EXEC = "ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST"
-                            sh "$SSH_EXEC docker pull ${env.DOCKERHUB_REPO}:latest"
-                            sh "$SSH_EXEC docker rm -f ims-spring-boot || true"
-                            sh "$SSH_EXEC docker run --env-file .ims-env \
-                                                     --name ims-spring-boot \
-                                                     -p 80:8080 \
-                                                     --restart always \
-                                                     -d ${env.DOCKERHUB_REPO}:latest"
+                            updateRemoteDockerContainer(SSH_EXEC)
                             dockerClean(SSH_EXEC)
                         }
                     }
@@ -75,7 +69,18 @@ pipeline {
     }
 }
 
-void dockerClean(String commandPrefix="") {
+void dockerClean(String commandPrefix = "") {
     sh "($commandPrefix docker ps -a --no-trunc | grep 'Exit' | awk '{print \$1}' | xargs docker rm) || true"
     sh "($commandPrefix docker images --no-trunc | grep none | awk '{print \$3}' | xargs docker rmi) || true"
+}
+
+
+void updateRemoteDockerContainer(String sshPrefix) {
+    sh "$sshPrefix docker pull ${env.DOCKERHUB_REPO}:latest"
+    sh "$sshPrefix docker rm -f ims-spring-boot || true"
+    sh "$sshPrefix docker run --env-file .ims-env \
+                              --name ims-spring-boot \
+                              -p 80:8080 \
+                              --restart always \
+                              -d ${env.DOCKERHUB_REPO}:latest"
 }
