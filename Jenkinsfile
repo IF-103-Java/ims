@@ -58,18 +58,15 @@ pipeline {
                     withCredentials([string(credentialsId: 'ims-staging-user', variable: 'SSH_USER'),
                                      string(credentialsId: 'ims-staging-host', variable: 'SSH_HOST')]) {
                         sshagent(credentials: ['ims-staging-ssh-key']) {
-                            deployCommands = """
-                                                docker pull ${env.DOCKERHUB_REPO}:latest
-                                                docker stop ims-spring-boot || true
-                                                ls -la
-                                                docker run --env-file .ims-env \\
-                                                           --name ims-spring-boot \\
-                                                           -p 80:8080 \\
-                                                           --restart always \\
-                                                           -d ${env.DOCKERHUB_REPO}:latest
-                                                (docker ps -q | xargs docker rm) || true
-                                             """
-                            sh "ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST $deployCommands"
+                            SSH_EXEC = "ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST"
+                            sh "$SSH_EXEC docker pull ${env.DOCKERHUB_REPO}:latest"
+                            sh "$SSH_EXEC docker rm -f ims-spring-boot || true"
+                            sh "$SSH_EXEC docker run --env-file .ims-env \
+                                                     --name ims-spring-boot \
+                                                     -p 80:8080 \
+                                                     --restart always \
+                                                     -d ${env.DOCKERHUB_REPO}:latest"
+                            sh "$SSH_EXEC dockerclean || true"
                         }
                     }
                 }
