@@ -2,44 +2,18 @@ package com.ita.if103java.ims.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.time.ZonedDateTime;
 import java.util.Objects;
 
-@Entity
-@Table(name = "events")
 public class Event {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id", updatable = false, nullable = false)
     private Long id;
-
-    @NotNull
-    @Column(name = "message", updatable = false, nullable = false)
     private String message;
-
-    @Column(name = "date", updatable = false, nullable = false)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
     private ZonedDateTime date;
-
-    @NotNull
-    @Column(name = "account_id", updatable = false, nullable = false)
     private Long accountId;
-
-    @Column(name = "warehouse_id", updatable = false)
     private Long warehouseId;
-
-    @NotNull
-    @Column(name = "author_id", updatable = false, nullable = false)
     private Long authorId;
-
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    @Column(name = "type", updatable = false, nullable = false)
     private EventType type;
-
-    @Column(name = "transaction_id", updatable = false)
     private Long transactionID;
 
     public Event() {
