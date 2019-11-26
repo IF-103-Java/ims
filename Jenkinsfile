@@ -45,7 +45,7 @@ pipeline {
                             springBootImage.push("latest")
                     }
                 }
-                sh "docker rmi ${env.IMAGE_NAME}"
+                dockerClean()
             }
         }
 
@@ -66,11 +66,16 @@ pipeline {
                                                      -p 80:8080 \
                                                      --restart always \
                                                      -d ${env.DOCKERHUB_REPO}:latest"
-                            sh "$SSH_EXEC dockerclean || true"
+                            dockerClean(SSH_EXEC)
                         }
                     }
                 }
             }
         }
     }
+}
+
+void dockerClean(String commandPrefix="") {
+    sh "($commandPrefix docker ps -a --no-trunc | grep 'Exit' | awk '{print \$1}' | xargs docker rm) || true"
+    sh "($commandPrefix docker images --no-trunc | grep none | awk '{print \$3}' | xargs docker rmi) || true"
 }
