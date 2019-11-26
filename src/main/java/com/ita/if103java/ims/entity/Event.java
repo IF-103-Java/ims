@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Objects;
 
 @Entity
@@ -21,7 +21,7 @@ public class Event {
 
     @Column(name = "date", updatable = false, nullable = false)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
-    private LocalDateTime date;
+    private ZonedDateTime date;
 
     @NotNull
     @Column(name = "account_id", updatable = false, nullable = false)
@@ -48,7 +48,7 @@ public class Event {
     public Event(String message, Long accountId,
                  Long warehouseId, Long authorId, EventType type, Long transactionID) {
         this.message = message;
-        this.date = LocalDateTime.now();
+        this.date = ZonedDateTime.now();
         this.accountId = accountId;
         this.warehouseId = warehouseId;
         this.authorId = authorId;
@@ -72,11 +72,11 @@ public class Event {
         this.message = message;
     }
 
-    public LocalDateTime getDate() {
+    public ZonedDateTime getDate() {
         return date;
     }
 
-    public void setDate(LocalDateTime date) {
+    public void setDate(ZonedDateTime date) {
         this.date = date;
     }
 
