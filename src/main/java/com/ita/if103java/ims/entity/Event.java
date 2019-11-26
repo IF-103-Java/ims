@@ -14,20 +14,20 @@ public class Event {
     private Long warehouseId;
     private Long authorId;
     private EventType type;
-    private Long transactionID;
+    private Long transactionId;
 
     public Event() {
     }
 
     public Event(String message, Long accountId,
-                 Long warehouseId, Long authorId, EventType type, Long transactionID) {
+                 Long warehouseId, Long authorId, EventType type, Long transactionId) {
         this.message = message;
         this.date = ZonedDateTime.now();
         this.accountId = accountId;
         this.warehouseId = warehouseId;
         this.authorId = authorId;
         this.type = type;
-        this.transactionID = transactionID;
+        this.transactionId = transactionId;
     }
 
     public Long getId() {
@@ -86,12 +86,12 @@ public class Event {
         this.type = type;
     }
 
-    public Long getTransactionID() {
-        return transactionID;
+    public Long getTransactionId() {
+        return transactionId;
     }
 
-    public void setTransactionID(Long transactionID) {
-        this.transactionID = transactionID;
+    public void setTransactionId(Long transactionId) {
+        this.transactionId = transactionId;
     }
 
     @Override
@@ -102,7 +102,7 @@ public class Event {
         return accountId == event.accountId &&
                 warehouseId == event.warehouseId &&
                 authorId == event.authorId &&
-                transactionID == event.transactionID &&
+                transactionId == event.transactionId &&
                 Objects.equals(message, event.message) &&
                 Objects.equals(date, event.date) &&
                 type == event.type;
@@ -110,6 +110,6 @@ public class Event {
 
     @Override
     public int hashCode() {
-        return Objects.hash(message, date, accountId, warehouseId, authorId, type, transactionID);
+        return Objects.hash(message, date, accountId, warehouseId, authorId, type, transactionId);
     }
 }
