@@ -29,34 +29,16 @@ import java.util.UUID;
 @Repository
 public class UserDaoImpl implements UserDao {
 
-    private static UserRowMapper userRowMapper;
-    private static JdbcTemplate jdbcTemplate;
-    private static BCryptPasswordEncoder bCryptPasswordEncoder;
     private static Logger logger = LoggerFactory.getLogger(UserDaoImpl.class);
+    private UserRowMapper userRowMapper;
+    private JdbcTemplate jdbcTemplate;
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Autowired
     public UserDaoImpl(DataSource dataSource, UserRowMapper userRowMapper) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.bCryptPasswordEncoder = new BCryptPasswordEncoder();
         this.userRowMapper = userRowMapper;
-    }
-
-    private PreparedStatement createStatement(User user, String encryptedPassword, ZonedDateTime currentDateTime,
-                                              String emailUUID, Connection connection) throws SQLException {
-        PreparedStatement preparedStatement = connection.prepareStatement(Queries.SQL_CREATE_USER, Statement.RETURN_GENERATED_KEYS);
-
-        int i = 0;
-        preparedStatement.setString(++i, user.getFirstName());
-        preparedStatement.setString(++i, user.getLastName());
-        preparedStatement.setString(++i, user.getEmail());
-        preparedStatement.setString(++i, encryptedPassword);
-        preparedStatement.setObject(++i, user.getRole());
-        preparedStatement.setObject(++i, currentDateTime);
-        preparedStatement.setObject(++i, currentDateTime);
-        preparedStatement.setBoolean(++i, user.isActive());
-        preparedStatement.setString(++i, emailUUID);
-
-        return preparedStatement;
     }
 
 
@@ -178,6 +160,24 @@ public class UserDaoImpl implements UserDao {
             throw userEntityNotFoundException("Update user password exception", "id = " + id);
 
         return true;
+    }
+
+    private PreparedStatement createStatement(User user, String encryptedPassword, ZonedDateTime currentDateTime,
+                                              String emailUUID, Connection connection) throws SQLException {
+        PreparedStatement preparedStatement = connection.prepareStatement(Queries.SQL_CREATE_USER, Statement.RETURN_GENERATED_KEYS);
+
+        int i = 0;
+        preparedStatement.setString(++i, user.getFirstName());
+        preparedStatement.setString(++i, user.getLastName());
+        preparedStatement.setString(++i, user.getEmail());
+        preparedStatement.setString(++i, encryptedPassword);
+        preparedStatement.setObject(++i, user.getRole());
+        preparedStatement.setObject(++i, currentDateTime);
+        preparedStatement.setObject(++i, currentDateTime);
+        preparedStatement.setBoolean(++i, user.isActive());
+        preparedStatement.setString(++i, emailUUID);
+
+        return preparedStatement;
     }
 
     private EntityNotFoundException userEntityNotFoundException(String message, String attribute) {
