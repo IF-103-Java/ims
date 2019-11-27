@@ -112,4 +112,19 @@ public class Event {
     public int hashCode() {
         return Objects.hash(message, date, accountId, warehouseId, authorId, type, transactionId);
     }
+
+    @Override
+    public String toString() {
+        return "Event{" +
+            "id=" + id +
+            ", message='" + message + '\'' +
+            ", date=" + date +
+            ", accountId=" + accountId +
+            ", warehouseId=" + warehouseId +
+            ", authorId=" + authorId +
+            ", type=" + type +
+            ", transactionId=" + transactionId +
+            '}';
+    }
+
 }
