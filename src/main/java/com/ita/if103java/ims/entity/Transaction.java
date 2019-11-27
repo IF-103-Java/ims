@@ -17,19 +17,6 @@ public class Transaction {
     public Transaction() {
     }
 
-    public Transaction(Long id, Timestamp timestamp, Long accountId, Long associateId,
-                       Long itemId, Long quantity, Long movedFrom, Long movedTo, Type type) {
-        this.id = id;
-        this.timestamp = timestamp;
-        this.accountId = accountId;
-        this.associateId = associateId;
-        this.itemId = itemId;
-        this.quantity = quantity;
-        this.movedFrom = movedFrom;
-        this.movedTo = movedTo;
-        this.type = type;
-    }
-
     public Transaction(Long id, Long accountId, Long associateId,
                        Long itemId, Long quantity, Long movedFrom, Long movedTo, Type type) {
         this.id = id;
