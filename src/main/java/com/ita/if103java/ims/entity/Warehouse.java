@@ -13,6 +13,7 @@ public class Warehouse {
     private boolean isBottom;
     private long parentID;
     private long accountID;
+    private long topWarehouseID;
     private boolean active;
     private List<Warehouse> children;
 
@@ -20,7 +21,7 @@ public class Warehouse {
     }
 
     public Warehouse(long id, String name, String info, int capacity, boolean isBottom,
-                     long parentID, long accountID, boolean active) {
+                     long parentID, long accountID, long topWarehouseID, boolean active) {
         this.id = id;
         this.name = name;
         this.info = info;
@@ -28,6 +29,7 @@ public class Warehouse {
         this.isBottom = isBottom;
         this.parentID = parentID;
         this.accountID = accountID;
+        this.topWarehouseID = topWarehouseID;
         this.active = active;
         this.children = new ArrayList<>();
     }
@@ -49,7 +51,6 @@ public class Warehouse {
     public void setName(String name){
         this.name = name;
     }
-
 
     public String getInfo() {
         return info;
@@ -89,6 +90,14 @@ public class Warehouse {
 
     public void setAccountID(long accountID) {
         this.accountID = accountID;
+    }
+
+    public long getTopWarehouseID() {
+        return topWarehouseID;
+    }
+
+    public void setTopWarehouseID(long topWarehouseID) {
+        this.topWarehouseID = topWarehouseID;
     }
 
     public boolean isActive() {
