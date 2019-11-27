@@ -29,7 +29,7 @@ import java.util.UUID;
 @Repository
 public class UserDaoImpl implements UserDao {
 
-    private static Logger logger = LoggerFactory.getLogger(UserDaoImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserDaoImpl.class);
     private UserRowMapper userRowMapper;
     private JdbcTemplate jdbcTemplate;
     private BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -111,7 +111,7 @@ public class UserDaoImpl implements UserDao {
     public User update(User user) {
         int status;
         try {
-            ZonedDateTime updatedDateTime = ZonedDateTime.now(ZoneId.systemDefault());;
+            ZonedDateTime updatedDateTime = ZonedDateTime.now(ZoneId.systemDefault());
             status = jdbcTemplate.update(
                 Queries.SQL_UPDATE_USER,
                 user.getFirstName(),
@@ -162,6 +162,17 @@ public class UserDaoImpl implements UserDao {
         return true;
     }
 
+    @Override
+    public User findByEmailUUID(String emailUUID) {
+        try {
+            return jdbcTemplate.queryForObject(Queries.SQL_SELECT_USER_BY_EMAIL_UUID, userRowMapper, emailUUID);
+        } catch (EmptyResultDataAccessException e) {
+            throw userEntityNotFoundException(e.getMessage(), "email = " + emailUUID);
+        } catch (DataAccessException e) {
+            throw crudException(e.getMessage(), "get", "email = " + emailUUID);
+        }
+    }
+
     private PreparedStatement createStatement(User user, String encryptedPassword, ZonedDateTime currentDateTime,
                                               String emailUUID, Connection connection) throws SQLException {
         PreparedStatement preparedStatement = connection.prepareStatement(Queries.SQL_CREATE_USER, Statement.RETURN_GENERATED_KEYS);
@@ -182,13 +193,13 @@ public class UserDaoImpl implements UserDao {
 
     private EntityNotFoundException userEntityNotFoundException(String message, String attribute) {
         EntityNotFoundException exception = new EntityNotFoundException(message);
-        logger.error("EntityNotFoundException exception. User is not found ({}). Message: {}", attribute, message);
+        LOGGER.error("EntityNotFoundException exception. User is not found ({}). Message: {}", attribute, message);
         return exception;
     }
 
     private CRUDException crudException(String message, String operation, String attribute) {
         CRUDException exception = new CRUDException(message);
-        logger.error("CRUDException exception. Operation:({}) user ({}) exception. Message: {}", operation, attribute, message);
+        LOGGER.error("CRUDException exception. Operation:({}) user ({}) exception. Message: {}", operation, attribute, message);
         return exception;
     }
 
@@ -214,5 +225,7 @@ public class UserDaoImpl implements UserDao {
         static final String SQL_SET_ACTIVE_STATUS_USER = "UPDATE users SET active = ? WHERE id = ?";
 
         static final String SQL_UPDATE_PASSWORD = "UPDATE users SET password = ? WHERE id = ?";
+
+        static final String SQL_SELECT_USER_BY_EMAIL_UUID = "SELECT* FROM users WHERE email_uuid = ?";
     }
 }
