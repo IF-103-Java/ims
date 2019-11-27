@@ -70,14 +70,15 @@ pipeline {
 }
 
 void dockerClean(String commandPrefix = "") {
-    sh "($commandPrefix docker ps -a --no-trunc | grep 'Exit' | awk '{print \$1}' | xargs docker rm) || true"
-    sh "($commandPrefix docker images --no-trunc | grep none | awk '{print \$3}' | xargs docker rmi) || true"
+    sh "$commandPrefix docker image prune -af || true"
+    sh "$commandPrefix docker container prune -af || true"
 }
 
 
 void updateRemoteDockerContainer(String sshPrefix) {
     sh "$sshPrefix docker pull ${env.DOCKERHUB_REPO}:latest"
-    sh "$sshPrefix docker rm -f ims-spring-boot || true"
+    sh "$sshPrefix docker stop ims-spring-boot || true"
+    sh "$sshPrefix docker rm ims-spring-boot || true"
     sh "$sshPrefix docker run --env-file .ims-env \
                               --name ims-spring-boot \
                               -p 80:8080 \
