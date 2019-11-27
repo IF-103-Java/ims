@@ -29,7 +29,7 @@ pipeline {
         }
 
         stage('Build & Push docker image') {
-            when { anyOf { branch 'cd/jenkinsfile'; branch 'cd/jenkinsfile' } }
+            when { anyOf { branch 'master'; branch 'dev' } }
 
             environment {
                 TAG = "$BRANCH_NAME-build-$BUILD_NUMBER".replaceAll("/", "-")
@@ -41,7 +41,7 @@ pipeline {
                     def springBootImage = docker.build(env.IMAGE_NAME)
                     docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
                         springBootImage.push()
-                        if (env.BRANCH_NAME == 'cd/jenkinsfile')
+                        if (env.BRANCH_NAME == 'master')
                             springBootImage.push("latest")
                     }
                 }
@@ -50,7 +50,7 @@ pipeline {
         }
 
         stage('Deploy docker image') {
-            when { branch "cd/jenkinsfile" }
+            when { branch "master" }
 
             steps {
                 timeout(time: 20, unit: 'MINUTES') { input message: 'Approve Deploy?', ok: 'Yes' }
