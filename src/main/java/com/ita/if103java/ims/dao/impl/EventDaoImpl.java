@@ -14,6 +14,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
 
@@ -30,11 +31,13 @@ public class EventDaoImpl implements EventDao {
     }
 
     @Override
-    public boolean create(Event event) {
+    public Event create(Event event) {
         try {
-            return jdbcTemplate.update(Queries.SQL_CREATE_EVENT, event.getMessage(), event.getDate().toLocalDateTime(),
+            event.setDate(ZonedDateTime.now(ZoneId.systemDefault()));
+            jdbcTemplate.update(Queries.SQL_CREATE_EVENT, event.getMessage(), event.getDate().toLocalDateTime(),
                 event.getAccountId(), event.getAuthorId(), event.getWarehouseId(), event.getType().toString(),
-                event.getTransactionId()) > 0;
+                event.getTransactionId());
+            return event;
         } catch (DataAccessException e) {
             throw crudException(e.getMessage(), "create", "id = " + event.getId());
         }

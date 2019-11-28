@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface EventDao {
 
-    boolean create(Event event);
+    Event create(Event event);
 
     Event findById(Long id);
 
