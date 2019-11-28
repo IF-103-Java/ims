@@ -131,10 +131,11 @@ public class Warehouse {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Warehouse warehouse = (Warehouse) o;
-        return id == warehouse.id &&
+       return id == warehouse.id &&
             accountID == warehouse.accountID &&
             Objects.equals(name, warehouse.name) &&
             Objects.equals(info, warehouse.info) &&
+            topWarehouseID == warehouse.topWarehouseID &&
             parentID == warehouse.parentID &&
             capacity == warehouse.capacity &&
             isBottom == warehouse.isBottom &&
@@ -144,7 +145,7 @@ public class Warehouse {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, info, capacity, isBottom, parentID, accountID, active, children);
+        return Objects.hash(id, name, info, capacity, isBottom, parentID, accountID, topWarehouseID, active, children);
     }
 }
 

@@ -1,9 +1,8 @@
-package com.ita.if103java.ims.mapper;
+package com.ita.if103java.ims.mapper.jdbc;
 
 import com.ita.if103java.ims.entity.Warehouse;
     import org.springframework.jdbc.core.RowMapper;
     import org.springframework.stereotype.Component;
-
     import java.sql.ResultSet;
     import java.sql.SQLException;
 
@@ -11,16 +10,26 @@ import com.ita.if103java.ims.entity.Warehouse;
 public class WarehouseRowMapper implements RowMapper<Warehouse> {
     @Override
     public Warehouse mapRow(ResultSet resultSet, int rowNum) throws SQLException {
-        Warehouse Warehouse = new Warehouse();
-        Warehouse.setId(resultSet.getLong("id"));
-        Warehouse.setName(resultSet.getString("name"));
-        Warehouse.setInfo(resultSet.getString("info"));
-        Warehouse.setCapacity(resultSet.getInt("capacity"));
-        Warehouse.setBottom(resultSet.getBoolean("isBottom"));
-        Warehouse.setParentID(resultSet.getLong("parent"));
-        Warehouse.setAccountID(resultSet.getLong("account_id"));
-        Warehouse.setActive(resultSet.getBoolean("active"));
+        Warehouse warehouse = new Warehouse();
 
-        return Warehouse;
+        warehouse.setId(resultSet.getLong("id"));
+
+        warehouse.setName(resultSet.getString("name"));
+
+        warehouse.setInfo(resultSet.getString("info"));
+
+        warehouse.setCapacity(resultSet.getInt("capacity"));
+
+        warehouse.setBottom(resultSet.getBoolean("isBottom"));
+
+        warehouse.setParentID(resultSet.getLong("parent"));
+
+        warehouse.setAccountID(resultSet.getLong("account_id"));
+
+        warehouse.setTopWarehouseID(resultSet.getLong("top_warehouse_id"));
+
+        warehouse.setActive(resultSet.getBoolean("active"));
+
+        return warehouse;
     }
 }
