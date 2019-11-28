@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -19,7 +18,7 @@ public class EventRowMapper implements RowMapper<Event> {
         Event event = new Event();
         event.setId(resultSet.getLong("id"));
         event.setMessage(resultSet.getString("message"));
-        event.setDate((resultSet.getObject("date", LocalDateTime.class).atZone(ZoneId.systemDefault())));
+        event.setDate(ZonedDateTime.of(resultSet.getObject("date", LocalDateTime.class), ZoneId.systemDefault()));
         event.setAccountId(resultSet.getLong("account_id"));
         event.setAuthorId(resultSet.getLong("author_id"));
         event.setTransactionId(resultSet.getLong("transaction_id"));

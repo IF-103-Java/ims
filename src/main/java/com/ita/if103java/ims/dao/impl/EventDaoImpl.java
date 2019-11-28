@@ -31,9 +31,13 @@ public class EventDaoImpl implements EventDao {
 
     @Override
     public boolean create(Event event) {
-        return  jdbcTemplate.update(Queries.SQL_CREATE_EVENT, event.getMessage(), event.getDate().toLocalDateTime(),
-            event.getAccountId(), event.getAuthorId(), event.getWarehouseId(), event.getType().toString(),
-            event.getTransactionId()) > 0;
+        try {
+            return jdbcTemplate.update(Queries.SQL_CREATE_EVENT, event.getMessage(), event.getDate().toLocalDateTime(),
+                event.getAccountId(), event.getAuthorId(), event.getWarehouseId(), event.getType().toString(),
+                event.getTransactionId()) > 0;
+        } catch (DataAccessException e) {
+            throw crudException(e.getMessage(), "create", "id = " + event.getId());
+        }
     }
 
     @Override
@@ -73,7 +77,8 @@ public class EventDaoImpl implements EventDao {
             return jdbcTemplate.query(Queries.SQL_SELECT_EVENTS_BY_WAREHOUSE_ID, eventRowMapper, warehouseId);
         } catch (DataAccessException e) {
             throw crudException(e.getMessage(), "get", "*");
-        }    }
+        }
+    }
 
     @Override
     public List<Event> findByAuthorId(Long authorId) {
@@ -81,12 +86,13 @@ public class EventDaoImpl implements EventDao {
             return jdbcTemplate.query(Queries.SQL_SELECT_EVENTS_BY_AUTHOR_ID, eventRowMapper, authorId);
         } catch (DataAccessException e) {
             throw crudException(e.getMessage(), "get", "*");
-        }    }
+        }
+    }
 
     @Override
     public List<Event> findByAccountIdAndType(Long accountId, EventType type) {
         try {
-            return jdbcTemplate.query(Queries.SQL_SELECT_EVENTS_BY_ACCOUNT_ID_AND_TYPE, eventRowMapper, accountId, type);
+            return jdbcTemplate.query(Queries.SQL_SELECT_EVENTS_BY_ACCOUNT_ID_AND_TYPE, eventRowMapper, accountId, type.toString());
         } catch (DataAccessException e) {
             throw crudException(e.getMessage(), "get", "*");
         }
@@ -95,42 +101,49 @@ public class EventDaoImpl implements EventDao {
     @Override
     public List<Event> findByWarehouseIdAndType(Long warehouseId, EventType type) {
         try {
-            return jdbcTemplate.query(Queries.SQL_SELECT_EVENTS_BY_WAREHOUSE_ID_AND_TYPE, eventRowMapper, warehouseId, type);
+            return jdbcTemplate.query(Queries.SQL_SELECT_EVENTS_BY_WAREHOUSE_ID_AND_TYPE, eventRowMapper, warehouseId, type.toString());
         } catch (DataAccessException e) {
             throw crudException(e.getMessage(), "get", "*");
-        }    }
+        }
+    }
 
     @Override
     public List<Event> findByWarehouseIdAndDate(Long warehouseId, ZonedDateTime date) {
         try {
-            return jdbcTemplate.query(Queries.SQL_SELECT_EVENTS_BY_WAREHOUSE_ID_AND_DATE, eventRowMapper, warehouseId, date);
+            return jdbcTemplate.query(Queries.SQL_SELECT_EVENTS_BY_WAREHOUSE_ID_AND_DATE, eventRowMapper, warehouseId, date.toLocalDate().toString());
         } catch (DataAccessException e) {
             throw crudException(e.getMessage(), "get", "*");
-        }    }
+        }
+    }
 
     @Override
     public List<Event> findByAccountIdAndDate(Long accountId, ZonedDateTime date) {
         try {
-            return jdbcTemplate.query(Queries.SQL_SELECT_EVENTS_BY_ACCOUNT_ID_AND_DATE, eventRowMapper, accountId, date);
+            return jdbcTemplate.query(Queries.SQL_SELECT_EVENTS_BY_ACCOUNT_ID_AND_DATE, eventRowMapper, accountId, date.toLocalDate().toString());
         } catch (DataAccessException e) {
             throw crudException(e.getMessage(), "get", "*");
-        }    }
+        }
+    }
 
     @Override
     public List<Event> findByWarehouseIdAndWithinDates(Long warehouseId, ZonedDateTime after, ZonedDateTime before) {
         try {
-            return jdbcTemplate.query(Queries.SQL_SELECT_EVENTS_BY_WAREHOUSE_ID_AND_WITHIN_DATES, eventRowMapper, warehouseId, after, before);
+            return jdbcTemplate.query(Queries.SQL_SELECT_EVENTS_BY_WAREHOUSE_ID_AND_WITHIN_DATES, eventRowMapper,
+                warehouseId, after.toLocalDate().toString(), before.toLocalDate().toString());
         } catch (DataAccessException e) {
             throw crudException(e.getMessage(), "get", "*");
-        }    }
+        }
+    }
 
     @Override
     public List<Event> findByAccountIdAndWithinDates(Long accountId, ZonedDateTime after, ZonedDateTime before) {
         try {
-            return jdbcTemplate.query(Queries.SQL_SELECT_EVENTS_BY_ACCOUNT_ID_AND_WITHIN_DATES, eventRowMapper, accountId, after, before);
+            return jdbcTemplate.query(Queries.SQL_SELECT_EVENTS_BY_ACCOUNT_ID_AND_WITHIN_DATES, eventRowMapper, accountId,
+                after.toLocalDate().toString(), before.toLocalDate().toString());
         } catch (DataAccessException e) {
             throw crudException(e.getMessage(), "get", "*");
-        }    }
+        }
+    }
 
     private EntityNotFoundException eventEntityNotFoundException(String message, String attribute) {
         EntityNotFoundException exception = new EntityNotFoundException(message);
@@ -164,12 +177,12 @@ public class EventDaoImpl implements EventDao {
 
         static final String SQL_SELECT_EVENTS_BY_WAREHOUSE_ID_AND_TYPE = "SELECT* FROM events WHERE warehouse_id = ? AND type = ?";
 
-        static final String SQL_SELECT_EVENTS_BY_WAREHOUSE_ID_AND_DATE = "SELECT* FROM events WHERE warehouse_id = ? AND date = ?";
+        static final String SQL_SELECT_EVENTS_BY_WAREHOUSE_ID_AND_DATE = "SELECT* FROM events WHERE warehouse_id = ? AND DATE(date) = ?";
 
-        static final String SQL_SELECT_EVENTS_BY_ACCOUNT_ID_AND_DATE = "SELECT* FROM events WHERE account_id = ? AND date = ?";
+        static final String SQL_SELECT_EVENTS_BY_ACCOUNT_ID_AND_DATE = "SELECT* FROM events WHERE account_id = ? AND DATE(date) = ?";
 
-        static final String SQL_SELECT_EVENTS_BY_ACCOUNT_ID_AND_WITHIN_DATES = "SELECT* FROM events WHERE account_id = ? AND (date BETWEEN >= ? AND ?)";
+        static final String SQL_SELECT_EVENTS_BY_ACCOUNT_ID_AND_WITHIN_DATES = "SELECT* FROM events WHERE account_id = ? AND DATE(date) >= ? AND DATE(date) <= ?";
 
-        static final String SQL_SELECT_EVENTS_BY_WAREHOUSE_ID_AND_WITHIN_DATES = "SELECT* FROM events WHERE warehouse_id = ? AND (date BETWEEN >= ? AND ?)";
+        static final String SQL_SELECT_EVENTS_BY_WAREHOUSE_ID_AND_WITHIN_DATES = "SELECT* FROM events WHERE warehouse_id = ? AND DATE(date) >= ? AND DATE(date) <= ?";
     }
 }
