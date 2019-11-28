@@ -27,8 +27,8 @@ import java.util.Optional;
 @Repository
 public class AccountDaoImpl implements AccountDao {
 
-    private JdbcTemplate jdbcTemplate;
     private static Logger logger = LoggerFactory.getLogger(AccountDaoImpl.class);
+    private JdbcTemplate jdbcTemplate;
     private AccountRowMapper accountRowMapper;
 
     @Autowired
@@ -82,6 +82,7 @@ public class AccountDaoImpl implements AccountDao {
         try {
             status = jdbcTemplate.update(
                 Queries.SQL_UPDATE_ACCOUNT,
+                account.getId(),
                 account.getName());
 
         } catch (DataAccessException e) {
@@ -170,15 +171,15 @@ public class AccountDaoImpl implements AccountDao {
             "INSERT INTO accounts (name, type, admin_id, created_date, active)" +
             "VALUES(?,?,?,?,?)";
 
-        static final String SQL_SELECT_ACCOUNT_BY_ID = "SELECT* FROM accounts WHERE id = ?";
+        static final String SQL_SELECT_ACCOUNT_BY_ID = "SELECT * FROM accounts WHERE id = ?";
 
-        static final String SQL_SELECT_ACCOUNT_BY_ADMIN_ID = "SELECT* FROM accounts WHERE admin_id = ?";
+        static final String SQL_SELECT_ACCOUNT_BY_ADMIN_ID = "SELECT * FROM accounts WHERE admin_id = ?";
 
         static final String SQL_UPDATE_ACCOUNT = "UPDATE accounts SET " +
             "name = ? WHERE id = ?";
 
         static final String SQL_UPDATE_ACCOUNT_TO_PREMIUM = "UPDATE accounts SET " +
-            "type = Premium WHERE id = ?";
+            "type_id = ? WHERE id = ?";
 
         static final String SQL_SET_ACTIVE_STATUS_ACCOUNT = "UPDATE accounts SET active = ? WHERE id = ?";
     }

@@ -93,7 +93,6 @@ public class Account {
         if (!(o instanceof Account)) return false;
         Account account = (Account) o;
         return isActive() == account.isActive() &&
-            getId().equals(account.getId()) &&
             getName().equals(account.getName()) &&
             getType().equals(account.getType()) &&
             getAdminId().equals(account.getAdminId()) &&
@@ -102,7 +101,7 @@ public class Account {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), getName(), getType(), getAdminId(), getCreatedDate(), isActive());
+        return Objects.hash(getName(), getType(), getAdminId(), getCreatedDate(), isActive());
     }
 }
 

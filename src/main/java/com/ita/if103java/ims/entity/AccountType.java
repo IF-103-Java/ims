@@ -122,7 +122,6 @@ public class AccountType {
         if (!(o instanceof AccountType)) return false;
         AccountType that = (AccountType) o;
         return isActive() == that.isActive() &&
-            getId().equals(that.getId()) &&
             getName().equals(that.getName()) &&
             getPrice().equals(that.getPrice()) &&
             getMaxWarehouses().equals(that.getMaxWarehouses()) &&
@@ -134,6 +133,6 @@ public class AccountType {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), getName(), getPrice(), getMaxWarehouses(), getMaxWarehouseDepth(), getMaxUsers(), getMaxSuppliers(), getMaxClients(), isActive());
+        return Objects.hash(getName(), getPrice(), getMaxWarehouses(), getMaxWarehouseDepth(), getMaxUsers(), getMaxSuppliers(), getMaxClients(), isActive());
     }
 }

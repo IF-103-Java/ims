@@ -20,12 +20,13 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Optional;
 
 public class AccountTypeDaoImpl implements AccountTypeDao {
 
-    private JdbcTemplate jdbcTemplate;
     private static Logger logger = LoggerFactory.getLogger(AccountDaoImpl.class);
+    private JdbcTemplate jdbcTemplate;
     private AccountTypeRowMapper accountTypeRowMapper;
 
     @Autowired
@@ -73,11 +74,21 @@ public class AccountTypeDaoImpl implements AccountTypeDao {
     }
 
     @Override
+    public List<AccountType> selectAll() {
+        try {
+            return jdbcTemplate.query(Queries.SQL_SELECT_ALL_ACCOUNT_TYPES, accountTypeRowMapper);
+        } catch (DataAccessException e) {
+            throw crudException(e.getMessage(), "get", "*");
+        }
+    }
+
+    @Override
     public AccountType update(AccountType accountType) {
         int status;
         try {
             status = jdbcTemplate.update(
                 Queries.SQL_UPDATE_ACCOUNT_TYPE,
+                accountType.getId(),
                 accountType.getName(),
                 accountType.getPrice(),
                 accountType.getMaxWarehouses(),
@@ -144,9 +155,11 @@ public class AccountTypeDaoImpl implements AccountTypeDao {
             "INSERT INTO account_types (name, price, max_warehouses, max_warehouse_depth, max_users, max_suppliers, max_clients, active)" +
             "VALUES(?,?,?,?,?)";
 
-        static final String SQL_SELECT_ACCOUNT_TYPE_BY_ID = "SELECT* FROM account_types WHERE id = ?";
+        static final String SQL_SELECT_ACCOUNT_TYPE_BY_ID = "SELECT * FROM account_types WHERE id = ?";
 
-        static final String SQL_SELECT_ACCOUNT_TYPE_BY_NAME = "SELECT* FROM account_types WHERE name = ?";
+        static final String SQL_SELECT_ACCOUNT_TYPE_BY_NAME = "SELECT * FROM account_types WHERE name = ?";
+
+        static final String SQL_SELECT_ALL_ACCOUNT_TYPES = "SELECT * FROM account_types";
 
         static final String SQL_UPDATE_ACCOUNT_TYPE = "UPDATE account_types SET " +
              "name = ?, price= ?, max_warehouses = ?," +

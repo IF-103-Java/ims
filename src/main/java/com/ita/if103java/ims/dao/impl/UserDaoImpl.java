@@ -198,13 +198,13 @@ public class UserDaoImpl implements UserDao {
             "INSERT INTO users(first _name, last_name, email, password, role, created_date, updated_date, active, email_uuid)" +
             "VALUES(?,?,?,?,?,?,?,?,?)";
 
-        static final String SQL_SELECT_USER_BY_ID = "SELECT* FROM users WHERE id = ?";
+        static final String SQL_SELECT_USER_BY_ID = "SELECT * FROM users WHERE id = ?";
 
-        static final String SQL_SELECT_USER_BY_EMAIL = "SELECT* FROM users WHERE email = ?";
+        static final String SQL_SELECT_USER_BY_EMAIL = "SELECT * FROM users WHERE email = ?";
 
-        static final String SQL_SELECT_ALL_USERS = "SELECT* FROM users";
+        static final String SQL_SELECT_ALL_USERS = "SELECT * FROM users";
 
-        static final String SQL_SELECT_USER_BY_ACCOUNT_ID = "SELECT* FROM users WHERE account_id = ?";
+        static final String SQL_SELECT_USER_BY_ACCOUNT_ID = "SELECT * FROM users WHERE account_id = ?";
 
         static final String SQL_UPDATE_USER = "UPDATE users SET " +
             "first_name= ?, last_name = ?," +
