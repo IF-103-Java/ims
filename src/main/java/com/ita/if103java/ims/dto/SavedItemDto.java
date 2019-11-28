@@ -1,8 +1,5 @@
 package com.ita.if103java.ims.dto;
 
-import com.ita.if103java.ims.entity.Item;
-import com.ita.if103java.ims.entity.Warehouse;
-
 import javax.validation.constraints.NotNull;
 
 public class SavedItemDto {

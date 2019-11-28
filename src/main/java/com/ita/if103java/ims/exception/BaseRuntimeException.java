@@ -1,11 +1,14 @@
 package com.ita.if103java.ims.exception;
 
 public class BaseRuntimeException extends RuntimeException {
+
     private String name;
-    public BaseRuntimeException(String message) {
+
+    BaseRuntimeException(String message){
         super(message);
     }
-    public BaseRuntimeException(String message, String name) {
+
+    BaseRuntimeException(String message, String name){
         super(message);
         this.name = name;
     }

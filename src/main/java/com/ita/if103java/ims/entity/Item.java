@@ -10,6 +10,7 @@ public class Item {
     private int volume;
     private Account account;
     private boolean active;
+
     public Item() {
     }
 

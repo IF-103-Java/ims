@@ -15,6 +15,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.util.List;
+
 @Repository
 public class ItemDaoImpl implements ItemDao {
     private static final Logger LOGGER = LoggerFactory.getLogger(ItemDaoImpl.class);
@@ -34,7 +35,7 @@ public class ItemDaoImpl implements ItemDao {
         } catch (DataAccessException e) {
             throw crudException(e.toString(), "getItem", "*");
         }
-        }
+    }
 
 
     @Override
@@ -48,6 +49,7 @@ public class ItemDaoImpl implements ItemDao {
         }
 
     }
+
     @Override
     public Item findItemByAccountId(Long id) {
         try {
@@ -64,14 +66,16 @@ public class ItemDaoImpl implements ItemDao {
     public void addItem(Item item) {
         try {
             jdbcTemplate.update("insert into Items(name_item, unit, description, volume, active, account_id) values(?, ?, ?, ?, ?, ?)", item.getName(), item.getUnit(), item.getDescription(), item.getVolume(), item.isActive(), item.getAccount().getId());
-        }catch (DataAccessException e){
-            throw crudException(e.toString(), "add", "account_id = "+item.getAccount().getId());}
+        } catch (DataAccessException e) {
+            throw crudException(e.toString(), "add", "account_id = " + item.getAccount().getId());
+        }
     }
+
     @Override
     public boolean deleteItem(String name) {
         int status;
         try {
-            status =  jdbcTemplate.update("delete from Items where name_item=?", name);
+            status = jdbcTemplate.update("delete from Items where name_item=?", name);
 
         } catch (DataAccessException e) {
             throw crudException(e.toString(), "Delete", "name = " + name);

@@ -7,6 +7,7 @@ public class SavedItem {
     private Item item;
     private int quantity;
     private Warehouse warehouse;
+
     public SavedItem() {
     }
 
