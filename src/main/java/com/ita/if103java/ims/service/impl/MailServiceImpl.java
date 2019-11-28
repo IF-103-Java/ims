@@ -36,7 +36,8 @@ public class MailServiceImpl implements MailService {
             mimeMessage.setContent(message, "text/html");
             javaMailSender.send(mimeMessage);
         } catch (MessagingException e) {
-            LOGGER.error("Sending message was failed!", e);
+            String msg = "Sending message " + subject + " to user id( " + userDto.getId() + ") was failed!";
+            LOGGER.error(msg, e);
         }
     }
 }

@@ -93,8 +93,10 @@ public class UserServiceImpl implements UserService {
             activatedUser.setActive(true);
             userDao.update(activatedUser);
             return true;
+        }else {
+            userDao.hardDelete(activatedUser.getId());
+            return false;
         }
-        return userDao.hardDelete(activatedUser.getId());
     }
 
     private void sendActivationMessage(UserDto userDto, String message) {
