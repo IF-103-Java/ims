@@ -34,21 +34,19 @@ public class Warehouse {
         this.children = new ArrayList<>();
     }
 
-    public long getId()
-    {
+    public long getId() {
         return id;
     }
 
-    public void setId(long id)
-    {
+    public void setId(long id) {
         this.id = id;
     }
 
-    public String getName(){
+    public String getName() {
         return name;
     }
 
-    public void setName(String name){
+    public void setName(String name) {
         this.name = name;
     }
 
@@ -111,6 +109,7 @@ public class Warehouse {
     public List<Warehouse> getChildren() {
         return children;
     }
+
     @Override
     public String toString() {
         return "Warehouse{" +
@@ -131,12 +130,11 @@ public class Warehouse {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Warehouse warehouse = (Warehouse) o;
-       return id == warehouse.id &&
-            accountID == warehouse.accountID &&
-            Objects.equals(name, warehouse.name) &&
+        return Objects.equals(name, warehouse.name) &&
             Objects.equals(info, warehouse.info) &&
             topWarehouseID == warehouse.topWarehouseID &&
             parentID == warehouse.parentID &&
+            accountID == warehouse.accountID &&
             capacity == warehouse.capacity &&
             isBottom == warehouse.isBottom &&
             active == warehouse.active &&
@@ -145,7 +143,7 @@ public class Warehouse {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, info, capacity, isBottom, parentID, accountID, topWarehouseID, active, children);
+        return Objects.hash(name, info, capacity, isBottom, parentID, accountID, topWarehouseID, active, children);
     }
 }
 
