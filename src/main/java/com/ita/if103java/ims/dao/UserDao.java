@@ -14,11 +14,15 @@ public interface UserDao {
 
     User update(User user);
 
-    boolean delete(Long id);
+    boolean softDelete(Long id);
+
+    boolean hardDelete(Long id);
 
     List<User> findAll();
 
     User findByEmail(String email);
 
     boolean updatePassword(Long id, String newPassword);
+
+    User findByEmailUUID(String emailUUID);
 }

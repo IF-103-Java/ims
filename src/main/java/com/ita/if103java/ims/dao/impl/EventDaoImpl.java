@@ -153,7 +153,7 @@ public class EventDaoImpl implements EventDao {
 
     private CRUDException crudException(String message, String operation, String attribute) {
         CRUDException exception = new CRUDException(message);
-        logger.error("CRUDException exception. Operation:({}) user ({}) exception. Message: {}", operation, attribute, message);
+        logger.error("CRUDException exception. Operation:({}) event ({}) exception. Message: {}", operation, attribute, message);
         return exception;
     }
 

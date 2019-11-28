@@ -135,12 +135,10 @@ public class User {
             ", firstName='" + firstName + '\'' +
             ", lastName='" + lastName + '\'' +
             ", email='" + email + '\'' +
-            ", password='" + password + '\'' +
             ", role=" + role +
             ", createdDate=" + createdDate +
             ", updatedDate=" + updatedDate +
             ", active=" + active +
-            ", emailUUID='" + emailUUID + '\'' +
             ", accountId=" + accountId +
             '}';
     }
@@ -151,7 +149,6 @@ public class User {
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
         return active == user.active &&
-            id.equals(user.id) &&
             Objects.equals(firstName, user.firstName) &&
             Objects.equals(lastName, user.lastName) &&
             email.equals(user.email) &&
@@ -165,6 +162,6 @@ public class User {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, firstName, lastName, email, password, role, createdDate, updatedDate, active, emailUUID, accountId);
+        return Objects.hash(firstName, lastName, email, password, role, createdDate, updatedDate, active, emailUUID, accountId);
     }
 }
