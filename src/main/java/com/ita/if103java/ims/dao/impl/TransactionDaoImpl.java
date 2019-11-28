@@ -16,6 +16,7 @@ import javax.sql.DataSource;
 import java.math.BigInteger;
 import java.sql.*;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
 @Repository
@@ -41,15 +42,34 @@ public class TransactionDaoImpl implements TransactionDao {
     }
 
     @Override
-    public Transaction findById(Long id) throws DataAccessException {
+    public Transaction findById(BigInteger id) throws DataAccessException {
         return withErrorLogging(() -> jdbcTemplate.queryForObject(Queries.SQL_SELECT_TRANSACTION_BY_ID, mapper, id),
             "Transaction error on 'select by id' => id=" + id);
     }
 
     @Override
-    public List<Transaction> findAll() throws DataAccessException {
-        return withErrorLogging(() -> jdbcTemplate.query(Queries.SQL_SELECT_ALL_TRANSACTIONS, mapper),
+    public List<Transaction> findAll(Integer offset, Integer limit) throws DataAccessException {
+        return withErrorLogging(() -> jdbcTemplate.query(Queries.SQL_SELECT_ALL_TRANSACTIONS, mapper, limit, offset),
             "Transaction error on 'select *'");
+    }
+
+    @Override
+    public List<Transaction> findAllFilteredInOrder(Map<String, Object> params,
+                                                    Integer offset, Integer limit,
+                                                    String orderBy) {
+        final String order = orderBy.startsWith("-") ? orderBy.substring(1) + " desc" : orderBy;
+        final String query = String.format(
+            Queries.SQL_SELECT_FILTERED_TRANSACTIONS + "order by %s limit %s offset %s", order, limit, offset
+        );
+        return withErrorLogging(() -> jdbcTemplate.query(query, mapper,
+            params.get("account_id"), params.get("account_id"),
+            params.get("associate_id"), params.get("associate_id"),
+            params.get("item_id"), params.get("item_id"),
+            params.get("quantity"), params.get("quantity"),
+            params.get("moved_from"), params.get("moved_from"),
+            params.get("moved_to"), params.get("moved_to"),
+            params.get("type"), params.get("type")
+        ), "Transaction error on 'select * with filters'");
     }
 
     private <T> T withErrorLogging(Supplier<T> supplier, String message) throws DataAccessException {
@@ -94,7 +114,19 @@ public class TransactionDaoImpl implements TransactionDao {
 
 
         public static final String SQL_SELECT_ALL_TRANSACTIONS = """
-                select * from transactions
+                select * from transactions limit ? offset ?
+            """;
+
+        public static final String SQL_SELECT_FILTERED_TRANSACTIONS = """
+                select *
+                from transactions t
+                where (? is null or t.account_id = ?)
+                  and (? is null or t.associate_id = ?)
+                  and (? is null or t.item_id = ?)
+                  and (? is null or t.quantity = ?)
+                  and (? is null or t.moved_from = ?)
+                  and (? is null or t.moved_to = ?)
+                  and (? is null or t.type = ?)
             """;
     }
 }
