@@ -73,13 +73,16 @@ public class SavedItemDaoImpl implements SavedItemDao {
     }
 
     @Override
-    public void addSavedItem(Long itemId, int quantity, Long warehouseId) {
+    public boolean addSavedItem(Long itemId, int quantity, Long warehouseId) {
+        int status;
         try {
-            jdbcTemplate.update("insert into SavedItems(item_id, quantity, warehouse_id) values(?,?, ?)", itemId, quantity, warehouseId);
-            ;
+            status = jdbcTemplate.update("insert into SavedItems(item_id, quantity, warehouse_id) values(?,?, ?)", itemId, quantity, warehouseId);
         } catch (DataAccessException e) {
             throw crudException(e.toString(), "add", "item_id = " + itemId + " warehouse_id = " + warehouseId);
         }
+        if (status == 0)
+            throw savedItemEntityNotFoundException("Update savedItem exception", "warehouseId = " + warehouseId + " itemId = " + itemId);
+        return true;
     }
 
 

@@ -63,12 +63,16 @@ public class ItemDaoImpl implements ItemDao {
     }
 
     @Override
-    public void addItem(Item item) {
+    public boolean addItem(Item item) {
+        int status;
         try {
-            jdbcTemplate.update("insert into Items(name_item, unit, description, volume, active, account_id) values(?, ?, ?, ?, ?, ?)", item.getName(), item.getUnit(), item.getDescription(), item.getVolume(), item.isActive(), item.getAccount().getId());
+            status = jdbcTemplate.update("insert into Items(name_item, unit, description, volume, active, account_id) values(?, ?, ?, ?, ?, ?)", item.getName(), item.getUnit(), item.getDescription(), item.getVolume(), item.isActive(), item.getAccount().getId());
         } catch (DataAccessException e) {
             throw crudException(e.toString(), "add", "account_id = " + item.getAccount().getId());
         }
+        if (status == 0)
+            throw itemEntityNotFoundException("Update item exception", "id = " + item.getAccount().getId());
+        return true;
     }
 
     @Override

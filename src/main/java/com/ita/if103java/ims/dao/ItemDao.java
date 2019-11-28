@@ -11,7 +11,7 @@ public interface ItemDao {
 
     Item findItemByAccountId(Long id);
 
-    void addItem(Item item);
+    boolean addItem(Item item);
 
     boolean deleteItem(String name);
 }

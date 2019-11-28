@@ -13,7 +13,7 @@ public interface SavedItemDao {
 
     SavedItem findSavedItemByWarehouseId(Long id);
 
-    void addSavedItem(Long itemId, int quantity, Long warehouseId);
+    boolean addSavedItem(Long itemId, int quantity, Long warehouseId);
 
     boolean updateSavedItem(Long warehouseId, Long savedItemId);
 
