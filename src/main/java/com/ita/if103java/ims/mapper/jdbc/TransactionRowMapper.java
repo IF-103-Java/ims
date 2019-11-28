@@ -12,17 +12,21 @@ import java.sql.SQLException;
 public class TransactionRowMapper implements RowMapper<Transaction> {
     @Override
     public Transaction mapRow(ResultSet resultSet, int rowNum) throws SQLException {
-        final Transaction transaction = new Transaction(
-            resultSet.getLong("account_id"),
-            resultSet.getLong("associate_id"),
-            resultSet.getLong("item_id"),
-            resultSet.getLong("quantity"),
-            resultSet.getLong("moved_from"),
-            resultSet.getLong("moved_to"),
-            Transaction.Type.valueOf(resultSet.getString("type"))
-        );
-        transaction.setId(new BigInteger(Integer.valueOf(resultSet.getInt("id")).toString()));
+        final Transaction transaction = new Transaction();
+        transaction.setId(new BigInteger(Long.valueOf(resultSet.getLong("id")).toString()));
         transaction.setTimestamp(resultSet.getTimestamp("timestamp"));
+
+        transaction.setAccountId(resultSet.getLong("account_id"));
+        transaction.setItemId(resultSet.getLong("item_id"));
+        transaction.setQuantity(resultSet.getLong("quantity"));
+        transaction.setType(Transaction.Type.valueOf(resultSet.getString("type")));
+
+        final long associateId = resultSet.getLong("associate_id");
+        transaction.setAssociateId(resultSet.wasNull() ? null : associateId);
+        final long movedFrom = resultSet.getLong("moved_from");
+        transaction.setMovedFrom(resultSet.wasNull() ? null : movedFrom);
+        final long movedTo = resultSet.getLong("moved_to");
+        transaction.setMovedFrom(resultSet.wasNull() ? null : movedTo);
         return transaction;
     }
 }
