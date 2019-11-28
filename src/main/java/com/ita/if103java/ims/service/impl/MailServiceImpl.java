@@ -6,6 +6,7 @@ import com.mchange.net.MailSender;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +22,7 @@ public class MailServiceImpl implements MailService {
     private final JavaMailSender javaMailSender;
 
     @Autowired
-    public MailServiceImpl(JavaMailSender javaMailSender) {
+    public MailServiceImpl(@Qualifier("getMailSender") JavaMailSender javaMailSender) {
         this.javaMailSender = javaMailSender;
     }
 
@@ -35,8 +36,7 @@ public class MailServiceImpl implements MailService {
             mimeMessage.setContent(message, "text/html");
             javaMailSender.send(mimeMessage);
         } catch (MessagingException e) {
-            LOGGER.info("Sending message was failed!");
-            LOGGER.error(e.getMessage());
+            LOGGER.error("Sending message was failed!", e);
         }
     }
 }

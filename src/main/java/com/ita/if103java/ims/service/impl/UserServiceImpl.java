@@ -7,6 +7,8 @@ import com.ita.if103java.ims.mapper.UserDtoMapper;
 import com.ita.if103java.ims.service.MailService;
 import com.ita.if103java.ims.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -15,7 +17,11 @@ import java.time.ZonedDateTime;
 import java.util.List;
 
 @Service
+@PropertySource("classpath:application.properties")
 public class UserServiceImpl implements UserService {
+
+    @Value("${mail.activationURL}")
+    private String activationURL;
 
     private UserDao userDao;
     private UserDtoMapper userDtoMapper;
@@ -31,7 +37,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto create(UserDto userDto) {
         User createdUser = userDao.create(userDtoMapper.convertUserDtoToUser(userDto));
-        String activationURL = "http://localhost:8080/dashboards/" + createdUser.getEmailUUID();
+        activationURL += createdUser.getEmailUUID();
         sendActivationMessage(userDto, activationURL);
         return userDtoMapper.convertUserToUserDto(createdUser);
     }
@@ -57,7 +63,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean delete(Long id) {
-        return userDao.delete(id);
+        return userDao.softDelete(id);
     }
 
     @Override
@@ -82,13 +88,13 @@ public class UserServiceImpl implements UserService {
         ZonedDateTime currrentDateTime = ZonedDateTime.now(ZoneId.systemDefault());
 
         Duration duration = Duration.between(createdDateTime, currrentDateTime);
-        long diffMinutes = Math.abs(duration.toMinutes());
-        if (diffMinutes <= 24 * 60) {
+        long diffHours = Math.abs(duration.toHours());
+        if (diffHours <= 24) {
             activatedUser.setActive(true);
             userDao.update(activatedUser);
             return true;
         }
-        return false;
+        return userDao.hardDelete(activatedUser.getId());
     }
 
     private void sendActivationMessage(UserDto userDto, String message) {

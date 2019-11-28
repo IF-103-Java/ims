@@ -128,19 +128,35 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public boolean delete(Long id) {
+    public boolean softDelete(Long id) {
         int status;
         try {
             status = jdbcTemplate.update(Queries.SQL_SET_ACTIVE_STATUS_USER, false, id);
 
         } catch (DataAccessException e) {
-            throw crudException(e.toString(), "delete", "id = " + id);
+            throw crudException(e.toString(), "softDelete", "id = " + id);
         }
         if (status == 0)
-            throw userEntityNotFoundException("Delete user exception", "id = " + id);
+            throw userEntityNotFoundException("SoftDelete user exception", "id = " + id);
 
         return true;
     }
+
+    @Override
+    public boolean hardDelete(Long id) {
+        int status;
+        try {
+            status = jdbcTemplate.update(Queries.SQL_DELETE_USER_BY_ID, id);
+
+        } catch (DataAccessException e) {
+            throw crudException(e.toString(), "hardDelete", "id = " + id);
+        }
+        if (status == 0)
+            throw userEntityNotFoundException("HardDelete user exception", "id = " + id);
+
+        return true;
+    }
+
 
     @Override
     public boolean updatePassword(Long id, String newPassword) {
@@ -231,5 +247,7 @@ public class UserDaoImpl implements UserDao {
         static final String SQL_UPDATE_PASSWORD = "UPDATE users SET password = ? WHERE id = ?";
 
         static final String SQL_SELECT_USER_BY_EMAIL_UUID = "SELECT * FROM users WHERE email_uuid = ?";
+
+        static final String SQL_DELETE_USER_BY_ID = "DELETE FROM users WHERE id = ? ";
     }
 }
