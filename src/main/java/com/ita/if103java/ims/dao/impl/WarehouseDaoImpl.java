@@ -80,7 +80,8 @@ public class WarehouseDaoImpl implements WarehouseDao {
     }
 
     @Override
-    public List<Warehouse> findByParent(long id) {
+    public List<Warehouse> findByParent(long id)
+    {
         return null;
     }
 
@@ -160,7 +161,7 @@ public class WarehouseDaoImpl implements WarehouseDao {
 
         static final String SQL_UPDATE_WAREHOUSE = "UPDATE warehouses SET" + "name= ?, info = ?," +
             "capacity = ?, is_bottom = ?, top_warehouse_id = ?" + "active = ? WHERE id = ?";
-        static final String SQL_DELETE_WAREHOUSE = "DELETE FROM warehouses WHERE id=?";
+        static final String SQL_DELETE_WAREHOUSE = "DELETE FROM warehouses WHERE id = ?";
     }
 }
 

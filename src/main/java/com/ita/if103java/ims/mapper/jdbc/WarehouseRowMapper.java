@@ -14,21 +14,13 @@ public class WarehouseRowMapper implements RowMapper<Warehouse> {
         Warehouse warehouse = new Warehouse();
 
         warehouse.setId(resultSet.getLong("id"));
-
         warehouse.setName(resultSet.getString("name"));
-
         warehouse.setInfo(resultSet.getString("info"));
-
         warehouse.setCapacity(resultSet.getInt("capacity"));
-
         warehouse.setBottom(resultSet.getBoolean("isBottom"));
-
         warehouse.setParentID(resultSet.getLong("parent"));
-
         warehouse.setAccountID(resultSet.getLong("account_id"));
-
         warehouse.setTopWarehouseID(resultSet.getLong("top_warehouse_id"));
-
         warehouse.setActive(resultSet.getBoolean("active"));
 
         return warehouse;
