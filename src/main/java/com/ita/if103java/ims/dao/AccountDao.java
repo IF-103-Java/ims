@@ -11,6 +11,8 @@ public interface AccountDao {
 
     Account update(Account account);
 
+    boolean activate(Long id);
+
     boolean delete(Long id);
 
     boolean updateToPremium(Long id);

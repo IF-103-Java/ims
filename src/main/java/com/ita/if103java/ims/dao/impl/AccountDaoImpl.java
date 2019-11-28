@@ -94,6 +94,21 @@ public class AccountDaoImpl implements AccountDao {
     }
 
     @Override
+    public boolean activate(Long id) {
+        int status;
+        try {
+            status = jdbcTemplate.update(Queries.SQL_SET_ACTIVE_STATUS_ACCOUNT, true, id);
+
+        } catch (DataAccessException e) {
+            throw crudException(e.getMessage(), "activate", "id = " + id);
+        }
+        if (status == 0)
+            throw accountEntityNotFoundException("Activate account exception", "id = " + id);
+
+        return true;
+    }
+
+    @Override
     public boolean delete(Long id) {
         int status;
         try {
@@ -129,8 +144,8 @@ public class AccountDaoImpl implements AccountDao {
         int i = 0;
         preparedStatement.setString(++i, account.getName());
         preparedStatement.setObject(++i, account.getType());
-        preparedStatement.setInt(++i, Math.toIntExact(account.getAdminId()));
-        preparedStatement.setObject(++i, currentDateTime);
+        preparedStatement.setLong(++i, account.getAdminId());
+        preparedStatement.setObject(++i, currentDateTime.toLocalDateTime());
         preparedStatement.setBoolean(++i, account.isActive());
 
 

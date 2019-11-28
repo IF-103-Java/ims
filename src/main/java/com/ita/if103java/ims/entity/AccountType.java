@@ -4,9 +4,10 @@ import java.util.Objects;
 
 public class AccountType {
     private Long id;
-    private Type name;
-    private Integer maxWarhouses;
-    private Integer maxWarhouseDepth;
+    private String name;
+    private Double price;
+    private Integer maxWarehouses;
+    private Integer maxWarehouseDepth;
     private Integer maxUsers;
     private Integer maxSuppliers;
     private Integer maxClients;
@@ -16,11 +17,12 @@ public class AccountType {
 
     }
 
-    public AccountType(Long id, Type name, Integer maxWarhouses, Integer maxWarhouseDepth, Integer maxUsers, Integer maxSuppliers, Integer maxClients, boolean active) {
+    public AccountType(Long id, String name, Double price, Integer maxWarehouses, Integer maxWarehouseDepth, Integer maxUsers, Integer maxSuppliers, Integer maxClients, boolean active) {
         this.id = id;
         this.name = name;
-        this.maxWarhouses = maxWarhouses;
-        this.maxWarhouseDepth = maxWarhouseDepth;
+        this.price = price;
+        this.maxWarehouses = maxWarehouses;
+        this.maxWarehouseDepth = maxWarehouseDepth;
         this.maxUsers = maxUsers;
         this.maxSuppliers = maxSuppliers;
         this.maxClients = maxClients;
@@ -35,28 +37,36 @@ public class AccountType {
         this.id = id;
     }
 
-    public Type getName() {
+    public String getName() {
         return name;
     }
 
-    public void setName(Type name) {
+    public void setName(String name) {
         this.name = name;
     }
 
-    public Integer getMaxWarhouses() {
-        return maxWarhouses;
+    public Double getPrice() {
+        return price;
     }
 
-    public void setMaxWarhouses(Integer maxWarhouses) {
-        this.maxWarhouses = maxWarhouses;
+    public void setPrice(Double price) {
+        this.price = price;
     }
 
-    public Integer getMaxWarhouseDepth() {
-        return maxWarhouseDepth;
+    public Integer getMaxWarehouses() {
+        return maxWarehouses;
     }
 
-    public void setMaxWarhouseDepth(Integer maxWarhouseDepth) {
-        this.maxWarhouseDepth = maxWarhouseDepth;
+    public void setMaxWarehouses(Integer maxWarehouses) {
+        this.maxWarehouses = maxWarehouses;
+    }
+
+    public Integer getMaxWarehouseDepth() {
+        return maxWarehouseDepth;
+    }
+
+    public void setMaxWarehouseDepth(Integer maxWarhouseDepth) {
+        this.maxWarehouseDepth = maxWarhouseDepth;
     }
 
     public Integer getMaxUsers() {
@@ -95,9 +105,10 @@ public class AccountType {
     public String toString() {
         return "AccountType{" +
             "id=" + id +
-            ", name=" + name +
-            ", maxWarhouses=" + maxWarhouses +
-            ", maxWarhouseDepth=" + maxWarhouseDepth +
+            ", name='" + name + '\'' +
+            ", price=" + price +
+            ", maxWarehouses=" + maxWarehouses +
+            ", maxWarehouseDepth=" + maxWarehouseDepth +
             ", maxUsers=" + maxUsers +
             ", maxSuppliers=" + maxSuppliers +
             ", maxClients=" + maxClients +
@@ -112,9 +123,10 @@ public class AccountType {
         AccountType that = (AccountType) o;
         return isActive() == that.isActive() &&
             getId().equals(that.getId()) &&
-            getName() == that.getName() &&
-            getMaxWarhouses().equals(that.getMaxWarhouses()) &&
-            getMaxWarhouseDepth().equals(that.getMaxWarhouseDepth()) &&
+            getName().equals(that.getName()) &&
+            getPrice().equals(that.getPrice()) &&
+            getMaxWarehouses().equals(that.getMaxWarehouses()) &&
+            getMaxWarehouseDepth().equals(that.getMaxWarehouseDepth()) &&
             getMaxUsers().equals(that.getMaxUsers()) &&
             getMaxSuppliers().equals(that.getMaxSuppliers()) &&
             getMaxClients().equals(that.getMaxClients());
@@ -122,6 +134,6 @@ public class AccountType {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), getName(), getMaxWarhouses(), getMaxWarhouseDepth(), getMaxUsers(), getMaxSuppliers(), getMaxClients(), isActive());
+        return Objects.hash(getId(), getName(), getPrice(), getMaxWarehouses(), getMaxWarehouseDepth(), getMaxUsers(), getMaxSuppliers(), getMaxClients(), isActive());
     }
 }
