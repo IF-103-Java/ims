@@ -39,19 +39,12 @@ public class WarehouseDaoImpl implements WarehouseDao {
         PreparedStatement statement = connection.prepareStatement(Queries.SQL_CREATE_USER,
             PreparedStatement.RETURN_GENERATED_KEYS);
         statement.setString(++i, warehouse.getName());
-
         statement.setString(++i, warehouse.getInfo());
-
         statement.setInt(++i, warehouse.getCapacity());
-
         statement.setBoolean(++i, warehouse.isBottom());
-
         statement.setLong(++i, warehouse.getParentID());
-
         statement.setLong(++i, warehouse.getAccountID());
-
         statement.setLong(++i, warehouse.getTopWarehouseID());
-
         statement.setBoolean(++i, warehouse.isActive());
 
         return statement;
@@ -80,12 +73,6 @@ public class WarehouseDaoImpl implements WarehouseDao {
     }
 
     @Override
-    public List<Warehouse> findByParent(long id)
-    {
-        return null;
-    }
-
-    @Override
     public Warehouse create(Warehouse warehouse) {
         try {
             GeneratedKeyHolder holder = new GeneratedKeyHolder();
@@ -106,7 +93,6 @@ public class WarehouseDaoImpl implements WarehouseDao {
     public Warehouse update(Warehouse warehouse) {
         int status;
         try {
-
             status = jdbcTemplate.update(Queries.SQL_UPDATE_WAREHOUSE,
                 warehouse.getName(), warehouse.getInfo(), warehouse.getCapacity(),
                 warehouse.isBottom(), warehouse.getParentID(), warehouse.getAccountID(),
