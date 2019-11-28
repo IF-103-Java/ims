@@ -14,5 +14,5 @@ public interface WarehouseDao {
 
     Warehouse findById(long id);
 
-    Warehouse findByParent(long id);
+    List<Warehouse> findByParent(long id);
 }
