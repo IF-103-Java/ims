@@ -2,7 +2,12 @@ package com.ita.if103java.ims.mapper;
 
 import com.ita.if103java.ims.dao.ItemDao;
 import com.ita.if103java.ims.dto.ItemDto;
+import com.ita.if103java.ims.dto.SavedItemDto;
 import com.ita.if103java.ims.entity.Item;
+import com.ita.if103java.ims.entity.SavedItem;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class ItemDtoMapper {
     public Item convertItemDtoToItem(ItemDto itemDto){
@@ -14,7 +19,7 @@ public class ItemDtoMapper {
       item.setUnit(itemDto.getUnit());
       return item;
     }
-    public ItemDto convertItemDtoToItemDto(Item item){
+    public ItemDto convertItemToItemDto(Item item){
         ItemDto itemDto = new ItemDto();
         itemDto.setName(item.getName());
         itemDto.setActive(item.isActive());
@@ -22,5 +27,11 @@ public class ItemDtoMapper {
         itemDto.setVolume(item.getVolume());
         itemDto.setUnit(item.getUnit());
         return itemDto;
+    }
+    public List<Item> convertToItems(List<ItemDto> itemDtos){
+        return itemDtos.stream().map(this::convertItemDtoToItem).collect(Collectors.toList());
+    }
+    public List<ItemDto> convertToItemDtos(List<Item> items){
+        return items.stream().map(this::convertItemToItemDto).collect(Collectors.toList());
     }
 }

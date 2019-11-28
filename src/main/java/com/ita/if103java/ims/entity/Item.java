@@ -1,20 +1,15 @@
 package com.ita.if103java.ims.entity;
 
+import java.util.Objects;
+
 public class Item {
     private Long id;
-
     private String name;
-
     private String unit;
-
     private String description;
-
     private int volume;
-
     private Account account;
-
     private boolean active;
-
     public Item() {
     }
 
@@ -81,5 +76,35 @@ public class Item {
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Item item = (Item) o;
+        return volume == item.volume &&
+            active == item.active &&
+            Objects.equals(name, item.name) &&
+            Objects.equals(unit, item.unit) &&
+            Objects.equals(description, item.description);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, unit, description, volume, active);
+    }
+
+    @Override
+    public String toString() {
+        return "Item{" +
+            "id=" + id +
+            ", name='" + name + '\'' +
+            ", unit='" + unit + '\'' +
+            ", description='" + description + '\'' +
+            ", volume=" + volume +
+            ", account=" + account +
+            ", active=" + active +
+            '}';
     }
 }
