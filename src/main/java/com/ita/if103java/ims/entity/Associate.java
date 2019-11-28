@@ -111,7 +111,6 @@ public class Associate {
         if (o == null || getClass() != o.getClass()) return false;
         Associate associate = (Associate) o;
         return active == associate.active &&
-            Objects.equals(id, associate.id) &&
             Objects.equals(accountId, associate.accountId) &&
             Objects.equals(name, associate.name) &&
             Objects.equals(email, associate.email) &&
@@ -122,6 +121,6 @@ public class Associate {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, accountId, name, email, phone, additionalInfo, type, active);
+        return Objects.hash(accountId, name, email, phone, additionalInfo, type, active);
     }
 }

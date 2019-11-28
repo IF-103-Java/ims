@@ -37,7 +37,6 @@ public class AssociateDaoImpl implements AssociateDao {
 
     @Override
     public Associate create(Associate associate) {
-
         try {
             GeneratedKeyHolder holder = new GeneratedKeyHolder();
             jdbcTemplate.update(connection -> createStatement(associate, connection), holder);
@@ -63,9 +62,9 @@ public class AssociateDaoImpl implements AssociateDao {
     }
 
     @Override
-    public Associate findByAccountId(Long accountId) {
+    public List<Associate> findByAccountId(Long accountId) {
         try {
-            return jdbcTemplate.queryForObject(Queries.SQL_SELECT_ASSOCIATE_BY_ACCOUNT_ID, associateRowMapper, accountId);
+            return jdbcTemplate.query(Queries.SQL_SELECT_ASSOCIATE_BY_ACCOUNT_ID, associateRowMapper, accountId);
         } catch (EmptyResultDataAccessException e) {
             throw associateEntityNotFoundException(e.getMessage(), "id = " + accountId);
         } catch (DataAccessException e) {
@@ -115,29 +114,46 @@ public class AssociateDaoImpl implements AssociateDao {
     }
 
     @Override
-    public boolean delete(Long id) {
+    public boolean softDelete(Long id) {
         int status;
         try {
             status = jdbcTemplate.update(Queries.SQL_SET_ACTIVE_STATUS_ASSOCIATE, false, id);
 
         } catch (DataAccessException e) {
-            throw crudException(e.getMessage(), "delete", "id = " + id);
+            throw crudException(e.getMessage(), "softDelete", "id = " + id);
         }
         if (status == 0)
-            throw associateEntityNotFoundException("Delete associate exception", "id = " + id);
+            throw associateEntityNotFoundException("SoftDelete associate exception", "id = " + id);
+
+        return true;
+    }
+
+    @Override
+    public boolean hardDelete(Long id) {
+        int status;
+        try {
+            status = jdbcTemplate.update(Queries.SQL_DELETE_ASSOCIATE_BY_ID, id);
+
+        } catch (DataAccessException e) {
+            throw crudException(e.toString(), "hardDelete", "id = " + id);
+        }
+        if (status == 0)
+            throw associateEntityNotFoundException("HardDelete associate exception", "id = " + id);
 
         return true;
     }
 
     private PreparedStatement createStatement(Associate associate, Connection connection) throws SQLException {
-        PreparedStatement preparedStatement = connection.prepareStatement(AssociateDaoImpl.Queries.SQL_CREATE_ASSOCIATE, Statement.RETURN_GENERATED_KEYS);
+        PreparedStatement preparedStatement = connection.prepareStatement(AssociateDaoImpl.Queries.SQL_CREATE_ASSOCIATE,
+            Statement.RETURN_GENERATED_KEYS);
 
         int i = 0;
+        preparedStatement.setLong(++i, associate.getAccountId());
         preparedStatement.setString(++i, associate.getName());
         preparedStatement.setString(++i, associate.getEmail());
         preparedStatement.setString(++i, associate.getPhone());
         preparedStatement.setString(++i, associate.getAdditionalInfo());
-        preparedStatement.setObject(++i, associate.getType());
+        preparedStatement.setObject(++i, associate.getType().toString());
         preparedStatement.setBoolean(++i, associate.isActive());
 
         return preparedStatement;
@@ -158,16 +174,16 @@ public class AssociateDaoImpl implements AssociateDao {
     class Queries {
 
         static final String SQL_CREATE_ASSOCIATE = "" +
-            "INSERT INTO associates(name, email, phone, additional_info, type, active)" +
-            "VALUES(?,?,?,?,?,?)";
+            "INSERT INTO associates( account_id, name, email, phone, additional_info, type, active)" +
+            "VALUES(?,?,?,?,?,?,?)";
 
-        static final String SQL_SELECT_ASSOCIATE_BY_ID = "SELECT* FROM associates WHERE id = ?";
+        static final String SQL_SELECT_ASSOCIATE_BY_ID = "SELECT * FROM associates WHERE id = ?";
 
-        static final String SQL_SELECT_ASSOCIATE_BY_EMAIL = "SELECT* FROM associates WHERE email = ?";
+        static final String SQL_SELECT_ASSOCIATE_BY_EMAIL = "SELECT * FROM associates WHERE email = ?";
 
-        static final String SQL_SELECT_ALL_ASSOCIATES = "SELECT* FROM associates";
+        static final String SQL_SELECT_ALL_ASSOCIATES = "SELECT * FROM associates";
 
-        static final String SQL_SELECT_ASSOCIATE_BY_ACCOUNT_ID = "SELECT* FROM associates WHERE account_id = ?";
+        static final String SQL_SELECT_ASSOCIATE_BY_ACCOUNT_ID = "SELECT * FROM associates WHERE account_id = ?";
 
         static final String SQL_UPDATE_ASSOCIATE = "UPDATE associates SET " +
             "name= ?, email = ?," +
@@ -175,5 +191,7 @@ public class AssociateDaoImpl implements AssociateDao {
             "WHERE id = ?";
 
         static final String SQL_SET_ACTIVE_STATUS_ASSOCIATE = "UPDATE associates SET active = ? WHERE id = ?";
+
+        static final String SQL_DELETE_ASSOCIATE_BY_ID = "DELETE FROM associates WHERE id = ? ";
     }
 }

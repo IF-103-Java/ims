@@ -10,7 +10,7 @@ public interface AssociateDao {
 
     Associate findById(Long id);
 
-    Associate findByAccountId(Long accountId);
+    List<Associate> findByAccountId(Long accountId);
 
     Associate findByEmail(String email);
 
@@ -18,5 +18,7 @@ public interface AssociateDao {
 
     Associate update(Associate associate);
 
-    boolean delete(Long id);
+    boolean softDelete(Long id);
+
+    boolean hardDelete(Long id);
 }

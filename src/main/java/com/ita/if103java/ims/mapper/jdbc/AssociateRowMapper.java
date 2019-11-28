@@ -19,7 +19,7 @@ public class AssociateRowMapper implements RowMapper<Associate> {
         associate.setEmail(resultSet.getString("email"));
         associate.setPhone(resultSet.getString("phone"));
         associate.setAdditionalInfo(resultSet.getString("additional_info"));
-        associate.setType((AssociateType) resultSet.getObject("type"));
+        associate.setType(AssociateType.valueOf(resultSet.getString("type")));
         associate.setActive(resultSet.getBoolean("active"));
 
         return associate;
