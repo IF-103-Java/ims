@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
@@ -18,16 +19,20 @@ import java.sql.*;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Repository
 public class TransactionDaoImpl implements TransactionDao {
     private static Logger LOGGER = LoggerFactory.getLogger(TransactionDaoImpl.class);
     private TransactionRowMapper mapper;
     private JdbcTemplate jdbcTemplate;
+    private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @Autowired
     public TransactionDaoImpl(DataSource dataSource, TransactionRowMapper mapper) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
+        this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
         this.mapper = mapper;
     }
 
@@ -54,22 +59,32 @@ public class TransactionDaoImpl implements TransactionDao {
     }
 
     @Override
-    public List<Transaction> findAllFilteredInOrder(Map<String, Object> params,
-                                                    Integer offset, Integer limit,
-                                                    String orderBy) {
-        final String order = orderBy.startsWith("-") ? orderBy.substring(1) + " desc" : orderBy;
-        final String query = String.format(
-            Queries.SQL_SELECT_FILTERED_TRANSACTIONS + "order by %s limit %s offset %s", order, limit, offset
-        );
-        return withErrorLogging(() -> jdbcTemplate.query(query, mapper,
-            params.get("account_id"), params.get("account_id"),
-            params.get("associate_id"), params.get("associate_id"),
-            params.get("item_id"), params.get("item_id"),
-            params.get("quantity"), params.get("quantity"),
-            params.get("moved_from"), params.get("moved_from"),
-            params.get("moved_to"), params.get("moved_to"),
-            params.get("type"), params.get("type")
-        ), "Transaction error on 'select * with filters'");
+    public List<Transaction> findAll(Map<String, Object> params,
+                                     Integer offset, Integer limit,
+                                     String orderBy) throws DataAccessException, IllegalStateException {
+        return withErrorLogging(() -> {
+                final String where = Stream
+                    .of("account_id", "associate_id", "item_id", "quantity", "moved_from", "moved_to", "type")
+                    .filter(params::containsKey)
+                    .map(x -> String.format("%s %s :%s", x, params.get(x) == null ? "is" : "=", x))
+                    .collect(Collectors.joining("\n and "));
+
+                if (where.isBlank())
+                    throw new IllegalStateException("Invalid or empty filter parameters " + params);
+
+                final String query = String.format("""
+                        select *
+                        from transactions
+                        where %s
+                        order by %s
+                        limit %s offset %s""",
+                    where,
+                    orderBy.startsWith("-") ? orderBy.substring(1) + " desc" : orderBy,
+                    limit, offset
+                );
+                return namedParameterJdbcTemplate.query(query, params, mapper);
+            },
+            "Transaction error on 'select * with filters'");
     }
 
     private <T> T withErrorLogging(Supplier<T> supplier, String message) throws DataAccessException {
@@ -115,18 +130,6 @@ public class TransactionDaoImpl implements TransactionDao {
 
         public static final String SQL_SELECT_ALL_TRANSACTIONS = """
                 select * from transactions limit ? offset ?
-            """;
-
-        public static final String SQL_SELECT_FILTERED_TRANSACTIONS = """
-                select *
-                from transactions t
-                where (? is null or t.account_id = ?)
-                  and (? is null or t.associate_id = ?)
-                  and (? is null or t.item_id = ?)
-                  and (? is null or t.quantity = ?)
-                  and (? is null or t.moved_from = ?)
-                  and (? is null or t.moved_to = ?)
-                  and (? is null or t.type = ?)
             """;
     }
 }
