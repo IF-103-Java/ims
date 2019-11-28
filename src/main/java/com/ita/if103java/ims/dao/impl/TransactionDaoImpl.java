@@ -13,9 +13,8 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.math.BigInteger;
+import java.sql.*;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -36,7 +35,7 @@ public class TransactionDaoImpl implements TransactionDao {
         return withErrorLogging(() -> {
             final KeyHolder keyHolder = new GeneratedKeyHolder();
             jdbcTemplate.update(connection -> getPreparedStatement(connection, transaction), keyHolder);
-            transaction.setId((long) keyHolder.getKey());
+            transaction.setId((BigInteger) keyHolder.getKey());
             return transaction;
         }, "Transaction creation failure => " + transaction);
     }
@@ -63,16 +62,24 @@ public class TransactionDaoImpl implements TransactionDao {
     }
 
     private PreparedStatement getPreparedStatement(Connection connection, Transaction transaction) throws SQLException {
-        PreparedStatement ps = connection.prepareStatement(Queries.SQL_CREATE_TRANSACTION);
+        PreparedStatement ps = connection.prepareStatement(Queries.SQL_CREATE_TRANSACTION, Statement.RETURN_GENERATED_KEYS);
         int i = 0;
         ps.setLong(++i, transaction.getAccountId());
-        ps.setLong(++i, transaction.getAssociateId());
+        safeSetIdOrNull(ps, ++i, transaction.getAssociateId());
         ps.setLong(++i, transaction.getItemId());
         ps.setLong(++i, transaction.getQuantity());
-        ps.setLong(++i, transaction.getMovedFrom());
-        ps.setLong(++i, transaction.getMovedTo());
-        ps.setObject(++i, transaction.getType());
+        safeSetIdOrNull(ps, ++i, transaction.getMovedFrom());
+        safeSetIdOrNull(ps, ++i, transaction.getMovedTo());
+        ps.setString(++i, transaction.getType().toString());
         return ps;
+    }
+
+    public void safeSetIdOrNull(PreparedStatement ps, int index, Long value) throws SQLException {
+        if (value == null) {
+            ps.setNull(index, Types.BIGINT);
+        } else {
+            ps.setLong(index, value);
+        }
     }
 
     public static final class Queries {

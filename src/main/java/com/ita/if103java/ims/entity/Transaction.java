@@ -1,10 +1,11 @@
 package com.ita.if103java.ims.entity;
 
+import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.Objects;
 
 public class Transaction {
-    private Long id;
+    private BigInteger id;
     private Timestamp timestamp;
     private Long accountId;
     private Long associateId;
@@ -17,9 +18,8 @@ public class Transaction {
     public Transaction() {
     }
 
-    public Transaction(Long id, Long accountId, Long associateId,
+    public Transaction(Long accountId, Long associateId,
                        Long itemId, Long quantity, Long movedFrom, Long movedTo, Type type) {
-        this.id = id;
         this.accountId = accountId;
         this.associateId = associateId;
         this.itemId = itemId;
@@ -29,8 +29,7 @@ public class Transaction {
         this.type = type;
     }
 
-    public Transaction(Long id, Long accountId, Long itemId, Long quantity, Long movedFrom, Long movedTo) {
-        this.id = id;
+    public Transaction(Long accountId, Long itemId, Long quantity, Long movedFrom, Long movedTo) {
         this.accountId = accountId;
         this.associateId = null;
         this.itemId = itemId;
@@ -40,8 +39,7 @@ public class Transaction {
         this.type = Type.MOVE;
     }
 
-    public Transaction(Long id, Long accountId, Long associateId, Long itemId, Long quantity, Type type) {
-        this.id = id;
+    public Transaction(Long accountId, Long associateId, Long itemId, Long quantity, Type type) {
         this.accountId = accountId;
         this.associateId = associateId;
         this.itemId = itemId;
@@ -52,11 +50,11 @@ public class Transaction {
         this.type = type;
     }
 
-    public Long getId() {
+    public BigInteger getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(BigInteger id) {
         this.id = id;
     }
 
