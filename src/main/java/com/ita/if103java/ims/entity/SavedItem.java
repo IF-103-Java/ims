@@ -4,17 +4,17 @@ import java.util.Objects;
 
 public class SavedItem {
     private Long id;
-    private Item item;
+    private Long itemId;
     private int quantity;
-    private Warehouse warehouse;
+    private Long warehouseId;
 
     public SavedItem() {
     }
 
-    public SavedItem(Item item, int quantity, Warehouse warehouse) {
-        this.item = item;
+    public SavedItem(Long itemId, int quantity, Long warehouseId) {
+        this.itemId = itemId;
         this.quantity = quantity;
-        this.warehouse = warehouse;
+        this.warehouseId = warehouseId;
     }
 
     public Long getId() {
@@ -25,12 +25,20 @@ public class SavedItem {
         this.id = id;
     }
 
-    public Item getItem() {
-        return item;
+    public Long getItemId() {
+        return itemId;
     }
 
-    public void setItem(Item item) {
-        this.item = item;
+    public void setItemId(Long itemId) {
+        this.itemId = itemId;
+    }
+
+    public Long getWarehouseId() {
+        return warehouseId;
+    }
+
+    public void setWarehouseId(Long warehouseId) {
+        this.warehouseId = warehouseId;
     }
 
     public int getQuantity() {
@@ -41,36 +49,28 @@ public class SavedItem {
         this.quantity = quantity;
     }
 
-    public Warehouse getWarehouse() {
-        return warehouse;
-    }
-
-    public void setWarehouse(Warehouse warehouse) {
-        this.warehouse = warehouse;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         SavedItem savedItem = (SavedItem) o;
         return quantity == savedItem.quantity &&
-            Objects.equals(item, savedItem.item) &&
-            Objects.equals(warehouse, savedItem.warehouse);
+            Objects.equals(itemId, savedItem.itemId) &&
+            Objects.equals(warehouseId, savedItem.warehouseId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(item, quantity, warehouse);
+        return Objects.hash(itemId, quantity, warehouseId);
     }
 
     @Override
     public String toString() {
         return "SavedItem{" +
             "id=" + id +
-            ", item=" + item +
+            ", itemId=" + itemId +
             ", quantity=" + quantity +
-            ", warehouse=" + warehouse +
+            ", warehouseId=" + warehouseId +
             '}';
     }
 }

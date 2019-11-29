@@ -8,18 +8,18 @@ public class Item {
     private String unit;
     private String description;
     private int volume;
-    private Account account;
+    private Long accountId;
     private boolean active;
 
     public Item() {
     }
 
-    public Item(String name, String unit, String description, int volume, Account account, boolean active) {
+    public Item(String name, String unit, String description, int volume, Long accountId, boolean active) {
         this.name = name;
         this.unit = unit;
         this.description = description;
         this.volume = volume;
-        this.account = account;
+        this.accountId = accountId;
         this.active = active;
     }
 
@@ -63,12 +63,12 @@ public class Item {
         this.volume = volume;
     }
 
-    public Account getAccount() {
-        return account;
+    public Long getAccountId() {
+        return accountId;
     }
 
-    public void setAccount(Account account) {
-        this.account = account;
+    public void setAccountId(Long accountId) {
+        this.accountId = accountId;
     }
 
     public boolean isActive() {
@@ -88,12 +88,13 @@ public class Item {
             active == item.active &&
             Objects.equals(name, item.name) &&
             Objects.equals(unit, item.unit) &&
-            Objects.equals(description, item.description);
+            Objects.equals(description, item.description) &&
+            Objects.equals(accountId, item.accountId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, unit, description, volume, active);
+        return Objects.hash(name, unit, description, volume, accountId, active);
     }
 
     @Override
@@ -104,7 +105,7 @@ public class Item {
             ", unit='" + unit + '\'' +
             ", description='" + description + '\'' +
             ", volume=" + volume +
-            ", account=" + account +
+            ", accountId=" + accountId +
             ", active=" + active +
             '}';
     }

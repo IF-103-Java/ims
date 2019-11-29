@@ -1,6 +1,5 @@
 package com.ita.if103java.ims.mapper.jdbc;
 
-import com.ita.if103java.ims.entity.Account;
 import com.ita.if103java.ims.entity.Item;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
@@ -19,9 +18,7 @@ public class ItemRowMapper implements RowMapper<Item> {
         item.setDescription(resultSet.getString("description"));
         item.setVolume(resultSet.getInt("volume"));
         item.setActive(resultSet.getBoolean("active"));
-        Account account = new Account();
-        account.setId(resultSet.getLong("account_id"));
-        item.setAccount(account);
+        item.setAccountId(resultSet.getLong("account_id"));
         return item;
     }
 }

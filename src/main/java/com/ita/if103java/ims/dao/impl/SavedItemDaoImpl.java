@@ -29,7 +29,7 @@ public class SavedItemDaoImpl implements SavedItemDao {
     @Override
     public List<SavedItem> getSavedItems() {
         try {
-            return jdbcTemplate.query("select * from SavedItems", savedItemRowMapper);
+            return jdbcTemplate.query(Queries.SQL_SELECT_SAVED_ITEMS, savedItemRowMapper);
         } catch (DataAccessException e) {
             throw crudException(e.toString(), "getSavedItem", "*");
         }
@@ -39,7 +39,7 @@ public class SavedItemDaoImpl implements SavedItemDao {
     @Override
     public SavedItem findSavedItemById(Long id) {
         try {
-            return jdbcTemplate.queryForObject("select * from SavedItems where id=?", savedItemRowMapper, id);
+            return jdbcTemplate.queryForObject(Queries.SQL_SELECT_SAVED_ITEMS_BY_ID, savedItemRowMapper, id);
         } catch (EmptyResultDataAccessException e) {
             throw savedItemEntityNotFoundException(e.getMessage(), "id = " + id);
         } catch (DataAccessException e) {
@@ -51,7 +51,7 @@ public class SavedItemDaoImpl implements SavedItemDao {
     @Override
     public SavedItem findSavedItemByItemId(Long id) {
         try {
-            return jdbcTemplate.queryForObject("select * from SavedItems where item_id=?", savedItemRowMapper, id);
+            return jdbcTemplate.queryForObject(Queries.SQL_SELECT_SAVED_ITEMS_BY_ITEM_ID, savedItemRowMapper, id);
         } catch (EmptyResultDataAccessException e) {
             throw savedItemEntityNotFoundException(e.getMessage(), "item_id = " + id);
         } catch (DataAccessException e) {
@@ -63,7 +63,7 @@ public class SavedItemDaoImpl implements SavedItemDao {
     @Override
     public SavedItem findSavedItemByWarehouseId(Long id) {
         try {
-            return jdbcTemplate.queryForObject("select * from SavedItems where warehouse_id=?", savedItemRowMapper, id);
+            return jdbcTemplate.queryForObject(Queries.SQL_SELECT_SAVED_ITEMS_BY_WAREHOUSE_ID, savedItemRowMapper, id);
         } catch (EmptyResultDataAccessException e) {
             throw savedItemEntityNotFoundException(e.getMessage(), "warehouse_id = " + id);
         } catch (DataAccessException e) {
@@ -73,16 +73,14 @@ public class SavedItemDaoImpl implements SavedItemDao {
     }
 
     @Override
-    public boolean addSavedItem(Long itemId, int quantity, Long warehouseId) {
-        int status;
+    public SavedItem addSavedItem(SavedItem savedItem) {
         try {
-            status = jdbcTemplate.update("insert into SavedItems(item_id, quantity, warehouse_id) values(?,?, ?)", itemId, quantity, warehouseId);
+            jdbcTemplate.update(Queries.SQL_INSERT_INTO_SAVED_ITEM, savedItem.getItemId(), savedItem.getQuantity(), savedItem.getWarehouseId());
+            return savedItem;
         } catch (DataAccessException e) {
-            throw crudException(e.toString(), "add", "item_id = " + itemId + " warehouse_id = " + warehouseId);
+            throw crudException(e.toString(), "add", "item_id = " + savedItem.getItemId() + " warehouse_id = " + savedItem.getWarehouseId());
         }
-        if (status == 0)
-            throw savedItemEntityNotFoundException("Update savedItem exception", "warehouseId = " + warehouseId + " itemId = " + itemId);
-        return true;
+
     }
 
 
@@ -90,13 +88,14 @@ public class SavedItemDaoImpl implements SavedItemDao {
     public boolean updateSavedItem(Long warehouseId, Long savedItemId) {
         int status;
         try {
-            status = jdbcTemplate.update("update SavedItems set warehouse_id=? where id=?", warehouseId, savedItemId);
+            status = jdbcTemplate.update(Queries.SQL_SET_WAREHOUSE_ID_SAVED_ITEMS, warehouseId, savedItemId);
 
         } catch (DataAccessException e) {
             throw crudException(e.toString(), "Update", "warehouse_id = " + warehouseId + " id = " + savedItemId);
         }
-        if (status == 0)
+        if (status == 0) {
             throw savedItemEntityNotFoundException("Update savedItem exception", "warehouse_id = " + warehouseId + " id = " + savedItemId);
+        }
         return true;
 
     }
@@ -105,13 +104,14 @@ public class SavedItemDaoImpl implements SavedItemDao {
     public boolean deleteSavedItem(Long savedItemId) {
         int status;
         try {
-            status = jdbcTemplate.update("delete from SavedItems where id=?", savedItemId);
+            status = jdbcTemplate.update(Queries.SQL_DELETE_SAVED_ITEM_BY_SAVED_ITEM_ID, savedItemId);
 
         } catch (DataAccessException e) {
             throw crudException(e.toString(), "Delete", "id = " + savedItemId);
         }
-        if (status == 0)
+        if (status == 0) {
             throw savedItemEntityNotFoundException("Delete savedItem exception", "id = " + savedItemId);
+        }
         return true;
 
 
@@ -127,5 +127,15 @@ public class SavedItemDaoImpl implements SavedItemDao {
         CRUDException exception = new CRUDException(message);
         LOGGER.error("CRUDException exception. Operation:({}) SavedItem ({}) exception. Message: {}", operation, attribute, message);
         return exception;
+    }
+
+    class Queries {
+        static final String SQL_SELECT_SAVED_ITEMS = "select * from SavedItems";
+        static final String SQL_SELECT_SAVED_ITEMS_BY_ID = "select * from SavedItems where id=?";
+        static final String SQL_SELECT_SAVED_ITEMS_BY_ITEM_ID = "select * from SavedItems where item_id=?";
+        static final String SQL_SELECT_SAVED_ITEMS_BY_WAREHOUSE_ID = "select * from SavedItems where warehouse_id=?";
+        static final String SQL_INSERT_INTO_SAVED_ITEM = "insert into SavedItems(item_id, quantity, warehouse_id) values(?,?, ?)";
+        static final String SQL_DELETE_SAVED_ITEM_BY_SAVED_ITEM_ID = "delete from SavedItems where id=?";
+        static final String SQL_SET_WAREHOUSE_ID_SAVED_ITEMS = "update SavedItems set warehouse_id=? where id=?";
     }
 }

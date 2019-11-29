@@ -1,8 +1,6 @@
 package com.ita.if103java.ims.mapper.jdbc;
 
-import com.ita.if103java.ims.entity.Item;
 import com.ita.if103java.ims.entity.SavedItem;
-import com.ita.if103java.ims.entity.Warehouse;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 
@@ -15,13 +13,9 @@ public class SavedItemRowMapper implements RowMapper<SavedItem> {
     public SavedItem mapRow(ResultSet resultSet, int i) throws SQLException {
         SavedItem savedItem = new SavedItem();
         savedItem.setId(resultSet.getLong("id"));
-        Item item = new Item();
-        item.setId(resultSet.getLong("item_id"));
-        savedItem.setItem(item);
+        savedItem.setItemId(resultSet.getLong("item_id"));
         savedItem.setQuantity(resultSet.getInt("quantity"));
-        Warehouse warehouse = new Warehouse();
-        warehouse.setId(resultSet.getLong("warehouse_id"));
-        savedItem.setWarehouse(warehouse);
+        savedItem.setWarehouseId(resultSet.getLong("warehouse_id"));
         return savedItem;
     }
 }

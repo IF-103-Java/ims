@@ -4,13 +4,10 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 public class ItemDto {
-    @NotNull
     @NotBlank
     private String name;
-    @NotNull
     @NotBlank
     private String unit;
-    @NotNull
     @NotBlank
     private String description;
     @NotNull

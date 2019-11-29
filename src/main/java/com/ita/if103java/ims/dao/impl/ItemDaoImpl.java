@@ -31,7 +31,7 @@ public class ItemDaoImpl implements ItemDao {
     @Override
     public List<Item> getItems() {
         try {
-            return jdbcTemplate.query("select * from Items", itemRowMapper);
+            return jdbcTemplate.query(Queries.SQL_SELECT_ITEMS, itemRowMapper);
         } catch (DataAccessException e) {
             throw crudException(e.toString(), "getItem", "*");
         }
@@ -41,7 +41,7 @@ public class ItemDaoImpl implements ItemDao {
     @Override
     public Item findItemByName(String name) {
         try {
-            return jdbcTemplate.queryForObject("select * from Items where name_item=?", itemRowMapper, name);
+            return jdbcTemplate.queryForObject(Queries.SQL_SELECT_ITEM_BY_NAME, itemRowMapper, name);
         } catch (EmptyResultDataAccessException e) {
             throw itemEntityNotFoundException(e.getMessage(), "name_item = " + name);
         } catch (DataAccessException e) {
@@ -53,7 +53,7 @@ public class ItemDaoImpl implements ItemDao {
     @Override
     public Item findItemByAccountId(Long id) {
         try {
-            return jdbcTemplate.queryForObject("select * from Items where account_id=?", itemRowMapper);
+            return jdbcTemplate.queryForObject(Queries.SQL_SELECT_ITEM_BY_ACCOUNT_ID, itemRowMapper);
         } catch (EmptyResultDataAccessException e) {
             throw itemEntityNotFoundException(e.getMessage(), "account_Id = " + id);
         } catch (DataAccessException e) {
@@ -63,29 +63,27 @@ public class ItemDaoImpl implements ItemDao {
     }
 
     @Override
-    public boolean addItem(Item item) {
-        int status;
+    public Item addItem(Item item) {
         try {
-            status = jdbcTemplate.update("insert into Items(name_item, unit, description, volume, active, account_id) values(?, ?, ?, ?, ?, ?)", item.getName(), item.getUnit(), item.getDescription(), item.getVolume(), item.isActive(), item.getAccount().getId());
+            jdbcTemplate.update(Queries.SQL_INSERT_INTO_ITEM, item.getName(), item.getUnit(), item.getDescription(), item.getVolume(), item.isActive(), item.getAccountId());
+            return item;
         } catch (DataAccessException e) {
-            throw crudException(e.toString(), "add", "account_id = " + item.getAccount().getId());
+            throw crudException(e.toString(), "add", "account_id = " + item.getAccountId());
         }
-        if (status == 0)
-            throw itemEntityNotFoundException("Update item exception", "id = " + item.getAccount().getId());
-        return true;
     }
 
     @Override
-    public boolean deleteItem(String name) {
+    public boolean softDeleteItem(String name) {
         int status;
         try {
-            status = jdbcTemplate.update("delete from Items where name_item=?", name);
+            status = jdbcTemplate.update(Queries.SQL_SET_ACTIVE_STATUS_ITEM, false, name);
 
         } catch (DataAccessException e) {
-            throw crudException(e.toString(), "Delete", "name = " + name);
+            throw crudException(e.toString(), "SoftDelete", "name = " + name);
         }
-        if (status == 0)
-            throw itemEntityNotFoundException("Delete item exception", "name = " + name);
+        if (status == 0) {
+            throw itemEntityNotFoundException("SoftDelete item exception", "name = " + name);
+        }
         return true;
     }
 
@@ -99,5 +97,13 @@ public class ItemDaoImpl implements ItemDao {
         CRUDException exception = new CRUDException(message);
         LOGGER.error("CRUDException exception. Operation:({}) Item ({}) exception. Message: {}", operation, attribute, message);
         return exception;
+    }
+
+    class Queries {
+        static final String SQL_SELECT_ITEMS = "select * from Items";
+        static final String SQL_SELECT_ITEM_BY_NAME = "select * from Items where name_item=?";
+        static final String SQL_SELECT_ITEM_BY_ACCOUNT_ID = "select * from Items where account_id=?";
+        static final String SQL_INSERT_INTO_ITEM = "insert into Items(name_item, unit, description, volume, active, account_id) values(?, ?, ?, ?, ?, ?)";
+        static final String SQL_SET_ACTIVE_STATUS_ITEM = "update Items set active= ? where name_item=?";
     }
 }
