@@ -67,6 +67,9 @@ public class TransactionDaoImpl implements TransactionDao {
                                      Integer offset, Integer limit,
                                      String orderBy) {
         return withErrorLogging(() -> {
+                if (params.isEmpty())
+                    throw new IllegalArgumentException("Empty filter parameters");
+
                 final String where = Stream
                     .of("account_id", "associate_id", "item_id", "quantity", "moved_from", "moved_to", "type")
                     .filter(params::containsKey)
@@ -74,7 +77,7 @@ public class TransactionDaoImpl implements TransactionDao {
                     .collect(Collectors.joining("\n and "));
 
                 if (where.isBlank())
-                    throw new IllegalStateException("Invalid or empty filter parameters " + params);
+                    throw new IllegalArgumentException("Invalid filter parameters " + params);
 
                 final String query = String.format("""
                         select *
