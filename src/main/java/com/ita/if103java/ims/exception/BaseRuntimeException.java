@@ -4,11 +4,15 @@ public class BaseRuntimeException extends RuntimeException {
 
     private String name;
 
-    BaseRuntimeException(String message){
+    BaseRuntimeException(String message) {
         super(message);
     }
 
-    BaseRuntimeException(String message, String name){
+    BaseRuntimeException() {
+        super();
+    }
+
+    BaseRuntimeException(String message, String name) {
         super(message);
         this.name = name;
     }
