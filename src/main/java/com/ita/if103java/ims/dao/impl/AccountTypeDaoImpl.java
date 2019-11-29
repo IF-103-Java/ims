@@ -88,14 +88,14 @@ public class AccountTypeDaoImpl implements AccountTypeDao {
         try {
             status = jdbcTemplate.update(
                 Queries.SQL_UPDATE_ACCOUNT_TYPE,
-                accountType.getId(),
                 accountType.getName(),
                 accountType.getPrice(),
                 accountType.getMaxWarehouses(),
                 accountType.getMaxWarehouseDepth(),
                 accountType.getMaxUsers(),
                 accountType.getMaxSuppliers(),
-                accountType.getMaxClients());
+                accountType.getMaxClients(),
+                accountType.getId());
 
         } catch (DataAccessException e) {
             throw crudException(e.getMessage(), "update", "id = " + accountType.getId());

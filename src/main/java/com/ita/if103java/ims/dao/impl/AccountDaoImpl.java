@@ -82,8 +82,8 @@ public class AccountDaoImpl implements AccountDao {
         try {
             status = jdbcTemplate.update(
                 Queries.SQL_UPDATE_ACCOUNT,
-                account.getId(),
-                account.getName());
+                account.getName(),
+                account.getId());
 
         } catch (DataAccessException e) {
             throw crudException(e.getMessage(), "update", "id = " + account.getId());
@@ -125,10 +125,10 @@ public class AccountDaoImpl implements AccountDao {
     }
 
     @Override
-    public boolean updateToPremium(Long id) {
+    public boolean updateToPremium(Long id, Long type_id) {
         int status;
         try {
-            status = jdbcTemplate.update(Queries.SQL_UPDATE_ACCOUNT_TO_PREMIUM, id);
+            status = jdbcTemplate.update(Queries.SQL_UPDATE_ACCOUNT_TO_PREMIUM, type_id, id);
 
         } catch (DataAccessException e) {
             throw crudException(e.getMessage(), "update", "id = " + id);
