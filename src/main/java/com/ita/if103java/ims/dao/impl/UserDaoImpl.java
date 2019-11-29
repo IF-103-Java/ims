@@ -37,7 +37,6 @@ public class UserDaoImpl extends AbstractDao implements UserDao {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.bCryptPasswordEncoder = new BCryptPasswordEncoder();
         this.userRowMapper = userRowMapper;
-        setLogger(LoggerFactory.getLogger(UserDaoImpl.class));
     }
 
 
