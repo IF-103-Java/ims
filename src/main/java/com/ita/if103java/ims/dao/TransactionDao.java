@@ -8,13 +8,13 @@ import java.util.List;
 import java.util.Map;
 
 public interface TransactionDao {
-    Transaction create(Transaction transaction) throws DataAccessException;
+    Transaction create(Transaction transaction);
 
-    Transaction findById(BigInteger id) throws DataAccessException;
+    Transaction findById(BigInteger id);
 
-    List<Transaction> findAll(Integer offset, Integer limit) throws DataAccessException;
+    List<Transaction> findAll(Integer offset, Integer limit);
 
     List<Transaction> findAll(Map<String, Object> params,
                               Integer offset, Integer limit,
-                              String orderBy) throws DataAccessException, IllegalStateException;
+                              String orderBy);
 }

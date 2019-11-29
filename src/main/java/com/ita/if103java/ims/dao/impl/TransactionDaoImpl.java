@@ -15,7 +15,11 @@ import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.math.BigInteger;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Types;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -24,7 +28,7 @@ import java.util.stream.Stream;
 
 @Repository
 public class TransactionDaoImpl implements TransactionDao {
-    private static Logger LOGGER = LoggerFactory.getLogger(TransactionDaoImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TransactionDaoImpl.class);
     private TransactionRowMapper mapper;
     private JdbcTemplate jdbcTemplate;
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
@@ -37,7 +41,7 @@ public class TransactionDaoImpl implements TransactionDao {
     }
 
     @Override
-    public Transaction create(Transaction transaction) throws DataAccessException {
+    public Transaction create(Transaction transaction) {
         return withErrorLogging(() -> {
             final KeyHolder keyHolder = new GeneratedKeyHolder();
             jdbcTemplate.update(connection -> getPreparedStatement(connection, transaction), keyHolder);
@@ -47,13 +51,13 @@ public class TransactionDaoImpl implements TransactionDao {
     }
 
     @Override
-    public Transaction findById(BigInteger id) throws DataAccessException {
+    public Transaction findById(BigInteger id) {
         return withErrorLogging(() -> jdbcTemplate.queryForObject(Queries.SQL_SELECT_TRANSACTION_BY_ID, mapper, id),
             "Transaction error on 'select by id' => id=" + id);
     }
 
     @Override
-    public List<Transaction> findAll(Integer offset, Integer limit) throws DataAccessException {
+    public List<Transaction> findAll(Integer offset, Integer limit) {
         return withErrorLogging(() -> jdbcTemplate.query(Queries.SQL_SELECT_ALL_TRANSACTIONS, mapper, limit, offset),
             "Transaction error on 'select *'");
     }
@@ -61,7 +65,7 @@ public class TransactionDaoImpl implements TransactionDao {
     @Override
     public List<Transaction> findAll(Map<String, Object> params,
                                      Integer offset, Integer limit,
-                                     String orderBy) throws DataAccessException, IllegalStateException {
+                                     String orderBy) {
         return withErrorLogging(() -> {
                 final String where = Stream
                     .of("account_id", "associate_id", "item_id", "quantity", "moved_from", "moved_to", "type")
@@ -87,7 +91,7 @@ public class TransactionDaoImpl implements TransactionDao {
             "Transaction error on 'select * with filters'");
     }
 
-    private <T> T withErrorLogging(Supplier<T> supplier, String message) throws DataAccessException {
+    private <T> T withErrorLogging(Supplier<T> supplier, String message) {
         try {
             return supplier.get();
         } catch (DataAccessException e) {

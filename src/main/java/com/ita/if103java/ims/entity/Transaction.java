@@ -13,13 +13,13 @@ public class Transaction {
     private Long quantity;
     private Long movedFrom;
     private Long movedTo;
-    private Transaction.Type type;
+    private TransactionType type;
 
     public Transaction() {
     }
 
     public Transaction(Long accountId, Long associateId,
-                       Long itemId, Long quantity, Long movedFrom, Long movedTo, Type type) {
+                       Long itemId, Long quantity, Long movedFrom, Long movedTo, TransactionType type) {
         this.accountId = accountId;
         this.associateId = associateId;
         this.itemId = itemId;
@@ -36,17 +36,17 @@ public class Transaction {
         this.quantity = quantity;
         this.movedFrom = movedFrom;
         this.movedTo = movedTo;
-        this.type = Type.MOVE;
+        this.type = TransactionType.MOVE;
     }
 
-    public Transaction(Long accountId, Long associateId, Long itemId, Long quantity, Type type) {
+    public Transaction(Long accountId, Long associateId, Long itemId, Long quantity, TransactionType type) {
         this.accountId = accountId;
         this.associateId = associateId;
         this.itemId = itemId;
         this.quantity = quantity;
         this.movedFrom = null;
         this.movedTo = null;
-        assert type != Type.MOVE;
+        assert type != TransactionType.MOVE;
         this.type = type;
     }
 
@@ -114,11 +114,11 @@ public class Transaction {
         this.movedTo = movedTo;
     }
 
-    public Type getType() {
+    public TransactionType getType() {
         return type;
     }
 
-    public void setType(Type type) {
+    public void setType(TransactionType type) {
         this.type = type;
     }
 
@@ -127,8 +127,7 @@ public class Transaction {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Transaction that = (Transaction) o;
-        return Objects.equals(id, that.id) &&
-            Objects.equals(timestamp, that.timestamp) &&
+        return Objects.equals(timestamp, that.timestamp) &&
             Objects.equals(accountId, that.accountId) &&
             Objects.equals(associateId, that.associateId) &&
             Objects.equals(itemId, that.itemId) &&
@@ -140,7 +139,7 @@ public class Transaction {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, timestamp, accountId, associateId, itemId, quantity, movedFrom, movedTo, type);
+        return Objects.hash(timestamp, accountId, associateId, itemId, quantity, movedFrom, movedTo, type);
     }
 
     @Override
@@ -156,9 +155,5 @@ public class Transaction {
             ", movedTo=" + movedTo +
             ", type=" + type +
             '}';
-    }
-
-    public enum Type {
-        IN, OUT, MOVE
     }
 }

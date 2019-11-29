@@ -1,6 +1,7 @@
 package com.ita.if103java.ims.mapper.jdbc;
 
 import com.ita.if103java.ims.entity.Transaction;
+import com.ita.if103java.ims.entity.TransactionType;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 
@@ -19,7 +20,7 @@ public class TransactionRowMapper implements RowMapper<Transaction> {
         transaction.setAccountId(resultSet.getLong("account_id"));
         transaction.setItemId(resultSet.getLong("item_id"));
         transaction.setQuantity(resultSet.getLong("quantity"));
-        transaction.setType(Transaction.Type.valueOf(resultSet.getString("type")));
+        transaction.setType(TransactionType.valueOf(resultSet.getString("type")));
 
         final long associateId = resultSet.getLong("associate_id");
         transaction.setAssociateId(resultSet.wasNull() ? null : associateId);
