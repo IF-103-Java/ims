@@ -144,7 +144,7 @@ public class AccountDaoImpl implements AccountDao {
 
         int i = 0;
         preparedStatement.setString(++i, account.getName());
-        preparedStatement.setObject(++i, account.getType());
+        preparedStatement.setLong(++i, account.getTypeId());
         preparedStatement.setLong(++i, account.getAdminId());
         preparedStatement.setObject(++i, currentDateTime.toLocalDateTime());
         preparedStatement.setBoolean(++i, account.isActive());
@@ -168,7 +168,7 @@ public class AccountDaoImpl implements AccountDao {
     class Queries {
 
         static final String SQL_CREATE_ACCOUNT = "" +
-            "INSERT INTO accounts (name, type, admin_id, created_date, active)" +
+            "INSERT INTO accounts (name, type_id, admin_id, created_date, active)" +
             "VALUES(?,?,?,?,?)";
 
         static final String SQL_SELECT_ACCOUNT_BY_ID = "SELECT * FROM accounts WHERE id = ?";

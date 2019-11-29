@@ -9,6 +9,7 @@ public class Account {
     private Long id;
     private String name;
     private AccountType type;
+    private Long typeId;
     private Long adminId;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
     private ZonedDateTime createdDate;
@@ -18,10 +19,11 @@ public class Account {
 
     }
 
-    public Account(Long id, String name, AccountType type, Long adminId, ZonedDateTime createdDate, boolean active) {
+    public Account(Long id, String name, AccountType type, Long typeId, Long adminId, ZonedDateTime createdDate, boolean active) {
         this.id = id;
         this.name = name;
         this.type = type;
+        this.typeId = typeId;
         this.adminId = adminId;
         this.createdDate = createdDate;
         this.active = active;
@@ -49,6 +51,14 @@ public class Account {
 
     public void setType(AccountType type) {
         this.type = type;
+    }
+
+    public Long getTypeId() {
+        return typeId;
+    }
+
+    public void setTypeId(Long typeId) {
+        this.typeId = typeId;
     }
 
     public Long getAdminId() {
@@ -81,6 +91,7 @@ public class Account {
             "id=" + id +
             ", name='" + name + '\'' +
             ", type=" + type +
+            ", typeId=" + typeId +
             ", adminId=" + adminId +
             ", createdDate=" + createdDate +
             ", active=" + active +
@@ -95,13 +106,14 @@ public class Account {
         return isActive() == account.isActive() &&
             getName().equals(account.getName()) &&
             getType().equals(account.getType()) &&
+            getTypeId().equals(account.getTypeId()) &&
             getAdminId().equals(account.getAdminId()) &&
             getCreatedDate().equals(account.getCreatedDate());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getName(), getType(), getAdminId(), getCreatedDate(), isActive());
+        return Objects.hash(getName(), getType(), getTypeId(), getAdminId(), getCreatedDate(), isActive());
     }
 }
 

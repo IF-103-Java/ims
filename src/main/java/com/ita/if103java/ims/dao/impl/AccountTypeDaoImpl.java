@@ -90,6 +90,7 @@ public class AccountTypeDaoImpl implements AccountTypeDao {
                 Queries.SQL_UPDATE_ACCOUNT_TYPE,
                 accountType.getName(),
                 accountType.getPrice(),
+                accountType.getLevel(),
                 accountType.getMaxWarehouses(),
                 accountType.getMaxWarehouseDepth(),
                 accountType.getMaxUsers(),
@@ -152,7 +153,7 @@ public class AccountTypeDaoImpl implements AccountTypeDao {
     class Queries {
 
         static final String SQL_CREATE_ACCOUNT_TYPE = "" +
-            "INSERT INTO account_types (name, price, max_warehouses, max_warehouse_depth, max_users, max_suppliers, max_clients, active)" +
+            "INSERT INTO account_types (name, price, level, max_warehouses, max_warehouse_depth, max_users, max_suppliers, max_clients, active)" +
             "VALUES(?,?,?,?,?)";
 
         static final String SQL_SELECT_ACCOUNT_TYPE_BY_ID = "SELECT * FROM account_types WHERE id = ?";
@@ -162,7 +163,7 @@ public class AccountTypeDaoImpl implements AccountTypeDao {
         static final String SQL_SELECT_ALL_ACCOUNT_TYPES = "SELECT * FROM account_types";
 
         static final String SQL_UPDATE_ACCOUNT_TYPE = "UPDATE account_types SET " +
-             "name = ?, price= ?, max_warehouses = ?," +
+             "name = ?, price= ?, level= ?, max_warehouses = ?," +
                  "max_warehouse_depth = ?, max_users = ?," +
                  "max_suppliers = ?, max_clients = ?, active = ? WHERE id = ?";
 

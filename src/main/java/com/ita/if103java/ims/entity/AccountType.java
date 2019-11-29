@@ -6,6 +6,7 @@ public class AccountType {
     private Long id;
     private String name;
     private Double price;
+    private Integer level;
     private Integer maxWarehouses;
     private Integer maxWarehouseDepth;
     private Integer maxUsers;
@@ -17,10 +18,11 @@ public class AccountType {
 
     }
 
-    public AccountType(Long id, String name, Double price, Integer maxWarehouses, Integer maxWarehouseDepth, Integer maxUsers, Integer maxSuppliers, Integer maxClients, boolean active) {
+    public AccountType(Long id, String name, Double price, Integer level, Integer maxWarehouses, Integer maxWarehouseDepth, Integer maxUsers, Integer maxSuppliers, Integer maxClients, boolean active) {
         this.id = id;
         this.name = name;
         this.price = price;
+        this.level = level;
         this.maxWarehouses = maxWarehouses;
         this.maxWarehouseDepth = maxWarehouseDepth;
         this.maxUsers = maxUsers;
@@ -51,6 +53,14 @@ public class AccountType {
 
     public void setPrice(Double price) {
         this.price = price;
+    }
+
+    public Integer getLevel() {
+        return level;
+    }
+
+    public void setLevel(Integer level) {
+        this.level = level;
     }
 
     public Integer getMaxWarehouses() {
@@ -107,6 +117,7 @@ public class AccountType {
             "id=" + id +
             ", name='" + name + '\'' +
             ", price=" + price +
+            ", level=" + level +
             ", maxWarehouses=" + maxWarehouses +
             ", maxWarehouseDepth=" + maxWarehouseDepth +
             ", maxUsers=" + maxUsers +
@@ -124,6 +135,7 @@ public class AccountType {
         return isActive() == that.isActive() &&
             getName().equals(that.getName()) &&
             getPrice().equals(that.getPrice()) &&
+            getLevel().equals(that.getLevel()) &&
             getMaxWarehouses().equals(that.getMaxWarehouses()) &&
             getMaxWarehouseDepth().equals(that.getMaxWarehouseDepth()) &&
             getMaxUsers().equals(that.getMaxUsers()) &&
@@ -133,6 +145,6 @@ public class AccountType {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getName(), getPrice(), getMaxWarehouses(), getMaxWarehouseDepth(), getMaxUsers(), getMaxSuppliers(), getMaxClients(), isActive());
+        return Objects.hash(getName(), getPrice(), getLevel(), getMaxWarehouses(), getMaxWarehouseDepth(), getMaxUsers(), getMaxSuppliers(), getMaxClients(), isActive());
     }
 }
