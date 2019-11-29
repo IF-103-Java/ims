@@ -66,8 +66,9 @@ public class TransactionDaoImpl implements TransactionDao {
     public List<Transaction> findAll(Map<String, Object> params,
                                      Integer offset, Integer limit,
                                      String orderBy) {
-        if (params.isEmpty())
+        if (params.isEmpty()) {
             throw new IllegalArgumentException("Empty filter parameters");
+        }
 
         final String where = Stream
             .of("account_id", "associate_id", "item_id", "quantity", "moved_from", "moved_to", "type")
@@ -75,8 +76,9 @@ public class TransactionDaoImpl implements TransactionDao {
             .map(x -> String.format("%s %s :%s", x, params.get(x) == null ? "is" : "=", x))
             .collect(Collectors.joining("\n and "));
 
-        if (where.isBlank())
+        if (where.isBlank()) {
             throw new IllegalArgumentException("Invalid filter parameters " + params);
+        }
 
         final String query = String.format("""
                 select *
