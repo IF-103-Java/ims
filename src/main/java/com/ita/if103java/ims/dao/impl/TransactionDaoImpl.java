@@ -42,7 +42,7 @@ public class TransactionDaoImpl implements TransactionDao {
 
     @Override
     public Transaction create(Transaction transaction) {
-        return withErrorLogging(() -> {
+        return withJdbcErrorLogging(() -> {
             final KeyHolder keyHolder = new GeneratedKeyHolder();
             jdbcTemplate.update(connection -> getPreparedStatement(connection, transaction), keyHolder);
             transaction.setId((BigInteger) keyHolder.getKey());
@@ -52,13 +52,13 @@ public class TransactionDaoImpl implements TransactionDao {
 
     @Override
     public Transaction findById(BigInteger id) {
-        return withErrorLogging(() -> jdbcTemplate.queryForObject(Queries.SQL_SELECT_TRANSACTION_BY_ID, mapper, id),
+        return withJdbcErrorLogging(() -> jdbcTemplate.queryForObject(Queries.SQL_SELECT_TRANSACTION_BY_ID, mapper, id),
             "Transaction error on 'select by id' => id=" + id);
     }
 
     @Override
     public List<Transaction> findAll(Integer offset, Integer limit) {
-        return withErrorLogging(() -> jdbcTemplate.query(Queries.SQL_SELECT_ALL_TRANSACTIONS, mapper, limit, offset),
+        return withJdbcErrorLogging(() -> jdbcTemplate.query(Queries.SQL_SELECT_ALL_TRANSACTIONS, mapper, limit, offset),
             "Transaction error on 'select *'");
     }
 
@@ -66,35 +66,33 @@ public class TransactionDaoImpl implements TransactionDao {
     public List<Transaction> findAll(Map<String, Object> params,
                                      Integer offset, Integer limit,
                                      String orderBy) {
-        return withErrorLogging(() -> {
-                if (params.isEmpty())
-                    throw new IllegalArgumentException("Empty filter parameters");
+        if (params.isEmpty())
+            throw new IllegalArgumentException("Empty filter parameters");
 
-                final String where = Stream
-                    .of("account_id", "associate_id", "item_id", "quantity", "moved_from", "moved_to", "type")
-                    .filter(params::containsKey)
-                    .map(x -> String.format("%s %s :%s", x, params.get(x) == null ? "is" : "=", x))
-                    .collect(Collectors.joining("\n and "));
+        final String where = Stream
+            .of("account_id", "associate_id", "item_id", "quantity", "moved_from", "moved_to", "type")
+            .filter(params::containsKey)
+            .map(x -> String.format("%s %s :%s", x, params.get(x) == null ? "is" : "=", x))
+            .collect(Collectors.joining("\n and "));
 
-                if (where.isBlank())
-                    throw new IllegalArgumentException("Invalid filter parameters " + params);
+        if (where.isBlank())
+            throw new IllegalArgumentException("Invalid filter parameters " + params);
 
-                final String query = String.format("""
-                        select *
-                        from transactions
-                        where %s
-                        order by %s
-                        limit %s offset %s""",
-                    where,
-                    orderBy.startsWith("-") ? orderBy.substring(1) + " desc" : orderBy,
-                    limit, offset
-                );
-                return namedParameterJdbcTemplate.query(query, params, mapper);
-            },
+        final String query = String.format("""
+                select *
+                from transactions
+                where %s
+                order by %s
+                limit %s offset %s""",
+            where,
+            orderBy.startsWith("-") ? orderBy.substring(1) + " desc" : orderBy,
+            limit, offset
+        );
+        return withJdbcErrorLogging(() -> namedParameterJdbcTemplate.query(query, params, mapper),
             "Transaction error on 'select * with filters'");
     }
 
-    private <T> T withErrorLogging(Supplier<T> supplier, String message) {
+    private <T> T withJdbcErrorLogging(Supplier<T> supplier, String message) {
         try {
             return supplier.get();
         } catch (DataAccessException e) {
