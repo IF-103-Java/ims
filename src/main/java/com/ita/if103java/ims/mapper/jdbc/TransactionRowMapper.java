@@ -27,7 +27,7 @@ public class TransactionRowMapper implements RowMapper<Transaction> {
         final long movedFrom = resultSet.getLong("moved_from");
         transaction.setMovedFrom(resultSet.wasNull() ? null : movedFrom);
         final long movedTo = resultSet.getLong("moved_to");
-        transaction.setMovedFrom(resultSet.wasNull() ? null : movedTo);
+        transaction.setMovedTo(resultSet.wasNull() ? null : movedTo);
         return transaction;
     }
 }
