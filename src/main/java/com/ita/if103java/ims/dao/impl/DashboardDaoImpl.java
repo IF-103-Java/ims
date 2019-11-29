@@ -4,13 +4,14 @@ import com.ita.if103java.ims.dao.DashboardDao;
 import com.ita.if103java.ims.dto.PopularityListDto;
 import com.ita.if103java.ims.dto.RefillListDto;
 import com.ita.if103java.ims.dto.WarehouseLoadDto;
+import com.ita.if103java.ims.exception.CRUDException;
 import com.ita.if103java.ims.mapper.jdbc.PopularityListRowMapper;
 import com.ita.if103java.ims.mapper.jdbc.RefillListRowMapper;
 import com.ita.if103java.ims.mapper.jdbc.WarehouseLoadRowMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -19,14 +20,17 @@ import java.util.List;
 
 @Repository
 public class DashboardDaoImpl implements DashboardDao {
+    private final static Logger LOGGER = LoggerFactory.getLogger(DashboardDaoImpl.class);
     private WarehouseLoadRowMapper warehouseLoadRowMapper;
     private PopularityListRowMapper popularityListRowMapper;
     private RefillListRowMapper refillListRowMapper;
     private JdbcTemplate jdbcTemplate;
-    private static Logger logger = Logger.getLogger(DashboardDaoImpl.class.getName());
 
     @Autowired
-    public DashboardDaoImpl(WarehouseLoadRowMapper warehouseLoadRowMapper, RefillListRowMapper refillListRowMapper, PopularityListRowMapper popularityListRowMapper, JdbcTemplate jdbcTemplate) {
+    public DashboardDaoImpl(WarehouseLoadRowMapper warehouseLoadRowMapper,
+                            RefillListRowMapper refillListRowMapper,
+                            PopularityListRowMapper popularityListRowMapper,
+                            JdbcTemplate jdbcTemplate) {
         this.refillListRowMapper = refillListRowMapper;
         this.popularityListRowMapper = popularityListRowMapper;
         this.warehouseLoadRowMapper = warehouseLoadRowMapper;
@@ -37,38 +41,40 @@ public class DashboardDaoImpl implements DashboardDao {
         try {
             return jdbcTemplate.query(Queries.SQL_FIND_WAREHOUSE_WIDGETS, warehouseLoadRowMapper);
         }catch (DataAccessException e) {
-              logger.log(Level.SEVERE, e.toString());
-          }
-        return null;
+            throw crudException("WarehouseWidget",e.toString());
+        }
     }
     @Override
-    public List<PopularityListDto> findPopularItems(){
+    public List<PopularityListDto> findPopularItems(int quantity){
         try {
-            return jdbcTemplate.query(Queries.SQL_FIND_POPULARITY_WIDGET, popularityListRowMapper);
+            return jdbcTemplate.query(Queries.SQL_FIND_POPULARITY_WIDGET + Queries.SQL_ATR_POP, popularityListRowMapper, quantity);
         } catch (DataAccessException e) {
-            logger.log(Level.SEVERE, e.toString());
+            throw crudException("PopularItems", e.toString());
         }
-        return null;
     }
 
     @Override
-    public List<PopularityListDto> findUnpopularItems(){
+    public List<PopularityListDto> findUnpopularItems(int quantity){
         try {
-            return jdbcTemplate.query(Queries.SQL_FIND_UNPOPULARITY_WIDGET, popularityListRowMapper);
+            return jdbcTemplate.query(Queries.SQL_FIND_POPULARITY_WIDGET + Queries.SQL_ATR_UNPOP, popularityListRowMapper, quantity);
         } catch (DataAccessException e) {
-            logger.log(Level.SEVERE, e.toString());
+            throw crudException("UnpopularItems",e.toString());
         }
-        return null;
     }
 
     @Override
-    public List<RefillListDto> findEndedItems(){
+    public List<RefillListDto> findEndedItems(Long min_quantity){
         try {
-            return jdbcTemplate.query(Queries.SQL_FIND_ENDED_ITEMS, refillListRowMapper );
+            return jdbcTemplate.query(Queries.SQL_FIND_ENDED_ITEMS, refillListRowMapper, min_quantity);
         } catch (DataAccessException e) {
-            logger.log(Level.SEVERE, e.toString());
+            throw crudException("EndedItems",e.toString());
         }
-        return null;
+    }
+
+    private CRUDException crudException( String attribute, String message) {
+        CRUDException exception = new CRUDException(message);
+        LOGGER.error("CRUDException exception. Dashboard ({}) exception. Message: {}", attribute, message);
+        return exception;
     }
 
     class Queries {
@@ -77,24 +83,15 @@ public class DashboardDaoImpl implements DashboardDao {
             "FROM transactions ts " +
             "JOIN items it " +
             "ON ts.item_id = it.id " +
-            "WHERE (year(curdate())=year(timestamp)) " +
-            "AND (month(curdate())=month(timestamp)) " +
-            "AND type = 'OUT' " +
-            "GROUP BY ts.item_id " +
-            "ORDER BY sum(ts.quantity) DESC " +
-            "LIMIT 3 ";
+            "WHERE type = 'OUT' " +
+            "GROUP BY ts.item_id ";
 
-        static final String SQL_FIND_UNPOPULARITY_WIDGET =
-            "SELECT it.name_item AS name, sum(ts.quantity) AS quantity " +
-            "FROM transactions ts " +
-            "JOIN items it " +
-            "ON ts.item_id = it.id " +
-            "WHERE (year(curdate())=year(timestamp)) " +
-            "AND (month(curdate())=month(timestamp)) " +
-            "AND type = 'OUT' " +
-            "GROUP BY ts.item_id " +
+        static final String SQL_ATR_POP =
+            "ORDER BY sum(ts.quantity) DESC " +
+            "LIMIT ?";
+        static final String SQL_ATR_UNPOP =
             "ORDER BY sum(ts.quantity)" +
-            "LIMIT 3 ";
+            "LIMIT ? ";
 
         static final String SQL_FIND_WAREHOUSE_WIDGETS =
             "SELECT wh.top_warehouse_id, sum(wh.capacity) AS capacity, sum(quantity*volume) AS charge " +
@@ -112,6 +109,6 @@ public class DashboardDaoImpl implements DashboardDao {
             "ON si.warehouse_id = wh.id " +
             "JOIN items it " +
             "ON si.item_id = it.id " +
-            "WHERE si.quantity=0";
+            "WHERE si.quantity < ?";
     }
 }

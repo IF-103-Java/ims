@@ -6,12 +6,18 @@ import javax.validation.constraints.NotNull;
 
 @Component
 public class WarehouseLoadDto {
-    @NotNull
     private Long id;
-    @NotNull
     private Long capacity;
-    @NotNull
     private Long charge;
+
+    public WarehouseLoadDto() {
+    }
+
+    public WarehouseLoadDto(Long id, Long capacity, Long charge) {
+        this.id = id;
+        this.capacity = capacity;
+        this.charge = charge;
+    }
 
     public Long getId() {
         return id;
@@ -45,8 +51,4 @@ public class WarehouseLoadDto {
             ", charge=" + charge +
             '}';
     }
-
-    public WarehouseLoadDto() {
-    }
-
 }

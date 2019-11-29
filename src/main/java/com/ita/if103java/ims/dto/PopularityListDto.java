@@ -1,12 +1,17 @@
 package com.ita.if103java.ims.dto;
 
-import javax.validation.constraints.NotNull;
 
 public class PopularityListDto {
-    @NotNull
     private String name;
-    @NotNull
     private Long quantity;
+
+    public PopularityListDto() {
+    }
+
+    public PopularityListDto(String name, Long quantity) {
+        this.name = name;
+        this.quantity = quantity;
+    }
 
     public String getName() {
         return name;
@@ -30,13 +35,5 @@ public class PopularityListDto {
             "name='" + name + '\'' +
             ", quantity=" + quantity +
             '}';
-    }
-
-    public PopularityListDto(String name, Long quantity) {
-        this.name = name;
-        this.quantity = quantity;
-    }
-
-    public PopularityListDto() {
     }
 }
