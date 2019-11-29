@@ -100,16 +100,31 @@ public class Event {
         if (o == null || getClass() != o.getClass()) return false;
         Event event = (Event) o;
         return accountId == event.accountId &&
-                warehouseId == event.warehouseId &&
-                authorId == event.authorId &&
-                transactionId == event.transactionId &&
-                Objects.equals(message, event.message) &&
-                Objects.equals(date, event.date) &&
-                type == event.type;
+            warehouseId == event.warehouseId &&
+            authorId == event.authorId &&
+            transactionId == event.transactionId &&
+            Objects.equals(message, event.message) &&
+            Objects.equals(date, event.date) &&
+            type == event.type;
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(message, date, accountId, warehouseId, authorId, type, transactionId);
     }
+
+    @Override
+    public String toString() {
+        return "Event{" +
+            "id=" + id +
+            ", message='" + message + '\'' +
+            ", date=" + date +
+            ", accountId=" + accountId +
+            ", warehouseId=" + warehouseId +
+            ", authorId=" + authorId +
+            ", type=" + type +
+            ", transactionId=" + transactionId +
+            '}';
+    }
+
 }

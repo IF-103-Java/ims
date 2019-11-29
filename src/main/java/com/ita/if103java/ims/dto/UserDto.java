@@ -180,12 +180,10 @@ public class UserDto implements Serializable {
             ", firstName='" + firstName + '\'' +
             ", lastName='" + lastName + '\'' +
             ", email='" + email + '\'' +
-            ", password='" + password + '\'' +
             ", role=" + role +
             ", createdDate=" + createdDate +
             ", updatedDate=" + updatedDate +
             ", active=" + active +
-            ", emailUUID='" + emailUUID + '\'' +
             ", accountId=" + accountId +
             '}';
     }
@@ -196,7 +194,6 @@ public class UserDto implements Serializable {
         if (o == null || getClass() != o.getClass()) return false;
         UserDto userDto = (UserDto) o;
         return active == userDto.active &&
-            id.equals(userDto.id) &&
             Objects.equals(firstName, userDto.firstName) &&
             Objects.equals(lastName, userDto.lastName) &&
             email.equals(userDto.email) &&
@@ -210,6 +207,6 @@ public class UserDto implements Serializable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, firstName, lastName, email, password, role, createdDate, updatedDate, active, emailUUID, accountId);
+        return Objects.hash(firstName, lastName, email, password, role, createdDate, updatedDate, active, emailUUID, accountId);
     }
 }
