@@ -25,7 +25,7 @@ import java.util.Optional;
 @Repository
 public class AssociateDaoImpl implements AssociateDao {
 
-    private static Logger logger = LoggerFactory.getLogger(AssociateDaoImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(AssociateDaoImpl.class);
     private AssociateRowMapper associateRowMapper;
     private JdbcTemplate jdbcTemplate;
 
@@ -107,8 +107,9 @@ public class AssociateDaoImpl implements AssociateDao {
         } catch (DataAccessException e) {
             throw crudException(e.getMessage(), "update", "id = " + associate.getId());
         }
-        if (status == 0)
+        if (status == 0) {
             throw associateEntityNotFoundException("Update associate exception", "id = " + associate.getId());
+        }
 
         return associate;
     }
@@ -122,8 +123,9 @@ public class AssociateDaoImpl implements AssociateDao {
         } catch (DataAccessException e) {
             throw crudException(e.getMessage(), "softDelete", "id = " + id);
         }
-        if (status == 0)
+        if (status == 0) {
             throw associateEntityNotFoundException("SoftDelete associate exception", "id = " + id);
+        }
 
         return true;
     }
@@ -137,8 +139,9 @@ public class AssociateDaoImpl implements AssociateDao {
         } catch (DataAccessException e) {
             throw crudException(e.toString(), "hardDelete", "id = " + id);
         }
-        if (status == 0)
+        if (status == 0) {
             throw associateEntityNotFoundException("HardDelete associate exception", "id = " + id);
+        }
 
         return true;
     }
