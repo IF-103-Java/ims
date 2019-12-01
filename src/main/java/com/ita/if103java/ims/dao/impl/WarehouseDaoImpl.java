@@ -135,13 +135,11 @@ public class WarehouseDaoImpl implements WarehouseDao {
 
     class Queries {
 
-        static final String SQL_CREATE_USER = "" +
+        static final String SQL_CREATE_USER =""  +
             "INSERT INTO users(name, info, capacity, is_bottom, parent_id, account_id, top_warehouse_id, active)" +
             "VALUES(?,?,?,?,?,?,?,?)";
 
         static final String SQL_SELECT_WAREHOUSE_BY_ID = "SELECT * FROM warehouses WHERE id = ?";
-
-        static final String SQL_SELECT_WAREHOUSE_BY_PARENT_ID = "SELECT * FROM warehouses WHERE parent_id = ?";
 
         static final String SQL_SELECT_ALL_WAREHOUSES = "SELECT * FROM warehouses";
 
