@@ -6,8 +6,7 @@ public class EntityNotFoundException extends BaseRuntimeException{
         super(message);
     }
 
-    public EntityNotFoundException(String message, String name) {
-        super(message,name);
+    public EntityNotFoundException() {
     }
 
 }

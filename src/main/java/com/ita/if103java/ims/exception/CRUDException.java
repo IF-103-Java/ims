@@ -6,8 +6,7 @@ public class CRUDException extends BaseRuntimeException {
         super(message);
     }
 
-    public CRUDException(String message, String name) {
-        super(message,name);
+    public CRUDException() {
     }
 
 }
