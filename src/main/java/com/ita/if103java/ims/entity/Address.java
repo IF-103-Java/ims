@@ -10,6 +10,8 @@ public class Address {
     private String zip;
     private Float latitude;
     private Float longitude;
+    private Long warehouseId;
+    private Long associateId;
 
     public Address() {
     }
@@ -90,6 +92,22 @@ public class Address {
 
     public void setLongitude(Float longitude) {
         this.longitude = longitude;
+    }
+
+    public Long getWarehouseId() {
+        return warehouseId;
+    }
+
+    public void setWarehouseId(Long warehouseId) {
+        this.warehouseId = warehouseId;
+    }
+
+    public Long getAssociateId() {
+        return associateId;
+    }
+
+    public void setAssociateId(Long associateId) {
+        this.associateId = associateId;
     }
 
     @Override

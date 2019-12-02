@@ -20,6 +20,10 @@ public class AddressRowMapper implements RowMapper<Address> {
             resultSet.getFloat("longitude")
         );
         address.setId(resultSet.getLong("id"));
+        final long warehouseId = resultSet.getLong("warehouse_id");
+        address.setWarehouseId(resultSet.wasNull() ? null : warehouseId);
+        final long associateId = resultSet.getLong("associate_id");
+        address.setAssociateId(resultSet.wasNull() ? null : associateId);
         return address;
     }
 }
