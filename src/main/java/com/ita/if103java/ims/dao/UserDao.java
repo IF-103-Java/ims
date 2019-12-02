@@ -10,7 +10,7 @@ public interface UserDao {
 
     User findById(Long id);
 
-    User findByAccountId(Long accountID);
+    List<User> findByAccountId(Long accountID);
 
     User update(User user);
 

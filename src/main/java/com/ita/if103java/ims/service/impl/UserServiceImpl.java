@@ -48,8 +48,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto findByAccountId(Long accountID) {
-        return userDtoMapper.convertUserToUserDto(userDao.findByAccountId(accountID));
+    public List<UserDto> findByAccountId(Long accountID) {
+        return userDtoMapper.convertToUserDtoList(userDao.findByAccountId(accountID));
     }
 
     @Override
@@ -84,10 +84,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean activateUser(String emailUUId) {
         User activatedUser = userDao.findByEmailUUID(emailUUId);
-        ZonedDateTime createdDateTime = activatedUser.getCreatedDate();
+        ZonedDateTime updatedDateTime = activatedUser.getUpdatedDate();
         ZonedDateTime currrentDateTime = ZonedDateTime.now(ZoneId.systemDefault());
 
-        Duration duration = Duration.between(createdDateTime, currrentDateTime);
+        Duration duration = Duration.between(updatedDateTime, currrentDateTime);
         long diffHours = Math.abs(duration.toHours());
         if (diffHours <= 24) {
             activatedUser.setActive(true);
