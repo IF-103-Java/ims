@@ -18,6 +18,7 @@ public class TransactionRowMapper implements RowMapper<Transaction> {
         transaction.setId((BigInteger) rs.getObject("id"));
         transaction.setTimestamp(rs.getTimestamp("timestamp"));
         transaction.setAccountId(rs.getLong("account_id"));
+        transaction.setWorkerId(rs.getLong("worker_id"));
         transaction.setItemId(rs.getLong("item_id"));
         transaction.setQuantity(rs.getLong("quantity"));
         transaction.setType(TransactionType.valueOf(rs.getString("type")));

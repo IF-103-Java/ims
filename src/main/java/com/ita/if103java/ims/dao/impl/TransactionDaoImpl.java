@@ -95,7 +95,7 @@ public class TransactionDaoImpl implements TransactionDao {
     private String buildSqlFilterCondition(String columnName, Object columnValue) {
         // associate_id = :associate_id
         // associate_id is null
-        return String.format("%s %s :%s", columnName, columnValue == null ? "is" : "=", columnValue);
+        return String.format("%s %s :%s", columnName, columnValue == null ? "is" : "=", columnName);
     }
 
     private MapSqlParameterSource getSqlParameterSource(Transaction transaction) {
@@ -107,7 +107,7 @@ public class TransactionDaoImpl implements TransactionDao {
             .addValue("associate_id", transaction.getAssociateId())
             .addValue("moved_from", transaction.getMovedFrom())
             .addValue("moved_to", transaction.getMovedTo())
-            .addValue("type", transaction.getType());
+            .addValue("type", transaction.getType().toString());
     }
 
     public static final class Queries {
