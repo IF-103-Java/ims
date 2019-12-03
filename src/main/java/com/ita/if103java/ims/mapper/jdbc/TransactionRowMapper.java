@@ -8,26 +8,27 @@ import org.springframework.stereotype.Component;
 import java.math.BigInteger;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.function.Consumer;
 
 @Component
 public class TransactionRowMapper implements RowMapper<Transaction> {
     @Override
-    public Transaction mapRow(ResultSet resultSet, int rowNum) throws SQLException {
+    public Transaction mapRow(ResultSet rs, int rowNum) throws SQLException {
         final Transaction transaction = new Transaction();
-        transaction.setId(new BigInteger(Long.valueOf(resultSet.getLong("id")).toString()));
-        transaction.setTimestamp(resultSet.getTimestamp("timestamp"));
+        transaction.setId((BigInteger) rs.getObject("id"));
+        transaction.setTimestamp(rs.getTimestamp("timestamp"));
+        transaction.setAccountId(rs.getLong("account_id"));
+        transaction.setItemId(rs.getLong("item_id"));
+        transaction.setQuantity(rs.getLong("quantity"));
+        transaction.setType(TransactionType.valueOf(rs.getString("type")));
 
-        transaction.setAccountId(resultSet.getLong("account_id"));
-        transaction.setItemId(resultSet.getLong("item_id"));
-        transaction.setQuantity(resultSet.getLong("quantity"));
-        transaction.setType(TransactionType.valueOf(resultSet.getString("type")));
-
-        final long associateId = resultSet.getLong("associate_id");
-        transaction.setAssociateId(resultSet.wasNull() ? null : associateId);
-        final long movedFrom = resultSet.getLong("moved_from");
-        transaction.setMovedFrom(resultSet.wasNull() ? null : movedFrom);
-        final long movedTo = resultSet.getLong("moved_to");
-        transaction.setMovedTo(resultSet.wasNull() ? null : movedTo);
+        setValueOrNull(transaction::setAssociateId, rs.getLong("associate_id"), rs);
+        setValueOrNull(transaction::setMovedFrom, rs.getLong("moved_from"), rs);
+        setValueOrNull(transaction::setMovedTo, rs.getLong("moved_to"), rs);
         return transaction;
+    }
+
+    private <T> void setValueOrNull(Consumer<T> consumer, T value, ResultSet rs) throws SQLException {
+        consumer.accept(rs.wasNull() ? null : value);
     }
 }
