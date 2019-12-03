@@ -1,25 +1,42 @@
-package com.ita.if103java.ims.entity;
+package com.ita.if103java.ims.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.ita.if103java.ims.dto.transfer.ExistData;
+import com.ita.if103java.ims.dto.transfer.NewData;
+import com.ita.if103java.ims.entity.EventType;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
 import java.time.ZonedDateTime;
 import java.util.Objects;
 
-public class Event {
+public class EventDto {
+    @Null(groups = {NewData.class},
+        message = "This field must be empty due to auto generation")
+    @NotNull(groups = {ExistData.class},
+        message = "This field can't be empty")
     private Long id;
+    @NotBlank(groups = {NewData.class, ExistData.class},
+        message = "Provide a message")
     private String message;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
     private ZonedDateTime date;
+    @NotNull(groups = {NewData.class, ExistData.class},
+        message = "This field can't be empty")
     private Long accountId;
     private Long warehouseId;
+    @NotNull(groups = {NewData.class, ExistData.class},
+        message = "This field can't be empty")
     private Long authorId;
+    @NotNull(groups = {NewData.class, ExistData.class},
+        message = "This field can't be empty")
     private EventType type;
     private Long transactionId;
 
-    public Event() {
+    public EventDto() {
     }
-
-    public Event(String message, ZonedDateTime date, Long accountId, Long authorId, EventType type) {
+    public EventDto(String message, ZonedDateTime date, Long accountId, Long authorId, EventType type) {
         this.message = message;
         this.date = date;
         this.accountId = accountId;
@@ -27,7 +44,7 @@ public class Event {
         this.type = type;
     }
 
-    public Event(String message, ZonedDateTime date, Long accountId, Long authorId, EventType type, Long transactionId) {
+    public EventDto(String message, ZonedDateTime date, Long accountId, Long authorId, EventType type, Long transactionId) {
         this.message = message;
         this.date = date;
         this.accountId = accountId;
@@ -36,7 +53,7 @@ public class Event {
         this.transactionId = transactionId;
     }
 
-    public Event(String message, ZonedDateTime date, Long accountId, Long warehouseId, Long authorId, EventType type) {
+    public EventDto(String message, ZonedDateTime date, Long accountId, Long warehouseId, Long authorId, EventType type) {
         this.message = message;
         this.date = date;
         this.accountId = accountId;
@@ -45,10 +62,10 @@ public class Event {
         this.type = type;
     }
 
-    public Event(String message, Long accountId,
-                 Long warehouseId, Long authorId, EventType type, Long transactionId) {
+    public EventDto(Long id,  String message, ZonedDateTime date, Long accountId, Long warehouseId,  Long authorId, EventType type, Long transactionId) {
+        this.id = id;
         this.message = message;
-        this.date = ZonedDateTime.now();
+        this.date = date;
         this.accountId = accountId;
         this.warehouseId = warehouseId;
         this.authorId = authorId;
@@ -124,24 +141,25 @@ public class Event {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Event event = (Event) o;
-        return accountId == event.accountId &&
-            warehouseId == event.warehouseId &&
-            authorId == event.authorId &&
-            transactionId == event.transactionId &&
-            Objects.equals(message, event.message) &&
-            Objects.equals(date, event.date) &&
-            type == event.type;
+        EventDto eventDto = (EventDto) o;
+        return Objects.equals(message, eventDto.message) &&
+            Objects.equals(date, eventDto.date) &&
+            Objects.equals(accountId, eventDto.accountId) &&
+            Objects.equals(warehouseId, eventDto.warehouseId) &&
+            Objects.equals(authorId, eventDto.authorId) &&
+            type == eventDto.type &&
+            Objects.equals(transactionId, eventDto.transactionId);
     }
 
     @Override
     public int hashCode() {
+
         return Objects.hash(message, date, accountId, warehouseId, authorId, type, transactionId);
     }
 
     @Override
     public String toString() {
-        return "Event{" +
+        return "EventDto{" +
             "id=" + id +
             ", message='" + message + '\'' +
             ", date=" + date +
@@ -152,5 +170,4 @@ public class Event {
             ", transactionId=" + transactionId +
             '}';
     }
-
 }
