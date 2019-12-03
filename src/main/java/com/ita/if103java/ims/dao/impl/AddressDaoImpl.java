@@ -125,8 +125,7 @@ public class AddressDaoImpl implements AddressDao {
                 .map(Number::longValue)
                 .orElseThrow(() -> new CRUDException(crudErrorMessage));
         } catch (DataAccessException e) {
-            // TODO: 03.12.19 pass the DataAccessException to CRUDException via constructor
-            throw new CRUDException(crudErrorMessage);
+            throw new CRUDException(crudErrorMessage, e);
         }
     }
 
@@ -138,8 +137,7 @@ public class AddressDaoImpl implements AddressDao {
                 throw new EntityNotFoundException(notFoundMessage);
             }
         } catch (DataAccessException e) {
-            // TODO: 03.12.19 pass the DataAccessException to CRUDException via constructor
-            throw new CRUDException(crudErrorMessage);
+            throw new CRUDException(crudErrorMessage, e);
         }
     }
 
@@ -150,8 +148,7 @@ public class AddressDaoImpl implements AddressDao {
         } catch (EmptyResultDataAccessException e) {
             throw new EntityNotFoundException(notFoundMessage);
         } catch (DataAccessException e) {
-            // TODO: 03.12.19 pass the DataAccessException to CRUDException via constructor
-            throw new CRUDException(crudErrorMessage);
+            throw new CRUDException(crudErrorMessage, e);
         }
     }
 
