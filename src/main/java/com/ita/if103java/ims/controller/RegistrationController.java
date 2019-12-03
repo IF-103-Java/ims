@@ -28,17 +28,8 @@ public class RegistrationController {
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE,
         consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public void createUser(@Validated({NewData.class, ExistData.class}) @RequestBody UserDto userDto) {
-        UserDto createdUser = userService.findByEmail(userDto.getEmail());
-
-        if (createdUser == null) {
-            createdUser = userService.create(userDto);
-
-        } else {
-            createdUser.setUpdatedDate(ZonedDateTime.now(ZoneId.systemDefault()));
-            userService.update(userDto);
-        }
-
+    public void createUser(@Validated({NewData.class}) @RequestBody UserDto userDto) {
+        UserDto createdUser = userService.create(userDto);
         userService.activateUser(createdUser.getEmailUUID());
     }
 }
