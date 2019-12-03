@@ -125,6 +125,7 @@ public class AddressDaoImpl implements AddressDao {
                 .map(Number::longValue)
                 .orElseThrow(() -> new CRUDException(crudErrorMessage));
         } catch (DataAccessException e) {
+            // TODO: 03.12.19 pass the DataAccessException to CRUDException via constructor
             throw new CRUDException(crudErrorMessage);
         }
     }
@@ -137,6 +138,7 @@ public class AddressDaoImpl implements AddressDao {
                 throw new EntityNotFoundException(notFoundMessage);
             }
         } catch (DataAccessException e) {
+            // TODO: 03.12.19 pass the DataAccessException to CRUDException via constructor
             throw new CRUDException(crudErrorMessage);
         }
     }
@@ -148,6 +150,7 @@ public class AddressDaoImpl implements AddressDao {
         } catch (EmptyResultDataAccessException e) {
             throw new EntityNotFoundException(notFoundMessage);
         } catch (DataAccessException e) {
+            // TODO: 03.12.19 pass the DataAccessException to CRUDException via constructor
             throw new CRUDException(crudErrorMessage);
         }
     }
@@ -181,7 +184,7 @@ public class AddressDaoImpl implements AddressDao {
                     zip       = :zip,
                     latitude  = :latitude,
                     longitude = :longitude
-                where a.warehouse_id = :warehouse_id
+                where warehouse_id = :warehouse_id
             """;
 
         public static final String SQL_UPDATE_ASSOCIATE_ADDRESS = """
