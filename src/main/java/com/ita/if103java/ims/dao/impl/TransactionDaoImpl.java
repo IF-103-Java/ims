@@ -48,7 +48,7 @@ public class TransactionDaoImpl implements TransactionDao {
             transaction.setId(id);
             return transaction;
         } catch (DataAccessException e) {
-            throw new CRUDException("Error during a transaction 'insert' -> Transaction.create(" + transaction + ")");
+            throw new CRUDException("Error during a transaction 'insert' -> Transaction.create(" + transaction + ")", e);
         }
     }
 
@@ -57,9 +57,9 @@ public class TransactionDaoImpl implements TransactionDao {
         try {
             return jdbcTemplate.queryForObject(Queries.SQL_SELECT_TRANSACTION_BY_ID, mapper, id);
         } catch (EmptyResultDataAccessException e) {
-            throw new EntityNotFoundException("Transaction not found -> Transaction.findById(" + id + ")");
+            throw new EntityNotFoundException("Transaction not found -> Transaction.findById(" + id + ")", e);
         } catch (DataAccessException e) {
-            throw new CRUDException("Error during a transaction 'select' -> Transaction.findById(" + id + ")");
+            throw new CRUDException("Error during a transaction 'select' -> Transaction.findById(" + id + ")", e);
         }
     }
 
@@ -88,7 +88,7 @@ public class TransactionDaoImpl implements TransactionDao {
             return namedJdbcTemplate.query(query, params, mapper);
         } catch (DataAccessException e) {
             throw new CRUDException("Error during a transactions 'select' -> " +
-                "Transaction.findAll(" + params + ", " + offset + ", " + limit + ", " + orderBy + ")");
+                "Transaction.findAll(" + params + ", " + offset + ", " + limit + ", " + orderBy + ")", e);
         }
     }
 
