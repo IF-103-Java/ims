@@ -120,12 +120,14 @@ public class Address {
             Objects.equals(address, address1.address) &&
             Objects.equals(zip, address1.zip) &&
             Objects.equals(latitude, address1.latitude) &&
-            Objects.equals(longitude, address1.longitude);
+            Objects.equals(longitude, address1.longitude) &&
+            Objects.equals(warehouseId, address1.warehouseId) &&
+            Objects.equals(associateId, address1.associateId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(country, city, address, zip, latitude, longitude);
+        return Objects.hash(country, city, address, zip, latitude, longitude, warehouseId, associateId);
     }
 
     @Override
@@ -138,6 +140,8 @@ public class Address {
             ", zip='" + zip + '\'' +
             ", latitude=" + latitude +
             ", longitude=" + longitude +
+            ", warehouseId=" + warehouseId +
+            ", associateId=" + associateId +
             '}';
     }
 }
