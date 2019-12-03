@@ -8,4 +8,12 @@ public class BaseRuntimeException extends RuntimeException {
 
     BaseRuntimeException() {
     }
+
+    public BaseRuntimeException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public BaseRuntimeException(Throwable cause) {
+        super(cause);
+    }
 }

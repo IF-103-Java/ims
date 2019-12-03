@@ -9,4 +9,12 @@ public class CRUDException extends BaseRuntimeException {
     public CRUDException() {
     }
 
+    public CRUDException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public CRUDException(Throwable cause) {
+        super(cause);
+    }
+
 }
