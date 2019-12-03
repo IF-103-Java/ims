@@ -8,6 +8,7 @@ public class Transaction {
     private BigInteger id;
     private Timestamp timestamp;
     private Long accountId;
+    private Long workerId;
     private Long associateId;
     private Long itemId;
     private Long quantity;
@@ -18,9 +19,10 @@ public class Transaction {
     public Transaction() {
     }
 
-    public Transaction(Long accountId, Long associateId,
+    public Transaction(Long accountId, Long workerId, Long associateId,
                        Long itemId, Long quantity, Long movedFrom, Long movedTo, TransactionType type) {
         this.accountId = accountId;
+        this.workerId = workerId;
         this.associateId = associateId;
         this.itemId = itemId;
         this.quantity = quantity;
@@ -29,8 +31,9 @@ public class Transaction {
         this.type = type;
     }
 
-    public Transaction(Long accountId, Long itemId, Long quantity, Long movedFrom, Long movedTo) {
+    public Transaction(Long accountId, Long workerId, Long itemId, Long quantity, Long movedFrom, Long movedTo) {
         this.accountId = accountId;
+        this.workerId = workerId;
         this.associateId = null;
         this.itemId = itemId;
         this.quantity = quantity;
@@ -39,8 +42,9 @@ public class Transaction {
         this.type = TransactionType.MOVE;
     }
 
-    public Transaction(Long accountId, Long associateId, Long itemId, Long quantity, TransactionType type) {
+    public Transaction(Long accountId, Long workerId, Long associateId, Long itemId, Long quantity, TransactionType type) {
         this.accountId = accountId;
+        this.workerId = workerId;
         this.associateId = associateId;
         this.itemId = itemId;
         this.quantity = quantity;
@@ -72,6 +76,14 @@ public class Transaction {
 
     public void setAccountId(Long accountId) {
         this.accountId = accountId;
+    }
+
+    public Long getWorkerId() {
+        return workerId;
+    }
+
+    public void setWorkerId(Long workerId) {
+        this.workerId = workerId;
     }
 
     public Long getAssociateId() {
@@ -129,6 +141,7 @@ public class Transaction {
         Transaction that = (Transaction) o;
         return Objects.equals(timestamp, that.timestamp) &&
             Objects.equals(accountId, that.accountId) &&
+            Objects.equals(workerId, that.workerId) &&
             Objects.equals(associateId, that.associateId) &&
             Objects.equals(itemId, that.itemId) &&
             Objects.equals(quantity, that.quantity) &&
@@ -139,7 +152,7 @@ public class Transaction {
 
     @Override
     public int hashCode() {
-        return Objects.hash(timestamp, accountId, associateId, itemId, quantity, movedFrom, movedTo, type);
+        return Objects.hash(timestamp, accountId, workerId, associateId, itemId, quantity, movedFrom, movedTo, type);
     }
 
     @Override
@@ -148,6 +161,7 @@ public class Transaction {
             "id=" + id +
             ", timestamp=" + timestamp +
             ", accountId=" + accountId +
+            ", workerId=" + workerId +
             ", associateId=" + associateId +
             ", itemId=" + itemId +
             ", quantity=" + quantity +
