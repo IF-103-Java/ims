@@ -2,6 +2,7 @@ package com.ita.if103java.ims.service.impl;
 
 import com.ita.if103java.ims.dao.UserDao;
 import com.ita.if103java.ims.dto.UserDto;
+import com.ita.if103java.ims.entity.Role;
 import com.ita.if103java.ims.entity.User;
 import com.ita.if103java.ims.mapper.UserDtoMapper;
 import com.ita.if103java.ims.service.MailService;
@@ -9,12 +10,14 @@ import com.ita.if103java.ims.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @PropertySource("classpath:application.properties")
@@ -26,20 +29,39 @@ public class UserServiceImpl implements UserService {
     private UserDao userDao;
     private UserDtoMapper userDtoMapper;
     private MailService mailService;
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
+
 
     @Autowired
     public UserServiceImpl(UserDao userDao, UserDtoMapper userDtoMapper, MailService mailService) {
         this.userDao = userDao;
         this.userDtoMapper = userDtoMapper;
         this.mailService = mailService;
+        this.bCryptPasswordEncoder = new BCryptPasswordEncoder();
+
     }
 
     @Override
     public UserDto create(UserDto userDto) {
-        User createdUser = userDao.create(userDtoMapper.convertUserDtoToUser(userDto));
-        activationURL += createdUser.getEmailUUID();
-        sendActivationMessage(userDto, activationURL);
-        return userDtoMapper.convertUserToUserDto(createdUser);
+        User user = userDao.create(userDtoMapper.convertUserDtoToUser(userDto));
+
+        ZonedDateTime currentDateTime = ZonedDateTime.now(ZoneId.systemDefault());
+        String emailUUID = UUID.randomUUID().toString();
+        String encryptedPassword = "";
+        Role role = Role.WORKER;
+        if (user.getFirstName() != null) {
+            encryptedPassword = bCryptPasswordEncoder.encode(user.getPassword());
+            role = Role.ADMIN;
+        }
+
+        user.setPassword(encryptedPassword);
+        user.setRole(role);
+        user.setCreatedDate(currentDateTime);
+        user.setUpdatedDate(currentDateTime);
+        user.setEmailUUID(emailUUID);
+
+        sendActivationMessage(userDto, activationURL + emailUUID);
+        return userDtoMapper.convertUserToUserDto(user);
     }
 
     @Override
@@ -78,7 +100,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean updatePassword(Long id, String newPassword) {
-        return userDao.updatePassword(id, newPassword);
+        return userDao.updatePassword(id, bCryptPasswordEncoder.encode(newPassword));
     }
 
     @Override
@@ -93,7 +115,7 @@ public class UserServiceImpl implements UserService {
             activatedUser.setActive(true);
             userDao.update(activatedUser);
             return true;
-        }else {
+        } else {
             userDao.hardDelete(activatedUser.getId());
             return false;
         }
