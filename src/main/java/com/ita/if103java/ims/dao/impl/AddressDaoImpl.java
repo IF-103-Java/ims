@@ -14,6 +14,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
+import java.util.Optional;
 
 @Repository
 public class AddressDaoImpl implements AddressDao {
@@ -119,7 +120,10 @@ public class AddressDaoImpl implements AddressDao {
         try {
             final KeyHolder keyHolder = new GeneratedKeyHolder();
             namedJdbcTemplate.update(query, sqlParameterSource, keyHolder);
-            return (Long) keyHolder.getKey();
+            return Optional
+                .ofNullable(keyHolder.getKey())
+                .map(Number::longValue)
+                .orElseThrow(() -> new CRUDException(crudErrorMessage));
         } catch (DataAccessException e) {
             throw new CRUDException(crudErrorMessage);
         }

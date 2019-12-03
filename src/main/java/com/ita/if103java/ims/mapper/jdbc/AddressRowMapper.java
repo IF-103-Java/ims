@@ -6,24 +6,26 @@ import org.springframework.stereotype.Component;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.function.Consumer;
 
 @Component
 public class AddressRowMapper implements RowMapper<Address> {
     @Override
     public Address mapRow(ResultSet resultSet, int rowNum) throws SQLException {
-        final Address address = new Address(
-            resultSet.getString("country"),
-            resultSet.getString("city"),
-            resultSet.getString("address"),
-            resultSet.getString("zip"),
-            resultSet.getFloat("latitude"),
-            resultSet.getFloat("longitude")
-        );
+        final Address address = new Address();
         address.setId(resultSet.getLong("id"));
-        final long warehouseId = resultSet.getLong("warehouse_id");
-        address.setWarehouseId(resultSet.wasNull() ? null : warehouseId);
-        final long associateId = resultSet.getLong("associate_id");
-        address.setAssociateId(resultSet.wasNull() ? null : associateId);
+        setValueOrNull(address::setCountry, resultSet.getString("country"), resultSet);
+        setValueOrNull(address::setCity, resultSet.getString("city"), resultSet);
+        setValueOrNull(address::setAddress, resultSet.getString("address"), resultSet);
+        setValueOrNull(address::setZip, resultSet.getString("zip"), resultSet);
+        setValueOrNull(address::setLongitude, resultSet.getFloat("longitude"), resultSet);
+        setValueOrNull(address::setLatitude, resultSet.getFloat("latitude"), resultSet);
+        setValueOrNull(address::setWarehouseId, resultSet.getLong("warehouse_id"), resultSet);
+        setValueOrNull(address::setAssociateId, resultSet.getLong("associate_id"), resultSet);
         return address;
+    }
+
+    private <T> void setValueOrNull(Consumer<T> consumer, T value , ResultSet rs) throws SQLException {
+        consumer.accept(rs.wasNull() ? null : value);
     }
 }
