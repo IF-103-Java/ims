@@ -61,7 +61,7 @@ public class UserDaoImpl implements UserDao {
     @Override
     public List<User> findByAccountId(Long accountId) {
         try {
-            return jdbcTemplate.query(Queries.SQL_SELECT_USER_BY_ACCOUNT_ID, userRowMapper, accountId);
+            return jdbcTemplate.query(Queries.SQL_SELECT_USERS_BY_ACCOUNT_ID, userRowMapper, accountId);
         } catch (EmptyResultDataAccessException e) {
             throw new UserNotFoundException("Failed to obtain user during `select` {accountId = " + accountId + "}", e);
         } catch (DataAccessException e) {
@@ -204,7 +204,7 @@ public class UserDaoImpl implements UserDao {
 
         static final String SQL_SELECT_ALL_USERS = "SELECT * FROM users";
 
-        static final String SQL_SELECT_USER_BY_ACCOUNT_ID = ""+
+        static final String SQL_SELECT_USERS_BY_ACCOUNT_ID = ""+
             "SELECT * FROM users WHERE id IN " +
             "(SELECT admin_id FROM accounts WHERE  account_id = ?)";
 

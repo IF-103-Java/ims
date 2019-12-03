@@ -47,7 +47,7 @@ public class UserController {
         return userService.findByAccountId(accountId);
     }
 
-    @PutMapping(value = "/update-profile", produces = MediaType.APPLICATION_JSON_VALUE,
+    @PutMapping(value = "/update-info", produces = MediaType.APPLICATION_JSON_VALUE,
         consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public UserDto update(@AuthenticationPrincipal User user, @Validated({ExistData.class}) @RequestBody UserDto userDto) {
@@ -59,6 +59,7 @@ public class UserController {
         return userService.update(userDto);
     }
 
+    //TO DO: add @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/delete/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable("id") Long id) {
@@ -77,10 +78,11 @@ public class UserController {
         return userService.activateUser(emailUUID);
     }
 
+    //TO DO: add resetpassword() via email to loginService and change it
     @PostMapping("/reset-password")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void resetPassword(@AuthenticationPrincipal User user,
-                              @Validated @RequestBody @NotNull String newPassword) {
+                              @Validated({ExistData.class}) @RequestBody @NotNull String newPassword) {
         userService.updatePassword(user.getId(), newPassword);
     }
 

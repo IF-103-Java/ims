@@ -1,50 +1,53 @@
 package com.ita.if103java.ims.security;
 
-import com.ita.if103java.ims.entity.Role;
 import com.ita.if103java.ims.entity.User;
-import com.mysql.cj.x.protobuf.MysqlxCrud;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Collection;
+import java.util.Collections;
 
 public class UserDetailsImpl implements UserDetails {
 
     private User user;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-      return Collections.singletonList(new SimpleGrantedAuthority(user.getRole().name()));
+        return Collections.singletonList(new SimpleGrantedAuthority(user.getRole().name()));
+    }
+
+    public User getUser() {
+        return user;
     }
 
     @Override
     public String getPassword() {
-        return null;
+        return user.getPassword();
     }
 
     @Override
     public String getUsername() {
-        return null;
+        return user.getEmail();
     }
 
     @Override
     public boolean isAccountNonExpired() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isEnabled() {
-        return false;
+        return user.isActive();
     }
 }

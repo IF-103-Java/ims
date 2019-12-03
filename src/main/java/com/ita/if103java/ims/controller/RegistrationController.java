@@ -26,7 +26,7 @@ public class RegistrationController {
     }
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE,
-        consumes = MediaType.APPLICATION_JSON_VALUE)
+                 consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public void createUser(@Validated({NewData.class}) @RequestBody UserDto userDto) {
         UserDto createdUser = userService.create(userDto);
