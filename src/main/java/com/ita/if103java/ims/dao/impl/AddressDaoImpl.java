@@ -1,8 +1,8 @@
 package com.ita.if103java.ims.dao.impl;
 
 import com.ita.if103java.ims.entity.Address;
+import com.ita.if103java.ims.exception.AddressNotFoundException;
 import com.ita.if103java.ims.exception.CRUDException;
-import com.ita.if103java.ims.exception.EntityNotFoundException;
 import com.ita.if103java.ims.mapper.jdbc.AddressRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -134,7 +134,7 @@ public class AddressDaoImpl implements AddressDao {
         try {
             final int rowsAffected = namedJdbcTemplate.update(query, sqlParameterSource);
             if (rowsAffected == 0) {
-                throw new EntityNotFoundException(notFoundMessage);
+                throw new AddressNotFoundException(notFoundMessage);
             }
         } catch (DataAccessException e) {
             throw new CRUDException(crudErrorMessage, e);
@@ -146,7 +146,7 @@ public class AddressDaoImpl implements AddressDao {
         try {
             return namedJdbcTemplate.queryForObject(query, sqlParameterSource, mapper);
         } catch (EmptyResultDataAccessException e) {
-            throw new EntityNotFoundException(notFoundMessage);
+            throw new AddressNotFoundException(notFoundMessage);
         } catch (DataAccessException e) {
             throw new CRUDException(crudErrorMessage, e);
         }
