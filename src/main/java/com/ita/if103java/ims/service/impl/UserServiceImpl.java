@@ -70,8 +70,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDto> findByAccountId(Long accountID) {
-        return userDtoMapper.convertToUserDtoList(userDao.findByAccountId(accountID));
+    public List<UserDto> findUsersByAccountId(Long accountID) {
+        return userDtoMapper.convertToUserDtoList(userDao.findUsersByAccountId(accountID));
+    }
+
+    @Override
+    public UserDto findUserByAccountId(Long accountID) {
+        return userDtoMapper.convertUserToUserDto(userDao.findUserByAccountId(accountID));
     }
 
     @Override
@@ -121,7 +126,10 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    private void sendActivationMessage(UserDto userDto, String message) {
-        mailService.sendMessage(userDto, "Please, activate your account:" + message, "Account activation");
+    private void sendActivationMessage(UserDto userDto, String activationURL) {
+        String message = ""+
+            "Hello, we are happy to see you in our the Inventory Management System.\n" +
+            "Please, follow link bellow to activate your account:\n";
+        mailService.sendMessage(userDto, message + activationURL, "Account activation");
     }
 }

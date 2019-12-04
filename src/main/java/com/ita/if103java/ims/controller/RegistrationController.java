@@ -30,6 +30,5 @@ public class RegistrationController {
     @ResponseStatus(HttpStatus.CREATED)
     public void createUser(@Validated({NewData.class}) @RequestBody UserDto userDto) {
         UserDto createdUser = userService.create(userDto);
-        userService.activateUser(createdUser.getEmailUUID());
     }
 }

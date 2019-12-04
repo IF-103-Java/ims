@@ -29,7 +29,7 @@ public class UserController {
         this.userDtoMapper = userDtoMapper;
     }
 
-    @GetMapping(value = "/get/{id}")
+    @GetMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.OK)
     public UserDto findById(@PathVariable("id") Long id) {
         return userService.findById(id);
@@ -41,14 +41,20 @@ public class UserController {
         return userService.findByEmail(email);
     }
 
-    @GetMapping(value = "/{accountId}/get-users")
+    @GetMapping(value = "/account/users")
     @ResponseStatus(HttpStatus.OK)
-    public List<UserDto> findByAccountId(@PathVariable("accountId") Long accountId) {
-        return userService.findByAccountId(accountId);
+    public List<UserDto> findUsersByAccountId(@RequestParam("accountId") Long accountId) {
+        return userService.findUsersByAccountId(accountId);
     }
 
-    @PutMapping(value = "/update-info", produces = MediaType.APPLICATION_JSON_VALUE,
-        consumes = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/account/admin")
+    @ResponseStatus(HttpStatus.OK)
+    public UserDto findUserByAccountId(@RequestParam("accountId") Long accountId) {
+        return userService.findUserByAccountId(accountId);
+    }
+
+    @PutMapping(value = "/me", produces = MediaType.APPLICATION_JSON_VALUE,
+                                        consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public UserDto update(@AuthenticationPrincipal User user, @Validated({ExistData.class}) @RequestBody UserDto userDto) {
         userDto.setId(user.getId());
@@ -60,21 +66,21 @@ public class UserController {
     }
 
     //TO DO: add @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable("id") Long id) {
         userService.delete(id);
     }
 
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping(value = "/all")
+    @GetMapping(value = "")
     public List<UserDto> findAll() {
         return userService.findAll();
     }
 
-    @PostMapping(value = "/dashboards/{emailUUID}")
+    @PostMapping(value = "/confirmation")
     @ResponseStatus(HttpStatus.OK)
-    public boolean activateUser(@PathVariable("emailUUID") String emailUUID) {
+    public boolean activateUser(@RequestParam("emailUUID") String emailUUID) {
         return userService.activateUser(emailUUID);
     }
 
@@ -86,7 +92,7 @@ public class UserController {
         userService.updatePassword(user.getId(), newPassword);
     }
 
-    @GetMapping("/current-user")
+    @GetMapping("/me")
     public UserDto getCurrentUser(@AuthenticationPrincipal User user) {
         return userDtoMapper.convertUserToUserDto(user);
     }
