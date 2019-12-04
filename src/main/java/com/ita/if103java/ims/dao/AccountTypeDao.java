@@ -15,5 +15,7 @@ public interface AccountTypeDao {
 
     AccountType update(AccountType account);
 
+    Long minLvlType();
+
     boolean delete(Long id);
 }

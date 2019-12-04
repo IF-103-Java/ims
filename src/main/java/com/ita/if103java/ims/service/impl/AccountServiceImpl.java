@@ -1,37 +1,39 @@
 package com.ita.if103java.ims.service.impl;
 
 import com.ita.if103java.ims.dao.AccountDao;
-import com.ita.if103java.ims.dto.AccountCreateDto;
-import com.ita.if103java.ims.dto.AccountUpdateDto;
+import com.ita.if103java.ims.dto.AccountDto;
 import com.ita.if103java.ims.entity.Account;
-import com.ita.if103java.ims.mapper.AccountCreateDtoMapper;
-import com.ita.if103java.ims.mapper.AccountUpdateDtoMapper;
+import com.ita.if103java.ims.mapper.AccountDtoMapper;
 import com.ita.if103java.ims.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class AccountServiceImpl implements AccountService {
 
     private AccountDao accountDao;
-    private AccountCreateDtoMapper accountCreateDtoMapper;
-    private AccountUpdateDtoMapper accountUpdateDtoMapper;
+    private AccountDtoMapper accountDtoMapper;
 
     @Autowired
-    public AccountServiceImpl(AccountDao accountDao, AccountCreateDtoMapper accountCreateDtoMapper, AccountUpdateDtoMapper accountUpdateDtoMapper) {
+    public AccountServiceImpl(AccountDao accountDao, AccountDtoMapper accountDtoMapper) {
         this.accountDao = accountDao;
-        this.accountCreateDtoMapper = accountCreateDtoMapper;
-        this.accountUpdateDtoMapper = accountUpdateDtoMapper;
+        this.accountDtoMapper = accountDtoMapper;
     }
 
     @Override
-    public AccountCreateDto create(AccountCreateDto accountCreateDto) {
-        Account account = accountDao.create(accountCreateDtoMapper.convertAccountCreateDtoToAccount(accountCreateDto));
-        return accountCreateDtoMapper.convertAccountToAccountCreateDto(account);
+    public AccountDto create(AccountDto accountDto) {
+        Account account = accountDao.create(accountDtoMapper.convertAccountDtoToAccount(accountDto));
+        return accountDtoMapper.convertAccountToAccountDto(account);
     }
 
     @Override
-    public AccountUpdateDto update(AccountUpdateDto accountUpdateDto) {
-        Account account = accountDao.update(accountUpdateDtoMapper.convertAccountUpdateDtoToAccount(accountUpdateDto));
-        return accountUpdateDtoMapper.convertAccountToAccountUpdateDto(account);
+    public AccountDto update(AccountDto accountDto) {
+        Account account = accountDao.update(accountDtoMapper.convertAccountDtoToAccount(accountDto));
+        return accountDtoMapper.convertAccountToAccountDto(account);
+    }
+
+    @Override
+    public AccountDto view(Long id) {
+        Account account = accountDao.findById(id);
+        return accountDtoMapper.convertAccountToAccountDto(account);
     }
 
     @Override

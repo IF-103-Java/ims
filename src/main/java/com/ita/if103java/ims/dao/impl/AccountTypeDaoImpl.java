@@ -2,8 +2,8 @@ package com.ita.if103java.ims.dao.impl;
 
 import com.ita.if103java.ims.dao.AccountTypeDao;
 import com.ita.if103java.ims.entity.AccountType;
+import com.ita.if103java.ims.exception.AccountTypeNotFoundException;
 import com.ita.if103java.ims.exception.CRUDException;
-import com.ita.if103java.ims.exception.EntityNotFoundException;
 import com.ita.if103java.ims.mapper.jdbc.AccountTypeRowMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +21,7 @@ import java.sql.Statement;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 public class AccountTypeDaoImpl implements AccountTypeDao {
@@ -56,7 +57,7 @@ public class AccountTypeDaoImpl implements AccountTypeDao {
         try {
             return jdbcTemplate.queryForObject(Queries.SQL_SELECT_ACCOUNT_TYPE_BY_ID, accountTypeRowMapper, id);
         } catch (EmptyResultDataAccessException e) {
-            throw new EntityNotFoundException("id = " + id, e);
+            throw new AccountTypeNotFoundException("id = " + id, e);
         } catch (DataAccessException e) {
             throw new CRUDException("get, id = " + id, e);
         }
@@ -67,7 +68,7 @@ public class AccountTypeDaoImpl implements AccountTypeDao {
         try {
             return jdbcTemplate.queryForObject(Queries.SQL_SELECT_ACCOUNT_TYPE_BY_NAME, accountTypeRowMapper, name);
         } catch (EmptyResultDataAccessException e) {
-            throw new EntityNotFoundException("name = " + name, e);
+            throw new AccountTypeNotFoundException("name = " + name, e);
         } catch (DataAccessException e) {
             throw new CRUDException("get, name = " + name, e);
         }
@@ -102,9 +103,20 @@ public class AccountTypeDaoImpl implements AccountTypeDao {
             throw new CRUDException("update, id = " + accountType.getId(), e);
         }
         if (status == 0)
-            throw new EntityNotFoundException("Update account type exception, id = " + accountType.getId());
+            throw new AccountTypeNotFoundException("Update account type exception, id = " + accountType.getId());
 
         return accountType;
+    }
+
+    @Override
+    public Long minLvlType() {
+        try {
+            return Objects.requireNonNull(jdbcTemplate.queryForObject(Queries.SQL_FIND_MIN_LVL_TYPE, accountTypeRowMapper)).getId();
+        } catch (EmptyResultDataAccessException e) {
+            throw new AccountTypeNotFoundException("Find min lvl type", e);
+        } catch (DataAccessException e) {
+            throw new CRUDException("Find min lvl type", e);
+        }
     }
 
     @Override
@@ -117,7 +129,7 @@ public class AccountTypeDaoImpl implements AccountTypeDao {
             throw new CRUDException("delete, id = " + id, e);
         }
         if (status == 0)
-            throw new EntityNotFoundException("Delete account type exception, id = " + id);
+            throw new AccountTypeNotFoundException("Delete account type exception, id = " + id);
 
         return true;
     }
@@ -156,5 +168,7 @@ public class AccountTypeDaoImpl implements AccountTypeDao {
             "max_suppliers = ?, max_clients = ?, active = ? WHERE id = ?";
 
         static final String SQL_SET_ACTIVE_STATUS_ACCOUNT_TYPE = "UPDATE account_types SET active = ? WHERE id = ?";
+
+        static final String SQL_FIND_MIN_LVL_TYPE = "SELECT MIN(level) FROM account_types";
     }
 }

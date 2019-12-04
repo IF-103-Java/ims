@@ -1,13 +1,14 @@
 package com.ita.if103java.ims.service;
 
 
-import com.ita.if103java.ims.dto.AccountCreateDto;
-import com.ita.if103java.ims.dto.AccountUpdateDto;
+import com.ita.if103java.ims.dto.AccountDto;
 
 public interface AccountService {
-    AccountCreateDto create(AccountCreateDto accountCreateDto);
+    AccountDto create(AccountDto accountDto);
 
-    AccountUpdateDto update(AccountUpdateDto accountUpdateDto);
+    AccountDto update(AccountDto accountUpdateDto);
+
+    AccountDto view(Long id);
 
     boolean delete(Long id);
 }

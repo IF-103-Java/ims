@@ -31,7 +31,6 @@ public class UserDaoImpl implements UserDao {
         this.userRowMapper = userRowMapper;
     }
 
-
     @Override
     public User create(User user) {
         try {
@@ -173,6 +172,15 @@ public class UserDaoImpl implements UserDao {
         }
     }
 
+    @Override
+    public Integer countOfUsers(Long accountId) {
+        try {
+            return jdbcTemplate.update(Queries.SQL_COUNT_OF_USERS, false, accountId);
+        } catch (DataAccessException e) {
+            throw new CRUDException("Check count of users exception, id = " + accountId);
+        }
+    }
+
     private PreparedStatement getPreparedStatement(User user, Connection connection) throws SQLException {
         PreparedStatement preparedStatement = connection.prepareStatement(Queries.SQL_CREATE_USER, Statement.RETURN_GENERATED_KEYS);
 
@@ -216,5 +224,7 @@ public class UserDaoImpl implements UserDao {
         static final String SQL_SELECT_USER_BY_EMAIL_UUID = "SELECT * FROM users WHERE email_uuid = ?";
 
         static final String SQL_DELETE_USER_BY_ID = "DELETE FROM users WHERE id = ? ";
+
+        static final String SQL_COUNT_OF_USERS = "SELECT COUNT(*) FROM users WHERE account_id = ?";
     }
 }
