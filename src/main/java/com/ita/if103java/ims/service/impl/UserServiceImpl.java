@@ -43,13 +43,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto create(UserDto userDto) {
-        User user = userDao.create(userDtoMapper.convertUserDtoToUser(userDto));
+        User user = userDtoMapper.convertUserDtoToUser(userDto);
 
         ZonedDateTime currentDateTime = ZonedDateTime.now(ZoneId.systemDefault());
         String emailUUID = UUID.randomUUID().toString();
         String encryptedPassword = "";
-        Role role = Role.WORKER;
-        if (user.getFirstName() != null) {
+        Role role = user.getRole();
+        if (role == null) {
             encryptedPassword = bCryptPasswordEncoder.encode(user.getPassword());
             role = Role.ADMIN;
         }
@@ -60,7 +60,8 @@ public class UserServiceImpl implements UserService {
         user.setUpdatedDate(currentDateTime);
         user.setEmailUUID(emailUUID);
 
-        sendActivationMessage(userDto, activationURL + emailUUID);
+        User createdUser = userDao.create(user);
+        sendActivationMessage(userDtoMapper.convertUserToUserDto(createdUser), activationURL + emailUUID);
         return userDtoMapper.convertUserToUserDto(user);
     }
 
@@ -127,8 +128,8 @@ public class UserServiceImpl implements UserService {
     }
 
     private void sendActivationMessage(UserDto userDto, String activationURL) {
-        String message = ""+
-            "Hello, we are happy to see you in our the Inventory Management System.\n" +
+        String message = "" +
+            "Hello, we are happy to see you in our Inventory Management System.\n" +
             "Please, follow link bellow to activate your account:\n";
         mailService.sendMessage(userDto, message + activationURL, "Account activation");
     }
