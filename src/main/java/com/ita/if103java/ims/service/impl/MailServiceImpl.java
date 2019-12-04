@@ -40,4 +40,19 @@ public class MailServiceImpl implements MailService {
             LOGGER.error(msg, e);
         }
     }
+
+    @Override
+    public void sendInvitationMessage(String email, String message, String subject) {
+
+        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+        try {
+            mimeMessage.addRecipient(Message.RecipientType.TO, new InternetAddress(email));
+            mimeMessage.setSubject(subject);
+            mimeMessage.setContent(message, "text/html");
+            javaMailSender.send(mimeMessage);
+        } catch (MessagingException e) {
+            String msg = "Sending message " + subject + " to email " + email + " was failed!";
+            LOGGER.error(msg, e);
+        }
+    }
 }
