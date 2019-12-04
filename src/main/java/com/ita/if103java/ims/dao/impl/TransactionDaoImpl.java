@@ -3,7 +3,7 @@ package com.ita.if103java.ims.dao.impl;
 import com.ita.if103java.ims.dao.TransactionDao;
 import com.ita.if103java.ims.entity.Transaction;
 import com.ita.if103java.ims.exception.CRUDException;
-import com.ita.if103java.ims.exception.EntityNotFoundException;
+import com.ita.if103java.ims.exception.TransactionNotFoundException;
 import com.ita.if103java.ims.mapper.jdbc.TransactionRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -57,7 +57,7 @@ public class TransactionDaoImpl implements TransactionDao {
         try {
             return jdbcTemplate.queryForObject(Queries.SQL_SELECT_TRANSACTION_BY_ID, mapper, id);
         } catch (EmptyResultDataAccessException e) {
-            throw new EntityNotFoundException("Transaction not found -> Transaction.findById(" + id + ")", e);
+            throw new TransactionNotFoundException("Transaction not found -> Transaction.findById(" + id + ")", e);
         } catch (DataAccessException e) {
             throw new CRUDException("Error during a transaction 'select' -> Transaction.findById(" + id + ")", e);
         }
@@ -94,7 +94,7 @@ public class TransactionDaoImpl implements TransactionDao {
 
     private String buildSqlFilterCondition(String columnName, Object columnValue) {
         // associate_id = :associate_id
-        // associate_id is null
+        // associate_id is :associate_id (if :associate_id ==  null)
         return String.format("%s %s :%s", columnName, columnValue == null ? "is" : "=", columnName);
     }
 
