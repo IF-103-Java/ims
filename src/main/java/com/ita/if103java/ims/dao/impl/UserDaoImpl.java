@@ -215,7 +215,7 @@ public class UserDaoImpl implements UserDao {
         static final String SQL_SELECT_ALL_USERS = "SELECT * FROM users";
 
         static final String SQL_SELECT_USERS_BY_ACCOUNT_ID = "" +
-            "SELECT * FROM users WHERE id = ?";
+            "SELECT * FROM users WHERE account_id = ?";
 
         static final String SQL_SELECT_USER_BY_ACCOUNT_ID = "" +
             "SELECT * FROM users WHERE role = 'Admin' AND account_id = ?";
