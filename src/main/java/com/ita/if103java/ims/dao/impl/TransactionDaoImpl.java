@@ -15,7 +15,6 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
-import javax.sql.DataSource;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
@@ -26,14 +25,15 @@ import java.util.stream.Stream;
 
 @Repository
 public class TransactionDaoImpl implements TransactionDao {
-    private TransactionRowMapper mapper;
-    private NamedParameterJdbcTemplate namedJdbcTemplate;
     private JdbcTemplate jdbcTemplate;
+    private NamedParameterJdbcTemplate namedJdbcTemplate;
+    private TransactionRowMapper mapper;
 
     @Autowired
-    public TransactionDaoImpl(DataSource dataSource, TransactionRowMapper mapper) {
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
-        this.namedJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+    public TransactionDaoImpl(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedJdbcTemplate,
+                              TransactionRowMapper mapper) {
+        this.jdbcTemplate = jdbcTemplate;
+        this.namedJdbcTemplate = namedJdbcTemplate;
         this.mapper = mapper;
     }
 
