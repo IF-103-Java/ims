@@ -7,33 +7,34 @@ import com.ita.if103java.ims.mapper.jdbc.AddressRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
-import javax.sql.DataSource;
 import java.util.Optional;
 
 @Repository
 public class AddressDaoImpl implements AddressDao {
+    private JdbcTemplate jdbcTemplate;
     private NamedParameterJdbcTemplate namedJdbcTemplate;
     private AddressRowMapper mapper;
 
     @Autowired
-    public AddressDaoImpl(DataSource dataSource, AddressRowMapper addressRowMapper) {
-        this.namedJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+    public AddressDaoImpl(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedJdbcTemplate,
+                          AddressRowMapper addressRowMapper) {
+        this.jdbcTemplate = jdbcTemplate;
+        this.namedJdbcTemplate = namedJdbcTemplate;
         this.mapper = addressRowMapper;
     }
 
     @Override
     public Address createWarehouseAddress(Long warehouseId, Address address) {
-        final MapSqlParameterSource parameterSource = getSqlParameterSource(address);
-        parameterSource.addValue("warehouse_id", warehouseId);
         final Long addressId = createAddress(
             Queries.SQL_CREATE_NEW_WAREHOUSE_ADDRESS,
-            parameterSource,
+            getSqlParameterSource(address).addValue("warehouse_id", warehouseId),
             "Error during `create` warehouseId=" + warehouseId
         );
         address.setId(addressId);
@@ -42,11 +43,9 @@ public class AddressDaoImpl implements AddressDao {
 
     @Override
     public Address createAssociateAddress(Long associateId, Address address) {
-        final MapSqlParameterSource parameterSource = getSqlParameterSource(address);
-        parameterSource.addValue("associate_id", associateId);
         final Long addressId = createAddress(
             Queries.SQL_CREATE_NEW_ASSOCIATE_ADDRESS,
-            parameterSource,
+            getSqlParameterSource(address).addValue("associate_id", associateId),
             "Error during address `create` associateId=" + associateId
         );
         address.setId(addressId);
@@ -55,11 +54,9 @@ public class AddressDaoImpl implements AddressDao {
 
     @Override
     public Address updateWarehouseAddress(Long warehouseId, Address address) {
-        final MapSqlParameterSource parameterSource = getSqlParameterSource(address);
-        parameterSource.addValue("warehouse_id", warehouseId);
-        updateSingleAddressRecord(
+        updateAddress(
             Queries.SQL_UPDATE_WAREHOUSE_ADDRESS,
-            parameterSource,
+            getSqlParameterSource(address).addValue("warehouse_id", warehouseId),
             "Failed to `update` address warehouseId=" + warehouseId,
             "Error during `update` address warehouseId=" + warehouseId
         );
@@ -68,11 +65,9 @@ public class AddressDaoImpl implements AddressDao {
 
     @Override
     public Address updateAssociateAddress(Long associateId, Address address) {
-        final MapSqlParameterSource parameterSource = getSqlParameterSource(address);
-        parameterSource.addValue("associate_id", associateId);
-        updateSingleAddressRecord(
+        updateAddress(
             Queries.SQL_UPDATE_ASSOCIATE_ADDRESS,
-            parameterSource,
+            getSqlParameterSource(address).addValue("associate_id", associateId),
             "Failed to `update` address associateId=" + associateId,
             "Error during `update` address associateId=" + associateId
         );
@@ -81,11 +76,9 @@ public class AddressDaoImpl implements AddressDao {
 
     @Override
     public Address findById(Long addressId) {
-        final MapSqlParameterSource parameterSource = new MapSqlParameterSource();
-        parameterSource.addValue("id", addressId);
-        return findSingleAddressRecord(
+        return findAddressById(
             Queries.SQL_SELECT_ADDRESS_BY_ID,
-            parameterSource,
+            addressId,
             "Failed to obtain address during `select` addressId=" + addressId,
             "Error during `select` addressId=" + addressId
         );
@@ -93,11 +86,9 @@ public class AddressDaoImpl implements AddressDao {
 
     @Override
     public Address findByWarehouseId(Long warehouseId) {
-        final MapSqlParameterSource parameterSource = new MapSqlParameterSource();
-        parameterSource.addValue("warehouse_id", warehouseId);
-        return findSingleAddressRecord(
+        return findAddressById(
             Queries.SQL_SELECT_WAREHOUSE_ADDRESS,
-            parameterSource,
+            warehouseId,
             "Failed to obtain address during `select` warehouseId=" + warehouseId,
             "Error during `select` warehouseId=" + warehouseId
         );
@@ -105,11 +96,9 @@ public class AddressDaoImpl implements AddressDao {
 
     @Override
     public Address findByAssociateId(Long associateId) {
-        final MapSqlParameterSource parameterSource = new MapSqlParameterSource();
-        parameterSource.addValue("associate_id", associateId);
-        return findSingleAddressRecord(
+        return findAddressById(
             Queries.SQL_SELECT_ASSOCIATE_ADDRESS,
-            parameterSource,
+            associateId,
             "Failed to obtain address during `select` associateId=" + associateId,
             "Error during `select` associateId=" + associateId
         );
@@ -129,8 +118,8 @@ public class AddressDaoImpl implements AddressDao {
         }
     }
 
-    public void updateSingleAddressRecord(String query, MapSqlParameterSource sqlParameterSource,
-                                          String notFoundMessage, String crudErrorMessage) {
+    public void updateAddress(String query, MapSqlParameterSource sqlParameterSource,
+                              String notFoundMessage, String crudErrorMessage) {
         try {
             final int rowsAffected = namedJdbcTemplate.update(query, sqlParameterSource);
             if (rowsAffected == 0) {
@@ -141,10 +130,9 @@ public class AddressDaoImpl implements AddressDao {
         }
     }
 
-    public Address findSingleAddressRecord(String query, MapSqlParameterSource sqlParameterSource,
-                                           String notFoundMessage, String crudErrorMessage) {
+    public Address findAddressById(String query, Long id, String notFoundMessage, String crudErrorMessage) {
         try {
-            return namedJdbcTemplate.queryForObject(query, sqlParameterSource, mapper);
+            return jdbcTemplate.queryForObject(query, mapper, id);
         } catch (EmptyResultDataAccessException e) {
             throw new AddressNotFoundException(notFoundMessage);
         } catch (DataAccessException e) {
@@ -198,19 +186,19 @@ public class AddressDaoImpl implements AddressDao {
         public static final String SQL_SELECT_ADDRESS_BY_ID = """
                 select *
                 from addresses
-                where id = :id
+                where id = ?
             """;
 
         public static final String SQL_SELECT_WAREHOUSE_ADDRESS = """
                 select *
                 from addresses
-                where warehouse_id = :warehouse_id
+                where warehouse_id = ?
             """;
 
         public static final String SQL_SELECT_ASSOCIATE_ADDRESS = """
                 select *
                 from addresses
-                where associate_id = :associate_id
+                where associate_id = ?
             """;
     }
 }
