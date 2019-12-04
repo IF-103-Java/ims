@@ -112,7 +112,9 @@ public class AddressDaoImpl implements AddressDao {
             return Optional
                 .ofNullable(keyHolder.getKey())
                 .map(Number::longValue)
-                .orElseThrow(() -> new CRUDException(crudErrorMessage));
+                .orElseThrow(() -> new CRUDException(
+                    "Failed to generate PK -> Address.create(" + sqlParameterSource.getValues() + ")"
+                ));
         } catch (DataAccessException e) {
             throw new CRUDException(crudErrorMessage, e);
         }
@@ -134,7 +136,7 @@ public class AddressDaoImpl implements AddressDao {
         try {
             return jdbcTemplate.queryForObject(query, mapper, id);
         } catch (EmptyResultDataAccessException e) {
-            throw new AddressNotFoundException(notFoundMessage);
+            throw new AddressNotFoundException(notFoundMessage, e);
         } catch (DataAccessException e) {
             throw new CRUDException(crudErrorMessage, e);
         }
