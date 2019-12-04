@@ -53,7 +53,7 @@ public class AccountDaoImpl implements AccountDao {
             account.setActive(true);
             return account;
         } catch (DataAccessException e) {
-            throw crudException(e.getMessage(), "create", "id = " + account.getId());
+            throw new CRUDException("Error during create account, id = " + account.getId(), e);
         }
     }
 
@@ -62,9 +62,9 @@ public class AccountDaoImpl implements AccountDao {
         try {
             return jdbcTemplate.queryForObject(Queries.SQL_SELECT_ACCOUNT_BY_ID, accountRowMapper, id);
         } catch (EmptyResultDataAccessException e) {
-            throw accountEntityNotFoundException(e.getMessage(), "id = " + id);
+            throw new EntityNotFoundException("id = " + id, e);
         } catch (DataAccessException e) {
-            throw crudException(e.getMessage(), "get", "id = " + id);
+            throw new CRUDException("get, id = " + id, e);
         }
     }
 
@@ -73,9 +73,9 @@ public class AccountDaoImpl implements AccountDao {
         try {
             return jdbcTemplate.queryForObject(Queries.SQL_SELECT_ACCOUNT_BY_ADMIN_ID, accountRowMapper, adminId);
         } catch (EmptyResultDataAccessException e) {
-            throw accountEntityNotFoundException(e.getMessage(), "id = " + adminId);
+            throw new EntityNotFoundException("id = " + adminId, e);
         } catch (DataAccessException e) {
-            throw crudException(e.getMessage(), "get", "id = " + adminId);
+            throw new CRUDException("get, id = " + adminId, e);
         }
     }
 
@@ -89,10 +89,10 @@ public class AccountDaoImpl implements AccountDao {
                 account.getId());
 
         } catch (DataAccessException e) {
-            throw crudException(e.getMessage(), "update", "id = " + account.getId());
+            throw new CRUDException("update, id = " + account.getId(), e);
         }
         if (status == 0)
-            throw accountEntityNotFoundException("Update account exception", "id = " + account.getId());
+            throw new EntityNotFoundException("Update account exception, id = " + account.getId());
 
         return account;
     }
@@ -104,10 +104,10 @@ public class AccountDaoImpl implements AccountDao {
             status = jdbcTemplate.update(Queries.SQL_SET_ACTIVE_STATUS_ACCOUNT, true, id);
 
         } catch (DataAccessException e) {
-            throw crudException(e.getMessage(), "activate", "id = " + id);
+            throw new CRUDException("activate, id = " + id, e);
         }
         if (status == 0)
-            throw accountEntityNotFoundException("Activate account exception", "id = " + id);
+            throw new EntityNotFoundException("Activate account exception, id = " + id);
 
         return true;
     }
@@ -119,10 +119,10 @@ public class AccountDaoImpl implements AccountDao {
             status = jdbcTemplate.update(Queries.SQL_SET_ACTIVE_STATUS_ACCOUNT, false, id);
 
         } catch (DataAccessException e) {
-            throw crudException(e.getMessage(), "delete", "id = " + id);
+            throw new CRUDException("delete, id = " + id, e);
         }
         if (status == 0)
-            throw accountEntityNotFoundException("Delete account exception", "id = " + id);
+            throw new EntityNotFoundException("Delete account exception, id = " + id);
 
         return true;
     }
@@ -134,10 +134,10 @@ public class AccountDaoImpl implements AccountDao {
             status = jdbcTemplate.update(Queries.SQL_UPGRADE_ACCOUNT, typeId, id);
 
         } catch (DataAccessException e) {
-            throw crudException(e.getMessage(), "update", "id = " + id);
+            throw new CRUDException("update, id = " + id, e);
         }
         if (status == 0)
-            throw accountEntityNotFoundException("Update account to Premium exception", "id = " + id);
+            throw new EntityNotFoundException("Update account to Premium exception, id = " + id);
 
         return true;
     }
@@ -147,7 +147,7 @@ public class AccountDaoImpl implements AccountDao {
         try {
             return jdbcTemplate.update(Queries.SQL_COUNT_OF_USERS, false, accountId);
         } catch (DataAccessException e) {
-            throw crudException(e.getMessage(), "check count of users", "id = " + accountId);
+            throw new CRUDException("Check count of users exception, id = " + accountId);
         }
     }
 
@@ -163,18 +163,6 @@ public class AccountDaoImpl implements AccountDao {
 
 
         return preparedStatement;
-    }
-
-    private EntityNotFoundException accountEntityNotFoundException(String message, String attribute) {
-        EntityNotFoundException exception = new EntityNotFoundException(message);
-        logger.error("EntityNotFoundException exception. Account is not found ({}). Message: {}", attribute, message);
-        return exception;
-    }
-
-    private CRUDException crudException(String message, String operation, String attribute) {
-        CRUDException exception = new CRUDException(message);
-        logger.error("CRUDException exception. Operation:({}) account ({}) exception. Message: {}", operation, attribute, message);
-        return exception;
     }
 
     class Queries {
