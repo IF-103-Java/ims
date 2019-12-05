@@ -49,12 +49,12 @@ public class UserController {
 
     @GetMapping(value = "/account/admin")
     @ResponseStatus(HttpStatus.OK)
-    public UserDto findUserByAccountId(@RequestParam("accountId") Long accountId) {
-        return userService.findUserByAccountId(accountId);
+    public UserDto findAdminByAccountId(@RequestParam("accountId") Long accountId) {
+        return userService.findAdminByAccountId(accountId);
     }
 
     @PutMapping(value = "/me", produces = MediaType.APPLICATION_JSON_VALUE,
-                                        consumes = MediaType.APPLICATION_JSON_VALUE)
+        consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public UserDto update(@AuthenticationPrincipal User user, @Validated({ExistData.class}) @RequestBody UserDto userDto) {
         userDto.setId(user.getId());
