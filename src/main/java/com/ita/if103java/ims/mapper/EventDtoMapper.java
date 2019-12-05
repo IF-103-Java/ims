@@ -23,7 +23,7 @@ public class EventDtoMapper {
         event.setWarehouseId(eventDto.getWarehouseId());
         event.setTransactionId(eventDto.getTransactionId());
         event.setDate(eventDto.getDate());
-        event.setType(eventDto.getType());
+        event.setName(eventDto.getName());
         event.setMessage(eventDto.getMessage());
         return event;
     }
@@ -39,7 +39,7 @@ public class EventDtoMapper {
         eventDto.setWarehouseId(event.getWarehouseId());
         eventDto.setTransactionId(event.getTransactionId());
         eventDto.setDate(event.getDate());
-        eventDto.setType(event.getType());
+        eventDto.setName(event.getName());
         eventDto.setMessage(event.getMessage());
         return eventDto;
     }
