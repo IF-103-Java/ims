@@ -2,7 +2,9 @@ package com.ita.if103java.ims.mapper;
 
 import com.ita.if103java.ims.dto.AssociateDto;
 import com.ita.if103java.ims.entity.Associate;
+import org.springframework.stereotype.Component;
 
+@Component
 public class AssociateDtoMapper {
 
     public AssociateDto convertAssociateToAssociateDto(Associate associate) {
