@@ -9,9 +9,13 @@ public interface WarehouseDao {
 
     Warehouse update(Warehouse warehouse);
 
-    boolean deleteWarehouse(long id);
+    boolean softDelete(Long id);
+
+    boolean hardDelete(Long id);
 
     List<Warehouse> findAll();
 
-    Warehouse findById(long id);
+    Warehouse findById(Long id);
+
+    List<Warehouse> findChildrenByID(Long id);
 }
