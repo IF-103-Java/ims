@@ -8,7 +8,6 @@ import com.ita.if103java.ims.mapper.UserDtoMapper;
 import com.ita.if103java.ims.service.MailService;
 import com.ita.if103java.ims.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,12 +22,8 @@ import java.util.UUID;
 @PropertySource("classpath:application.properties")
 public class UserServiceImpl implements UserService {
 
-    @Value("${mail.activationURL}")
-    private String activationURL;
-
     private UserDao userDao;
     private UserDtoMapper userDtoMapper;
-    private MailService mailService;
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
 
@@ -36,7 +31,6 @@ public class UserServiceImpl implements UserService {
     public UserServiceImpl(UserDao userDao, UserDtoMapper userDtoMapper, MailService mailService) {
         this.userDao = userDao;
         this.userDtoMapper = userDtoMapper;
-        this.mailService = mailService;
         this.bCryptPasswordEncoder = new BCryptPasswordEncoder();
 
     }
@@ -60,9 +54,7 @@ public class UserServiceImpl implements UserService {
         user.setUpdatedDate(currentDateTime);
         user.setEmailUUID(emailUUID);
 
-        User createdUser = userDao.create(user);
-        sendActivationMessage(userDtoMapper.convertUserToUserDto(createdUser), activationURL + emailUUID);
-        return userDtoMapper.convertUserToUserDto(user);
+        return userDtoMapper.convertUserToUserDto(userDao.create(user));
     }
 
     @Override
@@ -76,8 +68,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto findUserByAccountId(Long accountID) {
-        return userDtoMapper.convertUserToUserDto(userDao.findUserByAccountId(accountID));
+    public UserDto findAdminByAccountId(Long accountID) {
+        return userDtoMapper.convertUserToUserDto(userDao.findAdminByAccountId(accountID));
     }
 
     @Override
@@ -127,10 +119,5 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    private void sendActivationMessage(UserDto userDto, String activationURL) {
-        String message = "" +
-            "Hello, we are happy to see you in our Inventory Management System.\n" +
-            "Please, follow link bellow to activate your account:\n";
-        mailService.sendMessage(userDto, message + activationURL, "Account activation");
-    }
+
 }

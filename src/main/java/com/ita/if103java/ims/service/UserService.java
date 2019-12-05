@@ -12,7 +12,7 @@ public interface UserService {
 
     List<UserDto> findUsersByAccountId(Long accountID);
 
-    UserDto findUserByAccountId(Long accountID);
+    UserDto findAdminByAccountId(Long accountID);
 
     UserDto update(UserDto userDto);
 

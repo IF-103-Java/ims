@@ -70,9 +70,9 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public User findUserByAccountId(Long accountId) {
+    public User findAdminByAccountId(Long accountId) {
         try {
-            return jdbcTemplate.queryForObject(Queries.SQL_SELECT_USER_BY_ACCOUNT_ID, userRowMapper, accountId);
+            return jdbcTemplate.queryForObject(Queries.SQL_SELECT_ADMIN_BY_ACCOUNT_ID, userRowMapper, accountId);
         } catch (EmptyResultDataAccessException e) {
             throw new UserNotFoundException("Failed to obtain user during `select` {accountId = " + accountId + "}", e);
         } catch (DataAccessException e) {
@@ -217,7 +217,7 @@ public class UserDaoImpl implements UserDao {
         static final String SQL_SELECT_USERS_BY_ACCOUNT_ID = "" +
             "SELECT * FROM users WHERE account_id = ?";
 
-        static final String SQL_SELECT_USER_BY_ACCOUNT_ID = "" +
+        static final String SQL_SELECT_ADMIN_BY_ACCOUNT_ID = "" +
             "SELECT * FROM users WHERE role = 'Admin' AND account_id = ?";
 
         static final String SQL_UPDATE_USER = "UPDATE users SET first_name= ?, last_name = ?," +
