@@ -84,6 +84,15 @@ public class AccountTypeDaoImpl implements AccountTypeDao {
     }
 
     @Override
+    public List<AccountType> selectAllPossibleToUpgrade(Long typeId) {
+        try {
+            return jdbcTemplate.query(Queries.SQL_FIND_ALL_POSSIBLE_TO_UPGRADE, accountTypeRowMapper, typeId);
+        } catch (DataAccessException e) {
+            throw new CRUDException("get, *", e);
+        }
+    }
+
+    @Override
     public AccountType update(AccountType accountType) {
         int status;
         try {
@@ -170,5 +179,7 @@ public class AccountTypeDaoImpl implements AccountTypeDao {
         static final String SQL_SET_ACTIVE_STATUS_ACCOUNT_TYPE = "UPDATE account_types SET active = ? WHERE id = ?";
 
         static final String SQL_FIND_MIN_LVL_TYPE = "SELECT MIN(level) FROM account_types";
+
+        static final String SQL_FIND_ALL_POSSIBLE_TO_UPGRADE = "SELECT * FROM account_types WHERE level > ?";
     }
 }

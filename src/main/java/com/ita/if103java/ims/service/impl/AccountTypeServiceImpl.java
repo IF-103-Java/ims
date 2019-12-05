@@ -23,4 +23,9 @@ public class AccountTypeServiceImpl implements AccountTypeService {
     public List<AccountTypeDto> findAll() {
         return accountTypeDtoMapper.convertToAccountTypeDtoList(accountTypeDao.selectAll());
     }
+
+    @Override
+    public List<AccountTypeDto> findAllPossibleToUpgrade(Long typeId) {
+        return accountTypeDtoMapper.convertToAccountTypeDtoList(accountTypeDao.selectAllPossibleToUpgrade(typeId));
+    }
 }

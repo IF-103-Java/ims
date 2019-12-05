@@ -13,6 +13,8 @@ public interface AccountTypeDao {
 
     List<AccountType> selectAll();
 
+    List<AccountType> selectAllPossibleToUpgrade(Long typeId);
+
     AccountType update(AccountType account);
 
     Long minLvlType();
