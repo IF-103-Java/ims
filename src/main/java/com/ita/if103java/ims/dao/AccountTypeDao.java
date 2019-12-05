@@ -11,7 +11,7 @@ public interface AccountTypeDao {
 
     AccountType findByName(String name);
 
-    List<AccountType> selectAll();
+    List<AccountType> selectAllActive();
 
     List<AccountType> selectAllPossibleToUpgrade(Long typeId);
 

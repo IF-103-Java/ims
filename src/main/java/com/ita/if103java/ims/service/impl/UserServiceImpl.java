@@ -60,7 +60,6 @@ public class UserServiceImpl implements UserService {
         user.setUpdatedDate(currentDateTime);
         user.setEmailUUID(emailUUID);
 
-        sendActivationMessage(userDto, activationURL + emailUUID);
         return userDtoMapper.convertUserToUserDto(user);
     }
 
@@ -119,9 +118,5 @@ public class UserServiceImpl implements UserService {
             userDao.hardDelete(activatedUser.getId());
             return false;
         }
-    }
-
-    private void sendActivationMessage(UserDto userDto, String message) {
-        mailService.sendMessage(userDto, "Please, activate your account:" + message, "Account activation");
     }
 }

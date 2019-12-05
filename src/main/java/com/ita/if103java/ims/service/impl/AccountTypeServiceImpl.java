@@ -21,7 +21,7 @@ public class AccountTypeServiceImpl implements AccountTypeService {
 
     @Override
     public List<AccountTypeDto> findAll() {
-        return accountTypeDtoMapper.convertToAccountTypeDtoList(accountTypeDao.selectAll());
+        return accountTypeDtoMapper.convertToAccountTypeDtoList(accountTypeDao.selectAllActive());
     }
 
     @Override

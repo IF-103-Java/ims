@@ -15,7 +15,6 @@ public class AccountDtoMapper {
             account.setName(accountDto.getName());
             account.setTypeId(accountDto.getTypeId());
             account.setAdminId(accountDto.getAdminId());
-            account.setCreatedDate(accountDto.getCreatedDate());
             account.setActive(accountDto.isActive());
             return account;
         }
@@ -30,7 +29,6 @@ public class AccountDtoMapper {
             accountDto.setName(account.getName());
             accountDto.setTypeId(account.getTypeId());
             accountDto.setAdminId(account.getAdminId());
-            accountDto.setCreatedDate(account.getCreatedDate());
             accountDto.setActive(account.isActive());
             return accountDto;
         }

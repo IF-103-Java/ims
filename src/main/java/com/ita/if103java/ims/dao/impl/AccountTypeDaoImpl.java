@@ -5,13 +5,12 @@ import com.ita.if103java.ims.entity.AccountType;
 import com.ita.if103java.ims.exception.AccountTypeNotFoundException;
 import com.ita.if103java.ims.exception.CRUDException;
 import com.ita.if103java.ims.mapper.jdbc.AccountTypeRowMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -24,9 +23,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+@Repository
 public class AccountTypeDaoImpl implements AccountTypeDao {
 
-    private static Logger logger = LoggerFactory.getLogger(AccountDaoImpl.class);
     private JdbcTemplate jdbcTemplate;
     private AccountTypeRowMapper accountTypeRowMapper;
 
@@ -75,7 +74,7 @@ public class AccountTypeDaoImpl implements AccountTypeDao {
     }
 
     @Override
-    public List<AccountType> selectAll() {
+    public List<AccountType> selectAllActive() {
         try {
             return jdbcTemplate.query(Queries.SQL_SELECT_ALL_ACCOUNT_TYPES, accountTypeRowMapper);
         } catch (DataAccessException e) {
@@ -169,7 +168,7 @@ public class AccountTypeDaoImpl implements AccountTypeDao {
 
         static final String SQL_SELECT_ACCOUNT_TYPE_BY_NAME = "SELECT * FROM account_types WHERE name = ?";
 
-        static final String SQL_SELECT_ALL_ACCOUNT_TYPES = "SELECT * FROM account_types";
+        static final String SQL_SELECT_ALL_ACCOUNT_TYPES = "SELECT * FROM account_types where active = true";
 
         static final String SQL_UPDATE_ACCOUNT_TYPE = "UPDATE account_types SET " +
             "name = ?, price= ?, level= ?, max_warehouses = ?," +
@@ -180,6 +179,6 @@ public class AccountTypeDaoImpl implements AccountTypeDao {
 
         static final String SQL_FIND_MIN_LVL_TYPE = "SELECT MIN(level) FROM account_types";
 
-        static final String SQL_FIND_ALL_POSSIBLE_TO_UPGRADE = "SELECT * FROM account_types WHERE level > ?";
+        static final String SQL_FIND_ALL_POSSIBLE_TO_UPGRADE = "SELECT * FROM account_types WHERE level > ? and active = true";
     }
 }
