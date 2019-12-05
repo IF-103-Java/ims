@@ -83,16 +83,19 @@ public class EventDaoImpl implements EventDao {
     }
 
     private String buildSqlFilterCondition(String columnName, Object columnValue) {
+        if (columnName == null) {
+            return "";
+        }
         if (columnName == "date") {
-            return String.format("DATE(%s) %s '%s'", columnName, columnValue == null ? "is" : "=", columnValue);
+            return String.format("DATE(date) = '%s'", columnValue);
         }
         if (columnName == "after") {
-            return String.format("DATE(date) %s '%s'", columnValue == null ? "is" : ">=", columnValue);
+            return String.format("DATE(date) >= '%s'", columnValue);
         }
         if (columnName == "before") {
-            return String.format("DATE(date) %s '%s'", columnValue == null ? "is" : "<=", columnValue);
+            return String.format("DATE(date) <= '%s'", columnValue);
         }
-        return String.format("%s %s '%s'", columnName, columnValue == null ? "is" : "=", columnValue);
+        return String.format("%s %s '%s'", columnName, "=", columnValue);
     }
 
     private PreparedStatement getPreparedStatement(Connection connection, Event event) throws SQLException {

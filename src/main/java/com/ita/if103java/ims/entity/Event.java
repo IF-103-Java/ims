@@ -13,46 +13,51 @@ public class Event {
     private Long accountId;
     private Long warehouseId;
     private Long authorId;
+    private EventName eventName;
     private EventType type;
     private Long transactionId;
 
     public Event() {
     }
 
-    public Event(String message, ZonedDateTime date, Long accountId, Long authorId, EventType type) {
+    public Event(String message, ZonedDateTime date, Long accountId, Long authorId, EventName eventName) {
         this.message = message;
         this.date = date;
         this.accountId = accountId;
         this.authorId = authorId;
-        this.type = type;
+        this.eventName = eventName;
+        this.type = eventName.getType();
     }
 
-    public Event(String message, ZonedDateTime date, Long accountId, Long authorId, EventType type, Long transactionId) {
+    public Event(String message, ZonedDateTime date, Long accountId, Long authorId, EventName eventName, Long transactionId) {
         this.message = message;
         this.date = date;
         this.accountId = accountId;
         this.authorId = authorId;
-        this.type = type;
+        this.eventName = eventName;
+        this.type = eventName.getType();
         this.transactionId = transactionId;
     }
 
-    public Event(String message, ZonedDateTime date, Long accountId, Long warehouseId, Long authorId, EventType type) {
+    public Event(String message, ZonedDateTime date, Long accountId, Long warehouseId, Long authorId, EventName eventName) {
         this.message = message;
         this.date = date;
         this.accountId = accountId;
         this.warehouseId = warehouseId;
         this.authorId = authorId;
-        this.type = type;
+        this.eventName = eventName;
+        this.type = eventName.getType();
     }
 
     public Event(String message, Long accountId,
-                 Long warehouseId, Long authorId, EventType type, Long transactionId) {
+                 Long warehouseId, Long authorId, EventName eventName, Long transactionId) {
         this.message = message;
         this.date = ZonedDateTime.now();
         this.accountId = accountId;
         this.warehouseId = warehouseId;
         this.authorId = authorId;
-        this.type = type;
+        this.eventName = eventName;
+        this.type = eventName.getType();
         this.transactionId = transactionId;
     }
 
@@ -108,8 +113,13 @@ public class Event {
         return type;
     }
 
-    public void setType(EventType type) {
-        this.type = type;
+    public void setEventName(EventName eventName) {
+        this.eventName = eventName;
+        this.type = eventName.getType();
+    }
+
+    public EventName getEventName() {
+        return eventName;
     }
 
     public Long getTransactionId() {
@@ -125,18 +135,19 @@ public class Event {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Event event = (Event) o;
-        return accountId == event.accountId &&
-            warehouseId == event.warehouseId &&
-            authorId == event.authorId &&
-            transactionId == event.transactionId &&
-            Objects.equals(message, event.message) &&
+        return Objects.equals(message, event.message) &&
             Objects.equals(date, event.date) &&
-            type == event.type;
+            Objects.equals(accountId, event.accountId) &&
+            Objects.equals(warehouseId, event.warehouseId) &&
+            Objects.equals(authorId, event.authorId) &&
+            eventName == event.eventName &&
+            type == event.type &&
+            Objects.equals(transactionId, event.transactionId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(message, date, accountId, warehouseId, authorId, type, transactionId);
+        return Objects.hash(message, date, accountId, warehouseId, authorId, eventName, type, transactionId);
     }
 
     @Override
@@ -148,9 +159,9 @@ public class Event {
             ", accountId=" + accountId +
             ", warehouseId=" + warehouseId +
             ", authorId=" + authorId +
+            ", eventName=" + eventName +
             ", type=" + type +
             ", transactionId=" + transactionId +
             '}';
     }
-
 }
