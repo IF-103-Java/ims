@@ -2,24 +2,30 @@ package com.ita.if103java.ims.mapper;
 
 import com.ita.if103java.ims.dto.SavedItemDto;
 import com.ita.if103java.ims.entity.SavedItem;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Component
 public class SavedItemDtoMapper {
     public SavedItem convertSavedItemDtoToSavedItem(SavedItemDto savedItemDto) {
         SavedItem savedItem = new SavedItem();
-        savedItem.setWarehouseId(savedItemDto.getIdWarehouse());
+        savedItem.setId(savedItemDto.getId());
+        savedItem.setWarehouseId(savedItemDto.getWarehouseId());
         savedItem.setQuantity(savedItemDto.getQuantity());
         savedItem.setItemId(savedItemDto.getItemId());
+        savedItem.setWarehouse(savedItemDto.getWarehouse());
         return savedItem;
     }
 
     public SavedItemDto convertSavedItemToSavedItemDto(SavedItem savedItem) {
         SavedItemDto savedItemDto = new SavedItemDto();
-        savedItemDto.setIdWarehouse(savedItem.getWarehouseId());
+        savedItemDto.setId(savedItem.getId());
+        savedItemDto.setWarehouseId(savedItem.getWarehouseId());
         savedItemDto.setItemId(savedItem.getItemId());
         savedItemDto.setQuantity(savedItem.getQuantity());
+        savedItemDto.setWarehouse(savedItem.getWarehouse());
         return savedItemDto;
     }
 

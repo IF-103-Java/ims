@@ -63,6 +63,17 @@ public class ItemDaoImpl implements ItemDao {
     }
 
     @Override
+    public Item findItemById(Long id) {
+        try {
+            return jdbcTemplate.queryForObject(Queries.SQL_SELECT_ITEM_BY_ID, itemRowMapper);
+        } catch (EmptyResultDataAccessException e) {
+            throw itemEntityNotFoundException(e.getMessage(), "id = " + id);
+        } catch (DataAccessException e) {
+            throw crudException(e.toString(), "get", "id  = " + id);
+        }
+    }
+
+    @Override
     public Item addItem(Item item) {
         try {
             jdbcTemplate.update(Queries.SQL_INSERT_INTO_ITEM, item.getName(), item.getUnit(), item.getDescription(), item.getVolume(), item.isActive(), item.getAccountId());
@@ -103,7 +114,9 @@ public class ItemDaoImpl implements ItemDao {
         static final String SQL_SELECT_ITEMS = "select * from Items";
         static final String SQL_SELECT_ITEM_BY_NAME = "select * from Items where name_item=?";
         static final String SQL_SELECT_ITEM_BY_ACCOUNT_ID = "select * from Items where account_id=?";
+        static final String SQL_SELECT_ITEM_BY_ID = "select * from Items where id=?";
         static final String SQL_INSERT_INTO_ITEM = "insert into Items(name_item, unit, description, volume, active, account_id) values(?, ?, ?, ?, ?, ?)";
         static final String SQL_SET_ACTIVE_STATUS_ITEM = "update Items set active= ? where name_item=?";
+
     }
 }

@@ -11,10 +11,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.util.List;
 
+@Repository
 public class SavedItemDaoImpl implements SavedItemDao {
     private static final Logger LOGGER = LoggerFactory.getLogger(ItemDaoImpl.class);
     private JdbcTemplate jdbcTemplate;
@@ -83,6 +85,21 @@ public class SavedItemDaoImpl implements SavedItemDao {
 
     }
 
+    @Override
+    public boolean outComeSavedItem(SavedItem savedItem, int quantity) {
+        int status;
+        try {
+            status = jdbcTemplate.update(Queries.SQL_SET_QUANTITY_SAVED_ITEMS, quantity, savedItem.getId());
+
+        } catch (DataAccessException e) {
+            throw crudException(e.toString(), "Update", "quantity = " + quantity);
+        }
+        if (status == 0) {
+            throw savedItemEntityNotFoundException("Update savedItem exception", "quantity = " + quantity);
+        }
+        return true;
+    }
+
 
     @Override
     public boolean updateSavedItem(Long warehouseId, Long savedItemId) {
@@ -137,5 +154,6 @@ public class SavedItemDaoImpl implements SavedItemDao {
         static final String SQL_INSERT_INTO_SAVED_ITEM = "insert into SavedItems(item_id, quantity, warehouse_id) values(?,?, ?)";
         static final String SQL_DELETE_SAVED_ITEM_BY_SAVED_ITEM_ID = "delete from SavedItems where id=?";
         static final String SQL_SET_WAREHOUSE_ID_SAVED_ITEMS = "update SavedItems set warehouse_id=? where id=?";
+        static final String SQL_SET_QUANTITY_SAVED_ITEMS = "update SavedItems set quantity=? where id=?";
     }
 }

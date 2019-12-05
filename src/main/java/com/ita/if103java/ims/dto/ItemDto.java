@@ -1,9 +1,16 @@
 package com.ita.if103java.ims.dto;
 
+import org.springframework.stereotype.Component;
+
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
 
+@Component
 public class ItemDto {
+    @NotNull
+    @Null
+    private Long id;
     @NotBlank
     private String name;
     @NotBlank
@@ -13,7 +20,17 @@ public class ItemDto {
     @NotNull
     private int volume;
     @NotNull
+    private Long accountId;
+    @NotNull
     private boolean active;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getName() {
         return name;
@@ -45,6 +62,14 @@ public class ItemDto {
 
     public void setVolume(int volume) {
         this.volume = volume;
+    }
+
+    public Long getAccountId() {
+        return accountId;
+    }
+
+    public void setAccountId(Long accountId) {
+        this.accountId = accountId;
     }
 
     public boolean isActive() {
