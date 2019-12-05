@@ -1,5 +1,6 @@
 package com.ita.if103java.ims.dao.impl;
 
+import com.ita.if103java.ims.dao.AddressDao;
 import com.ita.if103java.ims.entity.Address;
 import com.ita.if103java.ims.exception.AddressNotFoundException;
 import com.ita.if103java.ims.exception.CRUDException;
