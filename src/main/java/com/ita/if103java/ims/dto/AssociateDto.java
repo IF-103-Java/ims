@@ -13,11 +13,12 @@ public class AssociateDto {
     private String phone;
     private String additionalInfo;
     private AssociateType type;
+    private AddressDto addressDto;
 
     public AssociateDto() {
     }
 
-    public AssociateDto(Long id, Long accountId, String name, String email, String phone, String additionalInfo, AssociateType type) {
+    public AssociateDto(Long id, Long accountId, String name, String email, String phone, String additionalInfo, AssociateType type, AddressDto addressDto) {
         this.id = id;
         this.accountId = accountId;
         this.name = name;
@@ -25,6 +26,7 @@ public class AssociateDto {
         this.phone = phone;
         this.additionalInfo = additionalInfo;
         this.type = type;
+        this.addressDto = addressDto;
     }
 
     public Long getId() {
@@ -81,5 +83,27 @@ public class AssociateDto {
 
     public void setType(AssociateType type) {
         this.type = type;
+    }
+
+    public AddressDto getAddressDto() {
+        return addressDto;
+    }
+
+    public void setAddressDto(AddressDto addressDto) {
+        this.addressDto = addressDto;
+    }
+
+    @Override
+    public String toString() {
+        return "AssociateDto{" +
+            "id=" + id +
+            ", accountId=" + accountId +
+            ", name='" + name + '\'' +
+            ", email='" + email + '\'' +
+            ", phone='" + phone + '\'' +
+            ", additionalInfo='" + additionalInfo + '\'' +
+            ", type=" + type +
+            ", addressDto=" + addressDto +
+            '}';
     }
 }
