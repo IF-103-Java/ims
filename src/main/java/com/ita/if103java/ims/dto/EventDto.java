@@ -1,41 +1,26 @@
 package com.ita.if103java.ims.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.ita.if103java.ims.dto.transfer.ExistData;
-import com.ita.if103java.ims.dto.transfer.NewData;
 import com.ita.if103java.ims.entity.EventType;
+import org.springframework.stereotype.Component;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Null;
+import java.io.Serializable;
 import java.time.ZonedDateTime;
 import java.util.Objects;
 
-public class EventDto {
-    @Null(groups = {NewData.class},
-        message = "This field must be empty due to auto generation")
-    @NotNull(groups = {ExistData.class},
-        message = "This field can't be empty")
+@Component
+public class EventDto implements Serializable {
     private Long id;
-    @NotBlank(groups = {NewData.class, ExistData.class},
-        message = "Provide a message")
     private String message;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
     private ZonedDateTime date;
-    @NotNull(groups = {NewData.class, ExistData.class},
-        message = "This field can't be empty")
     private Long accountId;
     private Long warehouseId;
-    @NotNull(groups = {NewData.class, ExistData.class},
-        message = "This field can't be empty")
     private Long authorId;
-    @NotNull(groups = {NewData.class, ExistData.class},
-        message = "This field can't be empty")
     private EventType type;
     private Long transactionId;
 
     public EventDto() {
     }
+
     public EventDto(String message, ZonedDateTime date, Long accountId, Long authorId, EventType type) {
         this.message = message;
         this.date = date;
@@ -62,7 +47,7 @@ public class EventDto {
         this.type = type;
     }
 
-    public EventDto(Long id,  String message, ZonedDateTime date, Long accountId, Long warehouseId,  Long authorId, EventType type, Long transactionId) {
+    public EventDto(Long id, String message, ZonedDateTime date, Long accountId, Long warehouseId, Long authorId, EventType type, Long transactionId) {
         this.id = id;
         this.message = message;
         this.date = date;

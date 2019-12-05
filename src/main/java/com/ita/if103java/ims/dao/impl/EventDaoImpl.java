@@ -95,7 +95,6 @@ public class EventDaoImpl implements EventDao {
         return String.format("%s %s '%s'", columnName, columnValue == null ? "is" : "=", columnValue);
     }
 
-
     private PreparedStatement getPreparedStatement(Connection connection, Event event) throws SQLException {
         PreparedStatement preparedStatement = connection.prepareStatement(Queries.SQL_CREATE_EVENT, Statement.RETURN_GENERATED_KEYS);
         int i = 0;
