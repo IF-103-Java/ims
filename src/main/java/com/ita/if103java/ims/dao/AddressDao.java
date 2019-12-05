@@ -1,4 +1,4 @@
-package com.ita.if103java.ims.dao.impl;
+package com.ita.if103java.ims.dao;
 
 import com.ita.if103java.ims.entity.Address;
 
