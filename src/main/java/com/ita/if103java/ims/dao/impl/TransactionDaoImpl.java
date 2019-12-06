@@ -16,6 +16,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigInteger;
+import java.sql.Types;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -85,7 +86,9 @@ public class TransactionDaoImpl implements TransactionDao {
             limit, offset
         );
         try {
-            return namedJdbcTemplate.query(query, params, mapper);
+            final MapSqlParameterSource paramSource = new MapSqlParameterSource(params);
+            paramSource.registerSqlType("type", Types.VARCHAR);
+            return namedJdbcTemplate.query(query, paramSource, mapper);
         } catch (DataAccessException e) {
             throw new CRUDException("Error during a transactions 'select' -> " +
                 "Transaction.findAll(" + params + ", " + offset + ", " + limit + ", " + orderBy + ")", e);
@@ -99,7 +102,7 @@ public class TransactionDaoImpl implements TransactionDao {
     }
 
     private MapSqlParameterSource getSqlParameterSource(Transaction transaction) {
-        return new MapSqlParameterSource()
+        final MapSqlParameterSource parameterSource = new MapSqlParameterSource()
             .addValue("account_id", transaction.getAccountId())
             .addValue("worker_id", transaction.getWorkerId())
             .addValue("item_id", transaction.getItemId())
@@ -107,7 +110,9 @@ public class TransactionDaoImpl implements TransactionDao {
             .addValue("associate_id", transaction.getAssociateId())
             .addValue("moved_from", transaction.getMovedFrom())
             .addValue("moved_to", transaction.getMovedTo())
-            .addValue("type", transaction.getType().toString());
+            .addValue("type", transaction.getType());
+        parameterSource.registerSqlType("type", Types.VARCHAR);
+        return parameterSource;
     }
 
     public static final class Queries {
