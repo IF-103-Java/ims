@@ -5,9 +5,11 @@ import com.ita.if103java.ims.dao.SavedItemDao;
 import com.ita.if103java.ims.dao.WarehouseDao;
 import com.ita.if103java.ims.dto.ItemDto;
 import com.ita.if103java.ims.dto.SavedItemDto;
-import com.ita.if103java.ims.entity.Item;
+import com.ita.if103java.ims.dto.WarehouseLoadDto;
 import com.ita.if103java.ims.entity.SavedItem;
 import com.ita.if103java.ims.entity.Warehouse;
+import com.ita.if103java.ims.exception.ItemNotEnoughCapacityInWarehouseException;
+import com.ita.if103java.ims.exception.ItemNotEnoughQuantityException;
 import com.ita.if103java.ims.mapper.ItemDtoMapper;
 import com.ita.if103java.ims.mapper.SavedItemDtoMapper;
 import com.ita.if103java.ims.service.ItemService;
@@ -41,24 +43,32 @@ public class ItemServiceImpl implements ItemService {
 
     }
 
-
     @Override
-    public List<Warehouse> findUseFullWarehouses(SavedItemDto savedItemDto) {
-        int capacity = savedItemDto.getItemDto().getVolume() * savedItemDto.getQuantity();
-        return warehouseDao.findAll().stream().filter(x -> x.getCapacity() >= capacity).collect(Collectors.toList());
-    }
-
-    @Override
-    public SavedItemDto addItem(SavedItemDto savedItemDto) {
-        Item item = itemDtoMapper.convertItemDtoToItem(savedItemDto.getItemDto());
-        itemDao.addItem(item);
+    public SavedItemDto addSavedItem(SavedItemDto savedItemDto) {
         SavedItem savedItem = savedItemDtoMapper.convertSavedItemDtoToSavedItem(savedItemDto);
-        savedItem.setItemId(itemDao.findItemByName(item.getName()).getId());
-        if (warehouseDao.findById(savedItemDto.getWarehouseId()).getCapacity() >= savedItemDto.getItemDto().getVolume() * savedItemDto.getQuantity()) {
+        savedItem.setItemId(itemDao.findItemByName(savedItemDto.getItemDto().getName()).getId());
+        if (isEnoughCapacityInWarehouse(savedItemDto)) {
             savedItemDao.addSavedItem(savedItem);
             return savedItemDto;
         }
         return null;
+
+    }
+    private boolean isEnoughCapacityInWarehouse(SavedItemDto savedItemDto){
+        return warehouseDao.findById(savedItemDto.getWarehouseId()).getCapacity() >= savedItemDto.getItemDto().getVolume() * savedItemDto.getQuantity();
+    }
+
+    @Override
+    public List<Warehouse> findUseFullWarehouses(SavedItemDto savedItemDto) {
+        int capacity = savedItemDto.getItemDto().getVolume() * savedItemDto.getQuantity();
+
+        return warehouseDao.findAll().stream().filter(x -> x.getCapacity() >= capacity).collect(Collectors.toList());
+    }
+
+    @Override
+    public ItemDto addItem(ItemDto itemDto) {
+      itemDao.addItem(itemDtoMapper.convertItemDtoToItem(itemDto));
+     return itemDto;
     }
 
 
@@ -74,20 +84,21 @@ public class ItemServiceImpl implements ItemService {
 
 
     @Override
-    public boolean moveItem(Long warehouseId, SavedItemDto savedItemDto) {
-        Item item = itemDao.findItemById(savedItemDto.getItemId());
-
-        if (warehouseDao.findById(savedItemDto.getWarehouseId()).getCapacity() >= item.getVolume() * savedItemDto.getQuantity()) {
-            return savedItemDao.updateSavedItem(warehouseId, savedItemDto.getId());
+    public boolean moveItem(WarehouseLoadDto warehouseLoadDto, SavedItemDto savedItemDto) {
+        savedItemDto.setItemDto(itemDtoMapper.convertItemToItemDto(itemDao.findItemById(savedItemDto.getId())));
+        if (isEnoughCapacityInWarehouse(savedItemDto)) {
+            return savedItemDao.updateSavedItem(warehouseLoadDto.getId(), savedItemDto.getId());
         }
-        return false;
+       throw new ItemNotEnoughCapacityInWarehouseException("Can't move savedItemDto in warehouse because it doesn't  have enough capacity {warehouse_id = " + warehouseLoadDto.getCapacity() + "}");
     }
-
-    public String outComeItem(SavedItemDto savedItemDto, int quantity) {
-        if (savedItemDao.findSavedItemByItemId(savedItemDto.getItemDto().getId()).getQuantity() >= quantity && warehouseDao.findById(savedItemDto.getWarehouseId()).getCapacity() >= quantity) {
-            savedItemDao.outComeSavedItem(savedItemDtoMapper.convertSavedItemDtoToSavedItem(savedItemDto), savedItemDto.getQuantity() - quantity);
-            return "outcome success";
+    @Override
+    public SavedItemDto outcomeItem(SavedItemDto savedItemDto, int quantity) {
+        int difference = savedItemDto.getQuantity()-quantity;
+        if (savedItemDao.findSavedItemByItemId(savedItemDto.getItemDto().getId()).getQuantity() >= quantity) {
+            savedItemDao.outComeSavedItem(savedItemDtoMapper.convertSavedItemDtoToSavedItem(savedItemDto), difference);
+            savedItemDto.setQuantity(difference);
+            return savedItemDto;
         }
-        return "outcome failed. Can't find needed quantity item in warehouse";
+        throw new ItemNotEnoughQuantityException("Outcome failed. Can't find needed quantity item in warehouse needed quantity of items {warehouse_id = " + savedItemDto.getId() + "quantity"+ quantity+"}");
     }
 }
