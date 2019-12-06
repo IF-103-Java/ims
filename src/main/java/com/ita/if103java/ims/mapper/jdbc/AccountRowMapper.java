@@ -16,7 +16,7 @@ public class AccountRowMapper implements RowMapper<Account> {
         Account account = new Account();
         account.setId(resultSet.getLong("id"));
         account.setName(resultSet.getString("name"));
-        account.setType((AccountType) resultSet.getObject("type"));
+        account.setTypeId(resultSet.getLong("type_id"));
         account.setAdminId(resultSet.getLong("admin_id"));
         account.setCreatedDate(resultSet.getObject("created_date", ZonedDateTime.class));
         account.setActive(resultSet.getBoolean("active"));

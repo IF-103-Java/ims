@@ -18,7 +18,5 @@ public interface AssociateDao {
 
     Associate update(Associate associate);
 
-    boolean softDelete(Long id);
-
-    boolean hardDelete(Long id);
+    boolean delete(Long id);
 }
