@@ -12,8 +12,10 @@ public class RefillListRowMapper implements RowMapper<RefillListDto> {
     @Override
     public RefillListDto mapRow(ResultSet resultSet, int rowNum) throws SQLException {
         RefillListDto RefillListDto = new RefillListDto();
+        RefillListDto.setId(resultSet.getLong("id"));
         RefillListDto.setName(resultSet.getString("name"));
-        RefillListDto.setItem_name(resultSet.getString("item_name"));
+        RefillListDto.setItemName(resultSet.getString("name_item"));
+        RefillListDto.setQuantity(resultSet.getInt("quantity"));
         return RefillListDto;
     }
 }
