@@ -11,7 +11,6 @@ import java.util.Objects;
 @Component
 public class WarehouseDto implements Serializable {
 
-    @NotNull(message = "This field must be filled with the auto-generator during creating new warehouse")
     private long id;
     @NotBlank(message = "This field mustn't be empty. Please, enter name of warehouse")
     private String name;

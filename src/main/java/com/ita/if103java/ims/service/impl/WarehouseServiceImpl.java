@@ -44,14 +44,12 @@ public class WarehouseServiceImpl implements WarehouseService {
     @Override
     public WarehouseDto update(WarehouseDto warehouseDto) {
         Warehouse updatedWarehouse = warehouseDtoMapper.convertWarehouseDtoToWarehouse(warehouseDto);
-        //Activating status can't be changed in this way
         Warehouse DBWarehouse = warehouseDao.findById(updatedWarehouse.getId());
         updatedWarehouse.setActive(DBWarehouse.isActive());
         return warehouseDtoMapper.convertWarehouseToWarehouseDto(warehouseDao.update(updatedWarehouse));
     }
 
     @Override
-    public boolean softDelete(Long id) {
-        return warehouseDao.softDelete(id);
+    public boolean softDelete(Long id) {return warehouseDao.softDelete(id);
     }
 }

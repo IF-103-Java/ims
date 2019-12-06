@@ -11,8 +11,6 @@ public interface WarehouseDao {
 
     boolean softDelete(Long id);
 
-    boolean hardDelete(Long id);
-
     List<Warehouse> findAll();
 
     Warehouse findById(Long id);
