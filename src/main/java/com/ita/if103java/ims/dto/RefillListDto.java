@@ -2,17 +2,28 @@ package com.ita.if103java.ims.dto;
 
 
 public class RefillListDto {
+    private Long id;
     private String name;
-    private String item_name;
+    private String itemName;
+    private int quantity;
 
     public RefillListDto() {
     }
 
-    public RefillListDto( String name,  String item_name) {
+    public RefillListDto(Long id, String name, String itemName, int quantity) {
+        this.id = id;
         this.name = name;
-        this.item_name = item_name;
+        this.itemName = itemName;
+        this.quantity = quantity;
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getName() {
         return name;
@@ -22,19 +33,31 @@ public class RefillListDto {
         this.name = name;
     }
 
-    public String getItem_name() {
-        return item_name;
+    public String getItemName() {
+        return itemName;
     }
 
-    public void setItem_name(String item_name) {
-        this.item_name = item_name;
+    public void setItemName(String itemName) {
+        this.itemName = itemName;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+
     }
 
     @Override
     public String toString() {
         return "RefillListDto{" +
-            "name=" + name +
-            ", item_name='" + item_name + '\'' +
+            "id=" + id +
+            ", name='" + name + '\'' +
+            ", itemName='" + itemName + '\'' +
+            ", quantity=" + quantity +
             '}';
     }
+
 }

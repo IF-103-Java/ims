@@ -4,7 +4,6 @@ import com.ita.if103java.ims.dao.UserDao;
 import com.ita.if103java.ims.entity.Role;
 import com.ita.if103java.ims.entity.User;
 import com.ita.if103java.ims.exception.CRUDException;
-import com.ita.if103java.ims.exception.EntityNotFoundException;
 import com.ita.if103java.ims.mapper.jdbc.UserRowMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

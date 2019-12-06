@@ -4,7 +4,6 @@ import com.ita.if103java.ims.dao.EventDao;
 import com.ita.if103java.ims.entity.Event;
 import com.ita.if103java.ims.entity.EventType;
 import com.ita.if103java.ims.exception.CRUDException;
-import com.ita.if103java.ims.exception.EntityNotFoundException;
 import com.ita.if103java.ims.mapper.jdbc.EventRowMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

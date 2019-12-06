@@ -4,7 +4,6 @@ package com.ita.if103java.ims.dao.impl;
 import com.ita.if103java.ims.dao.AccountDao;
 import com.ita.if103java.ims.entity.Account;
 import com.ita.if103java.ims.exception.CRUDException;
-import com.ita.if103java.ims.exception.EntityNotFoundException;
 import com.ita.if103java.ims.mapper.jdbc.AccountRowMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
