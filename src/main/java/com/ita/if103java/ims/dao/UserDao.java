@@ -27,4 +27,6 @@ public interface UserDao {
     boolean updatePassword(Long id, String newPassword);
 
     User findByEmailUUID(String emailUUID);
+
+    Integer countOfUsers(Long accountId);
 }

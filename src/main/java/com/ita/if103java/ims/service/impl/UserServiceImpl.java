@@ -54,7 +54,7 @@ public class UserServiceImpl implements UserService {
         user.setUpdatedDate(currentDateTime);
         user.setEmailUUID(emailUUID);
 
-        return userDtoMapper.convertUserToUserDto(userDao.create(user));
+        return userDtoMapper.convertUserToUserDto(user);
     }
 
     @Override
@@ -118,6 +118,5 @@ public class UserServiceImpl implements UserService {
             return false;
         }
     }
-
 
 }
