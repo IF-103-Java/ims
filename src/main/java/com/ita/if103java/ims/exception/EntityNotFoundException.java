@@ -7,6 +7,7 @@ public class EntityNotFoundException extends BaseRuntimeException{
     }
 
     public EntityNotFoundException() {
+
     }
 
     public EntityNotFoundException(String message, Throwable cause) {

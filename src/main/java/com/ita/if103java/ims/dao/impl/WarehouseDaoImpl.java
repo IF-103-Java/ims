@@ -66,7 +66,8 @@ public class WarehouseDaoImpl implements WarehouseDao {
         try {
             return jdbcTemplate.queryForObject(Queries.SQL_SELECT_WAREHOUSE_BY_ID, warehouseRowMapper, id);
         } catch (EmptyResultDataAccessException e) {
-            throw new EntityNotFoundException("id = " + id, e);
+            throw new EntityNotFoundException(e.getMessage());
+
         } catch (DataAccessException e) {
             throw new CRUDException("find id = " + id, e);
         }
