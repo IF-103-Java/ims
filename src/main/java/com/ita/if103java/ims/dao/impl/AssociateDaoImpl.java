@@ -115,32 +115,16 @@ public class AssociateDaoImpl implements AssociateDao {
     }
 
     @Override
-    public boolean softDelete(Long id) {
+    public boolean delete(Long id) {
         int status;
         try {
             status = jdbcTemplate.update(Queries.SQL_SET_ACTIVE_STATUS_ASSOCIATE, false, id);
 
         } catch (DataAccessException e) {
-            throw crudException(e.getMessage(), "softDelete", "id = " + id);
+            throw crudException(e.getMessage(), "delete", "id = " + id);
         }
         if (status == 0) {
-            throw associateEntityNotFoundException("SoftDelete associate exception", "id = " + id);
-        }
-
-        return true;
-    }
-
-    @Override
-    public boolean hardDelete(Long id) {
-        int status;
-        try {
-            status = jdbcTemplate.update(Queries.SQL_DELETE_ASSOCIATE_BY_ID, id);
-
-        } catch (DataAccessException e) {
-            throw crudException(e.toString(), "hardDelete", "id = " + id);
-        }
-        if (status == 0) {
-            throw associateEntityNotFoundException("HardDelete associate exception", "id = " + id);
+            throw associateEntityNotFoundException("Delete associate exception", "id = " + id);
         }
 
         return true;
@@ -194,7 +178,5 @@ public class AssociateDaoImpl implements AssociateDao {
             "WHERE id = ?";
 
         static final String SQL_SET_ACTIVE_STATUS_ASSOCIATE = "UPDATE associates SET active = ? WHERE id = ?";
-
-        static final String SQL_DELETE_ASSOCIATE_BY_ID = "DELETE FROM associates WHERE id = ? ";
     }
 }
