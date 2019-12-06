@@ -8,7 +8,6 @@ import com.ita.if103java.ims.mapper.UserDtoMapper;
 import com.ita.if103java.ims.service.MailService;
 import com.ita.if103java.ims.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,12 +22,8 @@ import java.util.UUID;
 @PropertySource("classpath:application.properties")
 public class UserServiceImpl implements UserService {
 
-    @Value("${mail.activationURL}")
-    private String activationURL;
-
     private UserDao userDao;
     private UserDtoMapper userDtoMapper;
-    private MailService mailService;
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
 
@@ -36,20 +31,19 @@ public class UserServiceImpl implements UserService {
     public UserServiceImpl(UserDao userDao, UserDtoMapper userDtoMapper, MailService mailService) {
         this.userDao = userDao;
         this.userDtoMapper = userDtoMapper;
-        this.mailService = mailService;
         this.bCryptPasswordEncoder = new BCryptPasswordEncoder();
 
     }
 
     @Override
     public UserDto create(UserDto userDto) {
-        User user = userDao.create(userDtoMapper.convertUserDtoToUser(userDto));
+        User user = userDtoMapper.convertUserDtoToUser(userDto);
 
         ZonedDateTime currentDateTime = ZonedDateTime.now(ZoneId.systemDefault());
         String emailUUID = UUID.randomUUID().toString();
         String encryptedPassword = "";
-        Role role = Role.WORKER;
-        if (user.getFirstName() != null) {
+        Role role = user.getRole();
+        if (role == null) {
             encryptedPassword = bCryptPasswordEncoder.encode(user.getPassword());
             role = Role.ADMIN;
         }
@@ -60,8 +54,7 @@ public class UserServiceImpl implements UserService {
         user.setUpdatedDate(currentDateTime);
         user.setEmailUUID(emailUUID);
 
-        sendActivationMessage(userDto, activationURL + emailUUID);
-        return userDtoMapper.convertUserToUserDto(user);
+        return userDtoMapper.convertUserToUserDto(userDao.create(user));
     }
 
     @Override
@@ -70,8 +63,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto findByAccountId(Long accountID) {
-        return userDtoMapper.convertUserToUserDto(userDao.findByAccountId(accountID));
+    public List<UserDto> findUsersByAccountId(Long accountID) {
+        return userDtoMapper.convertToUserDtoList(userDao.findUsersByAccountId(accountID));
+    }
+
+    @Override
+    public UserDto findAdminByAccountId(Long accountID) {
+        return userDtoMapper.convertUserToUserDto(userDao.findAdminByAccountId(accountID));
     }
 
     @Override
@@ -106,10 +104,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean activateUser(String emailUUId) {
         User activatedUser = userDao.findByEmailUUID(emailUUId);
-        ZonedDateTime createdDateTime = activatedUser.getCreatedDate();
+        ZonedDateTime updatedDateTime = activatedUser.getUpdatedDate();
         ZonedDateTime currrentDateTime = ZonedDateTime.now(ZoneId.systemDefault());
 
-        Duration duration = Duration.between(createdDateTime, currrentDateTime);
+        Duration duration = Duration.between(updatedDateTime, currrentDateTime);
         long diffHours = Math.abs(duration.toHours());
         if (diffHours <= 24) {
             activatedUser.setActive(true);
@@ -121,7 +119,5 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    private void sendActivationMessage(UserDto userDto, String message) {
-        mailService.sendMessage(userDto, "Please, activate your account:" + message, "Account activation");
-    }
+
 }

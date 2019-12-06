@@ -12,7 +12,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 
-import javax.sql.DataSource;
 import java.sql.*;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -26,8 +25,8 @@ public class UserDaoImpl implements UserDao {
     private JdbcTemplate jdbcTemplate;
 
     @Autowired
-    public UserDaoImpl(DataSource dataSource, UserRowMapper userRowMapper) {
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
+    public UserDaoImpl(JdbcTemplate jdbcTemplate, UserRowMapper userRowMapper) {
+        this.jdbcTemplate = jdbcTemplate;
         this.userRowMapper = userRowMapper;
     }
 
@@ -59,15 +58,26 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public User findByAccountId(Long accountId) {
+    public List<User> findUsersByAccountId(Long accountId) {
         try {
-            return jdbcTemplate.queryForObject(Queries.SQL_SELECT_USER_BY_ACCOUNT_ID, userRowMapper, accountId);
+            return jdbcTemplate.query(Queries.SQL_SELECT_USERS_BY_ACCOUNT_ID, userRowMapper, accountId);
+        } catch (EmptyResultDataAccessException e) {
+            throw new UserNotFoundException("Failed to obtain users during `select` {accountId = " + accountId + "}", e);
+        } catch (DataAccessException e) {
+            throw new CRUDException("Error during `select` {accountId = " + accountId + "}", e);
+        }
+
+    }
+
+    @Override
+    public User findAdminByAccountId(Long accountId) {
+        try {
+            return jdbcTemplate.queryForObject(Queries.SQL_SELECT_ADMIN_BY_ACCOUNT_ID, userRowMapper, accountId);
         } catch (EmptyResultDataAccessException e) {
             throw new UserNotFoundException("Failed to obtain user during `select` {accountId = " + accountId + "}", e);
         } catch (DataAccessException e) {
             throw new CRUDException("Error during `select` {accountId = " + accountId + "}", e);
         }
-
     }
 
     @Override
@@ -204,7 +214,11 @@ public class UserDaoImpl implements UserDao {
 
         static final String SQL_SELECT_ALL_USERS = "SELECT * FROM users";
 
-        static final String SQL_SELECT_USER_BY_ACCOUNT_ID = "SELECT * FROM users WHERE account_id = ?";
+        static final String SQL_SELECT_USERS_BY_ACCOUNT_ID = "" +
+            "SELECT * FROM users WHERE account_id = ?";
+
+        static final String SQL_SELECT_ADMIN_BY_ACCOUNT_ID = "" +
+            "SELECT * FROM users WHERE role = 'Admin' AND account_id = ?";
 
         static final String SQL_UPDATE_USER = "UPDATE users SET first_name= ?, last_name = ?," +
             "email = ?, password = ?, updated_date = ? WHERE id = ?";
