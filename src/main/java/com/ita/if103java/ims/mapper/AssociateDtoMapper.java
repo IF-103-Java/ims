@@ -5,39 +5,41 @@ import com.ita.if103java.ims.entity.Associate;
 import org.springframework.stereotype.Component;
 
 @Component
-public class AssociateDtoMapper {
+public class AssociateDtoMapper extends AbstractEntityDtoMapper<Associate, AssociateDto> {
 
-    public AssociateDto convertAssociateToAssociateDto(Associate associate) {
-        if (associate == null) {
-            return null;
-        } else {
-            AssociateDto associateDto = new AssociateDto();
-            associateDto.setId(associate.getId());
-            associateDto.setAccountId(associate.getAccountId());
-            associateDto.setName(associate.getName());
-            associateDto.setEmail(associate.getEmail());
-            associateDto.setPhone(associate.getPhone());
-            associateDto.setAdditionalInfo(associate.getAdditionalInfo());
-            associateDto.setType(associate.getType());
-
-            return associateDto;
-        }
-    }
-
-    public Associate convertAssociateDtoToAssociate(AssociateDto associateDto) {
-        if (associateDto == null) {
+    @Override
+    public Associate toEntity(AssociateDto dto) {
+        if (dto == null) {
             return null;
         } else {
             Associate associate = new Associate();
-            associate.setId(associateDto.getId());
-            associate.setAccountId(associateDto.getAccountId());
-            associate.setName(associateDto.getName());
-            associate.setEmail(associateDto.getEmail());
-            associate.setPhone(associateDto.getPhone());
-            associate.setAdditionalInfo(associateDto.getAdditionalInfo());
-            associate.setType(associateDto.getType());
+            associate.setId(dto.getId());
+            associate.setAccountId(dto.getAccountId());
+            associate.setName(dto.getName());
+            associate.setEmail(dto.getEmail());
+            associate.setPhone(dto.getPhone());
+            associate.setAdditionalInfo(dto.getAdditionalInfo());
+            associate.setType(dto.getType());
 
             return associate;
+        }
+    }
+
+    @Override
+    public AssociateDto toDto(Associate entity) {
+        if (entity == null) {
+            return null;
+        } else {
+            AssociateDto associateDto = new AssociateDto();
+            associateDto.setId(entity.getId());
+            associateDto.setAccountId(entity.getAccountId());
+            associateDto.setName(entity.getName());
+            associateDto.setEmail(entity.getEmail());
+            associateDto.setPhone(entity.getPhone());
+            associateDto.setAdditionalInfo(entity.getAdditionalInfo());
+            associateDto.setType(entity.getType());
+
+            return associateDto;
         }
     }
 }
