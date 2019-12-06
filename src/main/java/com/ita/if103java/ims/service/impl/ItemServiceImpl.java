@@ -51,7 +51,7 @@ public class ItemServiceImpl implements ItemService {
             savedItemDao.addSavedItem(savedItem);
             return savedItemDto;
         }
-        return null;
+        throw new ItemNotEnoughCapacityInWarehouseException("Can't add savedItemDto in warehouse because it doesn't  have enough capacity {warehouse_id = " + savedItemDto.getWarehouseId() + "}");
 
     }
     private boolean isEnoughCapacityInWarehouse(SavedItemDto savedItemDto){
@@ -59,10 +59,10 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<Warehouse> findUseFullWarehouses(SavedItemDto savedItemDto) {
+    public List<WarehouseLoadDto> findUseFullWarehouses(SavedItemDto savedItemDto) {
         int capacity = savedItemDto.getItemDto().getVolume() * savedItemDto.getQuantity();
-
-        return warehouseDao.findAll().stream().filter(x -> x.getCapacity() >= capacity).collect(Collectors.toList());
+//        return warehouseDao.findAll().stream().filter(x -> x.getCapacity() >= capacity).collect(Collectors.toList());
+        return null;
     }
 
     @Override
@@ -89,7 +89,7 @@ public class ItemServiceImpl implements ItemService {
         if (isEnoughCapacityInWarehouse(savedItemDto)) {
             return savedItemDao.updateSavedItem(warehouseLoadDto.getId(), savedItemDto.getId());
         }
-       throw new ItemNotEnoughCapacityInWarehouseException("Can't move savedItemDto in warehouse because it doesn't  have enough capacity {warehouse_id = " + warehouseLoadDto.getCapacity() + "}");
+       throw new ItemNotEnoughCapacityInWarehouseException("Can't move savedItemDto in warehouse because it doesn't  have enough capacity {warehouse_id = " + warehouseLoadDto.getId() + "}");
     }
     @Override
     public SavedItemDto outcomeItem(SavedItemDto savedItemDto, int quantity) {

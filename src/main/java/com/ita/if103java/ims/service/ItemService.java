@@ -18,7 +18,7 @@ public interface ItemService {
 
     SavedItemDto findByItemDto(ItemDto itemDto);
 
-    List<Warehouse> findUseFullWarehouses(SavedItemDto savedItemDto);
+    List<WarehouseLoadDto> findUseFullWarehouses(SavedItemDto savedItemDto);
 
     boolean moveItem(WarehouseLoadDto warehouseLoadDto, SavedItemDto savedItemDto);
 
