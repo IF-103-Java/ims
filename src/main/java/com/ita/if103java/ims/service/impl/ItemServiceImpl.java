@@ -94,7 +94,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public SavedItemDto outcomeItem(SavedItemDto savedItemDto, int quantity) {
         int difference = savedItemDto.getQuantity()-quantity;
-        if (savedItemDao.findSavedItemByItemId(savedItemDto.getItemDto().getId()).getQuantity() >= quantity) {
+        if (savedItemDao.findSavedItemByItemId(savedItemDto.getItemId()).getQuantity() >= quantity) {
             savedItemDao.outComeSavedItem(savedItemDtoMapper.convertSavedItemDtoToSavedItem(savedItemDto), difference);
             savedItemDto.setQuantity(difference);
             return savedItemDto;
