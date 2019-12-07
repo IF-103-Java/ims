@@ -21,8 +21,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -46,7 +44,6 @@ public class EventDaoImpl implements EventDao {
     public Event create(Event event) {
         try {
             final KeyHolder keyHolder = new GeneratedKeyHolder();
-            event.setDate(ZonedDateTime.now(ZoneId.systemDefault()));
             jdbcTemplate.update(connection -> getPreparedStatement(connection, event), keyHolder);
             event.setId(Optional.ofNullable(keyHolder.getKey())
                 .map(Number::longValue)

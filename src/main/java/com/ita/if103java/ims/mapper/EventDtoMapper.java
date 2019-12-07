@@ -4,15 +4,11 @@ import com.ita.if103java.ims.dto.EventDto;
 import com.ita.if103java.ims.entity.Event;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 @Component
-public class EventDtoMapper {
+public class EventDtoMapper extends AbstractEntityDtoMapper<Event, EventDto> {
 
-    public Event convertEventDtoToEvent(EventDto eventDto) {
+    @Override
+    public Event toEntity(EventDto eventDto) {
         if (eventDto == null) {
             return null;
         }
@@ -28,7 +24,8 @@ public class EventDtoMapper {
         return event;
     }
 
-    public EventDto convertEventToEventDto(Event event) {
+    @Override
+    public EventDto toDto(Event event) {
         if (event == null) {
             return null;
         }
@@ -42,21 +39,5 @@ public class EventDtoMapper {
         eventDto.setName(event.getName());
         eventDto.setMessage(event.getMessage());
         return eventDto;
-    }
-
-    public List<Event> convertToEventList(List<EventDto> eventDtoList) {
-        return Optional.ofNullable(eventDtoList)
-            .orElse(Collections.emptyList())
-            .stream()
-            .map(this::convertEventDtoToEvent)
-            .collect(Collectors.toList());
-    }
-
-    public List<EventDto> convertToEventDtoList(List<Event> eventList) {
-        return Optional.ofNullable(eventList)
-            .orElse(Collections.emptyList())
-            .stream()
-            .map(this::convertEventToEventDto)
-            .collect(Collectors.toList());
     }
 }

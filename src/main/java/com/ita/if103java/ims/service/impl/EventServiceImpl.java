@@ -36,11 +36,11 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public EventDto findById(Long id) {
-        return eventDtoMapper.convertEventToEventDto(eventDao.findById(id));
+        return eventDtoMapper.toDto(eventDao.findById(id));
     }
 
     @Override
     public List<EventDto> findAll(Map<String, ?> params) {
-        return eventDtoMapper.convertToEventDtoList(eventDao.findAll(params));
+        return eventDtoMapper.toDtoList(eventDao.findAll(params));
     }
 }
