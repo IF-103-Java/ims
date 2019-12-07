@@ -27,19 +27,11 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    @Async
+    @Async("threadPoolTaskExecutor")
     public void create(Event event) {
         ZonedDateTime currentDateTime = ZonedDateTime.now(ZoneId.systemDefault());
         event.setDate(currentDateTime);
         eventDao.create(event);
-    }
-
-    @Override
-    @Async("threadPoolTaskExecutor")
-    public void create(EventDto eventDto) {
-        ZonedDateTime currentDateTime = ZonedDateTime.now(ZoneId.systemDefault());
-        eventDto.setDate(currentDateTime);
-        eventDao.create(eventDtoMapper.convertEventDtoToEvent(eventDto));
     }
 
     @Override

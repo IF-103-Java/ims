@@ -9,8 +9,6 @@ import java.util.Map;
 public interface EventService {
     void create(Event event);
 
-    void create(EventDto eventDto);
-
     EventDto findById(Long id);
 
     List<EventDto> findAll(Map<String, ?> params);

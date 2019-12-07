@@ -14,7 +14,6 @@ public class Event {
     private Long warehouseId;
     private Long authorId;
     private EventName name;
-    private EventType type;
     private Long transactionId;
 
     public Event() {
@@ -26,7 +25,6 @@ public class Event {
         this.accountId = accountId;
         this.authorId = authorId;
         this.name = name;
-        this.type = name.getType();
     }
 
     public Event(String message, ZonedDateTime date, Long accountId, Long authorId, EventName name, Long transactionId) {
@@ -35,7 +33,6 @@ public class Event {
         this.accountId = accountId;
         this.authorId = authorId;
         this.name = name;
-        this.type = name.getType();
         this.transactionId = transactionId;
     }
 
@@ -46,7 +43,6 @@ public class Event {
         this.warehouseId = warehouseId;
         this.authorId = authorId;
         this.name = name;
-        this.type = name.getType();
     }
 
     public Event(String message, Long accountId,
@@ -57,7 +53,6 @@ public class Event {
         this.warehouseId = warehouseId;
         this.authorId = authorId;
         this.name = name;
-        this.type = name.getType();
         this.transactionId = transactionId;
     }
 
@@ -109,13 +104,8 @@ public class Event {
         this.authorId = authorId;
     }
 
-    public EventType getType() {
-        return type;
-    }
-
     public void setName(EventName name) {
         this.name = name;
-        this.type = name.getType();
     }
 
     public EventName getName() {
@@ -141,13 +131,12 @@ public class Event {
             Objects.equals(warehouseId, event.warehouseId) &&
             Objects.equals(authorId, event.authorId) &&
             name == event.name &&
-            type == event.type &&
             Objects.equals(transactionId, event.transactionId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(message, date, accountId, warehouseId, authorId, name, type, transactionId);
+        return Objects.hash(message, date, accountId, warehouseId, authorId, name, transactionId);
     }
 
     @Override
@@ -160,7 +149,6 @@ public class Event {
             ", warehouseId=" + warehouseId +
             ", authorId=" + authorId +
             ", name=" + name +
-            ", type=" + type +
             ", transactionId=" + transactionId +
             '}';
     }

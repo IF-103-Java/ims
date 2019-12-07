@@ -1,38 +1,45 @@
 package com.ita.if103java.ims.entity;
 
 public enum EventName {
-    login(EventType.USER),
-    signUp(EventType.USER),
-    logout(EventType.USER),
-    passwordChanged(EventType.USER),
-    profileInfoChanged(EventType.USER),
-    orgCreated(EventType.ORGANIZATION),
-    orgEdited(EventType.ORGANIZATION),
-    workerInvited(EventType.ORGANIZATION),
-    workerJoined(EventType.ORGANIZATION),
-    orgUpgraded(EventType.ORGANIZATION),
-    warehouseCreated(EventType.WAREHOUSE),
-    warehouseRemoved(EventType.WAREHOUSE),
-    warehouseEdited(EventType.WAREHOUSE),
-    itemsIsEnded(EventType.WAREHOUSE),
-    lowSpaceInWarehouse(EventType.WAREHOUSE),
-    itemCame(EventType.TRANSACTION),
-    itemShipped(EventType.TRANSACTION),
-    itemMoved(EventType.TRANSACTION),
-    newSupplier(EventType.PARTNER),
-    newClient(EventType.PARTNER),
-    supplierRemoved(EventType.PARTNER),
-    clientRemoved(EventType.PARTNER),
-    supplierEdited(EventType.PARTNER),
-    clientEdited(EventType.PARTNER);
+    LOGIN("Login", EventType.USER),
+    SIGNUP("Sign up", EventType.USER),
+    LOGOUT("Logout", EventType.USER),
+    PASSWORDCHANGED("Password changed", EventType.USER),
+    PROFILECHANGED("Profile info changed", EventType.USER),
+    ORGCREADTED("Organization created", EventType.ORGANIZATION),
+    ORGEDITED("Organization info edited", EventType.ORGANIZATION),
+    WORKERINVITED("New worker invited", EventType.ORGANIZATION),
+    WORKERJOINED("Worker joined", EventType.ORGANIZATION),
+    ORGUPGRADED("Organization upgraded", EventType.ORGANIZATION),
+    WAREHOUSECREATED("Warehouse created", EventType.WAREHOUSE),
+    WAREHOUSEREMOVED("Warehouse removed", EventType.WAREHOUSE),
+    WAREHOUSEDITED("Warehouse info edited", EventType.WAREHOUSE),
+    ITEMENDED("Item is ended", EventType.WAREHOUSE),
+    LOWSPACEINWAREHOUSE("Low space in capacity", EventType.WAREHOUSE),
+    ITEMCAME("Item came", EventType.TRANSACTION),
+    ITEMSHIPPED("Item shipped", EventType.TRANSACTION),
+    ITEMMOVED("Item moved", EventType.TRANSACTION),
+    NEWSUPPLIER("New supplier", EventType.PARTNER),
+    NEWCLIENT("New client", EventType.PARTNER),
+    SUPPLIERREMOVED("Supplier removed", EventType.PARTNER),
+    CLIENTREMOVED("Client removed", EventType.PARTNER),
+    SUPPLIEREDITED("Supplier info edited", EventType.PARTNER),
+    CLIENTEDITED("Client info edited", EventType.PARTNER);
 
+    private String label;
     private EventType type;
 
-    EventName(EventType type) {
+    EventName(String label, EventType type) {
+        this.label = label;
         this.type = type;
     }
 
     public EventType getType() {
         return type;
+    }
+
+    @Override
+    public String toString() {
+        return label;
     }
 }

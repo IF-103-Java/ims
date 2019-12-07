@@ -1,18 +1,18 @@
 package com.ita.if103java.ims.config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 
 import java.lang.reflect.Method;
 
 public class AsyncExceptionHandler implements AsyncUncaughtExceptionHandler {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AsyncExceptionHandler.class);
 
     @Override
     public void handleUncaughtException(Throwable throwable, Method method, Object... obj) {
-        System.out.println("Exception message - " + throwable.getMessage());
-        System.out.println("Method name - " + method.getName());
-        for (Object param : obj) {
-            System.out.println("Parameter value - " + param);
-        }
+        LOGGER.warn(throwable.getMessage() + ", Method name - " + method.getName() +
+            ", Parameter values - " + obj.toString(), throwable);
     }
 
 
