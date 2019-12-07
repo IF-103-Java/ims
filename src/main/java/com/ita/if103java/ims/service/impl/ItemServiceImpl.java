@@ -99,6 +99,6 @@ public class ItemServiceImpl implements ItemService {
             savedItemDto.setQuantity(difference);
             return savedItemDto;
         }
-        throw new ItemNotEnoughQuantityException("Outcome failed. Can't find needed quantity item in warehouse needed quantity of items {warehouse_id = " + savedItemDto.getId() + "quantity"+ quantity+"}");
+        throw new ItemNotEnoughQuantityException("Outcome failed. Can't find needed quantity item in warehouse needed quantity of items {warehouse_id = " + savedItemDto.getId() + ", quantity = "+ quantity+"}");
     }
 }
