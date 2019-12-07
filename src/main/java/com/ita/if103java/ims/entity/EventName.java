@@ -38,8 +38,7 @@ public enum EventName {
         return type;
     }
 
-    @Override
-    public String toString() {
+    public String getLabel() {
         return label;
     }
 }

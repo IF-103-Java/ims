@@ -2,6 +2,8 @@ package com.ita.if103java.ims.dao.impl;
 
 import com.ita.if103java.ims.dao.EventDao;
 import com.ita.if103java.ims.entity.Event;
+import com.ita.if103java.ims.entity.EventName;
+import com.ita.if103java.ims.entity.EventType;
 import com.ita.if103java.ims.exception.CRUDException;
 import com.ita.if103java.ims.exception.EventNotFoundException;
 import com.ita.if103java.ims.mapper.jdbc.EventRowMapper;
@@ -21,6 +23,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -67,13 +70,14 @@ public class EventDaoImpl implements EventDao {
 
     public List<Event> findAll(Map<String, ?> params) {
         final String where = Stream
-            .of("account_id", "warehouse_id", "author_id", "type", "date", "after", "before")
+            .of("account_id", "warehouse_id", "author_id", "name", "type", "date", "after", "before")
             .filter(params::containsKey)
             .map(x -> buildSqlFilterCondition(x, params.get(x)))
             .collect(Collectors.joining("\n and "));
         final String query = String.format("select * from events where %s",
             where.isBlank() ? "TRUE" : where);
         try {
+            System.out.println(query);
             return jdbcTemplate.query(query, eventRowMapper);
         } catch (EmptyResultDataAccessException e) {
             throw new EventNotFoundException("Failed to obtain event during `select` {" + where + "}, EventDao.findAll", e);
@@ -83,6 +87,33 @@ public class EventDaoImpl implements EventDao {
     }
 
     private String buildSqlFilterCondition(String columnName, Object columnValue) {
+        if (columnValue instanceof List && columnName != "type") {
+            String values = "";
+            for (Object value : (List<Object>) columnValue) {
+                System.out.println(value);
+                values = values.concat("'" + value + "', ");
+            }
+            values = values.substring(0, values.length() - 2);
+            return String.format("%s in (%s)", columnName, values);
+        }
+        if (columnName.equals("type")) {
+            List<EventType> types = new LinkedList<>();
+            if (columnValue instanceof List) {
+                for (Object type : (List) columnValue) {
+                    types.add(EventType.valueOf(type.toString()));
+                }
+            } else {
+                types.add(EventType.valueOf(columnValue.toString()));
+            }
+            List<EventName> names = new LinkedList<>();
+            for (EventName name : EventName.values()) {
+                if (types.contains(name.getType())) {
+                    names.add(name);
+                }
+            }
+            System.out.println(names);
+            return buildSqlFilterCondition("name", names);
+        }
         if (columnName.equals("date")) {
             return String.format("DATE(date) = '%s'", columnValue);
         }
