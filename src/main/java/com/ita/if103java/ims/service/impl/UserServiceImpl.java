@@ -23,21 +23,21 @@ import java.util.UUID;
 public class UserServiceImpl implements UserService {
 
     private UserDao userDao;
-    private UserDtoMapper userDtoMapper;
+    private UserDtoMapper mapper;
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
 
     @Autowired
-    public UserServiceImpl(UserDao userDao, UserDtoMapper userDtoMapper, MailService mailService) {
+    public UserServiceImpl(UserDao userDao, UserDtoMapper mapper, MailService mailService) {
         this.userDao = userDao;
-        this.userDtoMapper = userDtoMapper;
+        this.mapper = mapper;
         this.bCryptPasswordEncoder = new BCryptPasswordEncoder();
 
     }
 
     @Override
     public UserDto create(UserDto userDto) {
-        User user = userDtoMapper.convertUserDtoToUser(userDto);
+        User user = mapper.toEntity(userDto);
 
         ZonedDateTime currentDateTime = ZonedDateTime.now(ZoneId.systemDefault());
         String emailUUID = UUID.randomUUID().toString();
@@ -54,31 +54,31 @@ public class UserServiceImpl implements UserService {
         user.setUpdatedDate(currentDateTime);
         user.setEmailUUID(emailUUID);
 
-        return userDtoMapper.convertUserToUserDto(user);
+        return mapper.toDto(user);
     }
 
     @Override
     public UserDto findById(Long id) {
-        return userDtoMapper.convertUserToUserDto(userDao.findById(id));
+        return mapper.toDto(userDao.findById(id));
     }
 
     @Override
     public List<UserDto> findUsersByAccountId(Long accountID) {
-        return userDtoMapper.convertToUserDtoList(userDao.findUsersByAccountId(accountID));
+        return mapper.toDtoList(userDao.findUsersByAccountId(accountID));
     }
 
     @Override
     public UserDto findAdminByAccountId(Long accountID) {
-        return userDtoMapper.convertUserToUserDto(userDao.findAdminByAccountId(accountID));
+        return mapper.toDto(userDao.findAdminByAccountId(accountID));
     }
 
     @Override
     public UserDto update(UserDto userDto) {
-        User updatedUser = userDtoMapper.convertUserDtoToUser(userDto);
+        User updatedUser = mapper.toEntity(userDto);
         //Activating status can't be changed in this way
         User DBUser = userDao.findById(updatedUser.getId());
         updatedUser.setActive(DBUser.isActive());
-        return userDtoMapper.convertUserToUserDto(userDao.update(updatedUser));
+        return mapper.toDto(userDao.update(updatedUser));
     }
 
     @Override
@@ -88,12 +88,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserDto> findAll() {
-        return userDtoMapper.convertToUserDtoList(userDao.findAll());
+        return mapper.toDtoList(userDao.findAll());
     }
 
     @Override
     public UserDto findByEmail(String email) {
-        return userDtoMapper.convertUserToUserDto(userDao.findByEmail(email));
+        return mapper.toDto(userDao.findByEmail(email));
     }
 
     @Override
