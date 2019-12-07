@@ -21,10 +21,13 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -74,7 +77,6 @@ public class EventDaoImpl implements EventDao {
         final String query = String.format("select * from events where %s",
             where.isBlank() ? "TRUE" : where);
         try {
-            System.out.println(query);
             return jdbcTemplate.query(query, eventRowMapper);
         } catch (EmptyResultDataAccessException e) {
             throw new EventNotFoundException("Failed to obtain event during `select` {" + where + "}, EventDao.findAll", e);
@@ -84,9 +86,9 @@ public class EventDaoImpl implements EventDao {
     }
 
     private String buildSqlFilterCondition(String columnName, Object columnValue) {
-        if (columnValue instanceof List && columnName != "type") {
+        if (columnValue instanceof Collection && columnName != "type") {
             String values = "";
-            for (Object value : (List<Object>) columnValue) {
+            for (Object value : (Collection<Object>) columnValue) {
                 System.out.println(value);
                 values = values.concat("'" + value + "', ");
             }
@@ -94,21 +96,14 @@ public class EventDaoImpl implements EventDao {
             return String.format("%s in (%s)", columnName, values);
         }
         if (columnName.equals("type")) {
-            List<EventType> types = new LinkedList<>();
-            if (columnValue instanceof List) {
-                for (Object type : (List) columnValue) {
-                    types.add(EventType.valueOf(type.toString()));
+            Set<EventName> names = new HashSet<>();
+            if (columnValue instanceof Collection) {
+                for (Object type : (Collection) columnValue) {
+                    names.addAll(EventName.getValuesByType(EventType.valueOf(type.toString())));
                 }
             } else {
-                types.add(EventType.valueOf(columnValue.toString()));
+                names = EventName.getValuesByType(EventType.valueOf(columnValue.toString()));
             }
-            List<EventName> names = new LinkedList<>();
-            for (EventName name : EventName.values()) {
-                if (types.contains(name.getType())) {
-                    names.add(name);
-                }
-            }
-            System.out.println(names);
             return buildSqlFilterCondition("name", names);
         }
         if (columnName.equals("date")) {

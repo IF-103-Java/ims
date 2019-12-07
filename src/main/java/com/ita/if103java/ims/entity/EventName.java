@@ -1,5 +1,11 @@
 package com.ita.if103java.ims.entity;
 
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+
 public enum EventName {
     LOGIN("Login", EventType.USER),
     SIGNUP("Sign up", EventType.USER),
@@ -40,5 +46,15 @@ public enum EventName {
 
     public String getLabel() {
         return label;
+    }
+
+    public static Set<EventName> getValuesByType(EventType type){
+        Set<EventName> values = new HashSet<>(7);
+        for (EventName name : EventName.values()){
+            if (name.getType() == type){
+                values.add(name);
+            }
+        }
+        return values;
     }
 }
