@@ -6,9 +6,10 @@ import com.ita.if103java.ims.entity.Warehouse;
 import com.ita.if103java.ims.mapper.WarehouseDtoMapper;
 import com.ita.if103java.ims.service.WarehouseService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
-
+@Service
 public class WarehouseServiceImpl implements WarehouseService {
     private WarehouseDao warehouseDao;
     private WarehouseDtoMapper warehouseDtoMapper;
@@ -44,12 +45,13 @@ public class WarehouseServiceImpl implements WarehouseService {
     @Override
     public WarehouseDto update(WarehouseDto warehouseDto) {
         Warehouse updatedWarehouse = warehouseDtoMapper.convertWarehouseDtoToWarehouse(warehouseDto);
-        Warehouse DBWarehouse = warehouseDao.findById(updatedWarehouse.getId());
-        updatedWarehouse.setActive(DBWarehouse.isActive());
+        Warehouse dBWarehouse = warehouseDao.findById(updatedWarehouse.getId());
+        updatedWarehouse.setActive(dBWarehouse.isActive());
         return warehouseDtoMapper.convertWarehouseToWarehouseDto(warehouseDao.update(updatedWarehouse));
     }
 
     @Override
-    public boolean softDelete(Long id) {return warehouseDao.softDelete(id);
+    public boolean softDelete(Long id) {
+        return warehouseDao.softDelete(id);
     }
 }
