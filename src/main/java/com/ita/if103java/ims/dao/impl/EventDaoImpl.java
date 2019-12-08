@@ -23,11 +23,11 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -87,12 +87,10 @@ public class EventDaoImpl implements EventDao {
 
     private String buildSqlFilterCondition(String columnName, Object columnValue) {
         if (columnValue instanceof Collection && columnName != "type") {
-            String values = "";
+            StringJoiner values = new StringJoiner("', '", "'", "'");
             for (Object value : (Collection<Object>) columnValue) {
-                System.out.println(value);
-                values = values.concat("'" + value + "', ");
+                values.add(value.toString());
             }
-            values = values.substring(0, values.length() - 2);
             return String.format("%s in (%s)", columnName, values);
         }
         if (columnName.equals("type")) {

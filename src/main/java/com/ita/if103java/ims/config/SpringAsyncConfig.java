@@ -19,6 +19,8 @@ public class SpringAsyncConfig implements AsyncConfigurer {
 
     @Value("${executor.corePoolSize}")
     private int corePoolSize;
+    @Value("${executor.maxPoolSize}")
+    private int maxPoolSize;
     @Value("${executor.queueCapacity}")
     private int queueCapacity;
     @Value("${executor.threadNamePrefix}")
@@ -28,9 +30,9 @@ public class SpringAsyncConfig implements AsyncConfigurer {
     public Executor threadPoolTaskExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(corePoolSize);
-        executor.setMaxPoolSize(2);
-        executor.setQueueCapacity(500);
-        executor.setThreadNamePrefix("AsyncMethod-");
+        executor.setMaxPoolSize(maxPoolSize);
+        executor.setQueueCapacity(queueCapacity);
+        executor.setThreadNamePrefix(threadNamePrefix);
         executor.initialize();
         return executor;
     }

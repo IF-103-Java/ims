@@ -8,29 +8,29 @@ import java.util.Set;
 
 public enum EventName {
     LOGIN("Login", EventType.USER),
-    SIGNUP("Sign up", EventType.USER),
+    SIGN_UP("Sign up", EventType.USER),
     LOGOUT("Logout", EventType.USER),
-    PASSWORDCHANGED("Password changed", EventType.USER),
-    PROFILECHANGED("Profile info changed", EventType.USER),
-    ORGCREADTED("Organization created", EventType.ORGANIZATION),
-    ORGEDITED("Organization info edited", EventType.ORGANIZATION),
-    WORKERINVITED("New worker invited", EventType.ORGANIZATION),
-    WORKERJOINED("Worker joined", EventType.ORGANIZATION),
-    ORGUPGRADED("Organization upgraded", EventType.ORGANIZATION),
-    WAREHOUSECREATED("Warehouse created", EventType.WAREHOUSE),
-    WAREHOUSEREMOVED("Warehouse removed", EventType.WAREHOUSE),
-    WAREHOUSEDITED("Warehouse info edited", EventType.WAREHOUSE),
-    ITEMENDED("Item is ended", EventType.WAREHOUSE),
-    LOWSPACEINWAREHOUSE("Low space in capacity", EventType.WAREHOUSE),
-    ITEMCAME("Item came", EventType.TRANSACTION),
-    ITEMSHIPPED("Item shipped", EventType.TRANSACTION),
-    ITEMMOVED("Item moved", EventType.TRANSACTION),
-    NEWSUPPLIER("New supplier", EventType.PARTNER),
-    NEWCLIENT("New client", EventType.PARTNER),
-    SUPPLIERREMOVED("Supplier removed", EventType.PARTNER),
-    CLIENTREMOVED("Client removed", EventType.PARTNER),
-    SUPPLIEREDITED("Supplier info edited", EventType.PARTNER),
-    CLIENTEDITED("Client info edited", EventType.PARTNER);
+    PASSWORD_CHANGED("Password changed", EventType.USER),
+    PROFILE_CHANGED("Profile info changed", EventType.USER),
+    ORG_CREATED("Organization created", EventType.ORGANIZATION),
+    ORG_EDITED("Organization info edited", EventType.ORGANIZATION),
+    WORKER_INVITED("New worker invited", EventType.ORGANIZATION),
+    WORKER_JOINED("Worker joined", EventType.ORGANIZATION),
+    ORG_UPGRADED("Organization upgraded", EventType.ORGANIZATION),
+    WAREHOUSE_CREATED("Warehouse created", EventType.WAREHOUSE),
+    WAREHOUSE_REMOVED("Warehouse removed", EventType.WAREHOUSE),
+    WAREHOUSE_EDITED("Warehouse info edited", EventType.WAREHOUSE),
+    ITEM_ENDED("Item is ended", EventType.WAREHOUSE),
+    LOW_SPACE_IN_WAREHOUSE("Low space in capacity", EventType.WAREHOUSE),
+    ITEM_CAME("Item came", EventType.TRANSACTION),
+    ITEM_SHIPPED("Item shipped", EventType.TRANSACTION),
+    ITEM_MOVED("Item moved", EventType.TRANSACTION),
+    NEW_SUPPLIER("New supplier", EventType.PARTNER),
+    NEW_CLIENT("New client", EventType.PARTNER),
+    SUPPLIER_REMOVED("Supplier removed", EventType.PARTNER),
+    CLIENT_REMOVED("Client removed", EventType.PARTNER),
+    SUPPLIER_EDITED("Supplier info edited", EventType.PARTNER),
+    CLIENT_EDITED("Client info edited", EventType.PARTNER);
 
     private String label;
     private EventType type;
@@ -49,7 +49,7 @@ public enum EventName {
     }
 
     public static Set<EventName> getValuesByType(EventType type){
-        Set<EventName> values = new HashSet<>(7);
+        Set<EventName> values = new HashSet<>();
         for (EventName name : EventName.values()){
             if (name.getType() == type){
                 values.add(name);
