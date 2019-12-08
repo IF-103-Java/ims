@@ -10,23 +10,14 @@ import java.util.Objects;
 
 @Component
 public class WarehouseDto implements Serializable {
-
     private long id;
-    @NotBlank(message = "This field mustn't be empty. Please, enter name of warehouse")
     private String name;
-    @NotBlank(message = "This field mustn't be empty. Please, enter some information about warehouse")
     private String info;
-    @Null(message = "Please, enter some capacity of warehouse")
     private int capacity;
-    @NotNull(message = "This field mustn't be empty. Please, choose option of warehouse")
     private boolean isBottom;
-    @NotNull(message = "This field mustn't be empty. Please, choose parent of this warehouse")
     private long parentID;
-    @NotNull(message = "This field mustn't be empty. Please, choose account")
     private long accountID;
-    @NotNull(message = "This field mustn't be empty. Please, choose ID of top parent")
     private long topWarehouseID;
-    @NotNull(message = "This field mustn't be empty. Please, choose option of warehouse")
     private boolean active;
 
     public WarehouseDto() {
