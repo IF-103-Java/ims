@@ -37,7 +37,7 @@ public class WarehouseDaoImpl implements WarehouseDao {
 
     private PreparedStatement createWarehouseStatement(Warehouse warehouse, Connection connection) throws SQLException {
         int i = 0;
-        PreparedStatement statement = connection.prepareStatement(Queries.SQL_CREATE_USER,
+        PreparedStatement statement = connection.prepareStatement(Queries.SQL_CREATE_WAREHOUSE,
             PreparedStatement.RETURN_GENERATED_KEYS);
         statement.setString(++i, warehouse.getName());
         statement.setString(++i, warehouse.getInfo());
@@ -66,10 +66,10 @@ public class WarehouseDaoImpl implements WarehouseDao {
         try {
             return jdbcTemplate.queryForObject(Queries.SQL_SELECT_WAREHOUSE_BY_ID, warehouseRowMapper, id);
         } catch (EmptyResultDataAccessException e) {
-            throw new EntityNotFoundException(e.getMessage());
+            throw new WarehouseNotFoundException(e.getMessage());
 
         } catch (DataAccessException e) {
-            throw new CRUDException("find id = " + id, e);
+            throw new CRUDException("find warehouse by id = " + id, e);
         }
 
     }
@@ -128,7 +128,7 @@ public class WarehouseDaoImpl implements WarehouseDao {
     @Override
     public List<Warehouse> findChildrenByID(Long id) {
         try {
-            return jdbcTemplate.query(Queries.SQL_SELECT_CHILDREN_BY_ID, warehouseRowMapper);
+            return jdbcTemplate.query(Queries.SQL_SELECT_CHILDREN_BY_TOP_WAREHOUSE_ID, warehouseRowMapper);
 
         } catch (DataAccessException e) {
             throw new WarehouseNotFoundException("Error during finding all children of top-level-warehouse", e);
@@ -137,7 +137,7 @@ public class WarehouseDaoImpl implements WarehouseDao {
 
     class Queries {
 
-        static final String SQL_CREATE_USER = "INSERT INTO warehouses(name, info, capacity, is_bottom, parent_id," +
+        static final String SQL_CREATE_WAREHOUSE = "INSERT INTO warehouses(name, info, capacity, is_bottom, parent_id," +
             " account_id, top_warehouse_id, active) VALUES(?,?,?,?,?,?,?,?)";
 
         static final String SQL_SELECT_WAREHOUSE_BY_ID = "SELECT * FROM warehouses WHERE id = ?";
@@ -147,7 +147,7 @@ public class WarehouseDaoImpl implements WarehouseDao {
         static final String SQL_UPDATE_WAREHOUSE = "UPDATE warehouses SET name= ?, info = ?," +
             "capacity = ?, is_bottom = ?, top_warehouse_id = ?, active = ? WHERE id = ?";
 
-        static final String SQL_SELECT_CHILDREN_BY_ID = "SELECT * FROM warehouses WHERE top_warehouse_id = ?";
+        static final String SQL_SELECT_CHILDREN_BY_TOP_WAREHOUSE_ID = "SELECT * FROM warehouses WHERE top_warehouse_id = ?";
 
         static final String SQL_SET_ACTIVE_STATUS_WAREHOUSE = "UPDATE warehouse SET active = ? WHERE id = ?";
     }
