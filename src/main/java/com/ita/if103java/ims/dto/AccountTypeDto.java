@@ -1,8 +1,9 @@
-package com.ita.if103java.ims.entity;
+package com.ita.if103java.ims.dto;
 
-import java.util.Objects;
+import org.springframework.stereotype.Component;
 
-public class AccountType {
+@Component
+public class AccountTypeDto {
     private Long id;
     private String name;
     private Double price;
@@ -14,11 +15,11 @@ public class AccountType {
     private Integer maxClients;
     private boolean active;
 
-    public AccountType() {
+    public AccountTypeDto() {
 
     }
 
-    public AccountType(Long id, String name, Double price, Integer level, Integer maxWarehouses, Integer maxWarehouseDepth, Integer maxUsers, Integer maxSuppliers, Integer maxClients, boolean active) {
+    public AccountTypeDto(Long id, String name, Double price, Integer level, Integer maxWarehouses, Integer maxWarehouseDepth, Integer maxUsers, Integer maxSuppliers, Integer maxClients, boolean active) {
         this.id = id;
         this.name = name;
         this.price = price;
@@ -109,42 +110,5 @@ public class AccountType {
 
     public void setActive(boolean active) {
         this.active = active;
-    }
-
-    @Override
-    public String toString() {
-        return "AccountType{" +
-            "id=" + id +
-            ", name='" + name + '\'' +
-            ", price=" + price +
-            ", level=" + level +
-            ", maxWarehouses=" + maxWarehouses +
-            ", maxWarehouseDepth=" + maxWarehouseDepth +
-            ", maxUsers=" + maxUsers +
-            ", maxSuppliers=" + maxSuppliers +
-            ", maxClients=" + maxClients +
-            ", active=" + active +
-            '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof AccountType)) return false;
-        AccountType that = (AccountType) o;
-        return isActive() == that.isActive() &&
-            getName().equals(that.getName()) &&
-            getPrice().equals(that.getPrice()) &&
-            getLevel().equals(that.getLevel()) &&
-            getMaxWarehouses().equals(that.getMaxWarehouses()) &&
-            getMaxWarehouseDepth().equals(that.getMaxWarehouseDepth()) &&
-            getMaxUsers().equals(that.getMaxUsers()) &&
-            getMaxSuppliers().equals(that.getMaxSuppliers()) &&
-            getMaxClients().equals(that.getMaxClients());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getName(), getPrice(), getLevel(), getMaxWarehouses(), getMaxWarehouseDepth(), getMaxUsers(), getMaxSuppliers(), getMaxClients(), isActive());
     }
 }

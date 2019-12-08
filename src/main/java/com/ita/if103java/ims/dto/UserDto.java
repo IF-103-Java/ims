@@ -188,25 +188,4 @@ public class UserDto implements Serializable {
             '}';
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        UserDto userDto = (UserDto) o;
-        return active == userDto.active &&
-            Objects.equals(firstName, userDto.firstName) &&
-            Objects.equals(lastName, userDto.lastName) &&
-            email.equals(userDto.email) &&
-            Objects.equals(password, userDto.password) &&
-            role == userDto.role &&
-            createdDate.equals(userDto.createdDate) &&
-            updatedDate.equals(userDto.updatedDate) &&
-            emailUUID.equals(userDto.emailUUID) &&
-            Objects.equals(accountId, userDto.accountId);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(firstName, lastName, email, password, role, createdDate, updatedDate, active, emailUUID, accountId);
-    }
 }
