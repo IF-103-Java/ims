@@ -21,12 +21,12 @@ import java.util.List;
 public class UserController {
 
     private UserService userService;
-    private UserDtoMapper userDtoMapper;
+    private UserDtoMapper mapper;
 
     @Autowired
-    public UserController(UserService userService, UserDtoMapper userDtoMapper) {
+    public UserController(UserService userService, UserDtoMapper mapper) {
         this.userService = userService;
-        this.userDtoMapper = userDtoMapper;
+        this.mapper = mapper;
     }
 
     @GetMapping(value = "/{id}")
@@ -94,7 +94,7 @@ public class UserController {
 
     @GetMapping("/me")
     public UserDto getCurrentUser(@AuthenticationPrincipal User user) {
-        return userDtoMapper.convertUserToUserDto(user);
+        return mapper.toDto(user);
     }
 
 }
