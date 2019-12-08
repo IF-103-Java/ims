@@ -4,13 +4,8 @@ import com.ita.if103java.ims.dto.WarehouseDto;
 import com.ita.if103java.ims.entity.Warehouse;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 @Component
-public class WarehouseDtoMapper {
+public class WarehouseDtoMapper extends AbstractEntityDtoMapper<Warehouse, WarehouseDto> {
     public Warehouse convertWarehouseDtoToWarehouse(WarehouseDto warehouseDto) {
         if (warehouseDto == null) {
             return null;
@@ -45,21 +40,17 @@ public class WarehouseDtoMapper {
             warehouseDto.setTopWarehouseID(warehouse.getTopWarehouseID());
             return warehouseDto;
         }
+
     }
 
-    public List<Warehouse> convertToWarehouseList(List<WarehouseDto> warehouseDtoList) {
-        return Optional.ofNullable(warehouseDtoList)
-            .orElse(Collections.emptyList())
-            .stream()
-            .map(this::convertWarehouseDtoToWarehouse)
-            .collect(Collectors.toList());
+    @Override
+    public Warehouse toEntity(WarehouseDto dto) {
+        return convertWarehouseDtoToWarehouse(dto);
     }
 
-    public List<WarehouseDto> convertToWarehouseDtoList(List<Warehouse> warehouseList) {
-        return Optional.ofNullable(warehouseList)
-            .orElse(Collections.emptyList())
-            .stream()
-            .map(this::convertWarehouseToWarehouseDto)
-            .collect(Collectors.toList());
+    @Override
+    public WarehouseDto toDto(Warehouse entity) {
+        return convertWarehouseToWarehouseDto(entity);
     }
+
 }

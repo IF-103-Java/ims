@@ -28,7 +28,7 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Override
     public List<WarehouseDto> findAll() {
-        return warehouseDtoMapper.convertToWarehouseDtoList(warehouseDao.findAll());
+        return warehouseDtoMapper.toDtoList(warehouseDao.findAll());
     }
 
     @Override
@@ -38,7 +38,7 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Override
     public List<WarehouseDto> findWarehousesByParentId(Long parentId) {
-        return warehouseDtoMapper.convertToWarehouseDtoList(warehouseDao.findChildrenByID(parentId));
+        return warehouseDtoMapper.toDtoList(warehouseDao.findChildrenByID(parentId));
     }
 
     @Override
