@@ -16,7 +16,6 @@ import java.util.List;
 
 @Repository
 public class SavedItemDaoImpl implements SavedItemDao {
-
     private JdbcTemplate jdbcTemplate;
     private SavedItemRowMapper savedItemRowMapper;
 

@@ -16,7 +16,6 @@ import java.util.List;
 
 @Repository
 public class ItemDaoImpl implements ItemDao {
-
     private JdbcTemplate jdbcTemplate;
     private ItemRowMapper itemRowMapper;
 
@@ -104,6 +103,5 @@ public class ItemDaoImpl implements ItemDao {
         static final String SQL_SELECT_ITEM_BY_ID = "select * from items where id=?";
         static final String SQL_INSERT_INTO_ITEM = "insert into items(name_item, unit, description, volume, active, account_id) values(?, ?, ?, ?, ?, ?)";
         static final String SQL_SET_ACTIVE_STATUS_ITEM = "update items set active= ? where name_item=?";
-
     }
 }

@@ -15,7 +15,6 @@ public class SavedItemDtoMapper {
         savedItem.setWarehouseId(savedItemDto.getWarehouseId());
         savedItem.setQuantity(savedItemDto.getQuantity());
         savedItem.setItemId(savedItemDto.getItemId());
-        savedItem.setWarehouse(savedItemDto.getWarehouse());
         return savedItem;
     }
 
@@ -25,7 +24,6 @@ public class SavedItemDtoMapper {
         savedItemDto.setWarehouseId(savedItem.getWarehouseId());
         savedItemDto.setItemId(savedItem.getItemId());
         savedItemDto.setQuantity(savedItem.getQuantity());
-        savedItemDto.setWarehouse(savedItem.getWarehouse());
         return savedItemDto;
     }
 

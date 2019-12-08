@@ -4,12 +4,10 @@ import org.springframework.stereotype.Component;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Null;
+
 
 @Component
 public class ItemDto {
-    @NotNull
-    @Null
     private Long id;
     @NotBlank
     private String name;
@@ -21,7 +19,6 @@ public class ItemDto {
     private int volume;
     @NotNull
     private Long accountId;
-    @NotNull
     private boolean active;
 
     public Long getId() {
