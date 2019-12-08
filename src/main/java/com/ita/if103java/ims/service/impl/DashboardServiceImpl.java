@@ -1,11 +1,10 @@
 package com.ita.if103java.ims.service.impl;
 
 import com.ita.if103java.ims.dao.DashboardDao;
-import com.ita.if103java.ims.dto.PopularityListDto;
-import com.ita.if103java.ims.dto.RefillListDto;
+import com.ita.if103java.ims.dto.PopularItemsRequestDto;
+import com.ita.if103java.ims.dto.PopularItemsDto;
+import com.ita.if103java.ims.dto.EndingItemsDto;
 import com.ita.if103java.ims.dto.WarehouseLoadDto;
-import com.ita.if103java.ims.entity.DateType;
-import com.ita.if103java.ims.entity.PopType;
 import com.ita.if103java.ims.service.DashboardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,18 +20,18 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public List<WarehouseLoadDto> getWarehouseWidget() {
-        return dashboardDao.findWarehouseWidgets();
+    public List<WarehouseLoadDto> getWarehouseLoad() {
+        return dashboardDao.findWarehouseLoad();
     }
 
     @Override
-    public List<PopularityListDto> getPopularityList(int quantity, DateType dateType, PopType popType, String date) {
-        return dashboardDao.findPopularityItems(quantity, dateType, popType, date);
+    public List<PopularItemsDto> getPopularItems(PopularItemsRequestDto popularItems) {
+        return dashboardDao.findPopularItems(popularItems);
     }
 
 
     @Override
-    public List<RefillListDto> getRefillList(int minQuantity) {
+    public List<EndingItemsDto> getEndingItems(int minQuantity) {
         return dashboardDao.findEndedItems(minQuantity);
     }
 }

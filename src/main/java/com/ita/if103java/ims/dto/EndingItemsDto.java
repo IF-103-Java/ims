@@ -3,16 +3,16 @@ package com.ita.if103java.ims.dto;
 import org.springframework.stereotype.Component;
 
 @Component
-public class RefillListDto {
+public class EndingItemsDto {
     private Long id;
     private String name;
     private String itemName;
     private int quantity;
 
-    public RefillListDto() {
+    public EndingItemsDto() {
     }
 
-    public RefillListDto(Long id, String name, String itemName, int quantity) {
+    public EndingItemsDto(Long id, String name, String itemName, int quantity) {
         this.id = id;
         this.name = name;
         this.itemName = itemName;

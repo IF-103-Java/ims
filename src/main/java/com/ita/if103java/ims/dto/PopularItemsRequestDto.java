@@ -4,7 +4,7 @@ package com.ita.if103java.ims.dto;
 import com.ita.if103java.ims.entity.DateType;
 import com.ita.if103java.ims.entity.PopType;
 
-public class PopularBodyDto {
+public class PopularItemsRequestDto {
     private int quantity;
     private DateType dateType;
     private PopType popType;

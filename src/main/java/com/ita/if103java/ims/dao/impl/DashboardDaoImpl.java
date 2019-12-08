@@ -1,15 +1,14 @@
 package com.ita.if103java.ims.dao.impl;
 
 import com.ita.if103java.ims.dao.DashboardDao;
-import com.ita.if103java.ims.dto.PopularityListDto;
-import com.ita.if103java.ims.dto.RefillListDto;
+import com.ita.if103java.ims.dto.PopularItemsRequestDto;
+import com.ita.if103java.ims.dto.PopularItemsDto;
+import com.ita.if103java.ims.dto.EndingItemsDto;
 import com.ita.if103java.ims.dto.WarehouseLoadDto;
 import com.ita.if103java.ims.dto.WarehousePremiumStructDto;
-import com.ita.if103java.ims.entity.DateType;
-import com.ita.if103java.ims.entity.PopType;
 import com.ita.if103java.ims.exception.CRUDException;
 import com.ita.if103java.ims.mapper.jdbc.PopularityListRowMapper;
-import com.ita.if103java.ims.mapper.jdbc.RefillListRowMapper;
+import com.ita.if103java.ims.mapper.jdbc.EndingItemsRowMapper;
 import com.ita.if103java.ims.mapper.jdbc.WarehouseLoadRowMapper;
 import com.ita.if103java.ims.mapper.jdbc.WarehousePremiumLoadRowMapper;
 import com.ita.if103java.ims.mapper.jdbc.WarehousePremiumStructRowMapper;
@@ -29,64 +28,65 @@ public class DashboardDaoImpl implements DashboardDao {
     private final static Logger LOGGER = LoggerFactory.getLogger(DashboardDaoImpl.class);
     private WarehouseLoadRowMapper warehouseLoadRowMapper;
     private PopularityListRowMapper popularityListRowMapper;
-    private RefillListRowMapper refillListRowMapper;
+    private EndingItemsRowMapper endingItemsRowMapper;
     private WarehousePremiumStructRowMapper warehousePremiumLoadMapper;
     private WarehousePremiumLoadRowMapper warehousePremiumLoadRowMapper;
     private JdbcTemplate jdbcTemplate;
 
     @Autowired
     public DashboardDaoImpl(WarehouseLoadRowMapper warehouseLoadRowMapper,
-                            RefillListRowMapper refillListRowMapper,
+                            EndingItemsRowMapper endingItemsRowMapper,
                             PopularityListRowMapper popularityListRowMapper,
                             WarehousePremiumStructRowMapper warehousePremiumLoadMapper,
                             WarehousePremiumLoadRowMapper warehousePremiumLoadRowMapper,
                             JdbcTemplate jdbcTemplate) {
         this.warehousePremiumLoadMapper = warehousePremiumLoadMapper;
-        this.refillListRowMapper = refillListRowMapper;
+        this.endingItemsRowMapper = endingItemsRowMapper;
         this.popularityListRowMapper = popularityListRowMapper;
         this.warehouseLoadRowMapper = warehouseLoadRowMapper;
         this.warehousePremiumLoadRowMapper = warehousePremiumLoadRowMapper;
         this.jdbcTemplate = jdbcTemplate;
     }
     @Override
-    public List<WarehouseLoadDto> findWarehouseWidgets() {
+    public List<WarehouseLoadDto> findWarehouseLoad() {
         try {
-            return jdbcTemplate.query(Queries.SQL_FIND_WAREHOUSE_WIDGETS, warehouseLoadRowMapper);
+            return jdbcTemplate.query(Queries.SQL_FIND_WAREHOUSE_LOAD, warehouseLoadRowMapper);
         }catch (DataAccessException e) {
-            throw new CRUDException("DashboardDaoImpl failed to find WarehouseWidget",e);
+            throw new CRUDException("DashboardDaoImpl failed to find WarehouseLoad", e);
         }
     }
 
     @Override
-    public List<PopularityListDto> findPopularityItems(int quantity, DateType dateType,
-                                                      PopType popType, String date){
+    public List<PopularItemsDto> findPopularItems(PopularItemsRequestDto popularItems){
         try {
-            switch (dateType){
+            switch (popularItems.getDateType()){
                 case YEAR:
-                    return jdbcTemplate.query(Queries.SQL_FIND_POPULARITY_WIDGET + Queries.SQL_POP_YEAR +
-                            (popType==TOP ? Queries.SQL_ATR_POP : Queries.SQL_ATR_UNPOP), popularityListRowMapper,
-                            date, quantity);
+                    return jdbcTemplate.query(Queries.SQL_FIND_POPULAR_ITEMS + Queries.SQL_POP_YEAR +
+                            (popularItems.getPopType()==TOP ? Queries.SQL_ATR_POP : Queries.SQL_ATR_UNPOP),
+                            popularityListRowMapper,
+                            popularItems.getDate(), popularItems.getQuantity());
                 case MONTH:
-                    return jdbcTemplate.query(Queries.SQL_FIND_POPULARITY_WIDGET + Queries.SQL_POP_MONTH +
-                            (popType==TOP ? Queries.SQL_ATR_POP : Queries.SQL_ATR_UNPOP), popularityListRowMapper,
-                            date, date, quantity);
+                    return jdbcTemplate.query(Queries.SQL_FIND_POPULAR_ITEMS + Queries.SQL_POP_MONTH +
+                            (popularItems.getPopType()==TOP ? Queries.SQL_ATR_POP : Queries.SQL_ATR_UNPOP),
+                            popularityListRowMapper,
+                            popularItems.getDate(), popularItems.getDate(), popularItems.getQuantity());
                 default:
-                    return jdbcTemplate.query(Queries.SQL_FIND_POPULARITY_WIDGET +
-                            (popType==TOP ? Queries.SQL_ATR_POP : Queries.SQL_ATR_UNPOP),
-                            popularityListRowMapper, quantity);
+                    return jdbcTemplate.query(Queries.SQL_FIND_POPULAR_ITEMS +
+                            (popularItems.getPopType()==TOP ? Queries.SQL_ATR_POP : Queries.SQL_ATR_UNPOP),
+                            popularityListRowMapper, popularItems.getQuantity());
             }
 
         } catch (DataAccessException e) {
-            throw new CRUDException("DashboardDaoImpl failed to find UnpopularItems",e);
+            throw new CRUDException("DashboardDaoImpl failed to find PopularItems", e);
         }
     }
 
     @Override
-    public List<RefillListDto> findEndedItems(int minQuantity){
+    public List<EndingItemsDto> findEndedItems(int minQuantity){
         try {
-            return jdbcTemplate.query(Queries.SQL_FIND_ENDED_ITEMS, refillListRowMapper, minQuantity);
+            return jdbcTemplate.query(Queries.SQL_FIND_ENDED_ITEMS, endingItemsRowMapper, minQuantity);
         } catch (DataAccessException e) {
-            throw new CRUDException("DashboardDaoImpl failed to find EndedItems",e);
+            throw new CRUDException("DashboardDaoImpl failed to find EndedItems", e);
         }
     }
 
@@ -128,7 +128,6 @@ public class DashboardDaoImpl implements DashboardDao {
             } catch (DataAccessException e) {
                 throw new CRUDException("DashboardDaoImpl failed to find PreWarehouseChilds",e);
             }
-
         }
 
         public void fillList(WarehousePremiumStructDto wpld, List<WarehousePremiumStructDto> list){
@@ -140,7 +139,7 @@ public class DashboardDaoImpl implements DashboardDao {
     }
 
     class Queries {
-        static final String SQL_FIND_POPULARITY_WIDGET =
+        static final String SQL_FIND_POPULAR_ITEMS =
             "SELECT it.name_item AS name, sum(ts.quantity) AS quantity " +
                 "FROM transactions ts " +
                 "JOIN items it " +
@@ -160,10 +159,10 @@ public class DashboardDaoImpl implements DashboardDao {
                 "LIMIT ?";
         static final String SQL_ATR_UNPOP =
             "GROUP BY ts.item_id " +
-                "ORDER BY sum(ts.quantity)" +
+                "ORDER BY sum(ts.quantity) " +
                 "LIMIT ? ";
 
-        static final String SQL_FIND_WAREHOUSE_WIDGETS =
+        static final String SQL_FIND_WAREHOUSE_LOAD =
             "SELECT wh.top_warehouse_id, sum(quantity*volume) AS charge, sum(wh.capacity) AS capacity " +
                 "FROM saved_items si " +
                 "JOIN items it " +

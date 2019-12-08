@@ -1,6 +1,5 @@
 package com.ita.if103java.ims.exception;
 
-
 public class CRUDException extends BaseRuntimeException {
 
     public CRUDException(String message) {
@@ -17,5 +16,4 @@ public class CRUDException extends BaseRuntimeException {
     public CRUDException(Throwable cause) {
         super(cause);
     }
-
 }
