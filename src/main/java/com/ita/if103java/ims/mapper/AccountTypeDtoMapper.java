@@ -51,20 +51,4 @@ public class AccountTypeDtoMapper extends AbstractEntityDtoMapper<AccountType, A
             return accountTypeDto;
         }
     }
-
-    public List<AccountType> convertToAccountTypeList(List<AccountTypeDto> accountTypeDtoList) {
-        return Optional.ofNullable(accountTypeDtoList)
-            .orElse(Collections.emptyList())
-            .stream()
-            .map(this::toEntity)
-            .collect(Collectors.toList());
-    }
-
-    public List<AccountTypeDto> convertToAccountTypeDtoList(List<AccountType> accountTypeList) {
-        return Optional.ofNullable(accountTypeList)
-            .orElse(Collections.emptyList())
-            .stream()
-            .map(this::toDto)
-            .collect(Collectors.toList());
-    }
 }
