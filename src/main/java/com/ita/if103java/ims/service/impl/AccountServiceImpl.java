@@ -6,7 +6,9 @@ import com.ita.if103java.ims.entity.Account;
 import com.ita.if103java.ims.mapper.AccountDtoMapper;
 import com.ita.if103java.ims.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+@Service
 public class AccountServiceImpl implements AccountService {
 
     private AccountDao accountDao;
