@@ -11,6 +11,8 @@ import java.util.List;
 public interface ItemService {
     List<ItemDto> findItems();
 
+    ItemDto findById(Long id);
+
     SavedItemDto addSavedItem(SavedItemDto savedItemDto);
 
     ItemDto addItem(ItemDto itemDto);

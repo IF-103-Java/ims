@@ -55,6 +55,11 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    public ItemDto findById(Long id) {
+        return itemDtoMapper.toDto(itemDao.findItemById(id));
+    }
+
+    @Override
     public SavedItemDto addSavedItem(SavedItemDto savedItemDto) {
         SavedItem savedItem = savedItemDtoMapper.convertSavedItemDtoToSavedItem(savedItemDto);
         savedItem.setItemId(itemDao.findItemByName(savedItemDto.getItemDto().getName()).getId());
