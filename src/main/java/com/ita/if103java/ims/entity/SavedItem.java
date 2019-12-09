@@ -7,6 +7,7 @@ public class SavedItem {
     private Long itemId;
     private int quantity;
     private Long warehouseId;
+    private Warehouse warehouse;
 
     public SavedItem() {
     }
@@ -49,6 +50,14 @@ public class SavedItem {
         this.quantity = quantity;
     }
 
+    public Warehouse getWarehouse() {
+        return warehouse;
+    }
+
+    public void setWarehouse(Warehouse warehouse) {
+        this.warehouse = warehouse;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -56,12 +65,13 @@ public class SavedItem {
         SavedItem savedItem = (SavedItem) o;
         return quantity == savedItem.quantity &&
             Objects.equals(itemId, savedItem.itemId) &&
-            Objects.equals(warehouseId, savedItem.warehouseId);
+            Objects.equals(warehouseId, savedItem.warehouseId) &&
+            Objects.equals(warehouse, savedItem.warehouse);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(itemId, quantity, warehouseId);
+        return Objects.hash(itemId, quantity, warehouseId, warehouse);
     }
 
     @Override
@@ -71,6 +81,7 @@ public class SavedItem {
             ", itemId=" + itemId +
             ", quantity=" + quantity +
             ", warehouseId=" + warehouseId +
+            ", warehouse=" + warehouse +
             '}';
     }
 }
