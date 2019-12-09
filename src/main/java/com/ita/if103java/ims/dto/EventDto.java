@@ -1,58 +1,64 @@
-package com.ita.if103java.ims.entity;
+package com.ita.if103java.ims.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.ita.if103java.ims.entity.EventName;
+import com.ita.if103java.ims.entity.EventType;
+import org.springframework.stereotype.Component;
 
+import java.io.Serializable;
 import java.time.ZonedDateTime;
-import java.util.Objects;
 
-public class Event {
+@Component
+public class EventDto implements Serializable {
     private Long id;
     private String message;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
     private ZonedDateTime date;
     private Long accountId;
     private Long warehouseId;
     private Long authorId;
     private EventName name;
+    private EventType type;
     private Long transactionId;
 
-    public Event() {
+    public EventDto() {
     }
 
-    public Event(String message, ZonedDateTime date, Long accountId, Long authorId, EventName name) {
+    public EventDto(String message, ZonedDateTime date, Long accountId, Long authorId, EventName name) {
         this.message = message;
         this.date = date;
         this.accountId = accountId;
         this.authorId = authorId;
         this.name = name;
+        this.type = name.getType();
     }
 
-    public Event(String message, ZonedDateTime date, Long accountId, Long authorId, EventName name, Long transactionId) {
+    public EventDto(String message, ZonedDateTime date, Long accountId, Long warehouseId, Long authorId, EventName name) {
+        this.message = message;
+        this.date = date;
+        this.accountId = accountId;
+        this.warehouseId = warehouseId;
+        this.authorId = authorId;
+        this.name = name;
+        this.type = name.getType();
+    }
+
+    public EventDto(String message, ZonedDateTime date, Long accountId, Long authorId, EventName name, Long transactionId) {
         this.message = message;
         this.date = date;
         this.accountId = accountId;
         this.authorId = authorId;
         this.name = name;
+        this.type = name.getType();
         this.transactionId = transactionId;
     }
 
-    public Event(String message, ZonedDateTime date, Long accountId, Long warehouseId, Long authorId, EventName name) {
+    public EventDto(String message, ZonedDateTime date, Long accountId, Long warehouseId, Long authorId, EventName name, Long transactionId) {
         this.message = message;
         this.date = date;
         this.accountId = accountId;
         this.warehouseId = warehouseId;
         this.authorId = authorId;
         this.name = name;
-    }
-
-    public Event(String message, Long accountId,
-                 Long warehouseId, Long authorId, EventName name, Long transactionId) {
-        this.message = message;
-        this.date = ZonedDateTime.now();
-        this.accountId = accountId;
-        this.warehouseId = warehouseId;
-        this.authorId = authorId;
-        this.name = name;
+        this.type = name.getType();
         this.transactionId = transactionId;
     }
 
@@ -104,12 +110,17 @@ public class Event {
         this.authorId = authorId;
     }
 
-    public void setName(EventName name) {
-        this.name = name;
-    }
-
     public EventName getName() {
         return name;
+    }
+
+    public void setName(EventName name) {
+        this.name = name;
+        this.type = name.getType();
+    }
+
+    public EventType getType() {
+        return type;
     }
 
     public Long getTransactionId() {
@@ -118,38 +129,5 @@ public class Event {
 
     public void setTransactionId(Long transactionId) {
         this.transactionId = transactionId;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Event event = (Event) o;
-        return Objects.equals(message, event.message) &&
-            Objects.equals(date, event.date) &&
-            Objects.equals(accountId, event.accountId) &&
-            Objects.equals(warehouseId, event.warehouseId) &&
-            Objects.equals(authorId, event.authorId) &&
-            name == event.name &&
-            Objects.equals(transactionId, event.transactionId);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(message, date, accountId, warehouseId, authorId, name, transactionId);
-    }
-
-    @Override
-    public String toString() {
-        return "Event{" +
-            "id=" + id +
-            ", message='" + message + '\'' +
-            ", date=" + date +
-            ", accountId=" + accountId +
-            ", warehouseId=" + warehouseId +
-            ", authorId=" + authorId +
-            ", name=" + name +
-            ", transactionId=" + transactionId +
-            '}';
     }
 }

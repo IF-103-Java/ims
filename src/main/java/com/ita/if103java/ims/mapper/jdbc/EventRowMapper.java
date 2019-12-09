@@ -1,7 +1,7 @@
 package com.ita.if103java.ims.mapper.jdbc;
 
 import com.ita.if103java.ims.entity.Event;
-import com.ita.if103java.ims.entity.EventType;
+import com.ita.if103java.ims.entity.EventName;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 
@@ -23,7 +23,7 @@ public class EventRowMapper implements RowMapper<Event> {
         event.setAuthorId(resultSet.getLong("author_id"));
         event.setTransactionId(resultSet.getLong("transaction_id"));
         event.setWarehouseId(resultSet.getLong("warehouse_id"));
-        event.setType(EventType.valueOf(resultSet.getString("type")));
+        event.setName(EventName.valueOf(resultSet.getString("name")));
         return event;
     }
 }

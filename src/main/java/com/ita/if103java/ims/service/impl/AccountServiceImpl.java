@@ -20,20 +20,20 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public AccountDto create(AccountDto accountDto) {
-        Account account = accountDao.create(accountDtoMapper.convertAccountDtoToAccount(accountDto));
-        return accountDtoMapper.convertAccountToAccountDto(account);
+        Account account = accountDao.create(accountDtoMapper.toEntity(accountDto));
+        return accountDtoMapper.toDto(account);
     }
 
     @Override
     public AccountDto update(AccountDto accountDto) {
-        Account account = accountDao.update(accountDtoMapper.convertAccountDtoToAccount(accountDto));
-        return accountDtoMapper.convertAccountToAccountDto(account);
+        Account account = accountDao.update(accountDtoMapper.toEntity(accountDto));
+        return accountDtoMapper.toDto(account);
     }
 
     @Override
     public AccountDto view(Long id) {
         Account account = accountDao.findById(id);
-        return accountDtoMapper.convertAccountToAccountDto(account);
+        return accountDtoMapper.toDto(account);
     }
 
     @Override
