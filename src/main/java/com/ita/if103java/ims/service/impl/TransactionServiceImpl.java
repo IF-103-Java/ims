@@ -18,9 +18,21 @@ public class TransactionServiceImpl implements TransactionService {
     private TransactionDao transactionDao;
     private AccountService accountService;
     private UserService userService;
+    // TODO: 09.12.19 Uncomment
     //    private ItemService itemService;
     private WarehouseService warehouseService;
     private AssociateService associateService;
+
+//    @Autowired
+//    public TransactionServiceImpl(TransactionDao transactionDao, AccountService accountService,
+//                                  UserService userService, WarehouseService warehouseService,
+//                                  AssociateService associateService) {
+//        this.transactionDao = transactionDao;
+//        this.accountService = accountService;
+//        this.userService = userService;
+//        this.warehouseService = warehouseService;
+//        this.associateService = associateService;
+//    }
 
     @Override
     public TransactionDto findById(BigInteger id) {
@@ -32,6 +44,7 @@ public class TransactionServiceImpl implements TransactionService {
                 transaction.getType(),
                 accountService.view(transaction.getAccountId()),
                 userService.findById(transaction.getWorkerId()),
+//                itemService.findById(transaction.getItemId()),
                 null,
                 transaction.getQuantity(),
                 warehouseService.findWarehouseById(transaction.getMovedFrom()),
@@ -45,6 +58,7 @@ public class TransactionServiceImpl implements TransactionService {
             transaction.getType(),
             accountService.view(transaction.getAccountId()),
             userService.findById(transaction.getWorkerId()),
+//            itemService.findById(transaction.getItemId()),
             null,
             transaction.getQuantity(),
             associateService.view(transaction.getAssociateId())
