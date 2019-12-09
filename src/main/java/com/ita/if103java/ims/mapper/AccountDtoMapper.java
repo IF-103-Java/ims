@@ -2,7 +2,6 @@ package com.ita.if103java.ims.mapper;
 
 import com.ita.if103java.ims.dto.AccountDto;
 import com.ita.if103java.ims.entity.Account;
-import com.ita.if103java.ims.entity.Address;
 import org.springframework.stereotype.Component;
 
 @Component

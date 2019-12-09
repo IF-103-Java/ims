@@ -1,15 +1,8 @@
 package com.ita.if103java.ims.mapper;
 
 import com.ita.if103java.ims.dto.AccountTypeDto;
-import com.ita.if103java.ims.dto.ItemDto;
 import com.ita.if103java.ims.entity.AccountType;
-import com.ita.if103java.ims.entity.Item;
 import org.springframework.stereotype.Component;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Component
 public class AccountTypeDtoMapper extends AbstractEntityDtoMapper<AccountType, AccountTypeDto> {
