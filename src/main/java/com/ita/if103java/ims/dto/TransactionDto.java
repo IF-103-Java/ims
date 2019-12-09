@@ -1,10 +1,13 @@
 package com.ita.if103java.ims.dto;
 
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.ita.if103java.ims.entity.TransactionType;
 
 import java.math.BigInteger;
 import java.sql.Timestamp;
+
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
 public class TransactionDto {
     private BigInteger id;
@@ -14,8 +17,12 @@ public class TransactionDto {
     private UserDto workerId;
     private ItemDto itemDto;
     private Long quantity;
+
+    @JsonInclude(NON_NULL)
     private AssociateDto associateDto;
+    @JsonInclude(NON_NULL)
     private WarehouseDto movedFrom;
+    @JsonInclude(NON_NULL)
     private WarehouseDto movedTo;
 
     public TransactionDto() {
