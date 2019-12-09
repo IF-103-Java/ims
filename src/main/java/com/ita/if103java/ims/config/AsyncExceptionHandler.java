@@ -14,6 +14,4 @@ public class AsyncExceptionHandler implements AsyncUncaughtExceptionHandler {
         LOGGER.warn(throwable.getMessage() + ", Method name - " + method.getName() +
             ", Parameter values - " + obj.toString(), throwable);
     }
-
-
 }

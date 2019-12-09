@@ -21,31 +21,43 @@ public class Event {
 
     public static class Builder {
         private Event newEvent = new Event();
-        public Builder withMessage(String message){
+
+        public Builder withMessage(String message) {
             newEvent.message = message;
             return this;
         }
-        public Builder withAccountId(long accountId){
+
+        public Builder withAccountId(long accountId) {
             newEvent.accountId = accountId;
             return this;
         }
-        public Builder withWarehouseId(long warehouseId){
+
+        public Builder withWarehouseId(long warehouseId) {
             newEvent.warehouseId = warehouseId;
             return this;
         }
-        public Builder withAuthorId(long authorId){
+
+        public Builder withAuthorId(long authorId) {
             newEvent.authorId = authorId;
             return this;
         }
-        public Builder withName(EventName name){
+
+        public Builder withName(EventName name) {
             newEvent.name = name;
             return this;
         }
-        public Builder withTransactionId(long transactionId){
+
+        public Builder withDate(ZonedDateTime date) {
+            newEvent.date = date;
+            return this;
+        }
+
+        public Builder withTransactionId(long transactionId) {
             newEvent.transactionId = transactionId;
             return this;
         }
-        public Event build(){
+
+        public Event build() {
             return newEvent;
         }
     }

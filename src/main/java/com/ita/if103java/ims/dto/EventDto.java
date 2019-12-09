@@ -1,7 +1,6 @@
 package com.ita.if103java.ims.dto;
 
 import com.ita.if103java.ims.entity.EventName;
-import com.ita.if103java.ims.entity.EventType;
 import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
@@ -16,51 +15,54 @@ public class EventDto implements Serializable {
     private Long warehouseId;
     private Long authorId;
     private EventName name;
-    private EventType type;
     private Long transactionId;
 
     public EventDto() {
     }
 
-    public EventDto(String message, ZonedDateTime date, Long accountId, Long authorId, EventName name) {
-        this.message = message;
-        this.date = date;
-        this.accountId = accountId;
-        this.authorId = authorId;
-        this.name = name;
-        this.type = name.getType();
+    public static class Builder {
+        private EventDto newEventDto = new EventDto();
+
+        public Builder withMessage(String message) {
+            newEventDto.message = message;
+            return this;
+        }
+
+        public Builder withAccountId(long accountId) {
+            newEventDto.accountId = accountId;
+            return this;
+        }
+
+        public Builder withWarehouseId(long warehouseId) {
+            newEventDto.warehouseId = warehouseId;
+            return this;
+        }
+
+        public Builder withAuthorId(long authorId) {
+            newEventDto.authorId = authorId;
+            return this;
+        }
+
+        public Builder withName(EventName name) {
+            newEventDto.name = name;
+            return this;
+        }
+
+        public Builder withDate(ZonedDateTime date) {
+            newEventDto.date = date;
+            return this;
+        }
+
+        public Builder withTransactionId(long transactionId) {
+            newEventDto.transactionId = transactionId;
+            return this;
+        }
+
+        public EventDto build() {
+            return newEventDto;
+        }
     }
 
-    public EventDto(String message, ZonedDateTime date, Long accountId, Long warehouseId, Long authorId, EventName name) {
-        this.message = message;
-        this.date = date;
-        this.accountId = accountId;
-        this.warehouseId = warehouseId;
-        this.authorId = authorId;
-        this.name = name;
-        this.type = name.getType();
-    }
-
-    public EventDto(String message, ZonedDateTime date, Long accountId, Long authorId, EventName name, Long transactionId) {
-        this.message = message;
-        this.date = date;
-        this.accountId = accountId;
-        this.authorId = authorId;
-        this.name = name;
-        this.type = name.getType();
-        this.transactionId = transactionId;
-    }
-
-    public EventDto(String message, ZonedDateTime date, Long accountId, Long warehouseId, Long authorId, EventName name, Long transactionId) {
-        this.message = message;
-        this.date = date;
-        this.accountId = accountId;
-        this.warehouseId = warehouseId;
-        this.authorId = authorId;
-        this.name = name;
-        this.type = name.getType();
-        this.transactionId = transactionId;
-    }
 
     public Long getId() {
         return id;
@@ -116,11 +118,6 @@ public class EventDto implements Serializable {
 
     public void setName(EventName name) {
         this.name = name;
-        this.type = name.getType();
-    }
-
-    public EventType getType() {
-        return type;
     }
 
     public Long getTransactionId() {
