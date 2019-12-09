@@ -127,4 +127,19 @@ public class EventDto implements Serializable {
     public void setTransactionId(Long transactionId) {
         this.transactionId = transactionId;
     }
+
+    
+    @Override
+    public String toString() {
+        return "EventDto{" +
+            "id=" + id +
+            ", message='" + message + '\'' +
+            ", date=" + date +
+            ", accountId=" + accountId +
+            ", warehouseId=" + warehouseId +
+            ", authorId=" + authorId +
+            ", name=" + name +
+            ", transactionId=" + transactionId +
+            '}';
+    }
 }
