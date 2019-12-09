@@ -19,41 +19,35 @@ public class Event {
     public Event() {
     }
 
-    public Event(String message, ZonedDateTime date, Long accountId, Long authorId, EventName name) {
-        this.message = message;
-        this.date = date;
-        this.accountId = accountId;
-        this.authorId = authorId;
-        this.name = name;
-    }
-
-    public Event(String message, ZonedDateTime date, Long accountId, Long authorId, EventName name, Long transactionId) {
-        this.message = message;
-        this.date = date;
-        this.accountId = accountId;
-        this.authorId = authorId;
-        this.name = name;
-        this.transactionId = transactionId;
-    }
-
-    public Event(String message, ZonedDateTime date, Long accountId, Long warehouseId, Long authorId, EventName name) {
-        this.message = message;
-        this.date = date;
-        this.accountId = accountId;
-        this.warehouseId = warehouseId;
-        this.authorId = authorId;
-        this.name = name;
-    }
-
-    public Event(String message, Long accountId,
-                 Long warehouseId, Long authorId, EventName name, Long transactionId) {
-        this.message = message;
-        this.date = ZonedDateTime.now();
-        this.accountId = accountId;
-        this.warehouseId = warehouseId;
-        this.authorId = authorId;
-        this.name = name;
-        this.transactionId = transactionId;
+    public static class Builder {
+        private Event newEvent = new Event();
+        public Builder withMessage(String message){
+            newEvent.message = message;
+            return this;
+        }
+        public Builder withAccountId(long accountId){
+            newEvent.accountId = accountId;
+            return this;
+        }
+        public Builder withWarehouseId(long warehouseId){
+            newEvent.warehouseId = warehouseId;
+            return this;
+        }
+        public Builder withAuthorId(long authorId){
+            newEvent.authorId = authorId;
+            return this;
+        }
+        public Builder withName(EventName name){
+            newEvent.name = name;
+            return this;
+        }
+        public Builder withTransactionId(long transactionId){
+            newEvent.transactionId = transactionId;
+            return this;
+        }
+        public Event build(){
+            return newEvent;
+        }
     }
 
     public Long getId() {
