@@ -4,11 +4,8 @@ import com.ita.if103java.ims.dto.ItemDto;
 import com.ita.if103java.ims.entity.Item;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 @Component
-public class ItemDtoMapper {
+public class ItemDtoMapper extends AbstractEntityDtoMapper<Item, ItemDto> {
     public Item convertItemDtoToItem(ItemDto itemDto) {
         Item item = new Item();
         item.setName(itemDto.getName());
@@ -33,11 +30,13 @@ public class ItemDtoMapper {
         return itemDto;
     }
 
-    public List<Item> convertToItems(List<ItemDto> itemDtos) {
-        return itemDtos.stream().map(this::convertItemDtoToItem).collect(Collectors.toList());
+    @Override
+    public Item toEntity(ItemDto dto) {
+        return convertItemDtoToItem(dto);
     }
 
-    public List<ItemDto> convertToItemDtos(List<Item> items) {
-        return items.stream().map(this::convertItemToItemDto).collect(Collectors.toList());
+    @Override
+    public ItemDto toDto(Item entity) {
+        return convertItemToItemDto(entity);
     }
 }

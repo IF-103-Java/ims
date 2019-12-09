@@ -50,7 +50,7 @@ public class ItemServiceImpl implements ItemService {
     public List<ItemDto> findItems() {
         List<Item> items = itemDao.getItems();
         items.sort(Comparator.comparing(Item::getName));
-        return itemDtoMapper.convertToItemDtos(items);
+        return itemDtoMapper.toDtoList(items);
 
     }
 
@@ -78,7 +78,7 @@ public class ItemServiceImpl implements ItemService {
         for (Warehouse warehouse : warehouseDao.findAll()) {
             childWarehouses.addAll(warehouseDao.findChildrenByID(warehouse.getId()).stream().filter(x -> x.getCapacity() >= capacity).collect(Collectors.toList()));
         }
-        return warehouseDtoMapper.convertToWarehouseDtoList(childWarehouses);
+        return warehouseDtoMapper.toDtoList(childWarehouses);
 
     }
 

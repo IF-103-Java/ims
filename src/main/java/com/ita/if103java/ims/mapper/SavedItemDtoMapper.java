@@ -4,11 +4,8 @@ import com.ita.if103java.ims.dto.SavedItemDto;
 import com.ita.if103java.ims.entity.SavedItem;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 @Component
-public class SavedItemDtoMapper {
+public class SavedItemDtoMapper extends AbstractEntityDtoMapper<SavedItem, SavedItemDto> {
     public SavedItem convertSavedItemDtoToSavedItem(SavedItemDto savedItemDto) {
         SavedItem savedItem = new SavedItem();
         savedItem.setId(savedItemDto.getId());
@@ -27,12 +24,14 @@ public class SavedItemDtoMapper {
         return savedItemDto;
     }
 
-    public List<SavedItem> convertToSavedItems(List<SavedItemDto> savedItemDtos) {
-        return savedItemDtos.stream().map(this::convertSavedItemDtoToSavedItem).collect(Collectors.toList());
+
+    @Override
+    public SavedItem toEntity(SavedItemDto dto) {
+        return convertSavedItemDtoToSavedItem(dto);
     }
 
-    public List<SavedItemDto> convertToSavedItemDtos(List<SavedItem> savedItems) {
-        return savedItems.stream().map(this::convertSavedItemToSavedItemDto).collect(Collectors.toList());
+    @Override
+    public SavedItemDto toDto(SavedItem entity) {
+        return convertSavedItemToSavedItemDto(entity);
     }
-
 }
