@@ -34,7 +34,9 @@ public class ItemServiceImpl implements ItemService {
     private WarehouseDtoMapper warehouseDtoMapper;
 
     @Autowired
-    public ItemServiceImpl(ItemDtoMapper itemDtoMapper, SavedItemDtoMapper savedItemDtoMapper, ItemDao itemDao, SavedItemDao savedItemDao, WarehouseDao warehouseDao, WarehouseDtoMapper warehouseDtoMapper) {
+    public ItemServiceImpl(ItemDtoMapper itemDtoMapper, SavedItemDtoMapper savedItemDtoMapper, ItemDao itemDao,
+                           SavedItemDao savedItemDao, WarehouseDao warehouseDao,
+                           WarehouseDtoMapper warehouseDtoMapper) {
         this.itemDtoMapper = itemDtoMapper;
         this.savedItemDtoMapper = savedItemDtoMapper;
         this.itemDao = itemDao;
@@ -60,7 +62,8 @@ public class ItemServiceImpl implements ItemService {
             savedItemDao.addSavedItem(savedItem);
             return savedItemDto;
         }
-        throw new ItemNotEnoughCapacityInWarehouseException("Can't add savedItemDto in warehouse because it doesn't  have enough capacity {warehouse_id = " + savedItemDto.getWarehouseId() + "}");
+        throw new ItemNotEnoughCapacityInWarehouseException("Can't add savedItemDto in warehouse because it doesn't  " +
+            "have enough capacity {warehouse_id = " + savedItemDto.getWarehouseId() + "}");
 
     }
 
@@ -85,6 +88,11 @@ public class ItemServiceImpl implements ItemService {
         return itemDto;
     }
 
+    @Override
+    public SavedItemDto findSavedItemById(SavedItemDto savedItemDto) {
+        return savedItemDtoMapper.convertSavedItemToSavedItemDto(savedItemDao.findSavedItemById(savedItemDto.getId()));
+    }
+
 
     @Override
     public boolean softDelete(ItemDto itemDto) {
@@ -103,7 +111,8 @@ public class ItemServiceImpl implements ItemService {
         if (isEnoughCapacityInWarehouse(savedItemDto)) {
             return savedItemDao.updateSavedItem(warehouseLoadDto.getId(), savedItemDto.getId());
         }
-        throw new ItemNotEnoughCapacityInWarehouseException("Can't move savedItemDto in warehouse because it doesn't  have enough capacity {warehouse_id = " + warehouseLoadDto.getId() + "}");
+        throw new ItemNotEnoughCapacityInWarehouseException("Can't move savedItemDto in warehouse because it doesn't " +
+            " have enough capacity {warehouse_id = " + warehouseLoadDto.getId() + "}");
     }
 
     @Override
@@ -114,7 +123,8 @@ public class ItemServiceImpl implements ItemService {
             savedItemDto.setQuantity(difference);
             return savedItemDto;
         }
-        throw new ItemNotEnoughQuantityException("Outcome failed. Can't find needed quantity item in warehouse needed quantity of items {warehouse_id = " + savedItemDto.getId() + ", quantity = " + quantity + "}");
+        throw new ItemNotEnoughQuantityException("Outcome failed. Can't find needed quantity item in warehouse needed" +
+            " quantity of items {warehouse_id = " + savedItemDto.getId() + ", quantity = " + quantity + "}");
     }
 
 }

@@ -15,6 +15,8 @@ public interface ItemService {
 
     ItemDto addItem(ItemDto itemDto);
 
+    SavedItemDto findSavedItemById(SavedItemDto savedItemDto);
+
     boolean softDelete(ItemDto itemDto);
 
     SavedItemDto findByItemDto(ItemDto itemDto);
@@ -24,4 +26,5 @@ public interface ItemService {
     boolean moveItem(WarehouseLoadDto warehouseLoadDto, SavedItemDto savedItemDto);
 
     SavedItemDto outcomeItem(SavedItemDto savedItemDto, int quantity);
+
 }
