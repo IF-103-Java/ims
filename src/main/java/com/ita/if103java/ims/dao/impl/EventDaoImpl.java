@@ -86,7 +86,7 @@ public class EventDaoImpl implements EventDao {
     }
 
     private String buildSqlFilterCondition(String columnName, Object columnValue) {
-        if (columnValue instanceof Collection && columnName != "type") {
+        if (columnValue instanceof Collection && !columnName.equals("type")) {
             StringJoiner values = new StringJoiner("', '", "'", "'");
             for (Object value : (Collection<Object>) columnValue) {
                 values.add(value.toString());
