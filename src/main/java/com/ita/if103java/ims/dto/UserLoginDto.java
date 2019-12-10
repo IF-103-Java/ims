@@ -1,12 +1,8 @@
 package com.ita.if103java.ims.dto;
 
-import org.springframework.stereotype.Component;
-
 import javax.validation.constraints.NotBlank;
-import java.io.Serializable;
 
-@Component
-public class UserLoginDto implements Serializable {
+public class UserLoginDto {
 
     @NotBlank(message = "This field mustn't be empty. Please, enter your username")
     private String username;

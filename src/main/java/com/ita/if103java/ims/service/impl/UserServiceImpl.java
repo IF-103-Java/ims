@@ -10,6 +10,7 @@ import com.ita.if103java.ims.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -18,67 +19,70 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import static com.ita.if103java.ims.util.TokenUtil.isValidToken;
+
 @Service
 @PropertySource("classpath:application.properties")
 public class UserServiceImpl implements UserService {
 
     private UserDao userDao;
-    private UserDtoMapper userDtoMapper;
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
+    private UserDtoMapper mapper;
+    private PasswordEncoder passwordEncoder;
 
 
     @Autowired
-    public UserServiceImpl(UserDao userDao, UserDtoMapper userDtoMapper, MailService mailService) {
+    public UserServiceImpl(UserDao userDao, UserDtoMapper mapper, PasswordEncoder passwordEncoder) {
         this.userDao = userDao;
-        this.userDtoMapper = userDtoMapper;
-        this.bCryptPasswordEncoder = new BCryptPasswordEncoder();
-
+        this.mapper = mapper;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     public UserDto create(UserDto userDto) {
-        User user = userDtoMapper.convertUserDtoToUser(userDto);
+        User user = mapper.toEntity(userDto);
 
         ZonedDateTime currentDateTime = ZonedDateTime.now(ZoneId.systemDefault());
         String emailUUID = UUID.randomUUID().toString();
         String encryptedPassword = "";
-        Role role = user.getRole();
-        if (role == null) {
-            encryptedPassword = bCryptPasswordEncoder.encode(user.getPassword());
-            role = Role.ADMIN;
+
+        if (user.getRole() != Role.WORKER){
+            encryptedPassword = passwordEncoder.encode(user.getPassword());
+            user.setRole(Role.ADMIN);
         }
 
         user.setPassword(encryptedPassword);
-        user.setRole(role);
         user.setCreatedDate(currentDateTime);
         user.setUpdatedDate(currentDateTime);
         user.setEmailUUID(emailUUID);
 
-        return userDtoMapper.convertUserToUserDto(user);
+        return mapper.toDto(userDao.create(user));
     }
 
     @Override
     public UserDto findById(Long id) {
-        return userDtoMapper.convertUserToUserDto(userDao.findById(id));
+        return mapper.toDto(userDao.findById(id));
     }
 
     @Override
     public List<UserDto> findUsersByAccountId(Long accountID) {
-        return userDtoMapper.convertToUserDtoList(userDao.findUsersByAccountId(accountID));
+        return mapper.toDtoList(userDao.findUsersByAccountId(accountID));
     }
 
     @Override
     public UserDto findAdminByAccountId(Long accountID) {
-        return userDtoMapper.convertUserToUserDto(userDao.findAdminByAccountId(accountID));
+        return mapper.toDto(userDao.findAdminByAccountId(accountID));
     }
 
     @Override
     public UserDto update(UserDto userDto) {
-        User updatedUser = userDtoMapper.convertUserDtoToUser(userDto);
+        User updatedUser = mapper.toEntity(userDto);
         //Activating status can't be changed in this way
-        User DBUser = userDao.findById(updatedUser.getId());
-        updatedUser.setActive(DBUser.isActive());
-        return userDtoMapper.convertUserToUserDto(userDao.update(updatedUser));
+
+        User dbUser = userDao.findById(updatedUser.getId());
+        updatedUser.setActive(dbUser.isActive());
+        updatedUser.setUpdatedDate(ZonedDateTime.now(ZoneId.systemDefault()));
+
+        return mapper.toDto(userDao.update(updatedUser));
     }
 
     @Override
@@ -88,28 +92,23 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserDto> findAll() {
-        return userDtoMapper.convertToUserDtoList(userDao.findAll());
+        return mapper.toDtoList(userDao.findAll());
     }
 
     @Override
     public UserDto findByEmail(String email) {
-        return userDtoMapper.convertUserToUserDto(userDao.findByEmail(email));
+        return mapper.toDto(userDao.findByEmail(email));
     }
 
     @Override
     public boolean updatePassword(Long id, String newPassword) {
-        return userDao.updatePassword(id, bCryptPasswordEncoder.encode(newPassword));
+        return userDao.updatePassword(id, passwordEncoder.encode(newPassword));
     }
 
     @Override
-    public boolean activateUser(String emailUUId) {
-        User activatedUser = userDao.findByEmailUUID(emailUUId);
-        ZonedDateTime updatedDateTime = activatedUser.getUpdatedDate();
-        ZonedDateTime currrentDateTime = ZonedDateTime.now(ZoneId.systemDefault());
-
-        Duration duration = Duration.between(updatedDateTime, currrentDateTime);
-        long diffHours = Math.abs(duration.toHours());
-        if (diffHours <= 24) {
+    public boolean activateUser(String emailUUID) {
+        User activatedUser = userDao.findByEmailUUID(emailUUID);
+        if (isValidToken(activatedUser)) {
             activatedUser.setActive(true);
             userDao.update(activatedUser);
             return true;
@@ -118,5 +117,7 @@ public class UserServiceImpl implements UserService {
             return false;
         }
     }
+
+
 
 }

@@ -21,12 +21,12 @@ import java.util.List;
 public class UserController {
 
     private UserService userService;
-    private UserDtoMapper userDtoMapper;
+    private UserDtoMapper mapper;
 
     @Autowired
-    public UserController(UserService userService, UserDtoMapper userDtoMapper) {
+    public UserController(UserService userService, UserDtoMapper mapper) {
         this.userService = userService;
-        this.userDtoMapper = userDtoMapper;
+        this.mapper = mapper;
     }
 
     @GetMapping(value = "/{id}")
@@ -65,7 +65,7 @@ public class UserController {
         return userService.update(userDto);
     }
 
-    //TO DO: add @PreAuthorize("hasRole('ROLE_ADMIN')")
+    //TODO: add @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable("id") Long id) {
@@ -78,23 +78,22 @@ public class UserController {
         return userService.findAll();
     }
 
-    @PostMapping(value = "/confirmation")
+    @GetMapping(value = "/confirmation")
     @ResponseStatus(HttpStatus.OK)
     public boolean activateUser(@RequestParam("emailUUID") String emailUUID) {
         return userService.activateUser(emailUUID);
     }
 
-    //TO DO: add resetpassword() via email to loginService and change it
-    @PostMapping("/reset-password")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void resetPassword(@AuthenticationPrincipal User user,
+    @PostMapping("/update-password")
+    @ResponseStatus(HttpStatus.OK)
+    public void updatePassword(@AuthenticationPrincipal User user,
                               @Validated({ExistData.class}) @RequestBody @NotNull String newPassword) {
         userService.updatePassword(user.getId(), newPassword);
     }
 
     @GetMapping("/me")
     public UserDto getCurrentUser(@AuthenticationPrincipal User user) {
-        return userDtoMapper.convertUserToUserDto(user);
+        return mapper.toDto(user);
     }
 
 }
