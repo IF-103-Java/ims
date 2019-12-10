@@ -68,6 +68,17 @@ public class AssociateServiceImpl implements AssociateService {
     }
 
     @Override
+    public List<AssociateDto> findAll() {
+        List<AssociateDto> associateDtos = associateDtoMapper.toDtoList(associateDao.findAll());
+
+        for (AssociateDto associateDto : associateDtos) {
+            associateDto.setAddressDto(addressDtoMapper.toDto(addressDao.findByAssociateId(associateDto.getId())));
+        }
+
+        return associateDtos;
+    }
+
+    @Override
     public boolean delete(Long id) {
         return associateDao.delete(id);
     }
