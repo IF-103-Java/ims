@@ -56,7 +56,7 @@ public class DashboardDaoImpl implements DashboardDao {
         try {
             return jdbcTemplate.query(Queries.SQL_FIND_WAREHOUSE_LOAD_BY_ACCOUNT_ID, warehouseLoadRowMapper, accountId);
         }catch (DataAccessException e) {
-            throw crudException(e.toString(),"findWarehouseLoad", "accountId = " + accountId);
+            throw crudException(e,"findWarehouseLoad", "accountId = " + accountId);
         }
     }
 
@@ -82,7 +82,7 @@ public class DashboardDaoImpl implements DashboardDao {
             }
 
         } catch (DataAccessException e) {
-            throw crudException(e.toString(),"findPopularItems", "*");
+            throw crudException(e,"findPopularItems", "*");
         }
     }
 
@@ -90,9 +90,9 @@ public class DashboardDaoImpl implements DashboardDao {
     public List<EndingItemsDto> findEndedItemsByAccountId(int minQuantity, Long accountId){
         try {
             return jdbcTemplate.query(Queries.SQL_FIND_ENDED_ITEMS_BY_ACCOUNT_ID, endingItemsRowMapper,
-                                      minQuantity, accountId, accountId);
+                                      minQuantity, accountId);
         } catch (DataAccessException e) {
-            throw crudException(e.toString(),"findEndedItem", "accountId = " + accountId);
+            throw crudException(e, "findEndedItem", "accountId = " + accountId);
         }
     }
 
@@ -102,50 +102,50 @@ public class DashboardDaoImpl implements DashboardDao {
             WarehousePremiumStructDto wpld = jdbcTemplate.queryForObject(Queries.SQL_WAREHOUSE_STRUCTURE_PRIMARY,
                 warehousePremiumStructRowMapper,id, accountId);
             wpld.setLevel(0);
-            ChargeCapacity cc = jdbcTemplate.queryForObject(Queries.SQL_FIND_SUBS_LOAD,
-                chargeCapacityRowMapper,
-                wpld.getId(), accountId, accountId, accountId, accountId);
-            wpld.setCapacity(cc.getCapacity());
-            wpld.setCharge(cc.getCharge());
-            wpld.setChilds(findSub(id,wpld.getLevel(), accountId));
+
+            wpld.setChilds(findSub(id, id, wpld.getLevel(), accountId));
+
+            recFill(wpld);
+
             return wpld;
         } catch (DataAccessException e) {
-            throw crudException(e.toString(),"getPreLoad","accountId=" + accountId);
+            throw crudException(e,"getPreLoad","accountId=" + accountId);
         }
     }
 
-    private List<WarehousePremiumStructDto> findSub(Long id, int level, Long accountId){
+    private List<WarehousePremiumStructDto> findSub(Long id, Long top_warehouse_id, int level, Long accountId){
         try{
             List<WarehousePremiumStructDto> wpld = jdbcTemplate.query(Queries.SQL_WAREHOUSE_STRUCTURE_SUB,
                 warehousePremiumStructRowMapper, id, accountId);
-                for (int i = 0; i < wpld.size(); i++) {
-                    wpld.get(i).setLevel(level + 1);
-
-                    ChargeCapacity cc1 = jdbcTemplate.queryForObject(Queries.SQL_FIND_SUBS_LOAD,
-                        chargeCapacityRowMapper,
-                        wpld.get(i).getId(), accountId, accountId, accountId, accountId);
-
-                    wpld.get(i).setCharge(cc1.getCharge());
-                    wpld.get(i).setCapacity(cc1.getCapacity());
-
-                    wpld.get(i).setChilds(findSub(wpld.get(i).getId(), wpld.get(i).getLevel(), accountId));
-                    if (wpld.get(i).getChilds().size() == 0){
-                        ChargeCapacity cc2 = jdbcTemplate.queryForObject(Queries.SQL_FIND_BOT_LOAD,
-                            chargeCapacityRowMapper, wpld.get(i).getId(), accountId);
-
-                        wpld.get(i).setCharge(cc2.getCharge());
-                        wpld.get(i).setCapacity(cc2.getCapacity());
-                    }
+            for (int i = 0; i < wpld.size(); i++) {
+                wpld.get(i).setLevel(level + 1);
+                wpld.get(i).setChilds(findSub(wpld.get(i).getId(), top_warehouse_id, wpld.get(i).getLevel(), accountId));
+                if (wpld.get(i).getChilds().size()==0){
+                    ChargeCapacity chargeCapacity = jdbcTemplate.queryForObject(Queries.SQL_FIND_BOT_CAPACITY_CHARGE,
+                        chargeCapacityRowMapper, top_warehouse_id, wpld.get(i).getId(), accountId);
+                    wpld.get(i).setCharge(chargeCapacity.getCharge());
+                    wpld.get(i).setCapacity(chargeCapacity.getCapacity());
                 }
-                return wpld;
+            }
+            return wpld;
         } catch (DataAccessException e) {
-            throw crudException(e.toString(),"findSub","*");
+            throw crudException(e,"findSub","*");
         }
     }
 
-    private CRUDException crudException(String message, String operation, String attribute) {
-        CRUDException exception = new CRUDException(message);
-        LOGGER.error("CRUDException exception. Operation:({}) Dashboard ({}) exception. Message: {}", operation, attribute, message);
+    private void recFill(WarehousePremiumStructDto wp){
+        for(int i=0; i < wp.getChilds().size(); i++){
+            recFill(wp.getChilds().get(i));
+        }
+        for(int i=0; i<wp.getChilds().size(); i++){
+            wp.setCharge(wp.getCharge() + wp.getChilds().get(i).getCharge());
+            wp.setCapacity(wp.getCapacity() + wp.getChilds().get(i).getCapacity());
+        }
+    }
+
+    private CRUDException crudException(Exception e, String operation, String attribute) {
+        CRUDException exception = new CRUDException(e);
+        LOGGER.error("CRUDException exception. Operation:({}) Dashboard ({}) exception.", operation, attribute, e);
         return exception;
     }
 
@@ -175,16 +175,21 @@ public class DashboardDaoImpl implements DashboardDao {
                 "LIMIT ? ";
 
         static final String SQL_FIND_WAREHOUSE_LOAD_BY_ACCOUNT_ID =
-            "SELECT wcap.id, ifnull(charge,0) charge, capacity " +
-                "FROM " +
-                "(SELECT wh.top_warehouse_id id, sum(capacity) capacity, account_id, active " +
-                "FROM warehouses wh WHERE account_id=? and active=1 GROUP BY wh.top_warehouse_id) AS wcap " +
-                "LEFT OUTER JOIN " +
-                "(SELECT top_warehouse_id id, sum(quantity*volume) charge " +
-                "FROM saved_items si, items it, warehouses wh " +
-                "WHERE si.item_id=it.id and si.warehouse_id=wh.id " +
-                "GROUP BY top_warehouse_id) AS wcharge " +
-                "ON wcap.id=wcharge.id ";
+            "SELECT top_warehouse_id id, ifnull(sum(capacity),0) capacity, ifnull(sum(charge),0) charge FROM " +
+                "(SELECT warehouse_id, it.account_id, sum(quantity*volume) charge " +
+                "FROM saved_items si " +
+                "JOIN items it " +
+                "ON si.item_id = it.id " +
+                "JOIN warehouses wh " +
+                "ON si.warehouse_id = wh.id " +
+                "GROUP BY warehouse_id) AS  cha " +
+                "RIGHT JOIN " +
+                "(SELECT id, capacity, account_id, top_warehouse_id " +
+                "FROM warehouses " +
+                "WHERE is_bottom=1) AS cap " +
+                "ON  cha.warehouse_id=cap.id AND  cha.account_id=cap.account_id " +
+                "WHERE cap.account_id=? " +
+                "GROUP BY top_warehouse_id";
 
         static final String SQL_FIND_ENDED_ITEMS_BY_ACCOUNT_ID =
             "SELECT wh.id, wh.name, it.name_item, si.quantity " +
@@ -205,31 +210,20 @@ public class DashboardDaoImpl implements DashboardDao {
                 "FROM warehouses " +
                 "WHERE parent_id=? and account_id=?";
 
-        static final String SQL_FIND_SUBS_LOAD =
-            "SELECT ifnull(sum(capacity), 0) capacity,  ifnull(sum(charge),0) charge FROM  " +
-                "(WITH RECURSIVE childs (id, name, parent_id) AS ( " +
-                "  SELECT     id, name, parent_id  FROM   warehouses " +
-                "  WHERE      parent_id = ? and account_id=? " +
-                "  UNION ALL " +
-                "  SELECT     wh.id, wh.name, wh.parent_id  FROM warehouses wh " +
-                "  INNER JOIN childs  ON wh.parent_id = childs.id " +
-                "  WHERE account_id = ?) " +
-                "SELECT  a.id, a.name, capacity FROM childs a, warehouses w WHERE a.id=w.id AND is_bottom = 1 AND account_id=?) a " +
-                "LEFT OUTER JOIN " +
-                "(SELECT warehouse_id id, sum(quantity*volume) charge  " +
-                "FROM saved_items si, items it " +
-                "WHERE si.id=it.id AND it.account_id=? " +
-                "GROUP BY warehouse_id) b " +
-                "ON a.id=b.id";
-
-        static final String SQL_FIND_BOT_LOAD=
-            "SELECT ifnull(sum(quantity*volume),0) charge, ifnull(capacity, 0) capacity " +
+        static final String SQL_FIND_BOT_CAPACITY_CHARGE=
+            "SELECT id, ifnull(capacity,0) capacity, ifnull(charge,0) charge FROM " +
+                "(SELECT warehouse_id, it.account_id, sum(quantity*volume) charge " +
                 "FROM saved_items si " +
-                "RIGHT JOIN warehouses wh " +
-                "ON si.warehouse_id=wh.id " +
-                "LEFT JOIN items it " +
-                "ON si.item_id=it.id " +
-                "WHERE wh.id=? and it.account_id=?";
-
+                "JOIN items it " +
+                "ON si.item_id = it.id " +
+                "JOIN warehouses wh " +
+                "ON si.warehouse_id = wh.id " +
+                "GROUP BY warehouse_id) AS cap " +
+                "RIGHT JOIN " +
+                "(SELECT id, capacity, account_id " +
+                "FROM warehouses " +
+                "WHERE is_bottom=1 and top_warehouse_id = ?) AS cha " +
+                "ON cap.warehouse_id=cha.id AND cap.account_id=cha.account_id " +
+                "WHERE id = ? AND cha.account_id = ? ";
     }
 }
