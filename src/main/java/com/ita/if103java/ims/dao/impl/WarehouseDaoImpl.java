@@ -183,4 +183,3 @@ public class WarehouseDaoImpl implements WarehouseDao {
             "SELECT depth FROM cte WHERE cte.id = ?";
     }
 }
-

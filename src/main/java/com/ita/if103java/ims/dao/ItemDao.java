@@ -11,6 +11,8 @@ public interface ItemDao {
 
     Item findItemByAccountId(Long id);
 
+    Item findItemById(Long id);
+
     Item addItem(Item item);
 
     boolean softDeleteItem(String name);

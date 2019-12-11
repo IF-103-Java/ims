@@ -5,6 +5,7 @@ import com.ita.if103java.ims.dao.AccountTypeDao;
 import com.ita.if103java.ims.dao.UserDao;
 import com.ita.if103java.ims.dto.UserDto;
 import com.ita.if103java.ims.entity.Account;
+import com.ita.if103java.ims.entity.Role;
 import com.ita.if103java.ims.service.InvitationService;
 import com.ita.if103java.ims.service.MailService;
 import com.ita.if103java.ims.service.UserService;
@@ -36,6 +37,7 @@ public class InvitationServiceImpl implements InvitationService {
             UserDto userDto = new UserDto();
             userDto.setEmail(email);
             userDto.setAccountId(accountId);
+            userDto.setRole(Role.WORKER);
             UserDto createdUserDto = userService.create(userDto);
             sendInvitationMessage(createdUserDto, accountId);
         }
