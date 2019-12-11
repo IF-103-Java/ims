@@ -16,4 +16,5 @@ public class CRUDException extends BaseRuntimeException {
     public CRUDException(Throwable cause) {
         super(cause);
     }
+
 }

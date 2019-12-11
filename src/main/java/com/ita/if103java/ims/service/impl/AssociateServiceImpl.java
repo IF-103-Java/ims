@@ -40,12 +40,12 @@ public class AssociateServiceImpl implements AssociateService {
     public Optional<AssociateDto> create(AssociateDto associateDto) {
 
         if (allowToCreateNewAssociate(associateDto.getAccountId(), associateDto.getType())) {
-            Associate associate = associateDao.create(associateDtoMapper.convertAssociateDtoToAssociate(associateDto));
-            Address address = addressDtoMapper.convertAddressDtoToAddress(associateDto.getAddressDto());
+            Associate associate = associateDao.create(associateDtoMapper.toEntity(associateDto));
+            Address address = addressDtoMapper.toEntity(associateDto.getAddressDto());
             address.setAssociateId(associate.getId());
 
             addressDao.createAssociateAddress(associate.getId(), address);
-            return Optional.of(associateDtoMapper.convertAssociateToAssociateDto(associate));
+            return Optional.of(associateDtoMapper.toDto(associate));
         }
 
         return Optional.empty();
@@ -53,14 +53,14 @@ public class AssociateServiceImpl implements AssociateService {
 
     @Override
     public AssociateDto update(AssociateDto associateDto) {
-        Associate associate = associateDao.update(associateDtoMapper.convertAssociateDtoToAssociate(associateDto));
-        return associateDtoMapper.convertAssociateToAssociateDto(associate);
+        Associate associate = associateDao.update(associateDtoMapper.toEntity(associateDto));
+        return associateDtoMapper.toDto(associate);
     }
 
     @Override
     public AssociateDto view(Long id) {
-        AssociateDto associateDto = associateDtoMapper.convertAssociateToAssociateDto(associateDao.findById(id));
-        AddressDto addressDto = addressDtoMapper.convertAddressToAddressDto(addressDao.findByAssociateId(id));
+        AssociateDto associateDto = associateDtoMapper.toDto(associateDao.findById(id));
+        AddressDto addressDto = addressDtoMapper.toDto(addressDao.findByAssociateId(id));
 
         associateDto.setAddressDto(addressDto);
 
