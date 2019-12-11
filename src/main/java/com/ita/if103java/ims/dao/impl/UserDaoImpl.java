@@ -12,7 +12,11 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -159,7 +163,8 @@ public class UserDaoImpl implements UserDao {
     public boolean updatePassword(Long id, String newPassword) {
         int status;
         try {
-            status = jdbcTemplate.update(Queries.SQL_UPDATE_PASSWORD, newPassword, id);
+            ZonedDateTime updatedDateTime = ZonedDateTime.now(ZoneId.systemDefault());
+            status = jdbcTemplate.update(Queries.SQL_UPDATE_PASSWORD, newPassword, updatedDateTime, id);
         } catch (DataAccessException e) {
             throw new CRUDException("Error during `update` password {id = " + id + "}", e);
         }
@@ -211,34 +216,78 @@ public class UserDaoImpl implements UserDao {
 
     class Queries {
 
-        static final String SQL_CREATE_USER = "" +
-            "INSERT INTO users(first_name, last_name, email, password, role, " +
-            "created_date, updated_date, active, email_uuid, account_id)" +
-            " VALUES(?,?,?,?,?,?,?,?,?,?)";
+        public static final String SQL_CREATE_USER = """
+            INSERT INTO users
+            (first_name, last_name, email,  password, role,
+            created_date, updated_date, active, email_uuid, account_id)
+            VALUES(?,?,?,?,?,?,?,?,?,?)
+        """;
 
-        static final String SQL_SELECT_USER_BY_ID = "SELECT * FROM users WHERE id = ?";
+        public static final String SQL_SELECT_USER_BY_ID = """
+            SELECT *
+            FROM users
+            WHERE id = ?
+        """;
 
-        static final String SQL_SELECT_USER_BY_EMAIL = "SELECT * FROM users WHERE email = ?";
+        public static final String SQL_SELECT_USER_BY_EMAIL = """
+            SELECT *
+            FROM users
+            WHERE email = ?
+        """;
 
-        static final String SQL_SELECT_ALL_USERS = "SELECT * FROM users";
+        public static final String SQL_SELECT_ALL_USERS = """
+            SELECT *
+            FROM users
+        """;
 
-        static final String SQL_SELECT_USERS_BY_ACCOUNT_ID = "" +
-            "SELECT * FROM users WHERE account_id = ?";
+        public static final String SQL_SELECT_USERS_BY_ACCOUNT_ID = """
+            SELECT *
+            FROM users
+            WHERE account_id = ?
+        """;
 
-        static final String SQL_SELECT_ADMIN_BY_ACCOUNT_ID = "" +
-            "SELECT * FROM users WHERE role = 'ADMIN' AND account_id = ?";
+        public static final String SQL_SELECT_ADMIN_BY_ACCOUNT_ID = """
+            SELECT *
+            FROM users
+            WHERE role = 'ADMIN'
+            AND account_id = ?
+        """;
 
-        static final String SQL_UPDATE_USER = "UPDATE users SET first_name= ?, last_name = ?," +
-            "email = ?, password = ?, updated_date = ? WHERE id = ?";
+        public static final String SQL_UPDATE_USER = """
+            UPDATE users
+            SET first_name= ?, last_name = ?,
+            email = ?, password = ?, updated_date = ?
+            WHERE id = ?
+        """;
 
-        static final String SQL_SET_ACTIVE_STATUS_USER = "UPDATE users SET active = ? WHERE id = ?";
+        public static final String SQL_SET_ACTIVE_STATUS_USER = """
+            UPDATE users
+            SET active = ?
+            WHERE id = ?
+        """;
 
-        static final String SQL_UPDATE_PASSWORD = "UPDATE users SET password = ? WHERE id = ?";
+        public static final String SQL_UPDATE_PASSWORD = """
+            UPDATE users
+            SET password = ?, updated_date = ?
+            WHERE id = ?
+        """;
 
-        static final String SQL_SELECT_USER_BY_EMAIL_UUID = "SELECT * FROM users WHERE email_uuid = ?";
+        public static final String SQL_SELECT_USER_BY_EMAIL_UUID = """
+            SELECT *
+            FROM users
+            WHERE email_uuid = ?
+        """;
 
-        static final String SQL_DELETE_USER_BY_ID = "DELETE FROM users WHERE id = ? ";
+        public static final String SQL_DELETE_USER_BY_ID = """
+            DELETE
+            FROM users
+            WHERE id = ?
+        """;
 
-        static final String SQL_COUNT_OF_USERS = "SELECT COUNT(*) FROM users WHERE account_id = ?";
+        public static final String SQL_COUNT_OF_USERS = """
+            SELECT COUNT(*)
+            FROM users
+            WHERE account_id = ?
+        """;
     }
 }
