@@ -1,14 +1,29 @@
 package com.ita.if103java.ims.dto;
 
+import org.springframework.stereotype.Component;
+
 import javax.validation.constraints.NotNull;
 
+@Component
 public class SavedItemDto {
+    private Long id;
     @NotNull
     private Long itemId;
     @NotNull
+    private ItemDto itemDto;
+    @NotNull
     private int quantity;
     @NotNull
-    private Long idWarehouse;
+    private Long warehouseId;
+    private WarehouseDto warehouseDto;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public Long getItemId() {
         return itemId;
@@ -16,6 +31,14 @@ public class SavedItemDto {
 
     public void setItemId(Long itemId) {
         this.itemId = itemId;
+    }
+
+    public ItemDto getItemDto() {
+        return itemDto;
+    }
+
+    public void setItemDto(ItemDto itemDto) {
+        this.itemDto = itemDto;
     }
 
     public int getQuantity() {
@@ -26,11 +49,19 @@ public class SavedItemDto {
         this.quantity = quantity;
     }
 
-    public Long getIdWarehouse() {
-        return idWarehouse;
+    public Long getWarehouseId() {
+        return warehouseId;
     }
 
-    public void setIdWarehouse(Long idWarehouse) {
-        this.idWarehouse = idWarehouse;
+    public void setWarehouseId(Long warehouseId) {
+        this.warehouseId = warehouseId;
+    }
+
+    public WarehouseDto getWarehouseDto() {
+        return warehouseDto;
+    }
+
+    public void setWarehouseDto(WarehouseDto warehouseDto) {
+        this.warehouseDto = warehouseDto;
     }
 }

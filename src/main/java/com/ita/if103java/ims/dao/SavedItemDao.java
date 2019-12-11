@@ -15,6 +15,8 @@ public interface SavedItemDao {
 
     SavedItem addSavedItem(SavedItem savedItem);
 
+    boolean outComeSavedItem(SavedItem savedItem, int quantity);
+
     boolean updateSavedItem(Long warehouseId, Long savedItemId);
 
     boolean deleteSavedItem(Long savedItemId);

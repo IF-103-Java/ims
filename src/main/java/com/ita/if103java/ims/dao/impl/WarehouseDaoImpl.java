@@ -152,4 +152,3 @@ public class WarehouseDaoImpl implements WarehouseDao {
         static final String SQL_SET_ACTIVE_STATUS_WAREHOUSE = "UPDATE warehouse SET active = ? WHERE id = ?";
     }
 }
-
