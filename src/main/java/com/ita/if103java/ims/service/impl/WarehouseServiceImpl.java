@@ -30,7 +30,7 @@ public class WarehouseServiceImpl implements WarehouseService {
         Long accountId = userDetails.getUser().getAccountId();
         if (warehouseDto.getParentID() == null) {
             int maxWarehouses = userDetails.getAccountType().getMaxWarehouses();
-            int warehouseQuantity = warehouseDao.findQuatityOfWarehousesByAccountId(accountId);
+            int warehouseQuantity = warehouseDao.findQuantityOfWarehousesByAccountId(accountId);
             if (warehouseQuantity < maxWarehouses) {
                 return createNewWarehouse(warehouseDto);
             } else {

@@ -145,7 +145,7 @@ public class WarehouseDaoImpl implements WarehouseDao {
     }
 
     @Override
-    public Integer findQuatityOfWarehousesByAccountId(Long accountId) {
+    public Integer findQuantityOfWarehousesByAccountId(Long accountId) {
         try {
             return jdbcTemplate.queryForObject(Queries.SQL_COUNT_QUANTITY_OF_WAREHOUSE_BY_ACCOUNT_ID, Integer.class, accountId);
         } catch (DataAccessException e) {
