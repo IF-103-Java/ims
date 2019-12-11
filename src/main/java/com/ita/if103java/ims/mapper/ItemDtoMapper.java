@@ -2,11 +2,10 @@ package com.ita.if103java.ims.mapper;
 
 import com.ita.if103java.ims.dto.ItemDto;
 import com.ita.if103java.ims.entity.Item;
+import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-public class ItemDtoMapper {
+@Component
+public class ItemDtoMapper extends AbstractEntityDtoMapper<Item, ItemDto> {
     public Item convertItemDtoToItem(ItemDto itemDto) {
         Item item = new Item();
         item.setName(itemDto.getName());
@@ -14,6 +13,8 @@ public class ItemDtoMapper {
         item.setDescription(itemDto.getDescription());
         item.setVolume(itemDto.getVolume());
         item.setUnit(itemDto.getUnit());
+        item.setId(itemDto.getId());
+        item.setAccountId(itemDto.getAccountId());
         return item;
     }
 
@@ -24,14 +25,18 @@ public class ItemDtoMapper {
         itemDto.setDescription(item.getDescription());
         itemDto.setVolume(item.getVolume());
         itemDto.setUnit(item.getUnit());
+        itemDto.setId(item.getId());
+        itemDto.setAccountId(item.getAccountId());
         return itemDto;
     }
 
-    public List<Item> convertToItems(List<ItemDto> itemDtos) {
-        return itemDtos.stream().map(this::convertItemDtoToItem).collect(Collectors.toList());
+    @Override
+    public Item toEntity(ItemDto dto) {
+        return convertItemDtoToItem(dto);
     }
 
-    public List<ItemDto> convertToItemDtos(List<Item> items) {
-        return items.stream().map(this::convertItemToItemDto).collect(Collectors.toList());
+    @Override
+    public ItemDto toDto(Item entity) {
+        return convertItemToItemDto(entity);
     }
 }

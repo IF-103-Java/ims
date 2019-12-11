@@ -6,7 +6,9 @@ import com.ita.if103java.ims.entity.Account;
 import com.ita.if103java.ims.mapper.AccountDtoMapper;
 import com.ita.if103java.ims.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+@Service
 public class AccountServiceImpl implements AccountService {
 
     private AccountDao accountDao;
@@ -20,20 +22,20 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public AccountDto create(AccountDto accountDto) {
-        Account account = accountDao.create(accountDtoMapper.convertAccountDtoToAccount(accountDto));
-        return accountDtoMapper.convertAccountToAccountDto(account);
+        Account account = accountDao.create(accountDtoMapper.toEntity(accountDto));
+        return accountDtoMapper.toDto(account);
     }
 
     @Override
     public AccountDto update(AccountDto accountDto) {
-        Account account = accountDao.update(accountDtoMapper.convertAccountDtoToAccount(accountDto));
-        return accountDtoMapper.convertAccountToAccountDto(account);
+        Account account = accountDao.update(accountDtoMapper.toEntity(accountDto));
+        return accountDtoMapper.toDto(account);
     }
 
     @Override
     public AccountDto view(Long id) {
         Account account = accountDao.findById(id);
-        return accountDtoMapper.convertAccountToAccountDto(account);
+        return accountDtoMapper.toDto(account);
     }
 
     @Override

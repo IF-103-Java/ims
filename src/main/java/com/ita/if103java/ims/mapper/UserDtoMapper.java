@@ -4,68 +4,46 @@ import com.ita.if103java.ims.dto.UserDto;
 import com.ita.if103java.ims.entity.User;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 @Component
-public class UserDtoMapper {
+public class UserDtoMapper extends AbstractEntityDtoMapper<User, UserDto> {
 
-    public User convertUserDtoToUser(UserDto userDto) {
-        if (userDto == null) {
+    @Override
+    public User toEntity(UserDto dto) {
+        if (dto == null) {
             return null;
         } else {
             User user = new User();
-            user.setId(userDto.getId());
-            user.setFirstName(userDto.getFirstName());
-            user.setLastName(userDto.getLastName());
-            user.setEmail(userDto.getEmail());
-            user.setRole(userDto.getRole());
-            user.setCreatedDate(userDto.getCreatedDate());
-            user.setUpdatedDate(userDto.getUpdatedDate());
-            user.setActive(userDto.isActive());
-            user.setAccountId(userDto.getAccountId());
+            user.setId(dto.getId());
+            user.setFirstName(dto.getFirstName());
+            user.setLastName(dto.getLastName());
+            user.setEmail(dto.getEmail());
+            user.setPassword(dto.getPassword());
+            user.setRole(dto.getRole());
+            user.setCreatedDate(dto.getCreatedDate());
+            user.setUpdatedDate(dto.getUpdatedDate());
+            user.setActive(dto.isActive());
+            user.setEmailUUID(dto.getEmailUUID());
+            user.setAccountId(dto.getAccountId());
             return user;
         }
     }
 
-    public UserDto convertUserToUserDto(User user) {
-        if (user == null) {
+    @Override
+    public UserDto toDto(User entity) {
+        if (entity == null) {
             return null;
         } else {
             UserDto userDto = new UserDto();
-            userDto.setId(user.getId());
-            userDto.setFirstName(user.getFirstName());
-            userDto.setLastName(user.getLastName());
-            userDto.setEmail(user.getEmail());
-            userDto.setPassword(user.getPassword());
-            userDto.setRole(user.getRole());
-            userDto.setCreatedDate(user.getCreatedDate());
-            userDto.setUpdatedDate(user.getUpdatedDate());
-            userDto.setActive(user.isActive());
-            userDto.setEmailUUID(user.getEmailUUID());
-            userDto.setAccountId(user.getAccountId());
+            userDto.setId(entity.getId());
+            userDto.setFirstName(entity.getFirstName());
+            userDto.setLastName(entity.getLastName());
+            userDto.setEmail(entity.getEmail());
+            userDto.setRole(entity.getRole());
+            userDto.setCreatedDate(entity.getCreatedDate());
+            userDto.setUpdatedDate(entity.getUpdatedDate());
+            userDto.setActive(entity.isActive());
+            userDto.setAccountId(entity.getAccountId());
             return userDto;
         }
-
     }
-
-    public List<User> convertToUserList(List<UserDto> userDtoList) {
-        return Optional.ofNullable(userDtoList)
-            .orElse(Collections.emptyList())
-            .stream()
-            .map(this::convertUserDtoToUser)
-            .collect(Collectors.toList());
-    }
-
-    public List<UserDto> convertToUserDtoList(List<User> userList) {
-        return Optional.ofNullable(userList)
-            .orElse(Collections.emptyList())
-            .stream()
-            .map(this::convertUserToUserDto)
-            .collect(Collectors.toList());
-    }
-
-
 }

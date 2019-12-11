@@ -5,33 +5,35 @@ import com.ita.if103java.ims.entity.Account;
 import org.springframework.stereotype.Component;
 
 @Component
-public class AccountDtoMapper {
-    public Account convertAccountDtoToAccount(AccountDto accountDto) {
-        if (accountDto == null) {
+public class AccountDtoMapper extends AbstractEntityDtoMapper<Account, AccountDto> {
+
+    @Override
+    public Account toEntity(AccountDto dto) {
+        if (dto == null) {
             return null;
         } else {
             Account account = new Account();
-            account.setId(accountDto.getId());
-            account.setName(accountDto.getName());
-            account.setTypeId(accountDto.getTypeId());
-            account.setAdminId(accountDto.getAdminId());
-            account.setActive(accountDto.isActive());
+            account.setId(dto.getId());
+            account.setName(dto.getName());
+            account.setTypeId(dto.getTypeId());
+            account.setAdminId(dto.getAdminId());
+            account.setActive(dto.isActive());
             return account;
         }
     }
 
-    public AccountDto convertAccountToAccountDto(Account account) {
-        if (account == null) {
+    @Override
+    public AccountDto toDto(Account entity) {
+        if (entity == null) {
             return null;
         } else {
             AccountDto accountDto = new AccountDto();
-            accountDto.setId(account.getId());
-            accountDto.setName(account.getName());
-            accountDto.setTypeId(account.getTypeId());
-            accountDto.setAdminId(account.getAdminId());
-            accountDto.setActive(account.isActive());
+            accountDto.setId(entity.getId());
+            accountDto.setName(entity.getName());
+            accountDto.setTypeId(entity.getTypeId());
+            accountDto.setAdminId(entity.getAdminId());
+            accountDto.setActive(entity.isActive());
             return accountDto;
         }
-
     }
 }

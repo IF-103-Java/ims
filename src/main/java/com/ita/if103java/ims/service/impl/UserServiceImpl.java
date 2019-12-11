@@ -77,11 +77,9 @@ public class UserServiceImpl implements UserService {
     public UserDto update(UserDto userDto) {
         User updatedUser = mapper.toEntity(userDto);
         //Activating status can't be changed in this way
-
         User dbUser = userDao.findById(updatedUser.getId());
         updatedUser.setActive(dbUser.isActive());
         updatedUser.setUpdatedDate(ZonedDateTime.now(ZoneId.systemDefault()));
-
         return mapper.toDto(userDao.update(updatedUser));
     }
 
