@@ -3,6 +3,8 @@ package com.ita.if103java.ims.service.impl;
 import com.ita.if103java.ims.dao.UserDao;
 import com.ita.if103java.ims.dto.UserLoginDto;
 import com.ita.if103java.ims.entity.User;
+import com.ita.if103java.ims.exception.UserNotFoundException;
+import com.ita.if103java.ims.exception.UserOrPasswordIncorrectException;
 import com.ita.if103java.ims.mapper.UserDtoMapper;
 import com.ita.if103java.ims.security.JwtTokenProvider;
 import com.ita.if103java.ims.service.LoginService;
@@ -45,14 +47,20 @@ public class LoginServiceImpl implements LoginService {
 
     @Override
     public String signIn(UserLoginDto userLoginDto) {
-        User user = userDao.findByEmail(userLoginDto.getUsername());
-        if (passwordEncoder.matches(userLoginDto.getPassword(), user.getPassword())) {
-            return jwtTokenProvider.createToken(userLoginDto.getUsername(),
-                userDao.findByEmail(userLoginDto.getUsername()).getRole());
-        } else {
-            throw new IllegalArgumentException("Password isn't correct");
+        try {
+            User user = userDao.findByEmail(userLoginDto.getUsername());
+
+            if (passwordEncoder.matches(userLoginDto.getPassword(), user.getPassword())) {
+                return jwtTokenProvider.createToken(user.getEmail(), user.getRole());
+            }
+            throw new UserOrPasswordIncorrectException("Credential aren't correct");
+
+        } catch (UserNotFoundException e) {
+            throw new UserOrPasswordIncorrectException("Credential aren't correct", e);
         }
+
     }
+
 
     @Override
     public void sendResetPasswordToken(String email) {
