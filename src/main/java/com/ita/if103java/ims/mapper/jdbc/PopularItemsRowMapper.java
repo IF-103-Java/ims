@@ -8,7 +8,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 @Component
-public class PopularityListRowMapper implements RowMapper<PopularItemsDto> {
+public class PopularItemsRowMapper implements RowMapper<PopularItemsDto> {
     @Override
     public PopularItemsDto mapRow(ResultSet resultSet, int rowNum) throws SQLException {
         PopularItemsDto popularItemsDto = new PopularItemsDto();

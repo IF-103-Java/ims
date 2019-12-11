@@ -3,6 +3,7 @@ import com.ita.if103java.ims.dto.PopularItemsRequestDto;
 import com.ita.if103java.ims.dto.PopularItemsDto;
 import com.ita.if103java.ims.dto.EndingItemsDto;
 import com.ita.if103java.ims.dto.WarehouseLoadDto;
+import com.ita.if103java.ims.dto.WarehousePremiumStructDto;
 import com.ita.if103java.ims.service.DashboardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -25,8 +26,14 @@ public class DashboardController {
     }
 
     @RequestMapping(value = "/warehouseLoad")
-    public List<WarehouseLoadDto> getWarehouseLoad(){
-        return dashboardService.getWarehouseLoad();
+    public List<WarehouseLoadDto> getWarehouseLoad(@RequestParam Long accountId){
+        return dashboardService.getWarehouseLoad(accountId);
+    }
+
+    @RequestMapping(value="/premiumLoad")
+    public WarehousePremiumStructDto getPreLoad(@RequestParam Long id,
+                                                @RequestParam Long accountId){
+        return dashboardService.getPreLoad(id, accountId);
     }
 
     @PostMapping(value = "/popularityItems",
@@ -37,7 +44,8 @@ public class DashboardController {
     }
 
     @RequestMapping(value = "/endingItems")
-    public List<EndingItemsDto> getEndingItems(@RequestParam int minQuantity){
-        return dashboardService.getEndingItems(minQuantity);
+    public List<EndingItemsDto> getEndingItems(@RequestParam int minQuantity,
+                                               @RequestParam Long accountId){
+        return dashboardService.getEndingItems(minQuantity, accountId);
     }
 }

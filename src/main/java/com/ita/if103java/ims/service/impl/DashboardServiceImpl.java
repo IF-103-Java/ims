@@ -5,6 +5,7 @@ import com.ita.if103java.ims.dto.PopularItemsRequestDto;
 import com.ita.if103java.ims.dto.PopularItemsDto;
 import com.ita.if103java.ims.dto.EndingItemsDto;
 import com.ita.if103java.ims.dto.WarehouseLoadDto;
+import com.ita.if103java.ims.dto.WarehousePremiumStructDto;
 import com.ita.if103java.ims.service.DashboardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,8 +21,13 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public List<WarehouseLoadDto> getWarehouseLoad() {
-        return dashboardDao.findWarehouseLoad();
+    public WarehousePremiumStructDto getPreLoad(Long id, Long accountId) {
+        return dashboardDao.getPreLoadByAccounId(id, accountId);
+    }
+
+    @Override
+    public List<WarehouseLoadDto> getWarehouseLoad(Long accountID) {
+        return dashboardDao.findWarehouseLoadByAccountId(accountID);
     }
 
     @Override
@@ -31,7 +37,7 @@ public class DashboardServiceImpl implements DashboardService {
 
 
     @Override
-    public List<EndingItemsDto> getEndingItems(int minQuantity) {
-        return dashboardDao.findEndedItems(minQuantity);
+    public List<EndingItemsDto> getEndingItems(int minQuantity, Long accountId) {
+        return dashboardDao.findEndedItemsByAccountId(minQuantity, accountId);
     }
 }

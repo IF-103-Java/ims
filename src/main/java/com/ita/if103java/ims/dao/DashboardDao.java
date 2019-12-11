@@ -9,9 +9,8 @@ import com.ita.if103java.ims.dto.WarehousePremiumStructDto;
 import java.util.List;
 
 public interface DashboardDao {
-    List<WarehouseLoadDto> findWarehouseLoad();
+    List<WarehouseLoadDto> findWarehouseLoadByAccountId(Long accountId);
     List<PopularItemsDto> findPopularItems(PopularItemsRequestDto popularItems);
-    List<EndingItemsDto> findEndedItems(int minQuantity);
-    List<WarehousePremiumStructDto> getPreStructure(Long id);
-    List<WarehouseLoadDto> getPreLoad(Long id);
+    List<EndingItemsDto> findEndedItemsByAccountId(int minQuantity, Long accountId);
+    WarehousePremiumStructDto getPreLoadByAccounId(Long id, Long accountId);
 }

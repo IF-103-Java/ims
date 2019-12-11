@@ -11,9 +11,9 @@ import java.sql.SQLException;
 public class WarehousePremiumStructRowMapper implements RowMapper<WarehousePremiumStructDto> {
     @Override
     public WarehousePremiumStructDto mapRow(ResultSet resultSet, int rowNum) throws SQLException {
-        WarehousePremiumStructDto WarehousePremiumLoadDto = new WarehousePremiumStructDto();
-        WarehousePremiumLoadDto.setId(resultSet.getLong("id"));
-        WarehousePremiumLoadDto.setName(resultSet.getString("name"));
-        return WarehousePremiumLoadDto;
+        WarehousePremiumStructDto warehousePremiumStructDto = new WarehousePremiumStructDto();
+        warehousePremiumStructDto.setId(resultSet.getLong("id"));
+        warehousePremiumStructDto.setName(resultSet.getString("name"));
+        return warehousePremiumStructDto;
     }
 }
