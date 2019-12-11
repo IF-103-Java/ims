@@ -29,18 +29,8 @@ public class TransactionDto {
     }
 
     public TransactionDto(BigInteger id, Timestamp timestamp, TransactionType type, AccountDto accountDto,
-                          UserDto workerId, ItemDto itemDto, Long quantity) {
-        this.id = id;
-        this.timestamp = timestamp;
-        this.type = type;
-        this.accountDto = accountDto;
-        this.workerId = workerId;
-        this.itemDto = itemDto;
-        this.quantity = quantity;
-    }
-
-    public TransactionDto(BigInteger id, Timestamp timestamp, TransactionType type, AccountDto accountDto,
-                          UserDto workerId, ItemDto itemDto, Long quantity, AssociateDto associateDto) {
+                          UserDto workerId, ItemDto itemDto, Long quantity, AssociateDto associateDto,
+                          WarehouseDto movedFrom, WarehouseDto movedTo) {
         this.id = id;
         this.timestamp = timestamp;
         this.type = type;
@@ -49,6 +39,8 @@ public class TransactionDto {
         this.itemDto = itemDto;
         this.quantity = quantity;
         this.associateDto = associateDto;
+        this.movedFrom = movedFrom;
+        this.movedTo = movedTo;
     }
 
     public TransactionDto(BigInteger id, Timestamp timestamp, TransactionType type, AccountDto accountDto,
