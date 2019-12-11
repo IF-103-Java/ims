@@ -71,9 +71,7 @@ public class AssociateServiceImpl implements AssociateService {
     public List<AssociateDto> findAll() {
         List<AssociateDto> associateDtos = associateDtoMapper.toDtoList(associateDao.findAll());
 
-        for (AssociateDto associateDto : associateDtos) {
-            associateDto.setAddressDto(addressDtoMapper.toDto(addressDao.findByAssociateId(associateDto.getId())));
-        }
+        associateDtos.stream().forEach(a -> a.setAddressDto(addressDtoMapper.toDto(addressDao.findByAssociateId(a.getId()))));
 
         return associateDtos;
     }
