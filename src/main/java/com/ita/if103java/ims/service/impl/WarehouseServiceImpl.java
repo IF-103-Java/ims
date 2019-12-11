@@ -3,17 +3,20 @@ package com.ita.if103java.ims.service.impl;
 import com.ita.if103java.ims.dao.WarehouseDao;
 import com.ita.if103java.ims.dto.WarehouseDto;
 import com.ita.if103java.ims.entity.Warehouse;
+import com.ita.if103java.ims.exception.MaxWarehouseDepthLimitReachedException;
+import com.ita.if103java.ims.exception.MaxWarehousesLimitReachedException;
 import com.ita.if103java.ims.mapper.WarehouseDtoMapper;
+import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.WarehouseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
 @Service
 public class WarehouseServiceImpl implements WarehouseService {
     private WarehouseDao warehouseDao;
     private WarehouseDtoMapper warehouseDtoMapper;
-
 
     @Autowired
     public WarehouseServiceImpl(WarehouseDao warehouseDao, WarehouseDtoMapper warehouseDtoMapper) {
@@ -23,8 +26,32 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Override
     public WarehouseDto add(WarehouseDto warehouseDto) {
-        Warehouse warehouse = warehouseDtoMapper.convertWarehouseDtoToWarehouse(warehouseDto);
-        return warehouseDtoMapper.convertWarehouseToWarehouseDto(warehouseDao.create(warehouse));
+        UserDetailsImpl userDetails = new UserDetailsImpl();
+        Long accountId = userDetails.getUser().getAccountId();
+        if (warehouseDto.getParentID() == null) {
+            int maxWarehouses = userDetails.getAccountType().getMaxWarehouses();
+            int warehouseQuantity = warehouseDao.findQuatityOfWarehousesByAccountId(accountId);
+            if (warehouseQuantity < maxWarehouses) {
+                return createNewWarehouse(warehouseDto);
+            } else {
+                throw new MaxWarehousesLimitReachedException("The maximum number of warehouses has been reached for this" +
+                    "{accountId = " + accountId + "}");
+            }
+        }
+
+        Integer maxWarehouseDepth = userDetails.getAccountType().getMaxWarehouseDepth();
+        int parentLevel = warehouseDao.findLevelByParentID(warehouseDto.getParentID());
+        if (parentLevel + 1 < maxWarehouseDepth) {
+            return createNewWarehouse(warehouseDto);
+        } else {
+            throw new MaxWarehouseDepthLimitReachedException("The maximum depth of warehouse's levels has been reached for this" +
+                "{accountId = " + accountId + "}");
+        }
+    }
+
+    private WarehouseDto createNewWarehouse(WarehouseDto warehouseDto) {
+        Warehouse warehouse = warehouseDtoMapper.toEntity(warehouseDto);
+        return warehouseDtoMapper.toDto(warehouseDao.create(warehouse));
     }
 
     @Override
@@ -34,20 +61,20 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Override
     public WarehouseDto findWarehouseById(Long id) {
-        return warehouseDtoMapper.convertWarehouseToWarehouseDto(warehouseDao.findById(id));
+        return warehouseDtoMapper.toDto(warehouseDao.findById(id));
     }
 
     @Override
-    public List<WarehouseDto> findWarehousesByParentId(Long parentId) {
-        return warehouseDtoMapper.toDtoList(warehouseDao.findChildrenByID(parentId));
+    public List<WarehouseDto> findWarehousesByTopLevelId(Long topLevelId) {
+        return warehouseDtoMapper.toDtoList(warehouseDao.findChildrenByTopWarehouseID(topLevelId));
     }
 
     @Override
     public WarehouseDto update(WarehouseDto warehouseDto) {
-        Warehouse updatedWarehouse = warehouseDtoMapper.convertWarehouseDtoToWarehouse(warehouseDto);
+        Warehouse updatedWarehouse = warehouseDtoMapper.toEntity(warehouseDto);
         Warehouse dBWarehouse = warehouseDao.findById(updatedWarehouse.getId());
         updatedWarehouse.setActive(dBWarehouse.isActive());
-        return warehouseDtoMapper.convertWarehouseToWarehouseDto(warehouseDao.update(updatedWarehouse));
+        return warehouseDtoMapper.toDto(warehouseDao.update(updatedWarehouse));
     }
 
     @Override

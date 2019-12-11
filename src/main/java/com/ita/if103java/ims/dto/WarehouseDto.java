@@ -2,29 +2,26 @@ package com.ita.if103java.ims.dto;
 
 import org.springframework.stereotype.Component;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Null;
 import java.io.Serializable;
 import java.util.Objects;
 
 @Component
 public class WarehouseDto implements Serializable {
-    private long id;
+    private Long id;
     private String name;
     private String info;
-    private int capacity;
+    private Integer capacity;
     private boolean isBottom;
-    private long parentID;
-    private long accountID;
-    private long topWarehouseID;
+    private Long parentID;
+    private Long accountID;
+    private Long topWarehouseID;
     private boolean active;
 
     public WarehouseDto() {
     }
 
-    public WarehouseDto(long id, String name, String info, int capacity, boolean isBottom, long parentID, long accountID,
-                        long topWarehouseID, boolean active) {
+    public WarehouseDto(Long id, String name, String info, Integer capacity, boolean isBottom, Long parentID, Long accountID,
+                        Long topWarehouseID, boolean active) {
         this.id = id;
         this.name = name;
         this.info = info;
@@ -36,11 +33,11 @@ public class WarehouseDto implements Serializable {
         this.active = active;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -60,11 +57,11 @@ public class WarehouseDto implements Serializable {
         this.info = info;
     }
 
-    public int getCapacity() {
+    public Integer getCapacity() {
         return capacity;
     }
 
-    public void setCapacity(int capacity) {
+    public void setCapacity(Integer capacity) {
         this.capacity = capacity;
     }
 
@@ -76,27 +73,27 @@ public class WarehouseDto implements Serializable {
         isBottom = bottom;
     }
 
-    public long getParentID() {
+    public Long getParentID() {
         return parentID;
     }
 
-    public void setParentID(long parentID) {
+    public void setParentID(Long parentID) {
         this.parentID = parentID;
     }
 
-    public long getAccountID() {
+    public Long getAccountID() {
         return accountID;
     }
 
-    public void setAccountID(long accountID) {
+    public void setAccountID(Long accountID) {
         this.accountID = accountID;
     }
 
-    public long getTopWarehouseID() {
+    public Long getTopWarehouseID() {
         return topWarehouseID;
     }
 
-    public void setTopWarehouseID(long topWarehouseID) {
+    public void setTopWarehouseID(Long topWarehouseID) {
         this.topWarehouseID = topWarehouseID;
     }
 
