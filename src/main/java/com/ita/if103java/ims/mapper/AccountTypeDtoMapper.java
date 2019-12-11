@@ -4,64 +4,44 @@ import com.ita.if103java.ims.dto.AccountTypeDto;
 import com.ita.if103java.ims.entity.AccountType;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 @Component
-public class AccountTypeDtoMapper {
-    public AccountType convertAccountTypeDtoToAccountType(AccountTypeDto accountTypeDto) {
-        if (accountTypeDto == null) {
+public class AccountTypeDtoMapper extends AbstractEntityDtoMapper<AccountType, AccountTypeDto> {
+    public AccountType toEntity(AccountTypeDto dto) {
+        if (dto == null) {
             return null;
         } else {
             AccountType accountType = new AccountType();
-            accountType.setId(accountTypeDto.getId());
-            accountType.setName(accountTypeDto.getName());
-            accountType.setPrice(accountTypeDto.getPrice());
-            accountType.setLevel(accountTypeDto.getLevel());
-            accountType.setMaxWarehouses(accountTypeDto.getMaxWarehouses());
-            accountType.setMaxWarehouseDepth(accountTypeDto.getMaxWarehouseDepth());
-            accountType.setMaxUsers(accountTypeDto.getMaxUsers());
-            accountType.setMaxSuppliers(accountTypeDto.getMaxSuppliers());
-            accountType.setMaxClients(accountTypeDto.getMaxClients());
-            accountType.setActive(accountTypeDto.isActive());
+            accountType.setId(dto.getId());
+            accountType.setName(dto.getName());
+            accountType.setPrice(dto.getPrice());
+            accountType.setLevel(dto.getLevel());
+            accountType.setMaxWarehouses(dto.getMaxWarehouses());
+            accountType.setMaxWarehouseDepth(dto.getMaxWarehouseDepth());
+            accountType.setMaxUsers(dto.getMaxUsers());
+            accountType.setMaxSuppliers(dto.getMaxSuppliers());
+            accountType.setMaxClients(dto.getMaxClients());
+            accountType.setActive(dto.isActive());
             return accountType;
         }
     }
 
-    public AccountTypeDto convertAccountTypeToAccountTypeDto(AccountType accountType) {
-        if (accountType == null) {
+    @Override
+    public AccountTypeDto toDto(AccountType entity) {
+        if (entity == null) {
             return null;
         } else {
             AccountTypeDto accountTypeDto = new AccountTypeDto();
-            accountTypeDto.setId(accountType.getId());
-            accountTypeDto.setName(accountType.getName());
-            accountTypeDto.setPrice(accountType.getPrice());
-            accountTypeDto.setLevel(accountType.getLevel());
-            accountTypeDto.setMaxWarehouses(accountType.getMaxWarehouses());
-            accountTypeDto.setMaxWarehouseDepth(accountType.getMaxWarehouseDepth());
-            accountTypeDto.setMaxUsers(accountType.getMaxUsers());
-            accountTypeDto.setMaxSuppliers(accountType.getMaxSuppliers());
-            accountTypeDto.setMaxClients(accountType.getMaxClients());
-            accountTypeDto.setActive(accountType.isActive());
+            accountTypeDto.setId(entity.getId());
+            accountTypeDto.setName(entity.getName());
+            accountTypeDto.setPrice(entity.getPrice());
+            accountTypeDto.setLevel(entity.getLevel());
+            accountTypeDto.setMaxWarehouses(entity.getMaxWarehouses());
+            accountTypeDto.setMaxWarehouseDepth(entity.getMaxWarehouseDepth());
+            accountTypeDto.setMaxUsers(entity.getMaxUsers());
+            accountTypeDto.setMaxSuppliers(entity.getMaxSuppliers());
+            accountTypeDto.setMaxClients(entity.getMaxClients());
+            accountTypeDto.setActive(entity.isActive());
             return accountTypeDto;
         }
-    }
-
-    public List<AccountType> convertToAccountTypeList(List<AccountTypeDto> accountTypeDtoList) {
-        return Optional.ofNullable(accountTypeDtoList)
-            .orElse(Collections.emptyList())
-            .stream()
-            .map(this::convertAccountTypeDtoToAccountType)
-            .collect(Collectors.toList());
-    }
-
-    public List<AccountTypeDto> convertToAccountTypeDtoList(List<AccountType> accountTypeList) {
-        return Optional.ofNullable(accountTypeList)
-            .orElse(Collections.emptyList())
-            .stream()
-            .map(this::convertAccountTypeToAccountTypeDto)
-            .collect(Collectors.toList());
     }
 }
