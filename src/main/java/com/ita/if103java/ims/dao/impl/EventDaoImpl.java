@@ -33,6 +33,7 @@ import java.util.stream.Stream;
 
 @Repository
 public class EventDaoImpl implements EventDao {
+
     private static final Logger logger = LoggerFactory.getLogger(EventDaoImpl.class);
     private JdbcTemplate jdbcTemplate;
     private EventRowMapper eventRowMapper;
@@ -131,9 +132,10 @@ public class EventDaoImpl implements EventDao {
 
     class Queries {
 
-        static final String SQL_CREATE_EVENT = "" +
-            "INSERT INTO events(message, date, account_id, author_id, warehouse_id, name, transaction_id)" +
-            "VALUES(?,?,?,?,?,?,?)";
+        static final String SQL_CREATE_EVENT = """
+            INSERT INTO events(message, date, account_id, author_id, warehouse_id, name, transaction_id)
+            VALUES(?,?,?,?,?,?,?)
+            """;
 
         static final String SQL_SELECT_EVENT_BY_ID = "SELECT * FROM events WHERE id = ?";
     }

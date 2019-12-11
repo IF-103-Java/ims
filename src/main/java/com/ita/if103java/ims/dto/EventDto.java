@@ -19,47 +19,15 @@ public class EventDto {
     public EventDto() {
     }
 
-    public static class Builder {
-        private EventDto newEventDto = new EventDto();
-
-        public Builder withMessage(String message) {
-            newEventDto.message = message;
-            return this;
-        }
-
-        public Builder withAccountId(long accountId) {
-            newEventDto.accountId = accountId;
-            return this;
-        }
-
-        public Builder withWarehouseId(long warehouseId) {
-            newEventDto.warehouseId = warehouseId;
-            return this;
-        }
-
-        public Builder withAuthorId(long authorId) {
-            newEventDto.authorId = authorId;
-            return this;
-        }
-
-        public Builder withName(EventName name) {
-            newEventDto.name = name;
-            return this;
-        }
-
-        public Builder withDate(ZonedDateTime date) {
-            newEventDto.date = date;
-            return this;
-        }
-
-        public Builder withTransactionId(long transactionId) {
-            newEventDto.transactionId = transactionId;
-            return this;
-        }
-
-        public EventDto build() {
-            return newEventDto;
-        }
+    public EventDto(Long id, String message, ZonedDateTime date, Long accountId, Long warehouseId, Long authorId, EventName name, Long transactionId) {
+        this.id = id;
+        this.message = message;
+        this.date = date;
+        this.accountId = accountId;
+        this.warehouseId = warehouseId;
+        this.authorId = authorId;
+        this.name = name;
+        this.transactionId = transactionId;
     }
 
     public Long getId() {
