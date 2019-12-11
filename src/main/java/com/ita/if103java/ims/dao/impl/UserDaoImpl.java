@@ -204,7 +204,7 @@ public class UserDaoImpl implements UserDao {
         preparedStatement.setObject(++i, Timestamp.from(user.getUpdatedDate().toInstant()));
         preparedStatement.setBoolean(++i, user.isActive());
         preparedStatement.setString(++i, user.getEmailUUID());
-        preparedStatement.setLong(++i, user.getAccountId() != null ? user.getAccountId() : null);
+        preparedStatement.setObject(++i, user.getAccountId());
 
         return preparedStatement;
     }
