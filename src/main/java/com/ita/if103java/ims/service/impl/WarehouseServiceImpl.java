@@ -2,6 +2,7 @@ package com.ita.if103java.ims.service.impl;
 
 import com.ita.if103java.ims.dao.WarehouseDao;
 import com.ita.if103java.ims.dto.WarehouseDto;
+import com.ita.if103java.ims.entity.User;
 import com.ita.if103java.ims.entity.Warehouse;
 import com.ita.if103java.ims.exception.MaxWarehouseDepthLimitReachedException;
 import com.ita.if103java.ims.exception.MaxWarehousesLimitReachedException;
@@ -26,7 +27,7 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Override
     public WarehouseDto add(WarehouseDto warehouseDto) {
-        UserDetailsImpl userDetails = new UserDetailsImpl();
+        UserDetailsImpl userDetails = new UserDetailsImpl(new User());
         Long accountId = userDetails.getUser().getAccountId();
         if (warehouseDto.getParentID() == null) {
             int maxWarehouses = userDetails.getAccountType().getMaxWarehouses();
