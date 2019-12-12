@@ -11,9 +11,11 @@ public class UpgradeSimpleServiceImpl implements UpgradeService {
     AccountTypeDao accountTypeDao;
 
     @Autowired
-    public UpgradeSimpleServiceImpl(AccountDao accountDao) {
+    public UpgradeSimpleServiceImpl(AccountDao accountDao, AccountTypeDao accountTypeDao) {
         this.accountDao = accountDao;
+        this.accountTypeDao = accountTypeDao;
     }
+
 
     @Override
     public void upgradeAccount(Long accountId, Long accountTypeId) {
