@@ -81,7 +81,7 @@ public class ItemServiceImpl implements ItemService {
         int capacity = savedItemDto.getItemDto().getVolume() * savedItemDto.getQuantity();
         List<Warehouse> childWarehouses = new ArrayList<>();
         for (Warehouse warehouse : warehouseDao.findAll()) {
-            childWarehouses.addAll(warehouseDao.findChildrenByID(warehouse.getId()).stream().filter(x -> x.getCapacity() >= capacity).collect(Collectors.toList()));
+            childWarehouses.addAll(warehouseDao.findChildrenByTopWarehouseID(warehouse.getId()).stream().filter(x -> x.getCapacity() >= capacity).collect(Collectors.toList()));
         }
         return warehouseDtoMapper.toDtoList(childWarehouses);
 
