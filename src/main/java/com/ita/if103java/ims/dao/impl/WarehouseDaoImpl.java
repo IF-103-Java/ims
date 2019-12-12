@@ -155,15 +155,21 @@ public class WarehouseDaoImpl implements WarehouseDao {
 
     class Queries {
 
-        static final String SQL_CREATE_WAREHOUSE = "INSERT INTO warehouses(name, info, capacity, is_bottom, parent_id," +
-            " account_id, top_warehouse_id, active) VALUES(?,?,?,?,?,?,?,?)";
+        static final String SQL_CREATE_WAREHOUSE =
+            """
+            INSERT INTO warehouses(name, info, capacity, is_bottom, parent_id,
+            account_id, top_warehouse_id, active) VALUES(?,?,?,?,?,?,?,?);
+            """;
 
         static final String SQL_SELECT_WAREHOUSE_BY_ID = "SELECT * FROM warehouses WHERE id = ?";
 
         static final String SQL_SELECT_ALL_WAREHOUSES = "SELECT * FROM warehouses";
 
-        static final String SQL_UPDATE_WAREHOUSE = "UPDATE warehouses SET name= ?, info = ?," +
-            "capacity = ?, is_bottom = ?, top_warehouse_id = ?, active = ? WHERE id = ?";
+        static final String SQL_UPDATE_WAREHOUSE =
+            """
+            UPDATE warehouses SET name= ?, info = ?,
+            capacity = ?, is_bottom = ?, top_warehouse_id = ?, active = ? WHERE id = ?;
+            """;
 
         static final String SQL_SELECT_CHILDREN_BY_TOP_WAREHOUSE_ID = "SELECT * FROM warehouses WHERE top_warehouse_id = ?";
 
@@ -171,15 +177,18 @@ public class WarehouseDaoImpl implements WarehouseDao {
 
         static final String SQL_COUNT_QUANTITY_OF_WAREHOUSE_BY_ACCOUNT_ID = "SELECT COUNT(id) FROM warehouses WHERE parent_id == null AND account_id = ?";
 
-        static final String SQL_LEVEL_WAREHOUSE_BY_PARENT_ID = "WITH RECURSIVE cte AS" +
-            "(" +
-            "SELECT id, 1 as depth" +
-            "FROM warehouses WHERE parent_id IS NULL" +
-            "UNION ALL" +
-            "SELECT w.id, cte.depth+1" +
-            "FROM warehouses w JOIN cte ON" +
-            "cte.id=w.parent_id" +
-            ")" +
-            "SELECT depth FROM cte WHERE cte.id = ?";
+        static final String SQL_LEVEL_WAREHOUSE_BY_PARENT_ID =
+            """
+            WITH RECURSIVE cte AS
+            (
+            SELECT id, 1 as depth
+             FROM warehouses WHERE parent_id IS NULL
+             UNION ALL
+             SELECT w.id, cte.depth+1
+             FROM warehouses w JOIN cte ON
+             cte.id=w.parent_id
+             )
+             SELECT depth FROM cte WHERE cte.id = ?;
+             """;
     }
 }
