@@ -5,15 +5,12 @@ import com.ita.if103java.ims.dto.UserDto;
 import com.ita.if103java.ims.entity.Role;
 import com.ita.if103java.ims.entity.User;
 import com.ita.if103java.ims.mapper.UserDtoMapper;
-import com.ita.if103java.ims.service.MailService;
 import com.ita.if103java.ims.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -45,7 +42,7 @@ public class UserServiceImpl implements UserService {
         String emailUUID = UUID.randomUUID().toString();
         String encryptedPassword = "";
 
-        if (user.getRole() != Role.WORKER){
+        if (user.getRole() != Role.WORKER) {
             encryptedPassword = passwordEncoder.encode(user.getPassword());
             user.setRole(Role.ADMIN);
         }
@@ -114,7 +111,6 @@ public class UserServiceImpl implements UserService {
             return false;
         }
     }
-
 
 
 }

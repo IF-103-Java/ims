@@ -160,23 +160,45 @@ public class AssociateDaoImpl implements AssociateDao {
 
     class Queries {
 
-        static final String SQL_CREATE_ASSOCIATE = "" +
-            "INSERT INTO associates( account_id, name, email, phone, additional_info, type, active)" +
-            "VALUES(?,?,?,?,?,?,?)";
+        static final String SQL_CREATE_ASSOCIATE = """
+            INSERT INTO associates
+            ( account_id, name, email, phone, additional_info, type, active)
+            VALUES(?,?,?,?,?,?,?)
+        """;
 
-        static final String SQL_SELECT_ASSOCIATE_BY_ID = "SELECT * FROM associates WHERE id = ?";
+        static final String SQL_SELECT_ASSOCIATE_BY_ID = """
+            SELECT *
+            FROM associates
+            WHERE id = ?
+        """;
 
-        static final String SQL_SELECT_ASSOCIATE_BY_EMAIL = "SELECT * FROM associates WHERE email = ?";
+        static final String SQL_SELECT_ASSOCIATE_BY_EMAIL = """
+            SELECT *
+            FROM associates
+            WHERE email = ?
+        """;
 
-        static final String SQL_SELECT_ALL_ASSOCIATES = "SELECT * FROM associates";
+        static final String SQL_SELECT_ALL_ASSOCIATES = """
+            SELECT *
+            FROM associates
+        """;
 
-        static final String SQL_SELECT_ASSOCIATE_BY_ACCOUNT_ID = "SELECT * FROM associates WHERE account_id = ?";
+        static final String SQL_SELECT_ASSOCIATE_BY_ACCOUNT_ID = """
+            SELECT *
+            FROM associates
+            WHERE account_id = ?
+        """;
 
-        static final String SQL_UPDATE_ASSOCIATE = "UPDATE associates SET " +
-            "name= ?, email = ?," +
-            "phone = ?, additional_info = ?" +
-            "WHERE id = ?";
+        static final String SQL_UPDATE_ASSOCIATE = """
+            UPDATE associates
+            SET name = ?, email = ?, phone = ?, additional_info = ?
+            WHERE id = ?
+        """;
 
-        static final String SQL_SET_ACTIVE_STATUS_ASSOCIATE = "UPDATE associates SET active = ? WHERE id = ?";
+        static final String SQL_SET_ACTIVE_STATUS_ASSOCIATE = """
+            UPDATE associates
+            SET active = ?
+            WHERE id = ?
+        """;
     }
 }
