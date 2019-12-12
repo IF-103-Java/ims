@@ -11,7 +11,7 @@ public class WarehouseLoadRowMapper implements RowMapper<WarehouseLoadDto> {
     @Override
     public WarehouseLoadDto mapRow(ResultSet resultSet, int rowNum) throws SQLException {
         WarehouseLoadDto warehouseLoadDto = new WarehouseLoadDto();
-        warehouseLoadDto.setId(resultSet.getLong("top_warehouse_id"));
+        warehouseLoadDto.setId(resultSet.getLong("id"));
         warehouseLoadDto.setCapacity(resultSet.getLong("capacity"));
         warehouseLoadDto.setCharge(resultSet.getLong("charge"));
         return warehouseLoadDto;
