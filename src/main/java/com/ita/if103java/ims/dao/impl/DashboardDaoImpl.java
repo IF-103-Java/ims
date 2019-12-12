@@ -12,7 +12,6 @@ import com.ita.if103java.ims.mapper.jdbc.ChargeCapacityRowMapper;
 import com.ita.if103java.ims.mapper.jdbc.PopularItemsRowMapper;
 import com.ita.if103java.ims.mapper.jdbc.EndingItemsRowMapper;
 import com.ita.if103java.ims.mapper.jdbc.WarehouseLoadRowMapper;
-import com.ita.if103java.ims.mapper.jdbc.WarehousePremiumLoadRowMapper;
 import com.ita.if103java.ims.mapper.jdbc.WarehousePremiumStructRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -31,7 +30,6 @@ public class DashboardDaoImpl implements DashboardDao {
     private PopularItemsRowMapper popularItemsRowMapper;
     private EndingItemsRowMapper endingItemsRowMapper;
     private WarehousePremiumStructRowMapper warehousePremiumStructRowMapper;
-    private WarehousePremiumLoadRowMapper warehousePremiumLoadRowMapper;
     private ChargeCapacityRowMapper chargeCapacityRowMapper;
     private JdbcTemplate jdbcTemplate;
 
@@ -40,14 +38,12 @@ public class DashboardDaoImpl implements DashboardDao {
                             EndingItemsRowMapper endingItemsRowMapper,
                             PopularItemsRowMapper popularItemsRowMapper,
                             WarehousePremiumStructRowMapper warehousePremiumStructRowMapper,
-                            WarehousePremiumLoadRowMapper warehousePremiumLoadRowMapper,
                             ChargeCapacityRowMapper chargeCapacityRowMapper,
                             JdbcTemplate jdbcTemplate) {
         this.warehousePremiumStructRowMapper = warehousePremiumStructRowMapper;
         this.endingItemsRowMapper = endingItemsRowMapper;
         this.popularItemsRowMapper = popularItemsRowMapper;
         this.warehouseLoadRowMapper = warehouseLoadRowMapper;
-        this.warehousePremiumLoadRowMapper = warehousePremiumLoadRowMapper;
         this.chargeCapacityRowMapper = chargeCapacityRowMapper;
         this.jdbcTemplate = jdbcTemplate;
     }
@@ -90,7 +86,7 @@ public class DashboardDaoImpl implements DashboardDao {
     public List<EndingItemsDto> findEndedItemsByAccountId(int minQuantity, Long accountId){
         try {
             return jdbcTemplate.query(Queries.SQL_FIND_ENDED_ITEMS_BY_ACCOUNT_ID, endingItemsRowMapper,
-                                      minQuantity, accountId);
+                minQuantity, accountId);
         } catch (DataAccessException e) {
             throw crudException(e, "findEndedItem", "accountId = " + accountId);
         }
@@ -103,9 +99,9 @@ public class DashboardDaoImpl implements DashboardDao {
                 warehousePremiumStructRowMapper,id, accountId);
             wpld.setLevel(0);
 
-            wpld.setChilds(findSub(id, id, wpld.getLevel(), accountId));
+            wpld.setChilds(findWarehouseStructureAndBottomLoad(id, id, wpld.getLevel(), accountId));
 
-            recFill(wpld);
+            recursiceWarehouseDataFiller(wpld);
 
             return wpld;
         } catch (DataAccessException e) {
@@ -113,39 +109,41 @@ public class DashboardDaoImpl implements DashboardDao {
         }
     }
 
-    private List<WarehousePremiumStructDto> findSub(Long id, Long top_warehouse_id, int level, Long accountId){
+    private List<WarehousePremiumStructDto> findWarehouseStructureAndBottomLoad(Long id, Long topWarehouseId,
+                                                                                int level, Long accountId){
         try{
             List<WarehousePremiumStructDto> wpld = jdbcTemplate.query(Queries.SQL_WAREHOUSE_STRUCTURE_SUB,
                 warehousePremiumStructRowMapper, id, accountId);
-            for (int i = 0; i < wpld.size(); i++) {
-                wpld.get(i).setLevel(level + 1);
-                wpld.get(i).setChilds(findSub(wpld.get(i).getId(), top_warehouse_id, wpld.get(i).getLevel(), accountId));
-                if (wpld.get(i).getChilds().size()==0){
+            for (WarehousePremiumStructDto warehouseItem : wpld) {
+                warehouseItem.setLevel(level + 1);
+                warehouseItem.setChilds(findWarehouseStructureAndBottomLoad(warehouseItem.getId(), topWarehouseId,
+                    warehouseItem.getLevel(), accountId));
+                if (warehouseItem.getChilds().size()==0) {
                     ChargeCapacity chargeCapacity = jdbcTemplate.queryForObject(Queries.SQL_FIND_BOT_CAPACITY_CHARGE,
-                        chargeCapacityRowMapper, top_warehouse_id, wpld.get(i).getId(), accountId);
-                    wpld.get(i).setCharge(chargeCapacity.getCharge());
-                    wpld.get(i).setCapacity(chargeCapacity.getCapacity());
+                        chargeCapacityRowMapper, topWarehouseId, warehouseItem.getId(), accountId);
+                    warehouseItem.setCharge(chargeCapacity.getCharge());
+                    warehouseItem.setCapacity(chargeCapacity.getCapacity());
                 }
             }
             return wpld;
         } catch (DataAccessException e) {
-            throw crudException(e,"findSub","*");
+            throw crudException(e,"findWarehouseStructure","*");
         }
     }
 
-    private void recFill(WarehousePremiumStructDto wp){
-        for(int i=0; i < wp.getChilds().size(); i++){
-            recFill(wp.getChilds().get(i));
+    private void recursiceWarehouseDataFiller(WarehousePremiumStructDto wp){
+        for(WarehousePremiumStructDto child : wp.getChilds()) {
+            recursiceWarehouseDataFiller(child);
         }
-        for(int i=0; i<wp.getChilds().size(); i++){
-            wp.setCharge(wp.getCharge() + wp.getChilds().get(i).getCharge());
-            wp.setCapacity(wp.getCapacity() + wp.getChilds().get(i).getCapacity());
+        for(WarehousePremiumStructDto child : wp.getChilds()) {
+            wp.setCharge(wp.getCharge() + child.getCharge());
+            wp.setCapacity(wp.getCapacity() + child.getCapacity());
         }
     }
 
     private CRUDException crudException(Exception e, String operation, String attribute) {
-        CRUDException exception = new CRUDException(e);
-        LOGGER.error("CRUDException exception. Operation:({}) Dashboard ({}) exception.", operation, attribute, e);
+        CRUDException exception = new CRUDException(
+            "CRUDException exception. Operation:(" + operation + ") Attribute (" + attribute + ").", e);
         return exception;
     }
 
@@ -175,7 +173,7 @@ public class DashboardDaoImpl implements DashboardDao {
                 "LIMIT ? ";
 
         static final String SQL_FIND_WAREHOUSE_LOAD_BY_ACCOUNT_ID =
-            "SELECT top_warehouse_id id, ifnull(sum(capacity),0) capacity, ifnull(sum(charge),0) charge FROM " +
+            "SELECT top_warehouse_id id,  ifnull(sum(charge),0) charge, ifnull(sum(capacity),0) capacity FROM " +
                 "(SELECT warehouse_id, it.account_id, sum(quantity*volume) charge " +
                 "FROM saved_items si " +
                 "JOIN items it " +
@@ -211,19 +209,19 @@ public class DashboardDaoImpl implements DashboardDao {
                 "WHERE parent_id=? and account_id=?";
 
         static final String SQL_FIND_BOT_CAPACITY_CHARGE=
-            "SELECT id, ifnull(capacity,0) capacity, ifnull(charge,0) charge FROM " +
+            "SELECT id, ifnull(sum(charge),0) charge, ifnull(sum(capacity),0) capacity FROM " +
                 "(SELECT warehouse_id, it.account_id, sum(quantity*volume) charge " +
                 "FROM saved_items si " +
-                "JOIN items it " +
+                "JOIN items it  " +
                 "ON si.item_id = it.id " +
                 "JOIN warehouses wh " +
                 "ON si.warehouse_id = wh.id " +
-                "GROUP BY warehouse_id) AS cap " +
+                "GROUP BY warehouse_id) AS cha " +
                 "RIGHT JOIN " +
                 "(SELECT id, capacity, account_id " +
                 "FROM warehouses " +
-                "WHERE is_bottom=1 and top_warehouse_id = ?) AS cha " +
-                "ON cap.warehouse_id=cha.id AND cap.account_id=cha.account_id " +
-                "WHERE id = ? AND cha.account_id = ? ";
+                "WHERE is_bottom=1 and top_warehouse_id = ?) AS cap " +
+                "ON cha.warehouse_id=cap.id AND cha.account_id=cap.account_id " +
+                "WHERE id = ? AND cap.account_id = ?";
     }
 }
