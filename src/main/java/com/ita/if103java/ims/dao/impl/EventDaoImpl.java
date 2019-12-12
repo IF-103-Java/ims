@@ -133,10 +133,15 @@ public class EventDaoImpl implements EventDao {
     class Queries {
 
         static final String SQL_CREATE_EVENT = """
-            INSERT INTO events(message, date, account_id, author_id, warehouse_id, name, transaction_id)
+            INSERT INTO events
+            (message, date, account_id, author_id, warehouse_id, name, transaction_id)
             VALUES(?,?,?,?,?,?,?)
-            """;
+        """;
 
-        static final String SQL_SELECT_EVENT_BY_ID = "SELECT * FROM events WHERE id = ?";
+        static final String SQL_SELECT_EVENT_BY_ID = """
+            SELECT *
+            FROM events
+            WHERE id = ?
+        """;
     }
 }

@@ -25,7 +25,7 @@ public class AddressRowMapper implements RowMapper<Address> {
         return address;
     }
 
-    private <T> void setValueOrNull(Consumer<T> consumer, T value , ResultSet rs) throws SQLException {
+    private <T> void setValueOrNull(Consumer<T> consumer, T value, ResultSet rs) throws SQLException {
         consumer.accept(rs.wasNull() ? null : value);
     }
 }

@@ -1,6 +1,5 @@
 package com.ita.if103java.ims.mapper.jdbc;
 
-import com.ita.if103java.ims.dto.WarehousePremiumStructDto;
 import com.ita.if103java.ims.entity.ChargeCapacity;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;

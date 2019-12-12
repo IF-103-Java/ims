@@ -157,20 +157,40 @@ public class AccountDaoImpl implements AccountDao {
 
     class Queries {
 
-        static final String SQL_CREATE_ACCOUNT = "" +
-            "INSERT INTO accounts (name, type_id, admin_id, created_date, active)" +
-            "VALUES(?,?,?,?,?)";
+        static final String SQL_CREATE_ACCOUNT = """
+            INSERT INTO accounts
+            (name, type_id, admin_id, created_date, active)
+            VALUES(?,?,?,?,?)
+        """;
 
-        static final String SQL_SELECT_ACCOUNT_BY_ID = "SELECT * FROM accounts WHERE id = ?";
+        static final String SQL_SELECT_ACCOUNT_BY_ID = """
+            SELECT *
+            FROM accounts
+            WHERE id = ?
+        """;
 
-        static final String SQL_SELECT_ACCOUNT_BY_ADMIN_ID = "SELECT * FROM accounts WHERE admin_id = ?";
+        static final String SQL_SELECT_ACCOUNT_BY_ADMIN_ID = """
+            SELECT *
+            FROM accounts
+            WHERE admin_id = ?
+        """;
 
-        static final String SQL_UPDATE_ACCOUNT = "UPDATE accounts SET " +
-            "name = ? WHERE id = ?";
+        static final String SQL_UPDATE_ACCOUNT = """
+            UPDATE accounts
+            SET name = ?
+            WHERE id = ?
+        """;
 
-        static final String SQL_UPGRADE_ACCOUNT = "UPDATE accounts SET " +
-            "type_id = ? WHERE id = ?";
+        static final String SQL_UPGRADE_ACCOUNT = """
+            UPDATE accounts
+            SET type_id = ?
+            WHERE id = ?
+        """;
 
-        static final String SQL_SET_ACTIVE_STATUS_ACCOUNT = "UPDATE accounts SET active = ? WHERE id = ?";
+        static final String SQL_SET_ACTIVE_STATUS_ACCOUNT = """
+            UPDATE accounts
+            SET active = ?
+            WHERE id = ?
+        """;
     }
 }

@@ -77,12 +77,12 @@ public class Event {
         this.authorId = authorId;
     }
 
-    public void setName(EventName name) {
-        this.name = name;
-    }
-
     public EventName getName() {
         return name;
+    }
+
+    public void setName(EventName name) {
+        this.name = name;
     }
 
     public Long getTransactionId() {

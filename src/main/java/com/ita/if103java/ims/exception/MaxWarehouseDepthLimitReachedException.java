@@ -1,7 +1,7 @@
 package com.ita.if103java.ims.exception;
 
 public class MaxWarehouseDepthLimitReachedException extends BaseRuntimeException {
-    public MaxWarehouseDepthLimitReachedException(String message){
+    public MaxWarehouseDepthLimitReachedException(String message) {
         super(message);
     }
 
