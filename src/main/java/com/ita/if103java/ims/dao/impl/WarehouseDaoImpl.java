@@ -3,7 +3,6 @@ package com.ita.if103java.ims.dao.impl;
 import com.ita.if103java.ims.dao.WarehouseDao;
 import com.ita.if103java.ims.entity.Warehouse;
 import com.ita.if103java.ims.exception.CRUDException;
-import com.ita.if103java.ims.exception.EntityNotFoundException;
 import com.ita.if103java.ims.exception.WarehouseNotFoundException;
 import com.ita.if103java.ims.mapper.jdbc.WarehouseRowMapper;
 import org.slf4j.Logger;
@@ -126,29 +125,70 @@ public class WarehouseDaoImpl implements WarehouseDao {
 
 
     @Override
-    public List<Warehouse> findChildrenByID(Long id) {
+    public List<Warehouse> findChildrenByTopWarehouseID(Long id) {
         try {
-            return jdbcTemplate.query(Queries.SQL_SELECT_CHILDREN_BY_TOP_WAREHOUSE_ID, warehouseRowMapper);
+            return jdbcTemplate.query(Queries.SQL_SELECT_CHILDREN_BY_TOP_WAREHOUSE_ID, warehouseRowMapper, id);
 
         } catch (DataAccessException e) {
-            throw new WarehouseNotFoundException("Error during finding all children of top-level-warehouse", e);
+            throw new WarehouseNotFoundException("Error during finding all children of top-level-warehouse {Id = " + id + "}", e);
+        }
+    }
+
+    @Override
+    public Integer findLevelByParentID(Long id) {
+        try {
+            return jdbcTemplate.queryForObject(Queries.SQL_LEVEL_WAREHOUSE_BY_PARENT_ID, Integer.class, id);
+
+        } catch (DataAccessException e) {
+            throw new WarehouseNotFoundException("Error during finding warehouse level {Id = " + id + "}", e);
+        }
+    }
+
+    @Override
+    public Integer findQuantityOfWarehousesByAccountId(Long accountId) {
+        try {
+            return jdbcTemplate.queryForObject(Queries.SQL_COUNT_QUANTITY_OF_WAREHOUSE_BY_ACCOUNT_ID, Integer.class, accountId);
+        } catch (DataAccessException e) {
+            throw new WarehouseNotFoundException("Error during finding warehouse quantity {account = " + accountId + "}", e);
         }
     }
 
     class Queries {
 
-        static final String SQL_CREATE_WAREHOUSE = "INSERT INTO warehouses(name, info, capacity, is_bottom, parent_id," +
-            " account_id, top_warehouse_id, active) VALUES(?,?,?,?,?,?,?,?)";
+        static final String SQL_CREATE_WAREHOUSE =
+            """
+            INSERT INTO warehouses(name, info, capacity, is_bottom, parent_id,
+            account_id, top_warehouse_id, active) VALUES(?,?,?,?,?,?,?,?);
+            """;
 
         static final String SQL_SELECT_WAREHOUSE_BY_ID = "SELECT * FROM warehouses WHERE id = ?";
 
         static final String SQL_SELECT_ALL_WAREHOUSES = "SELECT * FROM warehouses";
 
-        static final String SQL_UPDATE_WAREHOUSE = "UPDATE warehouses SET name= ?, info = ?," +
-            "capacity = ?, is_bottom = ?, top_warehouse_id = ?, active = ? WHERE id = ?";
+        static final String SQL_UPDATE_WAREHOUSE =
+            """
+            UPDATE warehouses SET name= ?, info = ?,
+            capacity = ?, is_bottom = ?, top_warehouse_id = ?, active = ? WHERE id = ?;
+            """;
 
         static final String SQL_SELECT_CHILDREN_BY_TOP_WAREHOUSE_ID = "SELECT * FROM warehouses WHERE top_warehouse_id = ?";
 
-        static final String SQL_SET_ACTIVE_STATUS_WAREHOUSE = "UPDATE warehouse SET active = ? WHERE id = ?";
+        static final String SQL_SET_ACTIVE_STATUS_WAREHOUSE = "UPDATE warehouses SET active = ? WHERE id = ?";
+
+        static final String SQL_COUNT_QUANTITY_OF_WAREHOUSE_BY_ACCOUNT_ID = "SELECT COUNT(id) FROM warehouses WHERE parent_id == null AND account_id = ?";
+
+        static final String SQL_LEVEL_WAREHOUSE_BY_PARENT_ID =
+            """
+            WITH RECURSIVE cte AS
+            (
+            SELECT id, 1 as depth
+             FROM warehouses WHERE parent_id IS NULL
+             UNION ALL
+             SELECT w.id, cte.depth+1
+             FROM warehouses w JOIN cte ON
+             cte.id=w.parent_id
+             )
+             SELECT depth FROM cte WHERE cte.id = ?;
+             """;
     }
 }
