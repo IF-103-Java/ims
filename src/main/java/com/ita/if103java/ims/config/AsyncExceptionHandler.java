@@ -7,6 +7,7 @@ import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import java.lang.reflect.Method;
 
 public class AsyncExceptionHandler implements AsyncUncaughtExceptionHandler {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(AsyncExceptionHandler.class);
 
     @Override
@@ -14,6 +15,4 @@ public class AsyncExceptionHandler implements AsyncUncaughtExceptionHandler {
         LOGGER.warn(throwable.getMessage() + ", Method name - " + method.getName() +
             ", Parameter values - " + obj.toString(), throwable);
     }
-
-
 }

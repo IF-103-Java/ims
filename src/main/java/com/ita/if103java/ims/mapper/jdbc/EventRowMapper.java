@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.function.Consumer;
 
 @Component
 public class EventRowMapper implements RowMapper<Event> {
@@ -21,9 +22,13 @@ public class EventRowMapper implements RowMapper<Event> {
         event.setDate(ZonedDateTime.of(resultSet.getObject("date", LocalDateTime.class), ZoneId.systemDefault()));
         event.setAccountId(resultSet.getLong("account_id"));
         event.setAuthorId(resultSet.getLong("author_id"));
-        event.setTransactionId(resultSet.getLong("transaction_id"));
-        event.setWarehouseId(resultSet.getLong("warehouse_id"));
         event.setName(EventName.valueOf(resultSet.getString("name")));
+        setValueOrNull(event::setWarehouseId, resultSet.getLong("warehouse_id"), resultSet);
+        setValueOrNull(event::setTransactionId, resultSet.getLong("transaction_id"), resultSet);
         return event;
+    }
+
+    private <T> void setValueOrNull(Consumer<T> consumer, T value, ResultSet rs) throws SQLException {
+        consumer.accept(rs.wasNull() ? null : value);
     }
 }
