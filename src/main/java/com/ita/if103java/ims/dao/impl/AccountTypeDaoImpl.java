@@ -160,25 +160,54 @@ public class AccountTypeDaoImpl implements AccountTypeDao {
 
     class Queries {
 
-        static final String SQL_CREATE_ACCOUNT_TYPE = "" +
-            "INSERT INTO account_types (name, price, level, max_warehouses, max_warehouse_depth, max_users, max_suppliers, max_clients, active)" +
-            "VALUES(?,?,?,?,?)";
+        static final String SQL_CREATE_ACCOUNT_TYPE = """
+            INSERT INTO account_types
+            (name, price, level, max_warehouses, max_warehouse_depth, max_users, max_suppliers, max_clients, active)
+            VALUES(?,?,?,?,?)
+        """;
 
-        static final String SQL_SELECT_ACCOUNT_TYPE_BY_ID = "SELECT * FROM account_types WHERE id = ?";
+        static final String SQL_SELECT_ACCOUNT_TYPE_BY_ID = """
+            SELECT *
+            FROM account_types
+            WHERE id = ?
+        """;
 
-        static final String SQL_SELECT_ACCOUNT_TYPE_BY_NAME = "SELECT * FROM account_types WHERE name = ?";
+        static final String SQL_SELECT_ACCOUNT_TYPE_BY_NAME = """
+            SELECT *
+            FROM account_types
+            WHERE name = ?
+        """;
 
-        static final String SQL_SELECT_ALL_ACCOUNT_TYPES = "SELECT * FROM account_types where active = true";
+        static final String SQL_SELECT_ALL_ACCOUNT_TYPES = """
+            SELECT *
+            FROM account_types
+            where active = true
+        """;
 
-        static final String SQL_UPDATE_ACCOUNT_TYPE = "UPDATE account_types SET " +
-            "name = ?, price= ?, level= ?, max_warehouses = ?," +
-            "max_warehouse_depth = ?, max_users = ?," +
-            "max_suppliers = ?, max_clients = ?, active = ? WHERE id = ?";
+        static final String SQL_UPDATE_ACCOUNT_TYPE = """
+            UPDATE account_types
+            SET name = ?, price= ?, level= ?, max_warehouses = ?,
+            max_warehouse_depth = ?, max_users = ?,
+            max_suppliers = ?, max_clients = ?, active = ?
+            WHERE id = ?
+        """;
 
-        static final String SQL_SET_ACTIVE_STATUS_ACCOUNT_TYPE = "UPDATE account_types SET active = ? WHERE id = ?";
+        static final String SQL_SET_ACTIVE_STATUS_ACCOUNT_TYPE = """
+            UPDATE account_types
+            SET active = ?
+            WHERE id = ?
+        """;
 
-        static final String SQL_FIND_MIN_LVL_TYPE = "SELECT MIN(level) FROM account_types";
+        static final String SQL_FIND_MIN_LVL_TYPE = """
+            SELECT MIN(level)
+            FROM account_types
+        """;
 
-        static final String SQL_FIND_ALL_POSSIBLE_TO_UPGRADE = "SELECT * FROM account_types WHERE level > ? and active = true";
+        static final String SQL_FIND_ALL_POSSIBLE_TO_UPGRADE = """
+            SELECT *
+            FROM account_types
+            WHERE level > ?
+            AND active = true
+        """;
     }
 }

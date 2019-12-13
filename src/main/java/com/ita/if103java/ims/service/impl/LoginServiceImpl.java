@@ -15,8 +15,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.UUID;
 
 import static com.ita.if103java.ims.config.MailMessagesConfig.FOOTER;
@@ -67,11 +65,9 @@ public class LoginServiceImpl implements LoginService {
         String newToken = UUID.randomUUID().toString();
 
         User user = userDao.findByEmail(email);
-        user.setUpdatedDate(ZonedDateTime.now(ZoneId.systemDefault()));
         user.setEmailUUID(newToken);
         userDao.update(user);
 
-        String token = user.getEmailUUID();
         String message = "" +
             RESET_PASSWORD +
             resetPasswordURL + newToken + "\n" +

@@ -8,10 +8,13 @@ import com.ita.if103java.ims.dto.transfer.NewDataWorker;
 import com.ita.if103java.ims.entity.Role;
 import org.springframework.stereotype.Component;
 
-import javax.validation.constraints.*;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.time.ZonedDateTime;
-import java.util.Objects;
 
 @Component
 public class UserDto implements Serializable {
@@ -59,7 +62,7 @@ public class UserDto implements Serializable {
     @NotNull(groups = {NewData.class, ExistData.class})
     private boolean active;
 
-    @NotBlank(groups = {NewData.class, ExistData.class})
+    @NotBlank(groups = {ExistData.class})
     private String emailUUID;
 
     @Null(groups = {NewDataAdmin.class},

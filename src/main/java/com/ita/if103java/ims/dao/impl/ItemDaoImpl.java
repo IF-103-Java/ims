@@ -97,11 +97,33 @@ public class ItemDaoImpl implements ItemDao {
     }
 
     class Queries {
-        static final String SQL_SELECT_ITEMS = "select * from items";
-        static final String SQL_SELECT_ITEM_BY_NAME = "select * from items where name_item=?";
-        static final String SQL_SELECT_ITEM_BY_ACCOUNT_ID = "select * from items where account_id=?";
-        static final String SQL_SELECT_ITEM_BY_ID = "select * from items where id=?";
-        static final String SQL_INSERT_INTO_ITEM = "insert into items(name_item, unit, description, volume, active, account_id) values(?, ?, ?, ?, ?, ?)";
-        static final String SQL_SET_ACTIVE_STATUS_ITEM = "update items set active= ? where name_item=?";
+        static final String SQL_SELECT_ITEMS = """
+            select *
+            from items
+        """;
+        static final String SQL_SELECT_ITEM_BY_NAME = """
+            select *
+            from items
+            where name_item=?
+        """;
+        static final String SQL_SELECT_ITEM_BY_ACCOUNT_ID = """
+            select *
+            from items
+            where account_id=?
+        """;
+        static final String SQL_SELECT_ITEM_BY_ID = """
+            select *
+            from items
+            where id=?
+        """;
+        static final String SQL_INSERT_INTO_ITEM = """
+            insert into items(name_item, unit, description, volume, active, account_id)
+            values(?, ?, ?, ?, ?, ?)
+        """;
+        static final String SQL_SET_ACTIVE_STATUS_ITEM = """
+            update items
+            set active= ?
+            where name_item=?
+        """;
     }
 }

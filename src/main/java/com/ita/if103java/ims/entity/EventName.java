@@ -37,14 +37,6 @@ public enum EventName {
         this.type = type;
     }
 
-    public EventType getType() {
-        return type;
-    }
-
-    public String getLabel() {
-        return label;
-    }
-
     public static Set<EventName> getValuesByType(EventType type) {
         Set<EventName> values = new HashSet<>();
         for (EventName name : EventName.values()) {
@@ -53,5 +45,13 @@ public enum EventName {
             }
         }
         return values;
+    }
+
+    public EventType getType() {
+        return type;
+    }
+
+    public String getLabel() {
+        return label;
     }
 }
