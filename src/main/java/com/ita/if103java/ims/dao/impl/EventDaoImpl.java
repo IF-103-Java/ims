@@ -34,7 +34,6 @@ import java.util.stream.Stream;
 @Repository
 public class EventDaoImpl implements EventDao {
 
-    private static final Logger logger = LoggerFactory.getLogger(EventDaoImpl.class);
     private JdbcTemplate jdbcTemplate;
     private EventRowMapper eventRowMapper;
 
