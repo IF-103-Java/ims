@@ -3,13 +3,14 @@ package com.ita.if103java.ims.service;
 import com.ita.if103java.ims.dto.ItemDto;
 import com.ita.if103java.ims.dto.SavedItemDto;
 import com.ita.if103java.ims.dto.WarehouseDto;
-import com.ita.if103java.ims.dto.WarehouseLoadDto;
 
 import java.util.List;
 
 
 public interface ItemService {
     List<ItemDto> findItems();
+
+    List<ItemDto> findItemsByParam(String param);
 
     SavedItemDto addSavedItem(SavedItemDto savedItemDto);
 
@@ -23,7 +24,7 @@ public interface ItemService {
 
     List<WarehouseDto> findUsefullWarehouses(SavedItemDto savedItemDto);
 
-    boolean moveItem(WarehouseLoadDto warehouseLoadDto, SavedItemDto savedItemDto);
+    boolean moveItem(WarehouseDto warehouseDto, SavedItemDto savedItemDto);
 
     SavedItemDto outcomeItem(SavedItemDto savedItemDto, int quantity);
 

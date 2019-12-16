@@ -6,7 +6,6 @@ import com.ita.if103java.ims.dao.WarehouseDao;
 import com.ita.if103java.ims.dto.ItemDto;
 import com.ita.if103java.ims.dto.SavedItemDto;
 import com.ita.if103java.ims.dto.WarehouseDto;
-import com.ita.if103java.ims.dto.WarehouseLoadDto;
 import com.ita.if103java.ims.entity.Item;
 import com.ita.if103java.ims.entity.SavedItem;
 import com.ita.if103java.ims.entity.Warehouse;
@@ -49,9 +48,15 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemDto> findItems() {
         List<Item> items = itemDao.getItems();
-        items.sort(Comparator.comparing(Item::getName));
         return itemDtoMapper.toDtoList(items);
 
+    }
+
+    @Override
+    public List<ItemDto> findItemsByParam(String param) {
+        List<Item> items = itemDao.getItems();
+        items.sort(Comparator.comparing(Item::getName));
+        return itemDtoMapper.toDtoList(items);
     }
 
     @Override
@@ -106,13 +111,13 @@ public class ItemServiceImpl implements ItemService {
 
 
     @Override
-    public boolean moveItem(WarehouseLoadDto warehouseLoadDto, SavedItemDto savedItemDto) {
+    public boolean moveItem(WarehouseDto warehouseDto, SavedItemDto savedItemDto) {
         savedItemDto.setItemDto(itemDtoMapper.convertItemToItemDto(itemDao.findItemById(savedItemDto.getId())));
         if (isEnoughCapacityInWarehouse(savedItemDto)) {
-            return savedItemDao.updateSavedItem(warehouseLoadDto.getId(), savedItemDto.getId());
+            return savedItemDao.updateSavedItem(warehouseDto.getId(), savedItemDto.getId());
         }
         throw new ItemNotEnoughCapacityInWarehouseException("Can't move savedItemDto in warehouse because it doesn't " +
-            " have enough capacity {warehouse_id = " + warehouseLoadDto.getId() + "}");
+            " have enough capacity {warehouse_id = " + warehouseDto.getId() + "}");
     }
 
     @Override
