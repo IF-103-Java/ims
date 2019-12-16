@@ -1,11 +1,8 @@
 package com.ita.if103java.ims.dto;
 
-import org.springframework.stereotype.Component;
-
 import java.io.Serializable;
 import java.util.Objects;
 
-@Component
 public class WarehouseDto implements Serializable {
     private Long id;
     private String name;
