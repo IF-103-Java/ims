@@ -11,7 +11,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -65,7 +74,7 @@ public class UserController {
         return userService.update(userDto);
     }
 
-    //TO DO: add @PreAuthorize("hasRole('ROLE_ADMIN')")
+    //TODO: add @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable("id") Long id) {
@@ -78,17 +87,16 @@ public class UserController {
         return userService.findAll();
     }
 
-    @PostMapping(value = "/confirmation")
+    @GetMapping(value = "/confirmation")
     @ResponseStatus(HttpStatus.OK)
     public boolean activateUser(@RequestParam("emailUUID") String emailUUID) {
         return userService.activateUser(emailUUID);
     }
 
-    //TO DO: add resetpassword() via email to loginService and change it
-    @PostMapping("/reset-password")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void resetPassword(@AuthenticationPrincipal User user,
-                              @Validated({ExistData.class}) @RequestBody @NotNull String newPassword) {
+    @PostMapping("/update-password")
+    @ResponseStatus(HttpStatus.OK)
+    public void updatePassword(@AuthenticationPrincipal User user,
+                               @Validated({ExistData.class}) @RequestBody @NotNull String newPassword) {
         userService.updatePassword(user.getId(), newPassword);
     }
 

@@ -55,13 +55,24 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemDto> findItemsByParam(String param) {
         List<Item> items = itemDao.getItems();
-        items.sort(Comparator.comparing(Item::getName));
+        if (param.equalsIgnoreCase("name")) {
+            items.sort(Comparator.comparing(Item::getName));
+        }
+        if (param.equalsIgnoreCase("volume")) {
+            items.sort(Comparator.comparing(Item::getName));
+        }
         return itemDtoMapper.toDtoList(items);
     }
 
     @Override
+    public ItemDto findById(Long id) {
+        return itemDtoMapper.toDto(itemDao.findItemById(id));
+
+    }
+
+    @Override
     public SavedItemDto addSavedItem(SavedItemDto savedItemDto) {
-        SavedItem savedItem = savedItemDtoMapper.convertSavedItemDtoToSavedItem(savedItemDto);
+        SavedItem savedItem = savedItemDtoMapper.toEntity(savedItemDto);
         savedItem.setItemId(itemDao.findItemByName(savedItemDto.getItemDto().getName()).getId());
         if (isEnoughCapacityInWarehouse(savedItemDto)) {
             savedItemDao.addSavedItem(savedItem);
@@ -81,7 +92,7 @@ public class ItemServiceImpl implements ItemService {
         int capacity = savedItemDto.getItemDto().getVolume() * savedItemDto.getQuantity();
         List<Warehouse> childWarehouses = new ArrayList<>();
         for (Warehouse warehouse : warehouseDao.findAll()) {
-            childWarehouses.addAll(warehouseDao.findChildrenByID(warehouse.getId()).stream().filter(x -> x.getCapacity() >= capacity).collect(Collectors.toList()));
+            childWarehouses.addAll(warehouseDao.findChildrenByTopWarehouseID(warehouse.getId()).stream().filter(x -> x.getCapacity() >= capacity).collect(Collectors.toList()));
         }
         return warehouseDtoMapper.toDtoList(childWarehouses);
 
@@ -89,13 +100,13 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto addItem(ItemDto itemDto) {
-        itemDao.addItem(itemDtoMapper.convertItemDtoToItem(itemDto));
+        itemDao.addItem(itemDtoMapper.toEntity(itemDto));
         return itemDto;
     }
 
     @Override
     public SavedItemDto findSavedItemById(SavedItemDto savedItemDto) {
-        return savedItemDtoMapper.convertSavedItemToSavedItemDto(savedItemDao.findSavedItemById(savedItemDto.getId()));
+        return savedItemDtoMapper.toDto(savedItemDao.findSavedItemById(savedItemDto.getId()));
     }
 
 
@@ -106,13 +117,13 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public SavedItemDto findByItemDto(ItemDto itemDto) {
-        return savedItemDtoMapper.convertSavedItemToSavedItemDto(savedItemDao.findSavedItemById(itemDto.getId()));
+        return savedItemDtoMapper.toDto(savedItemDao.findSavedItemById(itemDto.getId()));
     }
 
 
     @Override
     public boolean moveItem(WarehouseDto warehouseDto, SavedItemDto savedItemDto) {
-        savedItemDto.setItemDto(itemDtoMapper.convertItemToItemDto(itemDao.findItemById(savedItemDto.getId())));
+        savedItemDto.setItemDto(itemDtoMapper.toDto(itemDao.findItemById(savedItemDto.getId())));
         if (isEnoughCapacityInWarehouse(savedItemDto)) {
             return savedItemDao.updateSavedItem(warehouseDto.getId(), savedItemDto.getId());
         }
@@ -124,7 +135,7 @@ public class ItemServiceImpl implements ItemService {
     public SavedItemDto outcomeItem(SavedItemDto savedItemDto, int quantity) {
         int difference = savedItemDto.getQuantity() - quantity;
         if (savedItemDao.findSavedItemByItemId(savedItemDto.getItemId()).getQuantity() >= quantity) {
-            savedItemDao.outComeSavedItem(savedItemDtoMapper.convertSavedItemDtoToSavedItem(savedItemDto), difference);
+            savedItemDao.outComeSavedItem(savedItemDtoMapper.toEntity(savedItemDto), difference);
             savedItemDto.setQuantity(difference);
             return savedItemDto;
         }

@@ -137,13 +137,42 @@ public class SavedItemDaoImpl implements SavedItemDao {
     }
 
     class Queries {
-        static final String SQL_SELECT_SAVED_ITEMS = "select * from saved_items";
-        static final String SQL_SELECT_SAVED_ITEMS_BY_ID = "select * from saved_items where id=?";
-        static final String SQL_SELECT_SAVED_ITEMS_BY_ITEM_ID = "select * from saved_items where item_id=?";
-        static final String SQL_SELECT_SAVED_ITEMS_BY_WAREHOUSE_ID = "select * from saved_items where warehouse_id=?";
-        static final String SQL_INSERT_INTO_SAVED_ITEM = "insert into saved_items(item_id, quantity, warehouse_id) values(?,?, ?)";
-        static final String SQL_DELETE_SAVED_ITEM_BY_SAVED_ITEM_ID = "delete from saved_items where id=?";
-        static final String SQL_SET_WAREHOUSE_ID_SAVED_ITEMS = "update saved_items set warehouse_id=? where id=?";
-        static final String SQL_SET_QUANTITY_SAVED_ITEMS = "update saved_items set quantity=? where id=?";
+        static final String SQL_SELECT_SAVED_ITEMS = """
+            select *
+            from saved_items
+        """;
+        static final String SQL_SELECT_SAVED_ITEMS_BY_ID = """
+            select *
+            from saved_items
+            where id=?
+        """;
+        static final String SQL_SELECT_SAVED_ITEMS_BY_ITEM_ID = """
+            select *
+            from saved_items
+            where item_id=?
+        """;
+        static final String SQL_SELECT_SAVED_ITEMS_BY_WAREHOUSE_ID = """
+            select *
+            from saved_items
+            where warehouse_id=?
+        """;
+        static final String SQL_INSERT_INTO_SAVED_ITEM = """
+            insert into saved_items(item_id, quantity, warehouse_id)
+            values(?,?, ?)
+        """;
+        static final String SQL_DELETE_SAVED_ITEM_BY_SAVED_ITEM_ID = """
+            delete from saved_items
+            where id=?
+        """;
+        static final String SQL_SET_WAREHOUSE_ID_SAVED_ITEMS = """
+            update saved_items
+            set warehouse_id=?
+            where id=?
+        """;
+        static final String SQL_SET_QUANTITY_SAVED_ITEMS = """
+            update saved_items
+            set quantity=?
+            where id=?
+        """;
     }
 }

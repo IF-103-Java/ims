@@ -1,6 +1,5 @@
 package com.ita.if103java.ims.security;
 
-import com.ita.if103java.ims.entity.Account;
 import com.ita.if103java.ims.entity.AccountType;
 import com.ita.if103java.ims.entity.User;
 import org.springframework.security.core.GrantedAuthority;
@@ -14,6 +13,14 @@ public class UserDetailsImpl implements UserDetails {
 
     private User user;
     private AccountType accountType;
+
+    public UserDetailsImpl(User user) {
+        this.user = user;
+    }
+
+    public UserDetailsImpl(AccountType accountType) {
+        this.accountType = accountType;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

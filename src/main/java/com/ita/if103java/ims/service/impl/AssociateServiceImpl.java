@@ -1,8 +1,8 @@
 package com.ita.if103java.ims.service.impl;
 
 import com.ita.if103java.ims.dao.AccountDao;
-import com.ita.if103java.ims.dao.AssociateDao;
 import com.ita.if103java.ims.dao.AddressDao;
+import com.ita.if103java.ims.dao.AssociateDao;
 import com.ita.if103java.ims.dto.AddressDto;
 import com.ita.if103java.ims.dto.AssociateDto;
 import com.ita.if103java.ims.entity.Account;
@@ -65,6 +65,15 @@ public class AssociateServiceImpl implements AssociateService {
         associateDto.setAddressDto(addressDto);
 
         return associateDto;
+    }
+
+    @Override
+    public List<AssociateDto> findAll() {
+        List<AssociateDto> associateDtos = associateDtoMapper.toDtoList(associateDao.findAll());
+
+        associateDtos.stream().forEach(a -> a.setAddressDto(addressDtoMapper.toDto(addressDao.findByAssociateId(a.getId()))));
+
+        return associateDtos;
     }
 
     @Override

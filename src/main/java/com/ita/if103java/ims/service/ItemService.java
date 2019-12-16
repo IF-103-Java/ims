@@ -12,6 +12,8 @@ public interface ItemService {
 
     List<ItemDto> findItemsByParam(String param);
 
+    ItemDto findById(Long id);
+
     SavedItemDto addSavedItem(SavedItemDto savedItemDto);
 
     ItemDto addItem(ItemDto itemDto);

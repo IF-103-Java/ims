@@ -1,13 +1,19 @@
 package com.ita.if103java.ims.dao;
 
-import com.ita.if103java.ims.dto.PopularityListDto;
-import com.ita.if103java.ims.dto.RefillListDto;
+import com.ita.if103java.ims.dto.EndingItemsDto;
+import com.ita.if103java.ims.dto.PopularItemsDto;
+import com.ita.if103java.ims.dto.PopularItemsRequestDto;
 import com.ita.if103java.ims.dto.WarehouseLoadDto;
+import com.ita.if103java.ims.dto.WarehousePremiumStructDto;
+
 import java.util.List;
 
 public interface DashboardDao {
-    List<WarehouseLoadDto> findWarehouseWidgets();
-    List<PopularityListDto> findPopularItems(int quantity);
-    List<PopularityListDto> findUnpopularItems(int quantity);
-    List<RefillListDto> findEndedItems(Long min_quantity);
+    List<WarehouseLoadDto> findWarehouseLoadByAccountId(Long accountId);
+
+    List<PopularItemsDto> findPopularItems(PopularItemsRequestDto popularItems);
+
+    List<EndingItemsDto> findEndedItemsByAccountId(int minQuantity, Long accountId);
+
+    WarehousePremiumStructDto getPreLoadByAccounId(Long id, Long accountId);
 }

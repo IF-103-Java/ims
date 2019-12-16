@@ -27,37 +27,44 @@ public class ItemController {
     public ItemController(ItemService itemService) {
         this.itemService = itemService;
     }
-
+    @PostMapping("/addItem")
+    @ResponseStatus(HttpStatus.OK)
+    public ItemDto addItem(@RequestBody ItemDto itemDto) {
+        return itemService.addItem(itemDto);
+    }
+    @PostMapping("/addSavedItem")
+    @ResponseStatus(HttpStatus.OK)
+    public SavedItemDto addSavedItem(@RequestBody SavedItemDto savedItemDto) {
+        return itemService.addSavedItem(savedItemDto);
+    }
     @GetMapping("/getAllItems")
     @ResponseStatus(HttpStatus.OK)
     public List<ItemDto> getItems() {
         return itemService.findItems();
     }
 
-    @GetMapping("/getItemByParam")
+    @GetMapping("/getItemsByParam")
     @ResponseStatus(HttpStatus.OK)
     public List<ItemDto> findItemsByParam(@RequestParam("param") String param) {
         return itemService.findItemsByParam(param);
     }
 
-    @PostMapping("/addSavedItem")
-    @ResponseStatus(HttpStatus.OK)
-    public SavedItemDto addSavedItem(@RequestBody SavedItemDto savedItemDto) {
-        return itemService.addSavedItem(savedItemDto);
-    }
-
-    @GetMapping("/getWarehouses")
+    @GetMapping("/getUsefullWarehouses")
     @ResponseStatus(HttpStatus.OK)
     public List<WarehouseDto> findUsefullWarehouses(@RequestParam("savedItemDto") SavedItemDto savedItemDto) {
         return itemService.findUsefullWarehouses(savedItemDto);
     }
 
-    @PostMapping("/addItem")
+    @GetMapping("/getItemById")
     @ResponseStatus(HttpStatus.OK)
-    public ItemDto addItem(@RequestBody ItemDto itemDto) {
-        return itemService.addItem(itemDto);
+    public ItemDto findById(@RequestParam("id") Long id) {
+        return itemService.findById(id);
     }
-
+    @GetMapping("/getSavedItemByItemDto")
+    @ResponseStatus(HttpStatus.OK)
+    public SavedItemDto findByItemDto(ItemDto itemDto) {
+        return itemService.findByItemDto(itemDto);
+    }
     @GetMapping("/getSavedItemById")
     @ResponseStatus(HttpStatus.OK)
     public SavedItemDto findSavedItemById(@RequestParam("savedItemDto") SavedItemDto savedItemDto) {
