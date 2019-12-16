@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -71,14 +72,14 @@ public class ItemController {
         return itemService.findSavedItemById(savedItemDto);
     }
 
-    @PostMapping(value = "/moveItem", produces = MediaType.APPLICATION_JSON_VALUE,
+    @PutMapping(value = "/moveItem", produces = MediaType.APPLICATION_JSON_VALUE,
         consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public boolean moveItem(@RequestBody WarehouseDto warehouseDto, @RequestBody SavedItemDto savedItemDto) {
         return itemService.moveItem(warehouseDto, savedItemDto);
     }
 
-    @PostMapping(value = "/outcomeItem", produces = MediaType.APPLICATION_JSON_VALUE,
+    @PutMapping(value = "/outcomeItem", produces = MediaType.APPLICATION_JSON_VALUE,
         consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public SavedItemDto outcomeItem(@RequestBody SavedItemDto savedItemDto, @RequestBody int quantity) {
@@ -86,7 +87,7 @@ public class ItemController {
     }
 
     @DeleteMapping("/softDeleteItem")
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public boolean softDelete(@RequestParam("itemDto") ItemDto itemDto) {
         return itemService.softDelete(itemDto);
     }
