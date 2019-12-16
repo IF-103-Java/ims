@@ -107,11 +107,11 @@ public class WarehouseDto implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         WarehouseDto that = (WarehouseDto) o;
-        return capacity == that.capacity &&
+        return capacity.equals(that.capacity) &&
             isBottom == that.isBottom &&
-            parentID == that.parentID &&
-            accountID == that.accountID &&
-            topWarehouseID == that.topWarehouseID &&
+            parentID.equals(that.parentID) &&
+            accountID.equals(that.accountID) &&
+            topWarehouseID.equals(that.topWarehouseID) &&
             active == that.active &&
             Objects.equals(name, that.name) &&
             Objects.equals(info, that.info);
