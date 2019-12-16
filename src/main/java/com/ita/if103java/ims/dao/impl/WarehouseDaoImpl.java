@@ -180,7 +180,7 @@ public class WarehouseDaoImpl implements WarehouseDao {
         static final String SQL_SELECT_CHILDREN_BY_TOP_WAREHOUSE_ID = """
             SELECT *
             FROM warehouses
-            WHERE top_warehouse_id =
+            WHERE top_warehouse_id = ?
         """;
 
         static final String SQL_SET_ACTIVE_STATUS_WAREHOUSE = """
@@ -192,7 +192,7 @@ public class WarehouseDaoImpl implements WarehouseDao {
         static final String SQL_COUNT_QUANTITY_OF_WAREHOUSE_BY_ACCOUNT_ID = """
             SELECT COUNT(id)
             FROM warehouses
-            WHERE parent_id == null
+            WHERE parent_id IS NULL
             AND account_id = ?
         """;
 
