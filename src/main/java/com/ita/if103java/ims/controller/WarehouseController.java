@@ -22,6 +22,7 @@ public class WarehouseController {
     }
 
     @PostMapping(value = "/add")
+    @ResponseStatus(HttpStatus.OK)
     public WarehouseDto add(@RequestBody WarehouseDto warehouseDto) {
         return warehouseService.add(warehouseDto);
     }
@@ -33,22 +34,26 @@ public class WarehouseController {
     }
 
     @GetMapping(value = "/")
+    @ResponseStatus(HttpStatus.OK)
     public List<WarehouseDto> findAll() {
         return warehouseService.findAll();
     }
 
-    @GetMapping(value = "/topWarehouseI{id}")
+    @GetMapping(value = "/topWarehouseId{id}")
+    @ResponseStatus(HttpStatus.OK)
     List<WarehouseDto> findWarehousesByTopLevelId(@PathVariable("topWarehouseId") Long topWarehouseId){
         return warehouseService.findWarehousesByTopLevelId(topWarehouseId);
     }
 
     @PutMapping("/update{id}")
+    @ResponseStatus(HttpStatus.OK)
     public WarehouseDto update(@RequestBody WarehouseDto warehouseDto, @PathVariable("id") Long id) {
         warehouseDto.setId(id);
         return warehouseService.update(warehouseDto);
     }
 
     @DeleteMapping("/delete{id}")
+    @ResponseStatus(HttpStatus.OK)
     public void delete(@PathVariable("id") Long id) {
         warehouseService.softDelete(id);
     }
