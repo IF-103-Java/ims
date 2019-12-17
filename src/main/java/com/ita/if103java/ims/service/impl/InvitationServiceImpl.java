@@ -11,7 +11,9 @@ import com.ita.if103java.ims.service.MailService;
 import com.ita.if103java.ims.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
+@Service
 public class InvitationServiceImpl implements InvitationService {
 
     @Value("${mail.invitationURL}")

@@ -4,11 +4,13 @@ import com.ita.if103java.ims.dao.AccountDao;
 import com.ita.if103java.ims.dao.AccountTypeDao;
 import com.ita.if103java.ims.service.UpgradeService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+@Service
 public class UpgradeSimpleServiceImpl implements UpgradeService {
 
-    AccountDao accountDao;
-    AccountTypeDao accountTypeDao;
+    private AccountDao accountDao;
+    private AccountTypeDao accountTypeDao;
 
     @Autowired
     public UpgradeSimpleServiceImpl(AccountDao accountDao, AccountTypeDao accountTypeDao) {
