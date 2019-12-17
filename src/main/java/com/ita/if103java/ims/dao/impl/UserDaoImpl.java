@@ -115,6 +115,7 @@ public class UserDaoImpl implements UserDao {
                 user.getEmail(),
                 user.getPassword(),
                 Timestamp.from(updatedDateTime.toInstant()),
+                user.isActive(),
                 user.getId());
 
             user.setUpdatedDate(updatedDateTime);
@@ -207,7 +208,7 @@ public class UserDaoImpl implements UserDao {
         preparedStatement.setObject(++i, user.getRole().toString());
         preparedStatement.setObject(++i, Timestamp.from(user.getCreatedDate().toInstant()));
         preparedStatement.setObject(++i, Timestamp.from(user.getUpdatedDate().toInstant()));
-        preparedStatement.setBoolean(++i, user.isActive());
+        preparedStatement.setBoolean(++i, false);
         preparedStatement.setString(++i, user.getEmailUUID());
         preparedStatement.setObject(++i, user.getAccountId());
 
@@ -256,7 +257,7 @@ public class UserDaoImpl implements UserDao {
         public static final String SQL_UPDATE_USER = """
             UPDATE users
             SET first_name= ?, last_name = ?,
-            email = ?, password = ?, updated_date = ?
+            email = ?, password = ?, updated_date = ?, active = ?
             WHERE id = ?
         """;
 
