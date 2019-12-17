@@ -39,7 +39,7 @@ public class AccountController {
         return accountService.update(accountDto);
     }
 
-    @PutMapping("/{id}")
+    @DeleteMapping("/{id}")
     public void delete(@PathVariable("id") Long id) {
         accountService.delete(id);
     }

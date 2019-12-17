@@ -1,6 +1,7 @@
 package com.ita.if103java.ims.controller;
 
 import com.ita.if103java.ims.service.InvitationService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 public class InvitationController {
     private InvitationService invitationService;
 
+    @Autowired
     public InvitationController(InvitationService invitationService) {
         this.invitationService = invitationService;
     }
