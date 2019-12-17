@@ -1,11 +1,9 @@
 package com.ita.if103java.ims.dto;
 
 import com.ita.if103java.ims.entity.EventName;
-import org.springframework.stereotype.Component;
 
 import java.time.ZonedDateTime;
 
-@Component
 public class EventDto {
     private Long id;
     private String message;

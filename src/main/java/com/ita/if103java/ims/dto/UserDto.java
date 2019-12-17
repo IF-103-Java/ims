@@ -6,7 +6,6 @@ import com.ita.if103java.ims.dto.transfer.NewData;
 import com.ita.if103java.ims.dto.transfer.NewDataAdmin;
 import com.ita.if103java.ims.dto.transfer.NewDataWorker;
 import com.ita.if103java.ims.entity.Role;
-import org.springframework.stereotype.Component;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -16,7 +15,6 @@ import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.time.ZonedDateTime;
 
-@Component
 public class UserDto implements Serializable {
 
     @Null(groups = {NewData.class},

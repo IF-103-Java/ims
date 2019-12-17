@@ -1,8 +1,5 @@
 package com.ita.if103java.ims.dto;
 
-import org.springframework.stereotype.Component;
-
-@Component
 public class PopularItemsDto {
     private String name;
     private Long quantity;
