@@ -11,5 +11,5 @@ public interface EventService {
 
     EventDto findById(Long id);
 
-    List<EventDto> findAll(Map<String, ?> params);
+    List<EventDto> findAll(int pageId, Map<String, ?> params);
 }

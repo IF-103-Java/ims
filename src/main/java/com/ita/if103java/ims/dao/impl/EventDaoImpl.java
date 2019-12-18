@@ -7,8 +7,6 @@ import com.ita.if103java.ims.entity.EventType;
 import com.ita.if103java.ims.exception.CRUDException;
 import com.ita.if103java.ims.exception.EventNotFoundException;
 import com.ita.if103java.ims.mapper.jdbc.EventRowMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -68,20 +66,25 @@ public class EventDaoImpl implements EventDao {
         }
     }
 
-    public List<Event> findAll(Map<String, ?> params) {
+    @Override
+    public List<Event> findAll(int limit, int offset, Map<String, ?> params) {
         final String where = Stream
-            .of("account_id", "warehouse_id", "author_id", "name", "type", "date", "after", "before")
+            .of("account_id", "warehouse_id", "author_id", "name", "type", "date",
+                "after", "before")
             .filter(params::containsKey)
             .map(x -> buildSqlFilterCondition(x, params.get(x)))
             .collect(Collectors.joining("\n and "));
-        final String query = String.format("select * from events where %s",
-            where.isBlank() ? "TRUE" : where);
+        final String query = String.format("""
+                select * from events where %s ORDER BY date DESC Limit %s OFFSET %s
+                """,
+            where.isBlank() ? "TRUE" : where,
+            limit, offset);
         try {
             return jdbcTemplate.query(query, eventRowMapper);
         } catch (EmptyResultDataAccessException e) {
-            throw new EventNotFoundException("Failed to obtain event during `select` {" + where + "}, EventDao.findAll", e);
+            throw new EventNotFoundException("Failed to obtain event during " + query + ", EventDao.findAll", e);
         } catch (DataAccessException e) {
-            throw new CRUDException("Error during `select` {" + where + "}, EventDao.findAll", e);
+            throw new CRUDException("Error during  " + query + ", EventDao.findAll", e);
         }
     }
 
@@ -132,15 +135,15 @@ public class EventDaoImpl implements EventDao {
     class Queries {
 
         static final String SQL_CREATE_EVENT = """
-            INSERT INTO events
-            (message, date, account_id, author_id, warehouse_id, name, transaction_id)
-            VALUES(?,?,?,?,?,?,?)
-        """;
+                INSERT INTO events
+                (message, date, account_id, author_id, warehouse_id, name, transaction_id)
+                VALUES(?,?,?,?,?,?,?)
+            """;
 
         static final String SQL_SELECT_EVENT_BY_ID = """
-            SELECT *
-            FROM events
-            WHERE id = ?
-        """;
+                SELECT *
+                FROM events
+                WHERE id = ?
+            """;
     }
 }

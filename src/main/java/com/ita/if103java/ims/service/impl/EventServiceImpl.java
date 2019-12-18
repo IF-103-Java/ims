@@ -20,6 +20,9 @@ public class EventServiceImpl implements EventService {
     private EventDao eventDao;
     private EventDtoMapper eventDtoMapper;
 
+    // Visible for testing
+    static final int PAGINATION_PAGE_SIZE = 2;
+
     @Autowired
     public EventServiceImpl(EventDao eventDao, EventDtoMapper eventDtoMapper) {
         this.eventDao = eventDao;
@@ -40,7 +43,13 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<EventDto> findAll(Map<String, ?> params) {
-        return eventDtoMapper.toDtoList(eventDao.findAll(params));
+    public List<EventDto> findAll(int pageId, Map<String, ?> params) {
+        if (pageId < 1) {
+            throw new IllegalArgumentException("Page id should be greater than 0");
+        }
+        int offset = (pageId - 1) * PAGINATION_PAGE_SIZE;
+        int limit = PAGINATION_PAGE_SIZE;
+
+        return eventDtoMapper.toDtoList(eventDao.findAll(limit, offset, params));
     }
 }

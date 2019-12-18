@@ -11,5 +11,5 @@ public interface EventDao {
 
     Event findById(Long id);
 
-    List<Event> findAll(Map<String, ?> params);
+    List<Event> findAll(int limit, int offset, Map<String, ?> params);
 }
