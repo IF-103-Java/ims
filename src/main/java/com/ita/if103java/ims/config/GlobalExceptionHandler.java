@@ -16,7 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 public class GlobalExceptionHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    @ExceptionHandler({EntityNotFoundException.class, UserOrPasswordIncorrectException.class})
+    @ExceptionHandler({EntityNotFoundException.class})
     public ResponseEntity handleEntityNotFoundException(HttpServletRequest req, Exception e) {
         LOGGER.warn(e.getMessage(), e);
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -27,6 +27,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity handleCRUDException(HttpServletRequest req, Exception e) {
         LOGGER.error(e.getMessage(), e);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body(new String[]{e.getMessage()});
+    }
+
+    @ExceptionHandler({UserOrPasswordIncorrectException.class})
+    public ResponseEntity handleUserOrPasswordIncorrectException(HttpServletRequest req, Exception e) {
+        LOGGER.warn(e.getMessage(), e);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
             .body(new String[]{e.getMessage()});
     }
 }

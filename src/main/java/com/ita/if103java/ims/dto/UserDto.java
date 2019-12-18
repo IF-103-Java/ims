@@ -1,12 +1,13 @@
 package com.ita.if103java.ims.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ita.if103java.ims.dto.transfer.ExistData;
 import com.ita.if103java.ims.dto.transfer.NewData;
 import com.ita.if103java.ims.dto.transfer.NewDataAdmin;
 import com.ita.if103java.ims.dto.transfer.NewDataWorker;
 import com.ita.if103java.ims.entity.Role;
-import org.springframework.stereotype.Component;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -16,7 +17,6 @@ import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.time.ZonedDateTime;
 
-@Component
 public class UserDto implements Serializable {
 
     @Null(groups = {NewData.class},
@@ -43,6 +43,7 @@ public class UserDto implements Serializable {
         message = "Please, enter a valid email")
     private String email;
 
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Null(groups = {NewDataWorker.class},
         message = "This field must be empty until confirmation via email and a real registration of Worker")
     @NotBlank(groups = {NewDataAdmin.class, ExistData.class},
@@ -62,6 +63,7 @@ public class UserDto implements Serializable {
     @NotNull(groups = {NewData.class, ExistData.class})
     private boolean active;
 
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @NotBlank(groups = {ExistData.class})
     private String emailUUID;
 
