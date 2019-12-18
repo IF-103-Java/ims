@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 public interface EventDao {
-
     Event create(Event event);
 
     Event findById(Long id);
