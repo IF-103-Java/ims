@@ -1,8 +1,5 @@
 package com.ita.if103java.ims.dto;
 
-import org.springframework.stereotype.Component;
-
-@Component
 public class AccountDto {
     private Long id;
     private String name;
