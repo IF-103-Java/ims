@@ -1,11 +1,12 @@
 package com.ita.if103java.ims.dao;
 
 import com.ita.if103java.ims.entity.Item;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 public interface ItemDao {
-    List<Item> getItems();
+    List<Item> getItems(Pageable pageable);
 
     Item findItemByName(String name);
 
@@ -15,5 +16,5 @@ public interface ItemDao {
 
     Item addItem(Item item);
 
-    boolean softDeleteItem(String name);
+    boolean softDeleteItem(Long id);
 }

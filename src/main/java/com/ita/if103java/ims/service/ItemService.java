@@ -3,14 +3,14 @@ package com.ita.if103java.ims.service;
 import com.ita.if103java.ims.dto.ItemDto;
 import com.ita.if103java.ims.dto.SavedItemDto;
 import com.ita.if103java.ims.dto.WarehouseDto;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 
 public interface ItemService {
-    List<ItemDto> findItems();
 
-    List<ItemDto> findItemsByParam(String param);
+    List<ItemDto> findSortedItem(Pageable pageable);
 
     ItemDto findById(Long id);
 
@@ -18,15 +18,15 @@ public interface ItemService {
 
     ItemDto addItem(ItemDto itemDto);
 
-    SavedItemDto findSavedItemById(SavedItemDto savedItemDto);
+    SavedItemDto findSavedItemById(Long id);
 
-    boolean softDelete(ItemDto itemDto);
+    boolean softDelete(Long id);
 
-    SavedItemDto findByItemDto(ItemDto itemDto);
+    SavedItemDto findByItemId(Long id);
 
-    List<WarehouseDto> findUsefullWarehouses(SavedItemDto savedItemDto);
+    List<WarehouseDto> findUsefullWarehouses(int volume, int quantity);
 
-    boolean moveItem(WarehouseDto warehouseDto, SavedItemDto savedItemDto);
+    boolean moveItem(SavedItemDto savedItemDto, Long id);
 
     SavedItemDto outcomeItem(SavedItemDto savedItemDto, int quantity);
 

@@ -6,7 +6,6 @@ import com.ita.if103java.ims.dao.WarehouseDao;
 import com.ita.if103java.ims.dto.ItemDto;
 import com.ita.if103java.ims.dto.SavedItemDto;
 import com.ita.if103java.ims.dto.WarehouseDto;
-import com.ita.if103java.ims.entity.Item;
 import com.ita.if103java.ims.entity.SavedItem;
 import com.ita.if103java.ims.entity.Warehouse;
 import com.ita.if103java.ims.exception.ItemNotEnoughCapacityInWarehouseException;
@@ -16,10 +15,10 @@ import com.ita.if103java.ims.mapper.SavedItemDtoMapper;
 import com.ita.if103java.ims.mapper.WarehouseDtoMapper;
 import com.ita.if103java.ims.service.ItemService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -46,22 +45,8 @@ public class ItemServiceImpl implements ItemService {
 
 
     @Override
-    public List<ItemDto> findItems() {
-        List<Item> items = itemDao.getItems();
-        return itemDtoMapper.toDtoList(items);
-
-    }
-
-    @Override
-    public List<ItemDto> findItemsByParam(String param) {
-        List<Item> items = itemDao.getItems();
-        if (param.equalsIgnoreCase("name")) {
-            items.sort(Comparator.comparing(Item::getName));
-        }
-        if (param.equalsIgnoreCase("volume")) {
-            items.sort(Comparator.comparing(Item::getName));
-        }
-        return itemDtoMapper.toDtoList(items);
+    public List<ItemDto> findSortedItem(Pageable pageable) {
+        return itemDtoMapper.toDtoList(itemDao.getItems(pageable));
     }
 
     @Override
@@ -88,8 +73,8 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<WarehouseDto> findUsefullWarehouses(SavedItemDto savedItemDto) {
-        int capacity = savedItemDto.getItemDto().getVolume() * savedItemDto.getQuantity();
+    public List<WarehouseDto> findUsefullWarehouses(int volume, int quantity) {
+        int capacity = volume * quantity;
         List<Warehouse> childWarehouses = new ArrayList<>();
         for (Warehouse warehouse : warehouseDao.findAll()) {
             childWarehouses.addAll(warehouseDao.findChildrenByTopWarehouseID(warehouse.getId()).stream().filter(x -> x.getCapacity() >= capacity).collect(Collectors.toList()));
@@ -100,35 +85,36 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto addItem(ItemDto itemDto) {
+
         itemDao.addItem(itemDtoMapper.toEntity(itemDto));
         return itemDto;
     }
 
     @Override
-    public SavedItemDto findSavedItemById(SavedItemDto savedItemDto) {
-        return savedItemDtoMapper.toDto(savedItemDao.findSavedItemById(savedItemDto.getId()));
+    public SavedItemDto findSavedItemById(Long id) {
+        return savedItemDtoMapper.toDto(savedItemDao.findSavedItemById(id));
     }
 
 
     @Override
-    public boolean softDelete(ItemDto itemDto) {
-        return itemDao.softDeleteItem(itemDto.getName());
+    public boolean softDelete(Long id) {
+        return itemDao.softDeleteItem(id);
     }
 
     @Override
-    public SavedItemDto findByItemDto(ItemDto itemDto) {
-        return savedItemDtoMapper.toDto(savedItemDao.findSavedItemById(itemDto.getId()));
+    public SavedItemDto findByItemId(Long id) {
+        return savedItemDtoMapper.toDto(savedItemDao.findSavedItemById(id));
     }
 
 
     @Override
-    public boolean moveItem(WarehouseDto warehouseDto, SavedItemDto savedItemDto) {
+    public boolean moveItem(SavedItemDto savedItemDto, Long id) {
         savedItemDto.setItemDto(itemDtoMapper.toDto(itemDao.findItemById(savedItemDto.getId())));
         if (isEnoughCapacityInWarehouse(savedItemDto)) {
-            return savedItemDao.updateSavedItem(warehouseDto.getId(), savedItemDto.getId());
+            return savedItemDao.updateSavedItem(id, savedItemDto.getId());
         }
         throw new ItemNotEnoughCapacityInWarehouseException("Can't move savedItemDto in warehouse because it doesn't " +
-            " have enough capacity {warehouse_id = " + warehouseDto.getId() + "}");
+            " have enough capacity {warehouse_id = " + id + "}");
     }
 
     @Override
