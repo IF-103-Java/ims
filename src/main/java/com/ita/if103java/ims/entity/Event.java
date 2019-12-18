@@ -19,36 +19,9 @@ public class Event {
     public Event() {
     }
 
-    public Event(String message, ZonedDateTime date, Long accountId, Long authorId, EventName name) {
+    public Event(String message, ZonedDateTime date, Long accountId, Long warehouseId, Long authorId, EventName name, Long transactionId) {
         this.message = message;
         this.date = date;
-        this.accountId = accountId;
-        this.authorId = authorId;
-        this.name = name;
-    }
-
-    public Event(String message, ZonedDateTime date, Long accountId, Long authorId, EventName name, Long transactionId) {
-        this.message = message;
-        this.date = date;
-        this.accountId = accountId;
-        this.authorId = authorId;
-        this.name = name;
-        this.transactionId = transactionId;
-    }
-
-    public Event(String message, ZonedDateTime date, Long accountId, Long warehouseId, Long authorId, EventName name) {
-        this.message = message;
-        this.date = date;
-        this.accountId = accountId;
-        this.warehouseId = warehouseId;
-        this.authorId = authorId;
-        this.name = name;
-    }
-
-    public Event(String message, Long accountId,
-                 Long warehouseId, Long authorId, EventName name, Long transactionId) {
-        this.message = message;
-        this.date = ZonedDateTime.now();
         this.accountId = accountId;
         this.warehouseId = warehouseId;
         this.authorId = authorId;
@@ -104,12 +77,12 @@ public class Event {
         this.authorId = authorId;
     }
 
-    public void setName(EventName name) {
-        this.name = name;
-    }
-
     public EventName getName() {
         return name;
+    }
+
+    public void setName(EventName name) {
+        this.name = name;
     }
 
     public Long getTransactionId() {

@@ -1,7 +1,6 @@
 package com.ita.if103java.ims.mapper.jdbc;
 
 import com.ita.if103java.ims.entity.Account;
-import com.ita.if103java.ims.entity.AccountType;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 

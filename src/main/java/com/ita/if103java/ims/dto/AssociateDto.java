@@ -1,9 +1,7 @@
 package com.ita.if103java.ims.dto;
 
 import com.ita.if103java.ims.entity.AssociateType;
-import org.springframework.stereotype.Component;
 
-@Component
 public class AssociateDto {
 
     private Long id;

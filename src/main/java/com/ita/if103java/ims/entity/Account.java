@@ -15,7 +15,7 @@ public class Account {
     private ZonedDateTime createdDate;
     private boolean active;
 
-    public Account(){
+    public Account() {
 
     }
 

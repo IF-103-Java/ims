@@ -1,14 +1,13 @@
 package com.ita.if103java.ims.dto;
 
-
-public class PopularityListDto {
+public class PopularItemsDto {
     private String name;
     private Long quantity;
 
-    public PopularityListDto() {
+    public PopularItemsDto() {
     }
 
-    public PopularityListDto(String name, Long quantity) {
+    public PopularItemsDto(String name, Long quantity) {
         this.name = name;
         this.quantity = quantity;
     }
@@ -31,7 +30,7 @@ public class PopularityListDto {
 
     @Override
     public String toString() {
-        return "PopularityListDto{" +
+        return "PopularItemsDto{" +
             "name='" + name + '\'' +
             ", quantity=" + quantity +
             '}';
