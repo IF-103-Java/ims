@@ -29,7 +29,7 @@ public class AccountController {
         return accountService.view(id);
     }
 
-    @PostMapping(value = "/create")
+    @PostMapping(value = "/")
     public AccountDto create(@RequestBody AccountDto accountDto) {
         return accountService.create(accountDto);
     }

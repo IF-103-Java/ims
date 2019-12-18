@@ -1,5 +1,6 @@
 package com.ita.if103java.ims.controller;
 
+import com.ita.if103java.ims.dto.UserDto;
 import com.ita.if103java.ims.service.InvitationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -14,8 +15,8 @@ public class InvitationController {
         this.invitationService = invitationService;
     }
 
-    @PostMapping("/{id}")
-    public void invite(@PathVariable("id") Long accountId, @RequestBody String email) {
-        invitationService.inviteUser(email, accountId);
+    @PostMapping("/")
+    public void invite(@RequestBody UserDto userDto) {
+        invitationService.inviteUser(userDto);
     }
 }
