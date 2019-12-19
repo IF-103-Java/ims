@@ -6,6 +6,7 @@ import com.ita.if103java.ims.entity.Event;
 import com.ita.if103java.ims.mapper.EventDtoMapper;
 import com.ita.if103java.ims.service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -19,14 +20,15 @@ public class EventServiceImpl implements EventService {
 
     private EventDao eventDao;
     private EventDtoMapper eventDtoMapper;
-
+    private SimpMessagingTemplate simpMessagingTemplate;
     // Visible for testing
     static final int PAGINATION_PAGE_SIZE = 2;
 
     @Autowired
-    public EventServiceImpl(EventDao eventDao, EventDtoMapper eventDtoMapper) {
+    public EventServiceImpl(EventDao eventDao, EventDtoMapper eventDtoMapper, SimpMessagingTemplate simpMessagingTemplate) {
         this.eventDao = eventDao;
         this.eventDtoMapper = eventDtoMapper;
+        this.simpMessagingTemplate = simpMessagingTemplate;
     }
 
     @Override
@@ -34,7 +36,8 @@ public class EventServiceImpl implements EventService {
     public void create(Event event) {
         ZonedDateTime currentDateTime = ZonedDateTime.now(ZoneId.systemDefault());
         event.setDate(currentDateTime);
-        eventDao.create(event);
+        event = eventDao.create(event);
+        simpMessagingTemplate.convertAndSend("/topic/event.create", eventDtoMapper.toDto(event));
     }
 
     @Override
