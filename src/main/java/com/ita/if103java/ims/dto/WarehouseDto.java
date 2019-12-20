@@ -1,17 +1,45 @@
 package com.ita.if103java.ims.dto;
 
+import com.ita.if103java.ims.dto.transfer.ExistData;
+import com.ita.if103java.ims.dto.transfer.NewData;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
 import java.io.Serializable;
 import java.util.Objects;
 
 public class WarehouseDto implements Serializable {
+    @Null(groups = {NewData.class},
+        message = "This field must be filled with the auto-generator during warehouse creation")
+    @NotNull(groups = {ExistData.class},
+        message = "This field mustn't be empty")
     private Long id;
+
+    @NotBlank(groups = {NewData.class, ExistData.class},
+        message = "This field mustn't be empty")
     private String name;
+
+    @NotBlank(groups = {NewData.class, ExistData.class})
     private String info;
+
+    @Null(groups = {NewData.class, ExistData.class},
+        message = "This field should be filled if that warehouse is on bottom level")
     private Integer capacity;
+
     private boolean isBottom;
+
+    @Null(groups = {NewData.class, ExistData.class},
+        message = "This field should be filled if that warehouse is on top level")
     private Long parentID;
+
+    @NotNull(groups = {NewData.class, ExistData.class},
+        message = "This field mustn't be empty")
     private Long accountID;
+
+    @NotNull(groups = {NewData.class, ExistData.class},
+        message = "This field mustn't be empty")
     private Long topWarehouseID;
+
     private boolean active;
 
     public WarehouseDto() {

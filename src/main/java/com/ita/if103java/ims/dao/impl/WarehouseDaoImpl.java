@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
@@ -23,7 +24,6 @@ import java.util.Optional;
 
 @Repository
 public class WarehouseDaoImpl implements WarehouseDao {
-    private static final Logger LOGGER = LoggerFactory.getLogger(WarehouseDaoImpl.class);
     private JdbcTemplate jdbcTemplate;
     private WarehouseRowMapper warehouseRowMapper;
 
@@ -51,9 +51,9 @@ public class WarehouseDaoImpl implements WarehouseDao {
     }
 
     @Override
-    public List<Warehouse> findAll() {
+    public List<Warehouse> findAll(Pageable pageable) {
         try {
-            return jdbcTemplate.query(Queries.SQL_SELECT_ALL_WAREHOUSES, warehouseRowMapper);
+            return jdbcTemplate.query(Queries.SQL_SELECT_ALL_WAREHOUSES, warehouseRowMapper,pageable.getPageSize(),pageable.getOffset());
 
         } catch (DataAccessException e) {
             throw new WarehouseNotFoundException("Error during finding all warehouses", e);
@@ -180,7 +180,7 @@ public class WarehouseDaoImpl implements WarehouseDao {
         static final String SQL_SELECT_CHILDREN_BY_TOP_WAREHOUSE_ID = """
             SELECT *
             FROM warehouses
-            WHERE top_warehouse_id =
+            WHERE top_warehouse_id = ?
         """;
 
         static final String SQL_SET_ACTIVE_STATUS_WAREHOUSE = """
@@ -192,7 +192,7 @@ public class WarehouseDaoImpl implements WarehouseDao {
         static final String SQL_COUNT_QUANTITY_OF_WAREHOUSE_BY_ACCOUNT_ID = """
             SELECT COUNT(id)
             FROM warehouses
-            WHERE parent_id == null
+            WHERE parent_id IS NULL
             AND account_id = ?
         """;
 

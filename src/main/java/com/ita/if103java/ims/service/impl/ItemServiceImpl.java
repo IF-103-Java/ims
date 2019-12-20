@@ -17,6 +17,7 @@ import com.ita.if103java.ims.mapper.SavedItemDtoMapper;
 import com.ita.if103java.ims.mapper.WarehouseDtoMapper;
 import com.ita.if103java.ims.service.ItemService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -80,7 +81,7 @@ public class ItemServiceImpl implements ItemService {
     public List<WarehouseDto> findUsefullWarehouses(SavedItemDto savedItemDto) {
         int capacity = savedItemDto.getItemDto().getVolume() * savedItemDto.getQuantity();
         List<Warehouse> childWarehouses = new ArrayList<>();
-        for (Warehouse warehouse : warehouseDao.findAll()) {
+        for (Warehouse warehouse : warehouseDao.findAll(Pageable.unpaged())) {
             childWarehouses.addAll(warehouseDao.findChildrenByTopWarehouseID(warehouse.getId()).stream().filter(x -> x.getCapacity() >= capacity).collect(Collectors.toList()));
         }
         return warehouseDtoMapper.toDtoList(childWarehouses);

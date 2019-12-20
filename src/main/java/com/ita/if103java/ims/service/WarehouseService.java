@@ -1,6 +1,7 @@
 package com.ita.if103java.ims.service;
 
 import com.ita.if103java.ims.dto.WarehouseDto;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -17,6 +18,6 @@ public interface WarehouseService {
 
     boolean softDelete(Long id);
 
-    List<WarehouseDto> findAll();
+    List<WarehouseDto> findAll(Pageable pageable);
 
 }
