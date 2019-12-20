@@ -41,7 +41,9 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public EventDto findById(Long id) {
-        return eventDtoMapper.toDto(eventDao.findById(id));
+        Event event = eventDao.findById(id);
+        simpMessagingTemplate.convertAndSend("/topic/event.create", eventDtoMapper.toDto(event));
+        return eventDtoMapper.toDto(event);
     }
 
     @Override
