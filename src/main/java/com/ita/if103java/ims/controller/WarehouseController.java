@@ -14,9 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-
 import java.util.List;
-
 
 @RestController
 @RequestMapping("/warehouses")
@@ -52,14 +50,14 @@ public class WarehouseController {
         return warehouseService.findWarehousesByTopLevelId(topWarehouseId);
     }
 
-    @PutMapping("/update/{id}")
+    @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public WarehouseDto update(@RequestBody WarehouseDto warehouseDto, @PathVariable("id") Long id) {
         warehouseDto.setId(id);
         return warehouseService.update(warehouseDto);
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public void delete(@PathVariable("id") Long id) {
         warehouseService.softDelete(id);

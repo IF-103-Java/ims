@@ -1,13 +1,5 @@
 package com.ita.if103java.ims.dto;
 
-import com.ita.if103java.ims.dto.transfer.ExistData;
-import com.ita.if103java.ims.dto.transfer.NewData;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Null;
-import java.io.Serializable;
-import java.util.Objects;
-
 public class WarehouseDto implements Serializable {
     @Null(groups = {NewData.class},
         message = "This field must be filled with the auto-generator during warehouse creation")
@@ -135,11 +127,11 @@ public class WarehouseDto implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         WarehouseDto that = (WarehouseDto) o;
-        return capacity == that.capacity &&
+        return capacity.equals(that.capacity) &&
             isBottom == that.isBottom &&
-            parentID == that.parentID &&
-            accountID == that.accountID &&
-            topWarehouseID == that.topWarehouseID &&
+            parentID.equals(that.parentID) &&
+            accountID.equals(that.accountID) &&
+            topWarehouseID.equals(that.topWarehouseID) &&
             active == that.active &&
             Objects.equals(name, that.name) &&
             Objects.equals(info, that.info);
