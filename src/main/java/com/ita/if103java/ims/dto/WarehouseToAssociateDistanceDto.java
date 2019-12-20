@@ -2,6 +2,8 @@ package com.ita.if103java.ims.dto;
 
 import com.google.maps.model.Distance;
 
+import java.util.Objects;
+
 public class WarehouseToAssociateDistanceDto {
     private AddressDto warehouseAddress;
     private AddressDto associateAddress;
@@ -49,5 +51,20 @@ public class WarehouseToAssociateDistanceDto {
             ", associateAddress=" + associateAddress.getCity() +
             ", distance=" + distance.humanReadable +
             '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        WarehouseToAssociateDistanceDto that = (WarehouseToAssociateDistanceDto) o;
+        return Objects.equals(warehouseAddress, that.warehouseAddress) &&
+            Objects.equals(associateAddress, that.associateAddress) &&
+            Objects.equals(distance, that.distance);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(warehouseAddress, associateAddress, distance);
     }
 }
