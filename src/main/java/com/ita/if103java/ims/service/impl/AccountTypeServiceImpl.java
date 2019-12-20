@@ -5,9 +5,11 @@ import com.ita.if103java.ims.dto.AccountTypeDto;
 import com.ita.if103java.ims.mapper.AccountTypeDtoMapper;
 import com.ita.if103java.ims.service.AccountTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class AccountTypeServiceImpl implements AccountTypeService {
 
     AccountTypeDao accountTypeDao;

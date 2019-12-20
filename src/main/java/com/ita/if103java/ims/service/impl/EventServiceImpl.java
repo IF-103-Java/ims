@@ -7,6 +7,7 @@ import com.ita.if103java.ims.mapper.EventDtoMapper;
 import com.ita.if103java.ims.service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -21,8 +22,6 @@ public class EventServiceImpl implements EventService {
     private EventDao eventDao;
     private EventDtoMapper eventDtoMapper;
     private SimpMessagingTemplate simpMessagingTemplate;
-    // Visible for testing
-    static final int PAGINATION_PAGE_SIZE = 2;
 
     @Autowired
     public EventServiceImpl(EventDao eventDao, EventDtoMapper eventDtoMapper, SimpMessagingTemplate simpMessagingTemplate) {
@@ -46,13 +45,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<EventDto> findAll(int pageId, Map<String, ?> params) {
-        if (pageId < 1) {
-            throw new IllegalArgumentException("Page id should be greater than 0");
-        }
-        int offset = (pageId - 1) * PAGINATION_PAGE_SIZE;
-        int limit = PAGINATION_PAGE_SIZE;
-
-        return eventDtoMapper.toDtoList(eventDao.findAll(limit, offset, params));
+    public List<EventDto> findAll(Pageable pageable, Map<String, ?> params) {
+        return eventDtoMapper.toDtoList(eventDao.findAll(pageable, params));
     }
 }

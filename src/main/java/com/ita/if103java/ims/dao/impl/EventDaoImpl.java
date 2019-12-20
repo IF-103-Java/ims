@@ -10,6 +10,7 @@ import com.ita.if103java.ims.mapper.jdbc.EventRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -67,18 +68,19 @@ public class EventDaoImpl implements EventDao {
     }
 
     @Override
-    public List<Event> findAll(int limit, int offset, Map<String, ?> params) {
+    public List<Event> findAll(Pageable pageable, Map<String, ?> params) {
         final String where = Stream
             .of("account_id", "warehouse_id", "author_id", "name", "type", "date",
                 "after", "before")
             .filter(params::containsKey)
             .map(x -> buildSqlFilterCondition(x, params.get(x)))
             .collect(Collectors.joining("\n and "));
+        String sort = pageable.getSort().toString().replaceAll(": ", " ");
         final String query = String.format("""
-                select * from events where %s ORDER BY date DESC Limit %s OFFSET %s
+                select * from events where %s ORDER BY %s Limit %s OFFSET %s
                 """,
             where.isBlank() ? "TRUE" : where,
-            limit, offset);
+            sort, pageable.getPageSize(), pageable.getOffset());
         try {
             return jdbcTemplate.query(query, eventRowMapper);
         } catch (EmptyResultDataAccessException e) {

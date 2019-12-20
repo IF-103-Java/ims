@@ -3,6 +3,7 @@ package com.ita.if103java.ims.controller;
 import com.ita.if103java.ims.dto.EventDto;
 import com.ita.if103java.ims.service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,8 +29,9 @@ public class EventController {
         return eventService.findById(eventId);
     }
 
-    @PostMapping(value = "/{pageId}")
-    public List<EventDto> findAll(@PathVariable int pageId, @RequestBody Map<String, ?> params) {
-        return eventService.findAll(pageId, params);
+
+    @PostMapping
+    public List<EventDto> findAll(Pageable pageable, @RequestBody Map<String, ?> params) {
+        return eventService.findAll(pageable, params);
     }
 }
