@@ -7,6 +7,7 @@ import com.google.maps.model.DistanceMatrix;
 import com.google.maps.model.TravelMode;
 import com.ita.if103java.ims.dto.AddressDto;
 import com.ita.if103java.ims.dto.WarehouseToAssociateDistanceDto;
+import com.ita.if103java.ims.exception.GoogleAPIException;
 import com.ita.if103java.ims.mapper.DistanceMatrixMapper;
 import com.ita.if103java.ims.service.DistanceMatrixService;
 import com.ita.if103java.ims.util.ListUtil;
@@ -42,9 +43,8 @@ public class DistanceMatrixServiceImpl implements DistanceMatrixService {
                 .await();
             return matrixMapper.toDtoList(distanceMatrix, warehouseAddresses, associateAddresses);
         } catch (InterruptedException | ApiException | IOException e) {
-            e.printStackTrace();
+            throw new GoogleAPIException("Error when gathering a distanceMatrix", e);
         }
-        return null;
     }
 
     private String[] buildGeoRequestParams(List<AddressDto> addresses) {
