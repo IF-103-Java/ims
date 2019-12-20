@@ -11,11 +11,13 @@ import com.ita.if103java.ims.service.MailService;
 import com.ita.if103java.ims.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
+@Service
 public class InvitationServiceImpl implements InvitationService {
 
-    @Value("${mail.invitationURL}")
-    private String invitationURL;
+    @Value("${mail.activationURL}")
+    private String activationURL;
     private UserDao userDao;
     private AccountDao accountDao;
     private AccountTypeDao accountTypeDao;
@@ -32,14 +34,10 @@ public class InvitationServiceImpl implements InvitationService {
     }
 
     @Override
-    public void inviteUser(String email, Long accountId) {
-        if (allowToInvite(accountId)) {
-            UserDto userDto = new UserDto();
-            userDto.setEmail(email);
-            userDto.setAccountId(accountId);
-            userDto.setRole(Role.WORKER);
+    public void inviteUser(UserDto userDto) {
+        if (allowToInvite(userDto.getAccountId())) {
             UserDto createdUserDto = userService.create(userDto);
-            sendInvitationMessage(createdUserDto, accountId);
+            sendInvitationMessage(createdUserDto, userDto.getAccountId());
         }
     }
 
@@ -47,7 +45,7 @@ public class InvitationServiceImpl implements InvitationService {
         Account account = accountDao.findById(accountId);
         mailService.sendMessage(userDto, "Hello, We invite you to join our organization " + account.getName() + " in the Inventory Management System.\n" +
             "Please follow link bellow to proceed with registration:\n" +
-            invitationURL + userDto.getEmailUUID() + "\n" +
+            activationURL + userDto.getEmailUUID() + "\n" +
             "If you didn't provide your email for registration, please ignore this email.\n" +
             "\n" +
             "Regards,\n" +
