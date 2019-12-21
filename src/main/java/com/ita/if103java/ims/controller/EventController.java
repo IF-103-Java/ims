@@ -24,6 +24,7 @@ public class EventController {
         this.eventService = eventService;
     }
 
+
     @GetMapping(value = "/{eventId}")
     public EventDto findById(@PathVariable long eventId) {
         return eventService.findById(eventId);
