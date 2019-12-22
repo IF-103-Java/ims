@@ -11,6 +11,7 @@ public enum EventName {
     PROFILE_CHANGED("Profile info changed", EventType.USER),
     ORG_CREATED("Organization created", EventType.ORGANIZATION),
     ORG_EDITED("Organization info edited", EventType.ORGANIZATION),
+    ORG_DELETED("Organization deleted", EventType.ORGANIZATION),
     WORKER_INVITED("New worker invited", EventType.ORGANIZATION),
     WORKER_JOINED("Worker joined", EventType.ORGANIZATION),
     ORG_UPGRADED("Organization upgraded", EventType.ORGANIZATION),
