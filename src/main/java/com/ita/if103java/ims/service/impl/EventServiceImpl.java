@@ -6,6 +6,7 @@ import com.ita.if103java.ims.entity.Event;
 import com.ita.if103java.ims.mapper.EventDtoMapper;
 import com.ita.if103java.ims.service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -40,7 +41,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<EventDto> findAll(Map<String, ?> params) {
-        return eventDtoMapper.toDtoList(eventDao.findAll(params));
+    public List<EventDto> findAll(Pageable pageable, Map<String, ?> params) {
+        return eventDtoMapper.toDtoList(eventDao.findAll(pageable, params));
     }
 }

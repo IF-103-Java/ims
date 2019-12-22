@@ -1,6 +1,7 @@
 package com.ita.if103java.ims.dao;
 
 import com.ita.if103java.ims.entity.Event;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Map;
@@ -11,5 +12,5 @@ public interface EventDao {
 
     Event findById(Long id);
 
-    List<Event> findAll(Map<String, ?> params);
+    List<Event> findAll(Pageable pageable, Map<String, ?> params);
 }
