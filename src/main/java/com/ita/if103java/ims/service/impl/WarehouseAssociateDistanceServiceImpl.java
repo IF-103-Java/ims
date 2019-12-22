@@ -6,10 +6,12 @@ import com.google.maps.errors.ApiException;
 import com.google.maps.model.DistanceMatrix;
 import com.google.maps.model.TravelMode;
 import com.ita.if103java.ims.dto.AddressDto;
+import com.ita.if103java.ims.dto.AssociateAddressDto;
+import com.ita.if103java.ims.dto.WarehouseAddressDto;
 import com.ita.if103java.ims.dto.WarehouseToAssociateDistanceDto;
 import com.ita.if103java.ims.exception.GoogleAPIException;
 import com.ita.if103java.ims.mapper.DistanceMatrixMapper;
-import com.ita.if103java.ims.service.DistanceMatrixService;
+import com.ita.if103java.ims.service.WarehouseAssociateDistanceService;
 import com.ita.if103java.ims.util.ListUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,26 +20,26 @@ import java.io.IOException;
 import java.util.List;
 
 @Service
-public class DistanceMatrixServiceImpl implements DistanceMatrixService {
+public class WarehouseAssociateDistanceServiceImpl implements WarehouseAssociateDistanceService {
     private final GeoApiContext apiContext;
     private final DistanceMatrixMapper matrixMapper;
 
     @Autowired
-    public DistanceMatrixServiceImpl(GeoApiContext apiContext, DistanceMatrixMapper matrixMapper) {
+    public WarehouseAssociateDistanceServiceImpl(GeoApiContext apiContext, DistanceMatrixMapper matrixMapper) {
         this.apiContext = apiContext;
         this.matrixMapper = matrixMapper;
     }
 
     @Override
-    public List<WarehouseToAssociateDistanceDto> getDistances(List<AddressDto> warehouseAddresses,
-                                                              List<AddressDto> supplierAddresses,
-                                                              List<AddressDto> clientAddresses) {
+    public List<WarehouseToAssociateDistanceDto> getDistances(List<WarehouseAddressDto> warehouseAddresses,
+                                                              List<AssociateAddressDto> supplierAddresses,
+                                                              List<AssociateAddressDto> clientAddresses) {
         try {
-            final List<AddressDto> associateAddresses = ListUtil.concat(supplierAddresses, clientAddresses);
+            final List<AssociateAddressDto> associateAddresses = ListUtil.concat(supplierAddresses, clientAddresses);
             final DistanceMatrix distanceMatrix = DistanceMatrixApi
                 .newRequest(apiContext)
-                .origins(buildGeoRequestParams(warehouseAddresses))
-                .destinations(buildGeoRequestParams(associateAddresses))
+                .origins(buildRequestParams(warehouseAddresses))
+                .destinations(buildRequestParams(associateAddresses))
                 .mode(TravelMode.DRIVING)
                 .language("en-US")
                 .await();
@@ -47,14 +49,16 @@ public class DistanceMatrixServiceImpl implements DistanceMatrixService {
         }
     }
 
-    private String[] buildGeoRequestParams(List<AddressDto> addresses) {
+    private String[] buildRequestParams(List<? extends AddressDto> addresses) {
         return addresses.stream()
-            .map(x -> {
-                if (x.getLatitude() != null && x.getLongitude() != null) {
-                    return x.getLatitude() + "," + x.getLongitude();
-                }
-                return x.getCountry() + "+" + x.getCity();
-            })
+            .map(this::buildRequestParam)
             .toArray(String[]::new);
+    }
+
+    private <T extends AddressDto> String buildRequestParam(T address) {
+        if (address.getLatitude() != null && address.getLongitude() != null) {
+            return address.getLatitude() + "," + address.getLongitude();
+        }
+        return address.getCountry() + "+" + address.getCity();
     }
 }
