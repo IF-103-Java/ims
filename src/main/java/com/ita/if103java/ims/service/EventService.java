@@ -14,4 +14,5 @@ public interface EventService {
     EventDto findById(Long id);
 
     List<EventDto> findAll(Pageable pageable, Map<String, ?> params);
+
 }

@@ -17,13 +17,13 @@ import java.util.Map;
 @RestController
 @RequestMapping("/events")
 public class EventController {
-
     private EventService eventService;
 
     @Autowired
     public EventController(EventService eventService) {
         this.eventService = eventService;
     }
+
 
     @GetMapping(value = "/{eventId}")
     public EventDto findById(@PathVariable long eventId) {
