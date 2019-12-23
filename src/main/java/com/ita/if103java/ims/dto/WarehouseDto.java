@@ -42,11 +42,13 @@ public class WarehouseDto implements Serializable {
 
     private boolean active;
 
+    private AddressDto addressDto;
+
     public WarehouseDto() {
     }
 
     public WarehouseDto(Long id, String name, String info, Integer capacity, boolean isBottom, Long parentID, Long accountID,
-                        Long topWarehouseID, boolean active) {
+                        Long topWarehouseID, boolean active, AddressDto addressDto) {
         this.id = id;
         this.name = name;
         this.info = info;
@@ -56,6 +58,7 @@ public class WarehouseDto implements Serializable {
         this.accountID = accountID;
         this.topWarehouseID = topWarehouseID;
         this.active = active;
+        this.addressDto = addressDto;
     }
 
     public Long getId() {
@@ -130,6 +133,14 @@ public class WarehouseDto implements Serializable {
         this.active = active;
     }
 
+    public void setAddressDto(AddressDto addressDto) {
+        this.addressDto = addressDto;
+    }
+
+    public AddressDto getAddressDto() {
+        return addressDto;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -147,7 +158,7 @@ public class WarehouseDto implements Serializable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, info, capacity, isBottom, parentID, accountID, topWarehouseID, active);
+        return Objects.hash(name, info, capacity, isBottom, parentID, accountID, topWarehouseID, active, addressDto);
     }
 
     @Override
@@ -162,6 +173,7 @@ public class WarehouseDto implements Serializable {
             ", accountID=" + accountID +
             ", topWarehouseID=" + topWarehouseID +
             ", active=" + active +
+            ", addressDto=" + addressDto +
             '}';
     }
 }
