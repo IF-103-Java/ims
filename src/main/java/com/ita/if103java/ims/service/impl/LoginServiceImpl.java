@@ -7,6 +7,7 @@ import com.ita.if103java.ims.exception.UserNotFoundException;
 import com.ita.if103java.ims.exception.UserOrPasswordIncorrectException;
 import com.ita.if103java.ims.mapper.UserDtoMapper;
 import com.ita.if103java.ims.security.JwtTokenProvider;
+import com.ita.if103java.ims.service.EventService;
 import com.ita.if103java.ims.service.LoginService;
 import com.ita.if103java.ims.service.MailService;
 import com.mysql.cj.exceptions.PasswordExpiredException;
@@ -19,7 +20,10 @@ import java.util.UUID;
 
 import static com.ita.if103java.ims.config.MailMessagesConfig.FOOTER;
 import static com.ita.if103java.ims.config.MailMessagesConfig.RESET_PASSWORD;
+import static com.ita.if103java.ims.entity.EventName.LOGIN;
+import static com.ita.if103java.ims.entity.EventName.PASSWORD_CHANGED;
 import static com.ita.if103java.ims.util.TokenUtil.isValidToken;
+import static com.ita.if103java.ims.util.UserEventUtil.createEvent;
 
 @Service
 public class LoginServiceImpl implements LoginService {
@@ -32,15 +36,21 @@ public class LoginServiceImpl implements LoginService {
     private JwtTokenProvider jwtTokenProvider;
     private MailService mailService;
     private UserDtoMapper mapper;
+    private EventService eventService;
 
     @Autowired
-    public LoginServiceImpl(UserDao userDao, PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider,
-                            MailService mailService, UserDtoMapper mapper) {
+    public LoginServiceImpl(UserDao userDao,
+                            PasswordEncoder passwordEncoder,
+                            JwtTokenProvider jwtTokenProvider,
+                            MailService mailService,
+                            UserDtoMapper mapper,
+                            EventService eventService) {
         this.userDao = userDao;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
         this.mailService = mailService;
         this.mapper = mapper;
+        this.eventService = eventService;
     }
 
     @Override
@@ -49,6 +59,7 @@ public class LoginServiceImpl implements LoginService {
             User user = userDao.findByEmail(userLoginDto.getUsername());
 
             if (passwordEncoder.matches(userLoginDto.getPassword(), user.getPassword())) {
+                eventService.create(createEvent(user, LOGIN));
                 return jwtTokenProvider.createToken(user.getEmail(), user.getRole());
             }
             throw new UserOrPasswordIncorrectException("Credential aren't correct");
@@ -82,6 +93,7 @@ public class LoginServiceImpl implements LoginService {
             String newEncodedPassword = passwordEncoder.encode(newPassword);
             user.setPassword(newEncodedPassword);
             userDao.updatePassword(user.getId(), newEncodedPassword);
+            eventService.create(createEvent(user, PASSWORD_CHANGED));
         } else {
             throw new PasswordExpiredException("Expired time of token isn't valid");
         }
