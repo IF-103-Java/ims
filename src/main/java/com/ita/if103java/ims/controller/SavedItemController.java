@@ -1,12 +1,13 @@
 package com.ita.if103java.ims.controller;
 
 import com.ita.if103java.ims.dto.*;
+import com.ita.if103java.ims.entity.Associate;
+import com.ita.if103java.ims.entity.User;
 import com.ita.if103java.ims.service.ItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,7 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@CrossOrigin("http://localhost:4200")
 @RestController
 @RequestMapping("/savedItems")
 public class SavedItemController {
@@ -32,7 +32,7 @@ public class SavedItemController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.OK)
-    public SavedItemDto addSavedItem(@RequestBody SavedItemDto savedItemDto, @AuthenticationPrincipal UserDto user, @AuthenticationPrincipal AssociateDto associate) {
+    public SavedItemDto addSavedItem(@RequestBody SavedItemDto savedItemDto, @AuthenticationPrincipal User user, @AuthenticationPrincipal Associate associate) {
         return itemService.addSavedItem(savedItemDto, user, associate);
     }
 
@@ -58,14 +58,14 @@ public class SavedItemController {
     @PutMapping(value = "/move", produces = MediaType.APPLICATION_JSON_VALUE,
         consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
-    public boolean moveSavedItem(@RequestBody SavedItemDto savedItemDto, @RequestParam("warehouseId") Long id, @AuthenticationPrincipal UserDto user, @AuthenticationPrincipal AssociateDto associate) {
+    public boolean moveSavedItem(@RequestBody SavedItemDto savedItemDto, @RequestParam("warehouseId") Long id, @AuthenticationPrincipal User user, @AuthenticationPrincipal Associate associate) {
         return itemService.moveItem(savedItemDto, id, user, associate);
     }
 
     @PutMapping(value = "/outcome", produces = MediaType.APPLICATION_JSON_VALUE,
         consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
-    public SavedItemDto outcomeItem(@RequestBody SavedItemDto savedItemDto, @RequestParam("quantity") int quantity, @AuthenticationPrincipal UserDto user, @AuthenticationPrincipal AssociateDto associate) {
+    public SavedItemDto outcomeItem(@RequestBody SavedItemDto savedItemDto, @RequestParam("quantity") int quantity, @AuthenticationPrincipal User user, @AuthenticationPrincipal Associate associate) {
         return itemService.outcomeItem(savedItemDto, quantity, user, associate);
     }
 

@@ -6,7 +6,7 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 public interface ItemDao {
-    List<Item> getItems(Pageable pageable);
+    List<Item> getItems(String sort, int size, long offset);
 
     Item findItemByName(String name);
 

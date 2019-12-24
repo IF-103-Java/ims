@@ -8,7 +8,6 @@ import com.ita.if103java.ims.mapper.jdbc.ItemRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -27,12 +26,12 @@ public class ItemDaoImpl implements ItemDao {
     }
 
     @Override
-    public List<Item> getItems(Pageable pageable) {
+    public List<Item> getItems(String sort, int size, long offset) {
         try {
-            String sort = pageable.getSort().toString().replaceAll(": ", " ");
+
       final String query = String.format("""
           select * from items order by %s limit %s offset %s
-        """, sort, pageable.getPageSize(), pageable.getPageNumber()==0?1:pageable.getPageNumber()*pageable.getPageSize());
+        """, sort, size, offset);
             return jdbcTemplate.query(query, itemRowMapper);
         } catch (DataAccessException e) {
             throw new CRUDException("Error during `select * `", e);
@@ -78,7 +77,6 @@ public class ItemDaoImpl implements ItemDao {
     @Override
     public Item addItem(Item item) {
         try {
-            System.out.println(item.getUnit());
             jdbcTemplate.update(Queries.SQL_INSERT_INTO_ITEM, item.getName(), item.getUnit(), item.getDescription(),
                 item.getVolume(), item.isActive(), item.getAccountId());
             return item;

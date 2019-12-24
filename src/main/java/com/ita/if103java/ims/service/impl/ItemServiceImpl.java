@@ -48,7 +48,8 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> findSortedItem(Pageable pageable) {
-        return itemDtoMapper.toDtoList(itemDao.getItems(pageable));
+        String sort = pageable.getSort().toString().replaceAll(": ", " ");
+        return itemDtoMapper.toDtoList(itemDao.getItems(sort, pageable.getPageSize(), pageable.getOffset()));
     }
 
     @Override
@@ -58,7 +59,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public SavedItemDto addSavedItem(SavedItemDto savedItemDto, UserDto user, AssociateDto associate) {
+    public SavedItemDto addSavedItem(SavedItemDto savedItemDto, User user, Associate associate) {
         SavedItem savedItem = savedItemDtoMapper.toEntity(savedItemDto);
         savedItem.setItemId(itemDao.findItemByName(savedItemDto.getItemDto().getName()).getId());
         if (isEnoughCapacityInWarehouse(savedItemDto)) {
@@ -89,7 +90,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDto addItem(ItemDto itemDto, UserDto user) {
+    public ItemDto addItem(ItemDto itemDto, User user) {
         itemDto.setAccountId(user.getAccountId());
         itemDao.addItem(itemDtoMapper.toEntity(itemDto));
         return itemDto;
@@ -113,7 +114,7 @@ public class ItemServiceImpl implements ItemService {
 
 
     @Override
-    public boolean moveItem(SavedItemDto savedItemDto, Long id, UserDto user, AssociateDto associate) {
+    public boolean moveItem(SavedItemDto savedItemDto, Long id, User user, Associate associate) {
         savedItemDto.setItemDto(itemDtoMapper.toDto(itemDao.findItemById(savedItemDto.getId())));
         if (isEnoughCapacityInWarehouse(savedItemDto)) {
             eventService.create(ItemEventUtil.createEvent(savedItemDto, user, EventName.ITEM_MOVED));
@@ -127,7 +128,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public SavedItemDto outcomeItem(SavedItemDto savedItemDto, int quantity, UserDto user, AssociateDto associate) {
+    public SavedItemDto outcomeItem(SavedItemDto savedItemDto, int quantity, User user, Associate associate) {
         int difference = savedItemDto.getQuantity() - quantity;
         if (savedItemDao.findSavedItemByWarehouseId(savedItemDto.getWarehouseId()).getQuantity() >= quantity) {
             savedItemDao.outComeSavedItem(savedItemDtoMapper.toEntity(savedItemDto), difference);
