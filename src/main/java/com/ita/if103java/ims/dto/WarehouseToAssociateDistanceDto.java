@@ -18,7 +18,7 @@ public class WarehouseToAssociateDistanceDto {
         this.distance = distance;
     }
 
-    public AddressDto getWarehouseAddress() {
+    public WarehouseAddressDto getWarehouseAddress() {
         return warehouseAddress;
     }
 
@@ -26,7 +26,7 @@ public class WarehouseToAssociateDistanceDto {
         this.warehouseAddress = warehouseAddress;
     }
 
-    public AddressDto getAssociateAddress() {
+    public AssociateAddressDto getAssociateAddress() {
         return associateAddress;
     }
 
