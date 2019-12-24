@@ -24,7 +24,6 @@ import java.util.Optional;
 
 @Repository
 public class WarehouseDaoImpl implements WarehouseDao {
-    private static final Logger LOGGER = LoggerFactory.getLogger(WarehouseDaoImpl.class);
     private JdbcTemplate jdbcTemplate;
     private WarehouseRowMapper warehouseRowMapper;
 
@@ -54,7 +53,7 @@ public class WarehouseDaoImpl implements WarehouseDao {
     @Override
     public List<Warehouse> findAll(Pageable pageable) {
         try {
-            return jdbcTemplate.query(Queries.SQL_SELECT_ALL_WAREHOUSES, warehouseRowMapper);
+            return jdbcTemplate.query(Queries.SQL_SELECT_ALL_WAREHOUSES, warehouseRowMapper,pageable.getPageSize(),pageable.getOffset());
 
         } catch (DataAccessException e) {
             throw new WarehouseNotFoundException("Error during finding all warehouses", e);
