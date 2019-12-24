@@ -62,6 +62,7 @@ public class InvitationServiceImpl implements InvitationService {
             "Please follow link bellow to proceed with registration:\n" +
             activationURL + userDto.getEmailUUID() + "\n" +
             "Your password: " + userDto.getPassword() + "\n" +
+            "For security purpose please change it as soon as possible." +
             "If you didn't provide your email for registration, please ignore this email.\n" +
             "\n" +
             "Regards,\n" +
