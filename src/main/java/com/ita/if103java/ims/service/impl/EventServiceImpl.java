@@ -7,6 +7,7 @@ import com.ita.if103java.ims.mapper.EventDtoMapper;
 import com.ita.if103java.ims.service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -20,11 +21,14 @@ public class EventServiceImpl implements EventService {
 
     private EventDao eventDao;
     private EventDtoMapper eventDtoMapper;
+    private SimpMessagingTemplate simpMessagingTemplate;
 
     @Autowired
-    public EventServiceImpl(EventDao eventDao, EventDtoMapper eventDtoMapper) {
+    public EventServiceImpl(EventDao eventDao, EventDtoMapper eventDtoMapper,
+                            SimpMessagingTemplate simpMessagingTemplate) {
         this.eventDao = eventDao;
         this.eventDtoMapper = eventDtoMapper;
+        this.simpMessagingTemplate = simpMessagingTemplate;
     }
 
     @Override
@@ -32,12 +36,14 @@ public class EventServiceImpl implements EventService {
     public void create(Event event) {
         ZonedDateTime currentDateTime = ZonedDateTime.now(ZoneId.systemDefault());
         event.setDate(currentDateTime);
-        eventDao.create(event);
+        event = eventDao.create(event);
+        simpMessagingTemplate.convertAndSend("/topic/event", eventDtoMapper.toDto(event));
     }
 
     @Override
     public EventDto findById(Long id) {
-        return eventDtoMapper.toDto(eventDao.findById(id));
+        Event event = eventDao.findById(id);
+        return eventDtoMapper.toDto(event);
     }
 
     @Override
