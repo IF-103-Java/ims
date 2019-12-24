@@ -3,6 +3,7 @@ package com.ita.if103java.ims.controller;
 import com.ita.if103java.ims.dto.WarehouseDto;
 import com.ita.if103java.ims.service.WarehouseService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -40,8 +41,8 @@ public class WarehouseController {
 
     @GetMapping(value = "/")
     @ResponseStatus(HttpStatus.OK)
-    public List<WarehouseDto> findAll() {
-        return warehouseService.findAll();
+    public List<WarehouseDto> findAll(Pageable pageable) {
+        return warehouseService.findAll(pageable);
     }
 
     @GetMapping(value = "/topWarehouseId/{id}")

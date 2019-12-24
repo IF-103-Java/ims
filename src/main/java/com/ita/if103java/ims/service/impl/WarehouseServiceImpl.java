@@ -10,6 +10,7 @@ import com.ita.if103java.ims.mapper.WarehouseDtoMapper;
 import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.WarehouseService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -56,8 +57,8 @@ public class WarehouseServiceImpl implements WarehouseService {
     }
 
     @Override
-    public List<WarehouseDto> findAll() {
-        return warehouseDtoMapper.toDtoList(warehouseDao.findAll());
+    public List<WarehouseDto> findAll(Pageable pageable) {
+        return warehouseDtoMapper.toDtoList(warehouseDao.findAll(pageable));
     }
 
     @Override
