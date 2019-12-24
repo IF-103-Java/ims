@@ -7,6 +7,7 @@ import com.ita.if103java.ims.entity.User;
 import com.ita.if103java.ims.mapper.UserDtoMapper;
 import com.ita.if103java.ims.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -83,8 +84,8 @@ public class UserController {
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(value = "")
-    public List<UserDto> findAll() {
-        return userService.findAll();
+    public List<UserDto> findAll(Pageable pageable) {
+        return userService.findAll(pageable);
     }
 
     @GetMapping(value = "/confirmation")

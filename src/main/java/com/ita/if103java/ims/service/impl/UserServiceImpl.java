@@ -8,6 +8,7 @@ import com.ita.if103java.ims.mapper.UserDtoMapper;
 import com.ita.if103java.ims.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -85,8 +86,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDto> findAll() {
-        return mapper.toDtoList(userDao.findAll());
+    public List<UserDto> findAll(Pageable pageable) {
+        return mapper.toDtoList(userDao.findAll(pageable));
     }
 
     @Override
