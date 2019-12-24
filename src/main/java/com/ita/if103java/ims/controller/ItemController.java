@@ -38,8 +38,7 @@ public class ItemController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<ItemDto> sort(Pageable pageable) {
-        return itemService.findSortedItem(PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),
-            pageable.getSort()));
+        return itemService.findSortedItem(pageable);
     }
 
     @GetMapping("/{id}")
