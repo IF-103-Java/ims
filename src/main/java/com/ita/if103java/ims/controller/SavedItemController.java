@@ -1,11 +1,11 @@
 package com.ita.if103java.ims.controller;
 
-import com.ita.if103java.ims.dto.SavedItemDto;
-import com.ita.if103java.ims.dto.WarehouseDto;
+import com.ita.if103java.ims.dto.*;
 import com.ita.if103java.ims.service.ItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,7 +21,7 @@ import java.util.List;
 
 @CrossOrigin("http://localhost:4200")
 @RestController
-@RequestMapping("/savedItem")
+@RequestMapping("/savedItems")
 public class SavedItemController {
     private ItemService itemService;
 
@@ -32,8 +32,8 @@ public class SavedItemController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.OK)
-    public SavedItemDto addSavedItem(@RequestBody SavedItemDto savedItemDto) {
-        return itemService.addSavedItem(savedItemDto);
+    public SavedItemDto addSavedItem(@RequestBody SavedItemDto savedItemDto, @AuthenticationPrincipal UserDto user, @AuthenticationPrincipal AssociateDto associate) {
+        return itemService.addSavedItem(savedItemDto, user, associate);
     }
 
     @GetMapping("/usefullWarehouses")
@@ -43,9 +43,9 @@ public class SavedItemController {
         return itemService.findUsefullWarehouses(volume, capacity);
     }
 
-    @GetMapping(path = "/{itemId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "/itemId/{itemId}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
-    public SavedItemDto findByItemDto(@PathVariable("itemId") Long id) {
+    public List<SavedItemDto> findByItemDto(@PathVariable("itemId") Long id) {
         return itemService.findByItemId(id);
     }
 
@@ -58,7 +58,15 @@ public class SavedItemController {
     @PutMapping(value = "/move", produces = MediaType.APPLICATION_JSON_VALUE,
         consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
-    public boolean moveSavedItem(@RequestBody SavedItemDto savedItemDto, @RequestParam("warehouseId") Long id) {
-        return itemService.moveItem(savedItemDto, id);
+    public boolean moveSavedItem(@RequestBody SavedItemDto savedItemDto, @RequestParam("warehouseId") Long id, @AuthenticationPrincipal UserDto user, @AuthenticationPrincipal AssociateDto associate) {
+        return itemService.moveItem(savedItemDto, id, user, associate);
     }
+
+    @PutMapping(value = "/outcome", produces = MediaType.APPLICATION_JSON_VALUE,
+        consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    public SavedItemDto outcomeItem(@RequestBody SavedItemDto savedItemDto, @RequestParam("quantity") int quantity, @AuthenticationPrincipal UserDto user, @AuthenticationPrincipal AssociateDto associate) {
+        return itemService.outcomeItem(savedItemDto, quantity, user, associate);
+    }
+
 }

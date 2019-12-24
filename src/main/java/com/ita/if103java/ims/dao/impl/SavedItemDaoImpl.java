@@ -35,6 +35,7 @@ public class SavedItemDaoImpl implements SavedItemDao {
 
     }
 
+
     @Override
     public SavedItem findSavedItemById(Long id) {
         try {
@@ -49,9 +50,9 @@ public class SavedItemDaoImpl implements SavedItemDao {
     }
 
     @Override
-    public SavedItem findSavedItemByItemId(Long id) {
+    public List<SavedItem> findSavedItemByItemId(Long id) {
         try {
-            return jdbcTemplate.queryForObject(Queries.SQL_SELECT_SAVED_ITEMS_BY_ITEM_ID, savedItemRowMapper, id);
+            return jdbcTemplate.query(Queries.SQL_SELECT_SAVED_ITEMS_BY_ITEM_ID, savedItemRowMapper, id);
         } catch (EmptyResultDataAccessException e) {
             throw new SavedItemNotFoundException("Failed to get savedItem during `select` {item_id = " + id + "}", e);
         } catch (DataAccessException e) {

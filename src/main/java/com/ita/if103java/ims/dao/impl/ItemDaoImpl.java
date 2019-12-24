@@ -17,7 +17,6 @@ import java.util.List;
 
 @Repository
 public class ItemDaoImpl implements ItemDao {
-
     private JdbcTemplate jdbcTemplate;
     private ItemRowMapper itemRowMapper;
 
@@ -31,8 +30,10 @@ public class ItemDaoImpl implements ItemDao {
     public List<Item> getItems(Pageable pageable) {
         try {
             String sort = pageable.getSort().toString().replaceAll(": ", " ");
-            return jdbcTemplate.query(Queries.SQL_SELECT_ITEMS, itemRowMapper, sort, pageable.getPageSize(),
-                pageable.getPageNumber());
+      final String query = String.format("""
+          select * from items order by %s limit %s offset %s
+        """, sort, pageable.getPageSize(), pageable.getPageNumber()==0?1:pageable.getPageNumber()*pageable.getPageSize());
+            return jdbcTemplate.query(query, itemRowMapper);
         } catch (DataAccessException e) {
             throw new CRUDException("Error during `select * `", e);
         }
@@ -103,10 +104,6 @@ public class ItemDaoImpl implements ItemDao {
     }
 
     class Queries {
-        static final String SQL_SELECT_ITEMS = """
-          select *
-          from items order by ? limit ? offset ?
-        """;
         static final String SQL_SELECT_ITEM_BY_NAME = """
             select *
             from items

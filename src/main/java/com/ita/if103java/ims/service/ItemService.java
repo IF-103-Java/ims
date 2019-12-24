@@ -1,12 +1,8 @@
 package com.ita.if103java.ims.service;
 
-import com.ita.if103java.ims.dto.ItemDto;
-import com.ita.if103java.ims.dto.SavedItemDto;
-import com.ita.if103java.ims.dto.WarehouseDto;
+import com.ita.if103java.ims.dto.*;
 import org.springframework.data.domain.Pageable;
-
 import java.util.List;
-
 
 public interface ItemService {
 
@@ -14,20 +10,20 @@ public interface ItemService {
 
     ItemDto findById(Long id);
 
-    SavedItemDto addSavedItem(SavedItemDto savedItemDto);
+    SavedItemDto addSavedItem(SavedItemDto savedItemDto, UserDto user, AssociateDto associate);
 
-    ItemDto addItem(ItemDto itemDto);
+    ItemDto addItem(ItemDto itemDto, UserDto user);
 
     SavedItemDto findSavedItemById(Long id);
 
     boolean softDelete(Long id);
 
-    SavedItemDto findByItemId(Long id);
+    List<SavedItemDto> findByItemId(Long id);
 
     List<WarehouseDto> findUsefullWarehouses(int volume, int quantity);
 
-    boolean moveItem(SavedItemDto savedItemDto, Long id);
+    boolean moveItem(SavedItemDto savedItemDto, Long id, UserDto user, AssociateDto associate);
 
-    SavedItemDto outcomeItem(SavedItemDto savedItemDto, int quantity);
+    SavedItemDto outcomeItem(SavedItemDto savedItemDto, int quantity, UserDto user, AssociateDto associate);
 
 }
