@@ -9,17 +9,23 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.Collections;
 
+
 public class UserDetailsImpl implements UserDetails {
 
     private User user;
+
     private AccountType accountType;
+
+    public UserDetailsImpl(User user, AccountType accountType) {
+        this.user = user;
+        this.accountType = accountType;
+    }
 
     public UserDetailsImpl(User user) {
         this.user = user;
     }
 
-    public UserDetailsImpl(AccountType accountType) {
-        this.accountType = accountType;
+    public UserDetailsImpl() {
     }
 
     @Override
