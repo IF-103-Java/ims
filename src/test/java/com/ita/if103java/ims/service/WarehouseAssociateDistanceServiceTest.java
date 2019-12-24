@@ -100,125 +100,128 @@ public class WarehouseAssociateDistanceServiceTest {
 
 //        W1
         assertThat(vancouverBoston).has(allOf(
-            warehouseAddress("Vancouver"),
-            associateAddress("Boston"),
+            warehouseAddressCity("Vancouver"),
+            associateAddressCity("Boston"),
             associateAddressType(AssociateType.SUPPLIER),
             distance("5,129 km")
         ));
         assertThat(vancouverArizona).has(allOf(
-            warehouseAddress("Vancouver"),
-            associateAddress("Arizona"),
+            warehouseAddressCity("Vancouver"),
+            associateAddressCity("Arizona"),
             associateAddressType(AssociateType.SUPPLIER),
             distance("2,587 km")
         ));
         assertThat(vancouverSanLuis).has(allOf(
-            warehouseAddress("Vancouver"),
-            associateAddress("San Luis"),
+            warehouseAddressCity("Vancouver"),
+            associateAddressCity("San Luis"),
             associateAddressType(AssociateType.SUPPLIER),
             distance("2,529 km")
         ));
         assertThat(vancouverDetroit).has(allOf(
-            warehouseAddress("Vancouver"),
-            associateAddress("Detroit"),
+            warehouseAddressCity("Vancouver"),
+            associateAddressCity("Detroit"),
             associateAddressType(AssociateType.CLIENT),
             distance("3,999 km")
         ));
         assertThat(vancouverSanFrancisco).has(allOf(
-            warehouseAddress("Vancouver"),
-            associateAddress("San Francisco"),
+            warehouseAddressCity("Vancouver"),
+            associateAddressCity("San Francisco"),
             associateAddressType(AssociateType.CLIENT),
             distance("1,528 km")
         ));
         assertThat(vancouverWashington).has(allOf(
-            warehouseAddress("Vancouver"),
-            associateAddress("Washington"),
+            warehouseAddressCity("Vancouver"),
+            associateAddressCity("Washington"),
             associateAddressType(AssociateType.CLIENT),
             distance("320 km")
         ));
 //        W2
         assertThat(lasVegasBoston).has(allOf(
-            warehouseAddress("Las Vegas"),
-            associateAddress("Boston"),
+            warehouseAddressCity("Las Vegas"),
+            associateAddressCity("Boston"),
             associateAddressType(AssociateType.SUPPLIER),
             distance("4,370 km")
         ));
         assertThat(lasVegasArizona).has(allOf(
-            warehouseAddress("Las Vegas"),
-            associateAddress("Arizona"),
+            warehouseAddressCity("Las Vegas"),
+            associateAddressCity("Arizona"),
             associateAddressType(AssociateType.SUPPLIER),
             distance("720 km")
         ));
         assertThat(lasVegasSanLuis).has(allOf(
-            warehouseAddress("Las Vegas"),
-            associateAddress("San Luis"),
+            warehouseAddressCity("Las Vegas"),
+            associateAddressCity("San Luis"),
             associateAddressType(AssociateType.SUPPLIER),
             distance("508 km")
         ));
         assertThat(lasVegasDetroit).has(allOf(
-            warehouseAddress("Las Vegas"),
-            associateAddress("Detroit"),
+            warehouseAddressCity("Las Vegas"),
+            associateAddressCity("Detroit"),
             associateAddressType(AssociateType.CLIENT),
             distance("3,239 km")
         ));
         assertThat(lasVegasSanFrancisco).has(allOf(
-            warehouseAddress("Las Vegas"),
-            associateAddress("San Francisco"),
+            warehouseAddressCity("Las Vegas"),
+            associateAddressCity("San Francisco"),
             associateAddressType(AssociateType.CLIENT),
             distance("917 km")
         ));
         assertThat(lasVegasWashington).has(allOf(
-            warehouseAddress("Las Vegas"),
-            associateAddress("Washington"),
+            warehouseAddressCity("Las Vegas"),
+            associateAddressCity("Washington"),
             associateAddressType(AssociateType.CLIENT),
             distance("1,757 km")
         ));
 //        W3
         assertThat(newYorkBoston).has(allOf(
-            warehouseAddress("New York"),
-            associateAddress("Boston"),
+            warehouseAddressCity("New York"),
+            associateAddressCity("Boston"),
             associateAddressType(AssociateType.SUPPLIER),
             distance("346 km")
         ));
         assertThat(newYorkArizona).has(allOf(
-            warehouseAddress("New York"),
-            associateAddress("Arizona"),
+            warehouseAddressCity("New York"),
+            associateAddressCity("Arizona"),
             associateAddressType(AssociateType.SUPPLIER),
             distance("3,751 km")
         ));
         assertThat(newYorkSanLuis).has(allOf(
-            warehouseAddress("New York"),
-            associateAddress("San Luis"),
+            warehouseAddressCity("New York"),
+            associateAddressCity("San Luis"),
             associateAddressType(AssociateType.SUPPLIER),
             distance("4,199 km")
         ));
         assertThat(newYorkDetroit).has(allOf(
-            warehouseAddress("New York"),
-            associateAddress("Detroit"),
+            warehouseAddressCity("New York"),
+            associateAddressCity("Detroit"),
             associateAddressType(AssociateType.CLIENT),
             distance("989 km")
         ));
         assertThat(newYorkSanFrancisco).has(allOf(
-            warehouseAddress("New York"),
-            associateAddress("San Francisco"),
+            warehouseAddressCity("New York"),
+            associateAddressCity("San Francisco"),
             associateAddressType(AssociateType.CLIENT),
             distance("4,671 km")
         ));
         assertThat(newYorkWashington).has(allOf(
-            warehouseAddress("New York"),
-            associateAddress("Washington"),
+            warehouseAddressCity("New York"),
+            associateAddressCity("Washington"),
             associateAddressType(AssociateType.CLIENT),
             distance("4,492 km")
         ));
     }
 
-    private Condition<WarehouseToAssociateDistanceDto> warehouseAddress(String city) {
-        return new Condition<>(x -> x.getWarehouseAddress().getCity().equals(city), "warehouse address");
+    private Condition<WarehouseToAssociateDistanceDto> warehouseAddressCity(String city) {
+        return new Condition<>(
+            x -> x.getWarehouseAddress().getCity().equals(city),
+            "warehouse address city"
+        );
     }
 
-    private Condition<WarehouseToAssociateDistanceDto> associateAddress(String city) {
+    private Condition<WarehouseToAssociateDistanceDto> associateAddressCity(String city) {
         return new Condition<>(
             x -> x.getAssociateAddress().getCity().equals(city),
-            "associate address"
+            "associate address city"
         );
     }
 
