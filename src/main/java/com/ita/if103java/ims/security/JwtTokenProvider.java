@@ -1,6 +1,7 @@
 package com.ita.if103java.ims.security;
 
 import com.ita.if103java.ims.entity.Role;
+import com.ita.if103java.ims.exception.security.InvalidJwtTokenException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -72,7 +73,7 @@ public class JwtTokenProvider {
             Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
-            throw new JwtException("Expired or invalid JWT token");
+            throw new InvalidJwtTokenException("Expired or invalid JWT token");
         }
     }
 }

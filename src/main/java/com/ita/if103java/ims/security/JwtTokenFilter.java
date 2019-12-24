@@ -1,6 +1,8 @@
 package com.ita.if103java.ims.security;
 
+import com.ita.if103java.ims.exception.security.InvalidJwtTokenException;
 import io.jsonwebtoken.JwtException;
+import org.apache.catalina.filters.ExpiresFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -31,9 +33,9 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
 
-        } catch (JwtException e) {
+        } catch (InvalidJwtTokenException e) {
             SecurityContextHolder.clearContext();
-            return;
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         }
 
         filterChain.doFilter(request, response);
