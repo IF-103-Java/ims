@@ -12,7 +12,7 @@ import com.ita.if103java.ims.dto.WarehouseToAssociateDistanceDto;
 import com.ita.if103java.ims.exception.GoogleAPIException;
 import com.ita.if103java.ims.mapper.DistanceMatrixMapper;
 import com.ita.if103java.ims.service.WarehouseAssociateDistanceService;
-import com.ita.if103java.ims.util.ListUtil;
+import com.ita.if103java.ims.util.ListUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -35,7 +35,7 @@ public class WarehouseAssociateDistanceServiceImpl implements WarehouseAssociate
                                                               List<AssociateAddressDto> supplierAddresses,
                                                               List<AssociateAddressDto> clientAddresses) {
         try {
-            final List<AssociateAddressDto> associateAddresses = ListUtil.concat(supplierAddresses, clientAddresses);
+            final List<AssociateAddressDto> associateAddresses = ListUtils.concat(supplierAddresses, clientAddresses);
             final DistanceMatrix distanceMatrix = DistanceMatrixApi
                 .newRequest(apiContext)
                 .origins(buildRequestParams(warehouseAddresses))
