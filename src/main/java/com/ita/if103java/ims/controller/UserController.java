@@ -97,7 +97,8 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     public void updatePassword(@AuthenticationPrincipal User user,
                                @Validated({ExistData.class}) @RequestBody @NotNull String newPassword) {
-        userService.updatePassword(user.getId(), newPassword);
+        System.out.println(user.getId());
+       // userService.updatePassword(user.getId(), newPassword);
     }
 
     @GetMapping("/me")
