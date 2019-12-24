@@ -49,11 +49,9 @@ public class InvitationServiceImpl implements InvitationService {
             UserDto createdUserDto = userService.create(userDto);
             sendInvitationMessage(createdUserDto, userDto.getAccountId());
 
-            Event event = new Event();
+            Event event = new Event("New worker was invited.", accountAdmin.getAccountId(), null,
+                accountAdmin.getId(), EventName.WORKER_INVITED, null);
             event.setMessage("New worker was invited.");
-            event.setAccountId(accountAdmin.getAccountId());
-            event.setAuthorId(accountAdmin.getId());
-            event.setName(EventName.WORKER_INVITED);
             eventService.create(event);
         }
     }
@@ -63,6 +61,7 @@ public class InvitationServiceImpl implements InvitationService {
         mailService.sendMessage(userDto, "Hello, We invite you to join our organization " + account.getName() + " in the Inventory Management System.\n" +
             "Please follow link bellow to proceed with registration:\n" +
             activationURL + userDto.getEmailUUID() + "\n" +
+            "Your password: " + userDto.getPassword() + "\n" +
             "If you didn't provide your email for registration, please ignore this email.\n" +
             "\n" +
             "Regards,\n" +

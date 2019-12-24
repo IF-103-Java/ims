@@ -1,10 +1,12 @@
 package com.ita.if103java.ims.service.impl;
 
 import com.ita.if103java.ims.dao.AccountDao;
+import com.ita.if103java.ims.dao.UserDao;
 import com.ita.if103java.ims.dto.AccountDto;
 import com.ita.if103java.ims.entity.Account;
 import com.ita.if103java.ims.entity.Event;
 import com.ita.if103java.ims.entity.EventName;
+import com.ita.if103java.ims.entity.User;
 import com.ita.if103java.ims.mapper.AccountDtoMapper;
 import com.ita.if103java.ims.service.AccountService;
 import com.ita.if103java.ims.service.EventService;
@@ -17,34 +19,32 @@ public class AccountServiceImpl implements AccountService {
     private AccountDao accountDao;
     private AccountDtoMapper accountDtoMapper;
     private EventService eventService;
+    private UserDao userDao;
 
     @Autowired
-    public AccountServiceImpl(AccountDao accountDao, AccountDtoMapper accountDtoMapper, EventService eventService) {
+    public AccountServiceImpl(AccountDao accountDao, AccountDtoMapper accountDtoMapper, EventService eventService, UserDao userDao) {
         this.accountDao = accountDao;
         this.accountDtoMapper = accountDtoMapper;
         this.eventService = eventService;
+        this.userDao = userDao;
     }
 
     @Override
-    public AccountDto create(AccountDto accountDto) {
+    public AccountDto create(User admin, AccountDto accountDto) {
         Account account = accountDao.create(accountDtoMapper.toEntity(accountDto));
-        Event event = new Event();
-        event.setMessage("New account was created.");
-        event.setAccountId(accountDto.getId());
-        event.setAuthorId(accountDto.getAdminId());
-        event.setName(EventName.ORG_CREATED);
+        userDao.updateAccountId(admin.getId(), account.getId());
+        Event event = new Event("New account was created.", account.getId(), null,
+            admin.getId(), EventName.ACCOUNT_CREATED, null);
         eventService.create(event);
         return accountDtoMapper.toDto(account);
     }
 
     @Override
-    public AccountDto update(AccountDto accountDto) {
+    public AccountDto update(User admin, AccountDto accountDto) {
+        accountDto.setId(admin.getAccountId());
         Account account = accountDao.update(accountDtoMapper.toEntity(accountDto));
-        Event event = new Event();
-        event.setMessage("Account was updated.");
-        event.setAccountId(accountDto.getId());
-        event.setAuthorId(accountDto.getAdminId());
-        event.setName(EventName.ORG_EDITED);
+        Event event = new Event("Account was updated.", account.getId(), null,
+            admin.getId(), EventName.ACCOUNT_EDITED, null);
         eventService.create(event);
         return accountDtoMapper.toDto(account);
     }
@@ -56,13 +56,13 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public boolean delete(Long id) {
-        Event event = new Event();
-        event.setMessage("Account was deleted.");
-        event.setAccountId(id);
-        event.setAuthorId(accountDao.findById(id).getAdminId());
-        event.setName(EventName.ORG_DELETED);
-        eventService.create(event);
-        return accountDao.delete(id);
+    public boolean delete(User admin) {
+        if (accountDao.delete(admin.getAccountId())) {
+            Event event = new Event("Account was deleted.", admin.getAccountId(), null,
+                admin.getId(), EventName.ACCOUNT_DELETED, null);
+            eventService.create(event);
+            return true;
+        }
+        return false;
     }
 }
