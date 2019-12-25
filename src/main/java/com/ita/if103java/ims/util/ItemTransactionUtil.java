@@ -16,8 +16,8 @@ public class ItemTransactionUtil {
         transaction.setWorkerId(user.getId());
         transaction.setType(type);
         switch (type) {
-            case OUT -> transaction.setMovedTo(associateId);
-            case IN -> transaction.setMovedFrom(associateId);
+            case OUT -> transaction.setMovedFrom(associateId);
+            case IN -> transaction.setMovedTo(associateId);
         }
         return transaction;
     }
