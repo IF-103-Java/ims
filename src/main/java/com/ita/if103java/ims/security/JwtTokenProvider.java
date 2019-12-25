@@ -1,17 +1,17 @@
 package com.ita.if103java.ims.security;
 
-import com.ita.if103java.ims.entity.Role;
 import com.ita.if103java.ims.exception.security.InvalidJwtTokenException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
@@ -27,16 +27,18 @@ public class JwtTokenProvider {
     @Value("${security.jwt.token.expiredTime}")
     private long expiredTime;
 
-    private UserDetailsServiceImpl userDetailsService;
+    private UserDetailsService userDetailsService;
 
     @Autowired
-    public JwtTokenProvider(UserDetailsServiceImpl userDetailsService) {
+    public JwtTokenProvider(@Qualifier("userDetailsServiceImpl") UserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
     }
 
-    public String createToken(String username, Role role) {
+    public String createToken(String username) {
+        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+
         Claims claims = Jwts.claims().setSubject(username);
-        claims.put("role", new SimpleGrantedAuthority(role.name()));
+        claims.put("role", userDetails.getAuthorities());
 
         Date now = new Date();
         Date validatedTime = new Date(now.getTime() + expiredTime);

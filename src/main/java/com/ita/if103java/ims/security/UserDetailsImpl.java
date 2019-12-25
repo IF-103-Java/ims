@@ -13,7 +13,6 @@ import java.util.Collections;
 public class UserDetailsImpl implements UserDetails {
 
     private User user;
-
     private AccountType accountType;
 
     public UserDetailsImpl(User user, AccountType accountType) {

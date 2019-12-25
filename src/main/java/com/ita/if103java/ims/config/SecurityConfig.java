@@ -1,8 +1,7 @@
 package com.ita.if103java.ims.config;
 
-import com.ita.if103java.ims.security.JwtTokenFilter;
+import com.ita.if103java.ims.security.JwtTokenFilterConfigurer;
 import com.ita.if103java.ims.security.JwtTokenProvider;
-import com.ita.if103java.ims.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -42,13 +41,25 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
             .authorizeRequests()
-            .antMatchers("/**").permitAll()
-            .anyRequest().authenticated();
+            .antMatchers("/",
+                "/signin",
+                "/forgot-password",
+                "/forgot-password/reset-password",
+                "/registration").permitAll()
+            .anyRequest().authenticated()
+            .and()
+            .apply(new JwtTokenFilterConfigurer(jwtTokenProvider));
     }
 
     @Override
     public void configure(WebSecurity web) throws Exception {
-        web.ignoring().antMatchers("/v2/api-docs", "/configuration/ui", "/swagger-resources", "/configuration/security", "/swagger-ui.html", "/webjars/**");
+        web.ignoring()
+            .antMatchers("/v2/api-docs",
+                "/configuration/ui",
+                "/swagger-resources",
+                "/configuration/security",
+                "/swagger-ui.html",
+                "/webjars/**");
     }
 
     @Override

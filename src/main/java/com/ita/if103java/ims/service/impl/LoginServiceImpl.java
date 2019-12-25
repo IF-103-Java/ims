@@ -3,18 +3,17 @@ package com.ita.if103java.ims.service.impl;
 import com.ita.if103java.ims.dao.UserDao;
 import com.ita.if103java.ims.dto.UserLoginDto;
 import com.ita.if103java.ims.entity.User;
-import com.ita.if103java.ims.exception.UserNotFoundException;
 import com.ita.if103java.ims.exception.UserOrPasswordIncorrectException;
 import com.ita.if103java.ims.mapper.UserDtoMapper;
 import com.ita.if103java.ims.security.JwtTokenProvider;
 import com.ita.if103java.ims.service.LoginService;
 import com.ita.if103java.ims.service.MailService;
 import com.mysql.cj.exceptions.PasswordExpiredException;
-import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -53,17 +52,11 @@ public class LoginServiceImpl implements LoginService {
     }
 
     @Override
-    public String signIn(UserLoginDto userLoginDto) {
+    public String signIn(UserLoginDto user) {
         try {
-            User user = userDao.findByEmail(userLoginDto.getUsername());
-
-            if (passwordEncoder.matches(userLoginDto.getPassword(), user.getPassword())) {
-                authManager.authenticate(new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
-                return jwtTokenProvider.createToken(user.getEmail(), user.getRole());
-            }
-            throw new UserOrPasswordIncorrectException("Credential aren't correct");
-
-        } catch (UserNotFoundException e) {
+            authManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
+            return jwtTokenProvider.createToken(user.getUsername());
+        } catch (AuthenticationException e) {
             throw new UserOrPasswordIncorrectException("Credential aren't correct", e);
         }
 

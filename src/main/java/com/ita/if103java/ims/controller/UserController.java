@@ -9,6 +9,7 @@ import com.ita.if103java.ims.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -74,13 +75,14 @@ public class UserController {
         return userService.update(userDto);
     }
 
-    //TODO: add @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable("id") Long id) {
         userService.delete(id);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(value = "")
     public List<UserDto> findAll() {
@@ -97,12 +99,12 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     public void updatePassword(@AuthenticationPrincipal User user,
                                @Validated({ExistData.class}) @RequestBody @NotNull String newPassword) {
-        System.out.println(user.getId());
-       // userService.updatePassword(user.getId(), newPassword);
+        userService.updatePassword(user.getId(), newPassword);
     }
 
     @GetMapping("/me")
     public UserDto getCurrentUser(@AuthenticationPrincipal User user) {
+        System.out.println(user);
         return mapper.toDto(user);
     }
 
