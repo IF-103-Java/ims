@@ -45,7 +45,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 "/signin",
                 "/forgot-password",
                 "/forgot-password/reset-password",
-                "/registration").permitAll()
+                "/signup").permitAll()
             .anyRequest().authenticated()
             .and()
             .apply(new JwtTokenFilterConfigurer(jwtTokenProvider));
