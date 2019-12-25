@@ -1,11 +1,24 @@
 package com.ita.if103java.ims.service.impl;
 
+
 import com.ita.if103java.ims.dao.ItemDao;
 import com.ita.if103java.ims.dao.SavedItemDao;
 import com.ita.if103java.ims.dao.TransactionDao;
 import com.ita.if103java.ims.dao.WarehouseDao;
-import com.ita.if103java.ims.dto.*;
-import com.ita.if103java.ims.entity.*;
+import com.ita.if103java.ims.dao.AssociateDao;
+import com.ita.if103java.ims.dto.ItemDto;
+import com.ita.if103java.ims.dto.ItemTransactionRequestDto;
+import com.ita.if103java.ims.dto.SavedItemDto;
+import com.ita.if103java.ims.dto.WarehouseDto;
+
+
+import com.ita.if103java.ims.entity.SavedItem;
+import com.ita.if103java.ims.entity.Transaction;
+import com.ita.if103java.ims.entity.TransactionType;
+import com.ita.if103java.ims.entity.User;
+import com.ita.if103java.ims.entity.Event;
+import com.ita.if103java.ims.entity.EventName;
+import com.ita.if103java.ims.entity.Warehouse;
 import com.ita.if103java.ims.exception.ItemNotEnoughCapacityInWarehouseException;
 import com.ita.if103java.ims.exception.ItemNotEnoughQuantityException;
 import com.ita.if103java.ims.mapper.ItemDtoMapper;
@@ -13,11 +26,11 @@ import com.ita.if103java.ims.mapper.SavedItemDtoMapper;
 import com.ita.if103java.ims.mapper.WarehouseDtoMapper;
 import com.ita.if103java.ims.service.EventService;
 import com.ita.if103java.ims.service.ItemService;
-import com.ita.if103java.ims.util.ItemEventUtil;
 import com.ita.if103java.ims.util.ItemTransactionUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,9 +46,10 @@ public class ItemServiceImpl implements ItemService {
     private WarehouseDtoMapper warehouseDtoMapper;
     private TransactionDao transactionDao;
     private EventService eventService;
+    private AssociateDao associateDao;
 
     @Autowired
-    public ItemServiceImpl(ItemDtoMapper itemDtoMapper, SavedItemDtoMapper savedItemDtoMapper, ItemDao itemDao, SavedItemDao savedItemDao, WarehouseDao warehouseDao, WarehouseDtoMapper warehouseDtoMapper, TransactionDao transactionDao, EventService eventService) {
+    public ItemServiceImpl(ItemDtoMapper itemDtoMapper, SavedItemDtoMapper savedItemDtoMapper, ItemDao itemDao, SavedItemDao savedItemDao, WarehouseDao warehouseDao, WarehouseDtoMapper warehouseDtoMapper, TransactionDao transactionDao, EventService eventService, AssociateDao associateDao) {
         this.itemDtoMapper = itemDtoMapper;
         this.savedItemDtoMapper = savedItemDtoMapper;
         this.itemDao = itemDao;
@@ -44,6 +58,7 @@ public class ItemServiceImpl implements ItemService {
         this.warehouseDtoMapper = warehouseDtoMapper;
         this.transactionDao = transactionDao;
         this.eventService = eventService;
+        this.associateDao = associateDao;
     }
 
     @Override
@@ -59,23 +74,26 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public SavedItemDto addSavedItem(SavedItemDto savedItemDto, User user, Associate associate) {
-        SavedItem savedItem = savedItemDtoMapper.toEntity(savedItemDto);
-        savedItem.setItemId(itemDao.findItemByName(savedItemDto.getItemDto().getName()).getId());
-        if (isEnoughCapacityInWarehouse(savedItemDto)) {
-            savedItemDao.addSavedItem(savedItem);
-            transactionDao.create(ItemTransactionUtil.createTransaction(savedItemDto, user, associate, TransactionType.IN));
-            eventService.create(ItemEventUtil.createEvent(savedItemDto, user, EventName.ITEM_CAME));
+    public SavedItemDto addSavedItem(ItemTransactionRequestDto itemTransaction, User user) {
+        SavedItem savedItem = new SavedItem(itemTransaction.getItemDto().getId(), itemTransaction.getQuantity().intValue(), itemTransaction.getSourceWarehouseId());
+        if (isEnoughCapacityInWarehouse(itemTransaction)) {
+            SavedItemDto savedItemDto = savedItemDtoMapper.toDto(savedItemDao.addSavedItem(savedItem));
+            Transaction transaction = transactionDao.create(ItemTransactionUtil.createTransaction(itemTransaction, user, itemTransaction.getAssociateId(), TransactionType.IN));
+            eventService.create(new Event("Moved " + itemTransaction.getQuantity() + " " + itemTransaction.getItemDto().getName() +
+                " to warehouse " + warehouseDao.findById(itemTransaction.getDestinationWarehouseId()).getName() + " from supplier " + associateDao.findById(itemTransaction.getAssociateId()).getName(), user.getAccountId(),
+                itemTransaction.getDestinationWarehouseId(), user.getId(), EventName.ITEM_CAME, transaction.getId().longValue()));
             return savedItemDto;
         }
-        eventService.create(ItemEventUtil.createEvent(savedItemDto, user, EventName.LOW_SPACE_IN_WAREHOUSE));
+        eventService.create(new Event("Not enough capacity! Capacity " + warehouseDao.findById(itemTransaction.getDestinationWarehouseId()).getCapacity() +
+            " in Warehouse " + warehouseDao.findById(itemTransaction.getDestinationWarehouseId()).getName(), user.getAccountId(),
+            itemTransaction.getDestinationWarehouseId(), user.getId(), EventName.LOW_SPACE_IN_WAREHOUSE, null));
         throw new ItemNotEnoughCapacityInWarehouseException("Can't add savedItemDto in warehouse because it doesn't  " +
-            "have enough capacity {warehouse_id = " + savedItemDto.getWarehouseId() + "}");
+            "have enough capacity {warehouse_id = " + itemTransaction.getDestinationWarehouseId() + "}");
 
     }
 
-    private boolean isEnoughCapacityInWarehouse(SavedItemDto savedItemDto) {
-        return warehouseDao.findById(savedItemDto.getWarehouseId()).getCapacity() >= savedItemDto.getItemDto().getVolume() * savedItemDto.getQuantity();
+    private boolean isEnoughCapacityInWarehouse(ItemTransactionRequestDto itemTransaction) {
+        return warehouseDao.findById(itemTransaction.getDestinationWarehouseId()).getCapacity() >= itemTransaction.getItemDto().getVolume() * itemTransaction.getQuantity();
     }
 
     @Override
@@ -114,32 +132,39 @@ public class ItemServiceImpl implements ItemService {
 
 
     @Override
-    public boolean moveItem(SavedItemDto savedItemDto, Long id, User user, Associate associate) {
-        savedItemDto.setItemDto(itemDtoMapper.toDto(itemDao.findItemById(savedItemDto.getId())));
-        if (isEnoughCapacityInWarehouse(savedItemDto)) {
-            eventService.create(ItemEventUtil.createEvent(savedItemDto, user, EventName.ITEM_MOVED));
-            transactionDao.create(ItemTransactionUtil.createTransaction(savedItemDto, user, associate, TransactionType.MOVE));
-            eventService.create(ItemEventUtil.createEvent(savedItemDto, user, EventName.ITEM_MOVED));
-            return savedItemDao.updateSavedItem(id, savedItemDto.getId());
+    public boolean moveItem(ItemTransactionRequestDto itemTransaction, User user) {
+        if (isEnoughCapacityInWarehouse(itemTransaction)) {
+            Transaction transaction = transactionDao.create(ItemTransactionUtil.createTransaction(itemTransaction, user, itemTransaction.getAssociateId(), TransactionType.MOVE));
+            eventService.create(new Event("Moved " + itemTransaction.getQuantity() + " " + itemTransaction.getItemDto().getName() +
+                " from warehouse " + warehouseDao.findById(itemTransaction.getSourceWarehouseId()).getName() + " to warehouse " + warehouseDao.findById(itemTransaction.getDestinationWarehouseId()).getName(), user.getAccountId(),
+                itemTransaction.getSourceWarehouseId(), user.getId(), EventName.ITEM_MOVED, transaction.getId().longValue()));
+            return savedItemDao.updateSavedItem(itemTransaction.getDestinationWarehouseId(), itemTransaction.getSourceWarehouseId());
         }
-        eventService.create(ItemEventUtil.createEvent(savedItemDto, user, EventName.LOW_SPACE_IN_WAREHOUSE));
+        eventService.create(new Event("Not enough capacity! Capacity " + warehouseDao.findById(itemTransaction.getDestinationWarehouseId()).getCapacity() +
+            " in warehouse " + warehouseDao.findById(itemTransaction.getDestinationWarehouseId()).getName(), user.getAccountId(),
+            itemTransaction.getDestinationWarehouseId(), user.getId(), EventName.LOW_SPACE_IN_WAREHOUSE, null));
         throw new ItemNotEnoughCapacityInWarehouseException("Can't move savedItemDto in warehouse because it doesn't " +
-            " have enough capacity {warehouse_id = " + id + "}");
+            " have enough capacity {warehouse_id = " + itemTransaction.getDestinationWarehouseId() + "}");
     }
 
     @Override
-    public SavedItemDto outcomeItem(SavedItemDto savedItemDto, int quantity, User user, Associate associate) {
-        int difference = savedItemDto.getQuantity() - quantity;
-        if (savedItemDao.findSavedItemByWarehouseId(savedItemDto.getWarehouseId()).getQuantity() >= quantity) {
-            savedItemDao.outComeSavedItem(savedItemDtoMapper.toEntity(savedItemDto), difference);
-            transactionDao.create(ItemTransactionUtil.createTransaction(savedItemDto, user, associate, TransactionType.OUT));
-            eventService.create(ItemEventUtil.createEvent(savedItemDto, user, EventName.ITEM_SHIPPED));
-            savedItemDto.setQuantity(difference);
+    public SavedItemDto outcomeItem(ItemTransactionRequestDto itemTransaction, long quantity, User user) {
+        long difference = itemTransaction.getQuantity() - quantity;
+        if (itemTransaction.getQuantity() >= quantity) {
+            SavedItemDto savedItemDto = savedItemDtoMapper.toDto(savedItemDao.findSavedItemById(itemTransaction.getSavedItemId()));
+            savedItemDao.outComeSavedItem(savedItemDtoMapper.toEntity(savedItemDto), Long.valueOf(itemTransaction.getQuantity()).intValue());
+            Transaction transaction = transactionDao.create(ItemTransactionUtil.createTransaction(itemTransaction, user, itemTransaction.getAssociateId(), TransactionType.OUT));
+            eventService.create(new Event("Sold  " + itemTransaction.getQuantity() + " " + itemTransaction.getItemDto().getName() +
+                " to client " + associateDao.findById(itemTransaction.getAssociateId()).getName(), user.getAccountId(),
+                itemTransaction.getSourceWarehouseId(), user.getId(), EventName.ITEM_SHIPPED, transaction.getId().longValue()));
+            savedItemDto.setQuantity(Long.valueOf(difference).intValue());
             return savedItemDto;
         }
-        eventService.create(ItemEventUtil.createEvent(savedItemDto, user, EventName.ITEM_ENDED));
+        eventService.create(new Event("Not enough quantity  " + itemTransaction.getQuantity() + " " + itemTransaction.getItemDto().getName() +
+            " in warehouse " + warehouseDao.findById(itemTransaction.getSourceWarehouseId()).getName(), user.getAccountId(),
+            itemTransaction.getSourceWarehouseId(), user.getId(), EventName.ITEM_ENDED, null));
         throw new ItemNotEnoughQuantityException("Outcome failed. Can't find needed quantity item in warehouse needed" +
-            " quantity of items {warehouse_id = " + savedItemDto.getId() + ", quantity = " + quantity + "}");
+            " quantity of items {warehouse_id = " + itemTransaction.getSourceWarehouseId() + ", quantity = " + itemTransaction.getQuantity() + "}");
     }
 
 }

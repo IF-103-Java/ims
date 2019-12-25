@@ -1,7 +1,8 @@
 package com.ita.if103java.ims.controller;
 
-import com.ita.if103java.ims.dto.*;
-import com.ita.if103java.ims.entity.Associate;
+import com.ita.if103java.ims.dto.ItemTransactionRequestDto;
+import com.ita.if103java.ims.dto.SavedItemDto;
+import com.ita.if103java.ims.dto.WarehouseDto;
 import com.ita.if103java.ims.entity.User;
 import com.ita.if103java.ims.service.ItemService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,8 +33,8 @@ public class SavedItemController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.OK)
-    public SavedItemDto addSavedItem(@RequestBody SavedItemDto savedItemDto, @AuthenticationPrincipal User user, @AuthenticationPrincipal Associate associate) {
-        return itemService.addSavedItem(savedItemDto, user, associate);
+    public SavedItemDto addSavedItem(@RequestBody ItemTransactionRequestDto itemTransaction, @AuthenticationPrincipal User user) {
+        return itemService.addSavedItem(itemTransaction, user);
     }
 
     @GetMapping("/usefullWarehouses")
@@ -58,15 +59,15 @@ public class SavedItemController {
     @PutMapping(value = "/move", produces = MediaType.APPLICATION_JSON_VALUE,
         consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
-    public boolean moveSavedItem(@RequestBody SavedItemDto savedItemDto, @RequestParam("warehouseId") Long id, @AuthenticationPrincipal User user, @AuthenticationPrincipal Associate associate) {
-        return itemService.moveItem(savedItemDto, id, user, associate);
+    public boolean moveSavedItem(@RequestBody ItemTransactionRequestDto itemTransaction, @RequestParam("warehouseId") Long id, @AuthenticationPrincipal User user) {
+        return itemService.moveItem(itemTransaction, user);
     }
 
     @PutMapping(value = "/outcome", produces = MediaType.APPLICATION_JSON_VALUE,
         consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
-    public SavedItemDto outcomeItem(@RequestBody SavedItemDto savedItemDto, @RequestParam("quantity") int quantity, @AuthenticationPrincipal User user, @AuthenticationPrincipal Associate associate) {
-        return itemService.outcomeItem(savedItemDto, quantity, user, associate);
+    public SavedItemDto outcomeItem(@RequestBody ItemTransactionRequestDto itemTransaction, @RequestParam("quantity") Long quantity, @AuthenticationPrincipal User user) {
+        return itemService.outcomeItem(itemTransaction, quantity, user);
     }
 
 }
