@@ -2,6 +2,7 @@ package com.ita.if103java.ims.config;
 
 import com.ita.if103java.ims.exception.CRUDException;
 import com.ita.if103java.ims.exception.EntityNotFoundException;
+import com.ita.if103java.ims.exception.GoogleAPIException;
 import com.ita.if103java.ims.exception.UserOrPasswordIncorrectException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -35,5 +37,13 @@ public class GlobalExceptionHandler {
         LOGGER.warn(e.getMessage(), e);
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
             .body(new String[]{e.getMessage()});
+    }
+
+    @ExceptionHandler({GoogleAPIException.class})
+    public ResponseEntity<Map<String, String>> handleGoogleAPIException(HttpServletRequest req, Exception e) {
+        LOGGER.error(e.getMessage(), e);
+        return ResponseEntity
+            .status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body(Map.of("error", e.getMessage()));
     }
 }
