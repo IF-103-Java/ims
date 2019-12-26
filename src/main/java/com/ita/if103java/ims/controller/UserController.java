@@ -5,6 +5,7 @@ import com.ita.if103java.ims.dto.UserDto;
 import com.ita.if103java.ims.dto.transfer.ExistData;
 import com.ita.if103java.ims.entity.User;
 import com.ita.if103java.ims.mapper.UserDtoMapper;
+import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -66,23 +67,23 @@ public class UserController {
     @PutMapping(value = "/me", produces = MediaType.APPLICATION_JSON_VALUE,
         consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
-    public UserDto update(@AuthenticationPrincipal User user, @Validated({ExistData.class}) @RequestBody UserDto userDto) {
-        userDto.setId(user.getId());
-        userDto.setEmail(user.getEmail());
+    public UserDto update(@AuthenticationPrincipal UserDetailsImpl user, @Validated({ExistData.class}) @RequestBody UserDto userDto) {
+        userDto.setId(user.getUser().getId());
+        userDto.setEmail(user.getUser().getEmail());
         userDto.setPassword(user.getPassword());
-        userDto.setRole(user.getRole());
+        userDto.setRole(user.getUser().getRole());
 
         return userService.update(userDto);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable("id") Long id) {
         userService.delete(id);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(value = "")
     public List<UserDto> findAll() {
@@ -97,15 +98,14 @@ public class UserController {
 
     @PostMapping("/update-password")
     @ResponseStatus(HttpStatus.OK)
-    public void updatePassword(@AuthenticationPrincipal User user,
+    public void updatePassword(@AuthenticationPrincipal UserDetailsImpl user,
                                @Validated({ExistData.class}) @RequestBody @NotNull String newPassword) {
-        userService.updatePassword(user.getId(), newPassword);
+        userService.updatePassword(user.getUser().getId(), newPassword);
     }
 
     @GetMapping("/me")
-    public UserDto getCurrentUser(@AuthenticationPrincipal User user) {
-        System.out.println(user);
-        return mapper.toDto(user);
+    public UserDto getCurrentUser(@AuthenticationPrincipal UserDetailsImpl user) {
+        return mapper.toDto(user.getUser());
     }
 
 }
