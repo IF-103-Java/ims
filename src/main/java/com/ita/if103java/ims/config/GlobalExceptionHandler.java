@@ -1,6 +1,6 @@
 package com.ita.if103java.ims.config;
 
-import com.ita.if103java.ims.dto.ErrorInfoDto;
+import com.ita.if103java.ims.dto.PesponseWrapperDto;
 import com.ita.if103java.ims.exception.CRUDException;
 import com.ita.if103java.ims.exception.EntityNotFoundException;
 import com.ita.if103java.ims.exception.UserOrPasswordIncorrectException;
@@ -15,20 +15,20 @@ public class GlobalExceptionHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler({EntityNotFoundException.class})
-    public ErrorInfoDto handleEntityNotFoundException(Exception e) {
+    public PesponseWrapperDto handleEntityNotFoundException(Exception e) {
         LOGGER.warn(e.getMessage(), e);
-        return new ErrorInfoDto(HttpStatus.NOT_FOUND.value(), e.getMessage());
+        return new PesponseWrapperDto(HttpStatus.NOT_FOUND.value(), e.getMessage());
     }
 
     @ExceptionHandler({CRUDException.class})
-    public ErrorInfoDto handleCRUDException(Exception e) {
+    public PesponseWrapperDto handleCRUDException(Exception e) {
         LOGGER.error(e.getMessage(), e);
-        return new ErrorInfoDto(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());
+        return new PesponseWrapperDto(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());
     }
 
     @ExceptionHandler({UserOrPasswordIncorrectException.class})
-    public ErrorInfoDto handleUserOrPasswordIncorrectException(Exception e) {
+    public PesponseWrapperDto handleUserOrPasswordIncorrectException(Exception e) {
         LOGGER.warn(e.getMessage(), e);
-        return new ErrorInfoDto(HttpStatus.UNAUTHORIZED.value(), e.getMessage());
+        return new PesponseWrapperDto(HttpStatus.UNAUTHORIZED.value(), e.getMessage());
     }
 }

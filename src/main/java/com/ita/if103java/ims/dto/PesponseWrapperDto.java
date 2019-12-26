@@ -1,12 +1,19 @@
 package com.ita.if103java.ims.dto;
 
-public class ErrorInfoDto {
+public class PesponseWrapperDto<T> {
     private int status;
     private String message;
+    private T data;
 
-    public ErrorInfoDto(int status, String message) {
+    public PesponseWrapperDto(int status, String message) {
         this.status = status;
         this.message = message;
+    }
+
+    public PesponseWrapperDto(int status, String message, T data) {
+        this.status = status;
+        this.message = message;
+        this.data = data;
     }
 
     public int getStatus() {
@@ -23,5 +30,13 @@ public class ErrorInfoDto {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public T getData() {
+        return data;
+    }
+
+    public void setData(T data) {
+        this.data = data;
     }
 }
