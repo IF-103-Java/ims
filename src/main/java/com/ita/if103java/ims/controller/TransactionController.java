@@ -9,8 +9,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.math.BigInteger;
-
 @RestController
 @RequestMapping("/transactions")
 public class TransactionController {
@@ -23,7 +21,7 @@ public class TransactionController {
     }
 
     @GetMapping("/{id}")
-    public TransactionDto findById(@PathVariable("id") BigInteger id) {
+    public TransactionDto findById(@PathVariable("id") Long id) {
         return transactionService.findById(id);
     }
 }
