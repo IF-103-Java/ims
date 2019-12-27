@@ -19,9 +19,8 @@ public class Event {
     public Event() {
     }
 
-    public Event(String message, ZonedDateTime date, Long accountId, Long warehouseId, Long authorId, EventName name, Long transactionId) {
+    public Event(String message, Long accountId, Long warehouseId, Long authorId, EventName name, Long transactionId) {
         this.message = message;
-        this.date = date;
         this.accountId = accountId;
         this.warehouseId = warehouseId;
         this.authorId = authorId;
