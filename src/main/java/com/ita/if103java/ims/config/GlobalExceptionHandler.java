@@ -22,7 +22,7 @@ public class GlobalExceptionHandler {
         return new PesponseWrapperDto(HttpStatus.NOT_FOUND.value(), e.getMessage());
     }
 
-    @ExceptionHandler({CRUDException.class})
+    @ExceptionHandler({CRUDException.class, GoogleAPIException.class})
     public PesponseWrapperDto handleCRUDException(Exception e) {
         LOGGER.error(e.getMessage(), e);
         return new PesponseWrapperDto(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());
@@ -34,11 +34,4 @@ public class GlobalExceptionHandler {
         return new PesponseWrapperDto(HttpStatus.UNAUTHORIZED.value(), e.getMessage());
     }
 
-    @ExceptionHandler({GoogleAPIException.class})
-    public ResponseEntity<Map<String, String>> handleGoogleAPIException(HttpServletRequest req, Exception e) {
-        LOGGER.error(e.getMessage(), e);
-        return ResponseEntity
-            .status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body(Map.of("error", e.getMessage()));
-    }
 }
