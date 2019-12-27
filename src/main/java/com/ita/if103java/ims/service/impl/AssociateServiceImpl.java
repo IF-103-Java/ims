@@ -1,17 +1,19 @@
 package com.ita.if103java.ims.service.impl;
 
-import com.ita.if103java.ims.dao.AccountDao;
 import com.ita.if103java.ims.dao.AddressDao;
 import com.ita.if103java.ims.dao.AssociateDao;
 import com.ita.if103java.ims.dto.AddressDto;
 import com.ita.if103java.ims.dto.AssociateDto;
-import com.ita.if103java.ims.entity.Account;
 import com.ita.if103java.ims.entity.Address;
 import com.ita.if103java.ims.entity.Associate;
 import com.ita.if103java.ims.entity.AssociateType;
+import com.ita.if103java.ims.entity.Event;
+import com.ita.if103java.ims.entity.EventName;
 import com.ita.if103java.ims.mapper.AddressDtoMapper;
 import com.ita.if103java.ims.mapper.AssociateDtoMapper;
+import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.AssociateService;
+import com.ita.if103java.ims.service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,29 +24,35 @@ import java.util.Optional;
 public class AssociateServiceImpl implements AssociateService {
 
     private AssociateDao associateDao;
-    private AccountDao accountDao;
     private AddressDao addressDao;
     private AssociateDtoMapper associateDtoMapper;
     private AddressDtoMapper addressDtoMapper;
+    private EventService eventService;
 
     @Autowired
-    public AssociateServiceImpl(AssociateDao associateDao, AccountDao accountDao, AddressDao addressDao, AssociateDtoMapper associateDtoMapper, AddressDtoMapper addressDtoMapper) {
+    public AssociateServiceImpl(AssociateDao associateDao, AddressDao addressDao,
+                                AssociateDtoMapper associateDtoMapper, AddressDtoMapper addressDtoMapper,
+                                EventService eventService) {
         this.associateDao = associateDao;
-        this.accountDao = accountDao;
         this.addressDao = addressDao;
         this.associateDtoMapper = associateDtoMapper;
         this.addressDtoMapper = addressDtoMapper;
+        this.eventService = eventService;
     }
 
     @Override
-    public Optional<AssociateDto> create(AssociateDto associateDto) {
+    public Optional<AssociateDto> create(UserDetailsImpl user, AssociateDto associateDto) {
 
-        if (allowToCreateNewAssociate(associateDto.getAccountId(), associateDto.getType())) {
+        if (allowToCreateNewAssociate(user, associateDto.getType())) {
             Associate associate = associateDao.create(associateDtoMapper.toEntity(associateDto));
             Address address = addressDtoMapper.toEntity(associateDto.getAddressDto());
             address.setAssociateId(associate.getId());
 
             addressDao.createAssociateAddress(associate.getId(), address);
+
+            EventName eventName = associate.getType() == AssociateType.SUPPLIER ? EventName.NEW_SUPPLIER : EventName.NEW_CLIENT;
+            createEvent(user, associate, eventName);
+
             return Optional.of(associateDtoMapper.toDto(associate));
         }
 
@@ -52,8 +60,12 @@ public class AssociateServiceImpl implements AssociateService {
     }
 
     @Override
-    public AssociateDto update(AssociateDto associateDto) {
+    public AssociateDto update(UserDetailsImpl user, AssociateDto associateDto) {
         Associate associate = associateDao.update(associateDtoMapper.toEntity(associateDto));
+
+        EventName eventName = associate.getType() == AssociateType.SUPPLIER ? EventName.SUPPLIER_EDITED : EventName.CLIENT_EDITED;
+        createEvent(user, associate, eventName);
+
         return associateDtoMapper.toDto(associate);
     }
 
@@ -77,18 +89,40 @@ public class AssociateServiceImpl implements AssociateService {
     }
 
     @Override
-    public boolean delete(Long id) {
-        return associateDao.delete(id);
+    public boolean delete(UserDetailsImpl user, Long id) {
+
+        Associate associate = associateDao.findById(id);
+
+        if (associateDao.delete(id)) {
+            EventName eventName = associate.getType() == AssociateType.SUPPLIER ? EventName.SUPPLIER_REMOVED : EventName.CLIENT_REMOVED;
+            createEvent(user, associate, eventName);
+
+            return true;
+        }
+
+        return false;
     }
 
-    private boolean allowToCreateNewAssociate(Long accountId, AssociateType associateType) {
-        Account account = accountDao.findById(accountId);
-        List<Associate> associates = associateDao.findByAccountId(account.getId());
+    private void createEvent(UserDetailsImpl user, Associate associate, EventName eventName) {
+        Event event = new Event();
+        event.setMessage(eventName.getLabel());
+        event.setAccountId(user.getUser().getAccountId());
+        event.setAuthorId(user.getUser().getId());
+        event.setName(eventName);
+
+        eventService.create(event);
+    }
+
+    private boolean allowToCreateNewAssociate(UserDetailsImpl user, AssociateType associateType) {
+
+        List<Associate> associates = associateDao.findByAccountId(user.getUser().getAccountId());
 
         if (associateType == AssociateType.SUPPLIER) {
-            return account.getType().getMaxSuppliers() > associates.stream().filter(a -> a.getType() == AssociateType.SUPPLIER).count();
+            return user.getAccountType().getMaxSuppliers() > associates.stream()
+                .filter(a -> a.getType() == AssociateType.SUPPLIER).count();
         } else if (associateType == AssociateType.CLIENT) {
-            return account.getType().getMaxClients() > associates.stream().filter(a -> a.getType() == AssociateType.CLIENT).count();
+            return user.getAccountType().getMaxClients() > associates.stream()
+                .filter(a -> a.getType() == AssociateType.CLIENT).count();
         }
 
         return false;
