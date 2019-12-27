@@ -42,7 +42,7 @@ public class BestTradeDaoImpl implements BestTradeDao {
                 itemId, limit
             );
         } catch (DataAccessException e) {
-            throw new CRUDException("Error during `select` best associates by item_id", e);
+            throw new CRUDException("Error during `select` best warehouses by item_id", e);
         }
     }
 
