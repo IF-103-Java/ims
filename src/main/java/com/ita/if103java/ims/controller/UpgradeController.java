@@ -1,7 +1,7 @@
 package com.ita.if103java.ims.controller;
 
 import com.ita.if103java.ims.dto.AccountTypeDto;
-import com.ita.if103java.ims.entity.User;
+import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.UpgradeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -24,13 +24,13 @@ public class UpgradeController {
     }
 
     @PutMapping("/{typeId}")
-    public void upgrade(@AuthenticationPrincipal User user, @PathVariable("typeId") Long typeId) {
-        upgradeService.upgradeAccount(user, typeId);
+    public void upgrade(@AuthenticationPrincipal UserDetailsImpl user, @PathVariable("typeId") Long typeId) {
+        upgradeService.upgradeAccount(user.getUser(), typeId);
     }
 
     @GetMapping(value = "/")
-    public AccountTypeDto findCurrentType(@AuthenticationPrincipal User user) {
-        return upgradeService.findById(user.getAccountId());
+    public AccountTypeDto findCurrentType(@AuthenticationPrincipal UserDetailsImpl user) {
+        return upgradeService.findById(user.getUser().getAccountId());
     }
 
     @GetMapping(value = "/all")
@@ -39,7 +39,7 @@ public class UpgradeController {
     }
 
     @GetMapping(value = "/all-possible")
-    public List<AccountTypeDto> findAllPossible(@AuthenticationPrincipal User user) {
-        return upgradeService.findAllPossibleToUpgrade(user.getAccountId());
+    public List<AccountTypeDto> findAllPossible(@AuthenticationPrincipal UserDetailsImpl user) {
+        return upgradeService.findAllPossibleToUpgrade(user.getUser().getAccountId());
     }
 }

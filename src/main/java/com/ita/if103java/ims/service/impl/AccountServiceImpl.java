@@ -30,7 +30,9 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public AccountDto create(User admin, AccountDto accountDto) {
+    public AccountDto create(User admin, String accountName) {
+        AccountDto accountDto = new AccountDto();
+        accountDto.setName(accountName);
         Account account = accountDao.create(accountDtoMapper.toEntity(accountDto));
         userDao.updateAccountId(admin.getId(), account.getId());
         Event event = new Event("New account was created.", account.getId(), null,

@@ -5,7 +5,7 @@ import com.ita.if103java.ims.dto.AccountDto;
 import com.ita.if103java.ims.entity.User;
 
 public interface AccountService {
-    AccountDto create(User admin, AccountDto accountDto);
+    AccountDto create(User admin, String accountName);
 
     AccountDto update(User admin, AccountDto accountUpdateDto);
 

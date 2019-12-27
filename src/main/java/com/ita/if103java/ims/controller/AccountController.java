@@ -1,13 +1,12 @@
 package com.ita.if103java.ims.controller;
 
 import com.ita.if103java.ims.dto.AccountDto;
-import com.ita.if103java.ims.entity.User;
+import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,24 +23,19 @@ public class AccountController {
         this.accountService = accountService;
     }
 
-    @PostMapping(value = "/")
-    public AccountDto create(@AuthenticationPrincipal User user, @RequestBody AccountDto accountDto) {
-        return accountService.create(user, accountDto);
-    }
-
     @PutMapping(value = "/")
-    public AccountDto update(@AuthenticationPrincipal User user, @RequestBody AccountDto accountDto) {
-        return accountService.update(user, accountDto);
+    public AccountDto update(@AuthenticationPrincipal UserDetailsImpl user, @RequestBody AccountDto accountDto) {
+        return accountService.update(user.getUser(), accountDto);
     }
 
     @GetMapping(value = "/")
-    public AccountDto view(@AuthenticationPrincipal User user) {
-        return accountService.view(user.getAccountId());
+    public AccountDto view(@AuthenticationPrincipal UserDetailsImpl user) {
+        return accountService.view(user.getUser().getAccountId());
     }
 
     @DeleteMapping(value = "/")
-    public void delete(@AuthenticationPrincipal User user) {
-        accountService.delete(user);
+    public void delete(@AuthenticationPrincipal UserDetailsImpl user) {
+        accountService.delete(user.getUser());
     }
 
 }

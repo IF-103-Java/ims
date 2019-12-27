@@ -1,7 +1,7 @@
 package com.ita.if103java.ims.controller;
 
 import com.ita.if103java.ims.dto.UserDto;
-import com.ita.if103java.ims.entity.User;
+import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.InvitationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -21,7 +21,7 @@ public class InvitationController {
     }
 
     @PostMapping("/")
-    public void invite(@AuthenticationPrincipal User user, @RequestBody UserDto userDto) {
-        invitationService.inviteUser(user, userDto);
+    public void invite(@AuthenticationPrincipal UserDetailsImpl user, @RequestBody UserDto userDto) {
+        invitationService.inviteUser(user.getUser(), userDto);
     }
 }
