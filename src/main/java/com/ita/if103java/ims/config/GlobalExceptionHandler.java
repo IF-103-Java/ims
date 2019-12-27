@@ -3,12 +3,14 @@ package com.ita.if103java.ims.config;
 import com.ita.if103java.ims.dto.PesponseWrapperDto;
 import com.ita.if103java.ims.exception.CRUDException;
 import com.ita.if103java.ims.exception.EntityNotFoundException;
+import com.ita.if103java.ims.exception.GoogleAPIException;
 import com.ita.if103java.ims.exception.UserOrPasswordIncorrectException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -30,5 +32,13 @@ public class GlobalExceptionHandler {
     public PesponseWrapperDto handleUserOrPasswordIncorrectException(Exception e) {
         LOGGER.warn(e.getMessage(), e);
         return new PesponseWrapperDto(HttpStatus.UNAUTHORIZED.value(), e.getMessage());
+    }
+
+    @ExceptionHandler({GoogleAPIException.class})
+    public ResponseEntity<Map<String, String>> handleGoogleAPIException(HttpServletRequest req, Exception e) {
+        LOGGER.error(e.getMessage(), e);
+        return ResponseEntity
+            .status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body(Map.of("error", e.getMessage()));
     }
 }

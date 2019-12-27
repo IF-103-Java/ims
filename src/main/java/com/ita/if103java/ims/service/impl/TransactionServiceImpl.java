@@ -12,8 +12,6 @@ import com.ita.if103java.ims.service.WarehouseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.math.BigInteger;
-
 @Service
 public class TransactionServiceImpl implements TransactionService {
     private TransactionDao transactionDao;
@@ -36,7 +34,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public TransactionDto findById(BigInteger id) {
+    public TransactionDto findById(Long id) {
         final Transaction transaction = transactionDao.findById(id);
         return switch (transaction.getType()) {
             case IN -> buildIncomeTransactionDto(transaction);
@@ -84,6 +82,7 @@ public class TransactionServiceImpl implements TransactionService {
             userService.findById(transaction.getWorkerId()),
             itemService.findById(transaction.getItemId()),
             transaction.getQuantity(),
+            null,
             warehouseService.findWarehouseById(transaction.getMovedFrom()),
             warehouseService.findWarehouseById(transaction.getMovedTo())
         );

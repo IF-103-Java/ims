@@ -4,13 +4,12 @@ package com.ita.if103java.ims.dto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.ita.if103java.ims.entity.TransactionType;
 
-import java.math.BigInteger;
 import java.sql.Timestamp;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
 public class TransactionDto {
-    private BigInteger id;
+    private Long id;
     private Timestamp timestamp;
     private TransactionType type;
     private AccountDto accountDto;
@@ -28,9 +27,9 @@ public class TransactionDto {
     public TransactionDto() {
     }
 
-    public TransactionDto(BigInteger id, Timestamp timestamp, TransactionType type, AccountDto accountDto,
-                          UserDto workerId, ItemDto itemDto, Long quantity, AssociateDto associateDto,
-                          WarehouseDto movedFrom, WarehouseDto movedTo) {
+    public TransactionDto(Long id, Timestamp timestamp, TransactionType type,
+                          AccountDto accountDto, UserDto workerId, ItemDto itemDto, Long quantity,
+                          AssociateDto associateDto, WarehouseDto movedFrom, WarehouseDto movedTo) {
         this.id = id;
         this.timestamp = timestamp;
         this.type = type;
@@ -43,24 +42,11 @@ public class TransactionDto {
         this.movedTo = movedTo;
     }
 
-    public TransactionDto(BigInteger id, Timestamp timestamp, TransactionType type, AccountDto accountDto,
-                          UserDto workerId, ItemDto itemDto, Long quantity, WarehouseDto movedFrom, WarehouseDto movedTo) {
-        this.id = id;
-        this.timestamp = timestamp;
-        this.type = type;
-        this.accountDto = accountDto;
-        this.workerId = workerId;
-        this.itemDto = itemDto;
-        this.quantity = quantity;
-        this.movedFrom = movedFrom;
-        this.movedTo = movedTo;
-    }
-
-    public BigInteger getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(BigInteger id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

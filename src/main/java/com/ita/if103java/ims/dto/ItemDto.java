@@ -3,6 +3,7 @@ package com.ita.if103java.ims.dto;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
+
 public class ItemDto {
     private Long id;
     @NotBlank
@@ -13,7 +14,6 @@ public class ItemDto {
     private String description;
     @NotNull
     private int volume;
-    @NotNull
     private Long accountId;
     private boolean active;
 

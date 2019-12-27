@@ -14,6 +14,16 @@ public class SavedItemDto {
     private Long warehouseId;
     private WarehouseDto warehouseDto;
 
+    public SavedItemDto() {
+    }
+
+    public SavedItemDto(Long id, Long itemId, int quantity, Long warehouseId) {
+        this.id = id;
+        this.itemId = itemId;
+        this.quantity = quantity;
+        this.warehouseId = warehouseId;
+    }
+
     public Long getId() {
         return id;
     }
