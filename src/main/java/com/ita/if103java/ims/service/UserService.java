@@ -1,6 +1,7 @@
 package com.ita.if103java.ims.service;
 
 import com.ita.if103java.ims.dto.UserDto;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -18,7 +19,7 @@ public interface UserService {
 
     boolean delete(Long id);
 
-    List<UserDto> findAll();
+    List<UserDto> findAll(Pageable pageable);
 
     UserDto findByEmail(String email);
 
