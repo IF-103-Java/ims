@@ -5,7 +5,6 @@ import com.ita.if103java.ims.entity.TransactionType;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 
-import java.math.BigInteger;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.function.Consumer;
@@ -15,7 +14,7 @@ public class TransactionRowMapper implements RowMapper<Transaction> {
     @Override
     public Transaction mapRow(ResultSet rs, int rowNum) throws SQLException {
         final Transaction transaction = new Transaction();
-        transaction.setId((BigInteger) rs.getObject("id"));
+        transaction.setId(rs.getLong("id"));
         transaction.setTimestamp(rs.getTimestamp("timestamp"));
         transaction.setAccountId(rs.getLong("account_id"));
         transaction.setWorkerId(rs.getLong("worker_id"));
