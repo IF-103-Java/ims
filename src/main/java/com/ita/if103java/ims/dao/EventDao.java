@@ -11,7 +11,5 @@ public interface EventDao {
 
     Event create(Event event);
 
-    Event findById(Long id);
-
     List<Event> findAll(Pageable pageable, Map<String, ?> params, User user);
 }

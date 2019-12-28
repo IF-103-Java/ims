@@ -58,70 +58,61 @@ public class EventDaoImpl implements EventDao {
     }
 
     @Override
-    public Event findById(Long id) {
-        try {
-            return jdbcTemplate.queryForObject(Queries.SQL_SELECT_EVENT_BY_ID, eventRowMapper, id);
-        } catch (EmptyResultDataAccessException e) {
-            throw new EventNotFoundException("Failed to obtain event during `select` {id = " + id + "}, EventDao.findById", e);
-        } catch (DataAccessException e) {
-            throw new CRUDException("Error during `select` {id = " + id + "}, EventDao.findById", e);
-        }
-    }
-
-    @Override
     public List<Event> findAll(Pageable pageable, Map<String, ?> params, User user) {
-        String account_condition = buildSqlFilterCondition("account_id", user.getAccountId());
-        String privatCondition = null;
+        if (params.containsKey("name")) {
+            params.remove("type");
+        }
+        String accountCondition = buildSqlCondition("account_id", user.getAccountId());
+        String personalConditions = "";
         if (user.getRole().equals(Role.WORKER)) {
             if (params.containsKey("name")) {
-                params.remove("type");
-                privatCondition = buildSqlFilterConditionForWorkerByName(params, user.getId());
+                personalConditions = buildSqlNameCondition(params, user.getId());
             } else if (params.containsKey("type")) {
-                privatCondition = buildSqlFilterForWorkerByType(params, user.getId());
+                personalConditions = buildSqlTypeCondition(params, user.getId());
             } else {
-                privatCondition = "("
-                    .concat(buildSqlFilterConditionHidePersonal())
+                personalConditions = "("
+                    .concat(buildSqlPrivacyCondition())
                     .concat(" or ")
-                    .concat(buildSqlFilterConditionShowPersonalForUser(user.getId()))
+                    .concat(buildSqlDefaultCondition(user.getId()))
                     .concat(")");
             }
         }
+
         String typeAndNameConditions = Stream
             .of("type", "name")
             .filter(params::containsKey)
-            .map(x -> buildSqlFilterCondition(x, params.get(x)))
+            .map(x -> buildSqlCondition(x, params.get(x)))
             .collect(Collectors.joining("\n and "));
 
         String conditions = Stream
             .of("warehouse_id", "author_id", "date", "after", "before")
             .filter(params::containsKey)
-            .map(x -> buildSqlFilterCondition(x, params.get(x)))
+            .map(x -> buildSqlCondition(x, params.get(x)))
             .collect(Collectors.joining("\n and "));
-        String where;
 
+        String where;
         if (typeAndNameConditions.isBlank()) {
-            where = privatCondition;
+            where = personalConditions;
         } else {
-            if (privatCondition != null) {
-                where = "(" + typeAndNameConditions + " or " + privatCondition + ")";
+            if (!personalConditions.isBlank()) {
+                where = "(" + typeAndNameConditions + " or " + personalConditions + ")";
             } else {
                 where = typeAndNameConditions;
             }
-            ;
         }
         if (!conditions.isBlank()) {
-            where = conditions + " and " + where;
+            if (!where.isBlank()) {
+                where = conditions + " and " + where;
+            } else {
+                where = conditions;
+            }
         }
-        System.out.println(conditions);
-        System.out.println(typeAndNameConditions);
-        System.out.println(privatCondition);
-        System.out.println(where);
+        where = where.isBlank() ? accountCondition : accountCondition.concat(" and " + where);
         String sort = pageable.getSort().toString().replaceAll(": ", " ");
         final String query = String.format("""
                 select * from events where %s ORDER BY %s Limit %s OFFSET %s
                 """,
-            conditions.isBlank() ? account_condition : account_condition + " and " + conditions,
-            sort, pageable.getPageSize(), pageable.getOffset());
+            where, sort, pageable.getPageSize(), pageable.getOffset());
         try {
             return jdbcTemplate.query(query, eventRowMapper);
         } catch (EmptyResultDataAccessException e) {
@@ -131,8 +122,8 @@ public class EventDaoImpl implements EventDao {
         }
     }
 
-    private String buildSqlFilterConditionForWorkerByName(Map<String, ?> params, Long userId) {
-        String condition = null;
+    private String buildSqlNameCondition(Map<String, ?> params, Long userId) {
+        String condition = "";
         if (params.get("name") instanceof Collection) {
             List<String> names = new ArrayList<>();
             for (String name : (Collection<String>) params.get("name")) {
@@ -141,63 +132,62 @@ public class EventDaoImpl implements EventDao {
                 }
             }
             for (String name : names) {
-                ((Collection<String>) params.get("name")).remove(name);
+                ((Collection) params.get("name")).remove(name);
             }
-            if (((Collection<String>) params.get("name")).isEmpty()) {
+            if (((Collection) params.get("name")).isEmpty()) {
                 params.remove("name");
             }
             if (!names.isEmpty()) {
                 condition = "("
-                    .concat(buildSqlFilterCondition("name", names))
+                    .concat(buildSqlCondition("name", names))
                     .concat(" and ")
-                    .concat(buildSqlFilterCondition("author_id", userId))
+                    .concat(buildSqlCondition("author_id", userId))
                     .concat(")");
             }
         } else if (EventName.valueOf((String) params.get("name")).getType().equals(EventType.USER)) {
             condition = "("
-                .concat(buildSqlFilterCondition("name", params.get("name")))
+                .concat(buildSqlCondition("name", params.get("name")))
                 .concat(" and ")
-                .concat(buildSqlFilterCondition("author_id", userId))
+                .concat(buildSqlCondition("author_id", userId))
                 .concat(")");
             params.remove("name");
         }
         return condition;
     }
 
-    private String buildSqlFilterForWorkerByType(Map<String, ?> params, Long userId) {
-        String condition = null;
+    private String buildSqlTypeCondition(Map<String, ?> params, Long userId) {
+        String condition = "";
         if (params.get("type") instanceof Collection && ((Collection) params.get("type")).contains("USER")) {
             ((Collection) params.get("type")).remove("USER");
             if (((Collection) params.get("type")).size() > 0) {
-                condition = buildSqlFilterConditionShowPersonalForUser(userId);
+                condition = buildSqlDefaultCondition(userId);
             } else {
                 params.remove("type");
-                condition = buildSqlFilterConditionShowPersonalForUser(userId);
+                condition = buildSqlDefaultCondition(userId);
             }
         } else if (params.get("type").equals("USER")) {
             params.remove("type");
-            condition = buildSqlFilterConditionShowPersonalForUser(userId);
+            condition = buildSqlDefaultCondition(userId);
         }
         return condition;
     }
 
-    private String buildSqlFilterConditionHidePersonal() {
-        String typeCondition = "("
-            .concat(buildSqlFilterCondition("type", EventType.USER))
-            .concat(")");
-        return typeCondition.replace("in", "not in");
-    }
-
-    private String buildSqlFilterConditionShowPersonalForUser(Long userId) {
-        String typeCondition = buildSqlFilterCondition("type", EventType.USER);
+    private String buildSqlPrivacyCondition() {
         return "("
-            .concat(typeCondition)
+            .concat(buildSqlCondition("type", EventType.USER))
+            .concat(")")
+            .replace("in", "not in");
+    }
+
+    private String buildSqlDefaultCondition(Long userId) {
+        return "("
+            .concat(buildSqlCondition("type", EventType.USER))
             .concat(" and ")
-            .concat(buildSqlFilterCondition("author_id", userId))
+            .concat(buildSqlCondition("author_id", userId))
             .concat(")");
     }
 
-    private String buildSqlFilterCondition(String columnName, Object columnValue) {
+    private String buildSqlCondition(String columnName, Object columnValue) {
         if (columnValue instanceof Collection && !columnName.equals("type")) {
             StringJoiner values = new StringJoiner("', '", "'", "'");
             for (Object value : (Collection<Object>) columnValue) {
@@ -214,7 +204,7 @@ public class EventDaoImpl implements EventDao {
             } else {
                 names = EventName.getValuesByType(EventType.valueOf(columnValue.toString()));
             }
-            return buildSqlFilterCondition("name", names);
+            return buildSqlCondition("name", names);
         }
         if (columnName.equals("date")) {
             return String.format("DATE(date) = '%s'", columnValue);
@@ -247,12 +237,6 @@ public class EventDaoImpl implements EventDao {
                 INSERT INTO events
                 (message, date, account_id, author_id, warehouse_id, name, transaction_id)
                 VALUES(?,?,?,?,?,?,?)
-            """;
-
-        static final String SQL_SELECT_EVENT_BY_ID = """
-                SELECT *
-                FROM events
-                WHERE id = ?
             """;
     }
 }
