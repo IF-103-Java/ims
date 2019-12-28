@@ -27,8 +27,8 @@ public class WarehouseServiceImpl implements WarehouseService {
     }
 
     @Override
-    public WarehouseDto add(WarehouseDto warehouseDto) {
-        UserDetailsImpl userDetails = new UserDetailsImpl(new User());
+    public WarehouseDto add(WarehouseDto warehouseDto, UserDetailsImpl user) {
+        UserDetailsImpl userDetails = user;
         Long accountId = userDetails.getUser().getAccountId();
         if (warehouseDto.getParentID() == null) {
             int maxWarehouses = userDetails.getAccountType().getMaxWarehouses();

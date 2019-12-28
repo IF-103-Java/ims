@@ -1,10 +1,12 @@
 package com.ita.if103java.ims.controller;
 
 import com.ita.if103java.ims.dto.WarehouseDto;
+import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.WarehouseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,8 +31,8 @@ public class WarehouseController {
 
     @PostMapping(value = "/add")
     @ResponseStatus(HttpStatus.OK)
-    public WarehouseDto add(@RequestBody WarehouseDto warehouseDto) {
-        return warehouseService.add(warehouseDto);
+    public WarehouseDto add(@RequestBody WarehouseDto warehouseDto, @AuthenticationPrincipal UserDetailsImpl user) {
+        return warehouseService.add(warehouseDto,user);
     }
 
     @GetMapping(value = "/{id}")
