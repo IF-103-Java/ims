@@ -3,7 +3,6 @@ package com.ita.if103java.ims.service.impl;
 import com.ita.if103java.ims.dao.UserDao;
 import com.ita.if103java.ims.dto.UserLoginDto;
 import com.ita.if103java.ims.entity.User;
-import com.ita.if103java.ims.exception.UserNotFoundException;
 import com.ita.if103java.ims.exception.UserOrPasswordIncorrectException;
 import com.ita.if103java.ims.mapper.UserDtoMapper;
 import com.ita.if103java.ims.security.JwtTokenProvider;
@@ -12,6 +11,9 @@ import com.ita.if103java.ims.service.MailService;
 import com.mysql.cj.exceptions.PasswordExpiredException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -32,28 +34,29 @@ public class LoginServiceImpl implements LoginService {
     private JwtTokenProvider jwtTokenProvider;
     private MailService mailService;
     private UserDtoMapper mapper;
+    private AuthenticationManager authManager;
 
     @Autowired
-    public LoginServiceImpl(UserDao userDao, PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider,
-                            MailService mailService, UserDtoMapper mapper) {
+    public LoginServiceImpl(UserDao userDao,
+                            PasswordEncoder passwordEncoder,
+                            JwtTokenProvider jwtTokenProvider,
+                            MailService mailService,
+                            UserDtoMapper mapper,
+                            AuthenticationManager authManager) {
         this.userDao = userDao;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
         this.mailService = mailService;
         this.mapper = mapper;
+        this.authManager = authManager;
     }
 
     @Override
-    public String signIn(UserLoginDto userLoginDto) {
+    public String signIn(UserLoginDto user) {
         try {
-            User user = userDao.findByEmail(userLoginDto.getUsername());
-
-            if (passwordEncoder.matches(userLoginDto.getPassword(), user.getPassword())) {
-                return jwtTokenProvider.createToken(user.getEmail(), user.getRole());
-            }
-            throw new UserOrPasswordIncorrectException("Credential aren't correct");
-
-        } catch (UserNotFoundException e) {
+            authManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
+            return jwtTokenProvider.createToken(user.getUsername());
+        } catch (AuthenticationException e) {
             throw new UserOrPasswordIncorrectException("Credential aren't correct", e);
         }
 

@@ -19,7 +19,7 @@ import static com.ita.if103java.ims.config.MailMessagesConfig.ACTIVATE_USER;
 import static com.ita.if103java.ims.config.MailMessagesConfig.FOOTER;
 
 @RestController
-@RequestMapping("/registration")
+@RequestMapping("/signup")
 
 public class RegistrationController {
 
