@@ -38,7 +38,9 @@ public class EventServiceImpl implements EventService {
         ZonedDateTime currentDateTime = ZonedDateTime.now(ZoneId.systemDefault());
         event.setDate(currentDateTime);
         event = eventDao.create(event);
-        simpMessagingTemplate.convertAndSend("/topic/event", eventDtoMapper.toDto(event));
+        if (event.isNotification()) {
+            simpMessagingTemplate.convertAndSend("/topic/event", eventDtoMapper.toDto(event));
+        }
     }
 
     @Override
