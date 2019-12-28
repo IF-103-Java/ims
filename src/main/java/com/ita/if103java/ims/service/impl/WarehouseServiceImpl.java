@@ -27,8 +27,7 @@ public class WarehouseServiceImpl implements WarehouseService {
     }
 
     @Override
-    public WarehouseDto add(WarehouseDto warehouseDto, UserDetailsImpl user) {
-        UserDetailsImpl userDetails = user;
+    public WarehouseDto add(WarehouseDto warehouseDto, UserDetailsImpl userDetails) {
         Long accountId = userDetails.getUser().getAccountId();
         if (warehouseDto.getParentID() == null) {
             int maxWarehouses = userDetails.getAccountType().getMaxWarehouses();
@@ -57,7 +56,7 @@ public class WarehouseServiceImpl implements WarehouseService {
     }
 
     @Override
-    public List<WarehouseDto> findAll(Pageable pageable) {
+    public List<WarehouseDto> findAll(Pageable pageable, UserDetailsImpl user) {
         return warehouseDtoMapper.toDtoList(warehouseDao.findAll(pageable));
     }
 
@@ -67,12 +66,12 @@ public class WarehouseServiceImpl implements WarehouseService {
     }
 
     @Override
-    public List<WarehouseDto> findWarehousesByTopLevelId(Long topLevelId) {
+    public List<WarehouseDto> findWarehousesByTopLevelId(Long topLevelId, UserDetailsImpl user) {
         return warehouseDtoMapper.toDtoList(warehouseDao.findChildrenByTopWarehouseID(topLevelId));
     }
 
     @Override
-    public WarehouseDto update(WarehouseDto warehouseDto) {
+    public WarehouseDto update(WarehouseDto warehouseDto, UserDetailsImpl user) {
         Warehouse updatedWarehouse = warehouseDtoMapper.toEntity(warehouseDto);
         Warehouse dBWarehouse = warehouseDao.findById(updatedWarehouse.getId());
         updatedWarehouse.setActive(dBWarehouse.isActive());
@@ -80,7 +79,7 @@ public class WarehouseServiceImpl implements WarehouseService {
     }
 
     @Override
-    public boolean softDelete(Long id) {
+    public boolean softDelete(Long id, UserDetailsImpl user) {
         return warehouseDao.softDelete(id);
     }
 }

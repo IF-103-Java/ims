@@ -1,5 +1,6 @@
 package com.ita.if103java.ims.controller;
 
+import com.ita.if103java.ims.dto.AddressDto;
 import com.ita.if103java.ims.dto.WarehouseDto;
 import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.WarehouseService;
@@ -23,7 +24,6 @@ import java.util.List;
 @RequestMapping("/warehouses")
 public class WarehouseController {
     private WarehouseService warehouseService;
-
     @Autowired
     public WarehouseController(WarehouseService warehouseService) {
         this.warehouseService = warehouseService;
@@ -31,7 +31,9 @@ public class WarehouseController {
 
     @PostMapping(value = "/add")
     @ResponseStatus(HttpStatus.OK)
-    public WarehouseDto add(@RequestBody WarehouseDto warehouseDto, @AuthenticationPrincipal UserDetailsImpl user) {
+    public WarehouseDto add(@RequestBody WarehouseDto warehouseDto,
+                            AddressDto addressDto,
+                            @AuthenticationPrincipal UserDetailsImpl user) {
         return warehouseService.add(warehouseDto,user);
     }
 
@@ -43,27 +45,31 @@ public class WarehouseController {
 
     @GetMapping(value = "/")
     @ResponseStatus(HttpStatus.OK)
-    public List<WarehouseDto> findAll(Pageable pageable) {
-        return warehouseService.findAll(pageable);
+    public List<WarehouseDto> findAll(Pageable pageable,
+                                      @AuthenticationPrincipal UserDetailsImpl user) {
+        return warehouseService.findAll(pageable, user );
     }
 
     @GetMapping(value = "/topWarehouseId/{id}")
     @ResponseStatus(HttpStatus.OK)
-    List<WarehouseDto> findWarehousesByTopLevelId(@PathVariable("topWarehouseId") Long topWarehouseId) {
-        return warehouseService.findWarehousesByTopLevelId(topWarehouseId);
+    List<WarehouseDto> findWarehousesByTopLevelId(@PathVariable("topWarehouseId") Long topWarehouseId,
+                                                  @AuthenticationPrincipal UserDetailsImpl user) {
+        return warehouseService.findWarehousesByTopLevelId(topWarehouseId, user);
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public WarehouseDto update(@RequestBody WarehouseDto warehouseDto, @PathVariable("id") Long id) {
+    public WarehouseDto update(@RequestBody WarehouseDto warehouseDto,
+                               @PathVariable("id") Long id,
+                               @AuthenticationPrincipal UserDetailsImpl user) {
         warehouseDto.setId(id);
-        return warehouseService.update(warehouseDto);
+        return warehouseService.update(warehouseDto, user);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public void delete(@PathVariable("id") Long id) {
-        warehouseService.softDelete(id);
+    public void delete(@PathVariable("id") Long id, UserDetailsImpl user) {
+        warehouseService.softDelete(id, user);
     }
 
 }

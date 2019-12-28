@@ -13,12 +13,12 @@ public interface WarehouseService {
 
     WarehouseDto findWarehouseById(Long id);
 
-    List<WarehouseDto> findWarehousesByTopLevelId(Long accountID);
+    List<WarehouseDto> findWarehousesByTopLevelId(Long accountId, UserDetailsImpl user);
 
-    WarehouseDto update(WarehouseDto warehouseDto);
+    WarehouseDto update(WarehouseDto warehouseDto, UserDetailsImpl user);
 
-    boolean softDelete(Long id);
+    boolean softDelete(Long id, UserDetailsImpl user);
 
-    List<WarehouseDto> findAll(Pageable pageable);
+    List<WarehouseDto> findAll(Pageable pageable, UserDetailsImpl user);
 
 }
