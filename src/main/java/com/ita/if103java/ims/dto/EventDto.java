@@ -13,13 +13,12 @@ public class EventDto {
     private Long authorId;
     private EventName name;
     private Long transactionId;
-    private boolean isNotification;
 
     public EventDto() {
     }
 
     public EventDto(Long id, String message, ZonedDateTime date, Long accountId, Long warehouseId, Long authorId,
-                    EventName name, Long transactionId, boolean isNotification) {
+                    EventName name, Long transactionId) {
         this.id = id;
         this.message = message;
         this.date = date;
@@ -28,7 +27,6 @@ public class EventDto {
         this.authorId = authorId;
         this.name = name;
         this.transactionId = transactionId;
-        this.isNotification = isNotification;
     }
 
     public Long getId() {
@@ -95,14 +93,6 @@ public class EventDto {
         this.transactionId = transactionId;
     }
 
-    public boolean isNotification() {
-        return isNotification;
-    }
-
-    public void setNotification(boolean notification) {
-        isNotification = notification;
-    }
-
     @Override
     public String toString() {
         return "EventDto{" +
@@ -114,7 +104,6 @@ public class EventDto {
             ", authorId=" + authorId +
             ", name=" + name +
             ", transactionId=" + transactionId +
-            ", isNotification=" + isNotification +
             '}';
     }
 }

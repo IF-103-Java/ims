@@ -15,20 +15,17 @@ public class Event {
     private Long authorId;
     private EventName name;
     private Long transactionId;
-    private boolean isNotification;
 
     public Event() {
     }
 
-    public Event(String message, Long accountId, Long warehouseId, Long authorId, EventName name, Long transactionId,
-                 boolean isNotification) {
+    public Event(String message, Long accountId, Long warehouseId, Long authorId, EventName name, Long transactionId) {
         this.message = message;
         this.accountId = accountId;
         this.warehouseId = warehouseId;
         this.authorId = authorId;
         this.name = name;
         this.transactionId = transactionId;
-        this.isNotification = isNotification;
     }
 
     public Long getId() {
@@ -95,21 +92,12 @@ public class Event {
         this.transactionId = transactionId;
     }
 
-    public boolean isNotification() {
-        return isNotification;
-    }
-
-    public void setNotification(boolean notification) {
-        isNotification = notification;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Event event = (Event) o;
-        return isNotification == event.isNotification &&
-            Objects.equals(message, event.message) &&
+        return Objects.equals(message, event.message) &&
             Objects.equals(date, event.date) &&
             Objects.equals(accountId, event.accountId) &&
             Objects.equals(warehouseId, event.warehouseId) &&
@@ -120,7 +108,7 @@ public class Event {
 
     @Override
     public int hashCode() {
-        return Objects.hash(message, date, accountId, warehouseId, authorId, name, transactionId, isNotification);
+        return Objects.hash(message, date, accountId, warehouseId, authorId, name, transactionId);
     }
 
     @Override
@@ -134,7 +122,6 @@ public class Event {
             ", authorId=" + authorId +
             ", name=" + name +
             ", transactionId=" + transactionId +
-            ", isNotification=" + isNotification +
             '}';
     }
 }

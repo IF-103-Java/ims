@@ -228,7 +228,6 @@ public class EventDaoImpl implements EventDao {
         preparedStatement.setObject(++i, event.getWarehouseId() != null ? event.getWarehouseId() : null);
         preparedStatement.setString(++i, event.getName().toString());
         preparedStatement.setObject(++i, event.getTransactionId() != null ? event.getTransactionId() : null);
-        preparedStatement.setBoolean(++i, event.isNotification());
         return preparedStatement;
     }
 
@@ -237,7 +236,7 @@ public class EventDaoImpl implements EventDao {
         static final String SQL_CREATE_EVENT = """
                 INSERT INTO events
                 (message, date, account_id, author_id, warehouse_id, name, transaction_id, notification)
-                VALUES(?,?,?,?,?,?,?,?)
+                VALUES(?,?,?,?,?,?,?)
             """;
     }
 }
