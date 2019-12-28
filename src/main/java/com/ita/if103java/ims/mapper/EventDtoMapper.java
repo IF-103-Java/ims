@@ -21,6 +21,7 @@ public class EventDtoMapper extends AbstractEntityDtoMapper<Event, EventDto> {
         event.setDate(eventDto.getDate());
         event.setName(eventDto.getName());
         event.setMessage(eventDto.getMessage());
+        event.setNotification(eventDto.isNotification());
         return event;
     }
 
@@ -38,6 +39,7 @@ public class EventDtoMapper extends AbstractEntityDtoMapper<Event, EventDto> {
         eventDto.setDate(event.getDate());
         eventDto.setName(event.getName());
         eventDto.setMessage(event.getMessage());
+        eventDto.setNotification(event.isNotification());
         return eventDto;
     }
 }

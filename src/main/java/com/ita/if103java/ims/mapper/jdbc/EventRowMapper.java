@@ -23,6 +23,7 @@ public class EventRowMapper implements RowMapper<Event> {
         event.setAccountId(resultSet.getLong("account_id"));
         event.setAuthorId(resultSet.getLong("author_id"));
         event.setName(EventName.valueOf(resultSet.getString("name")));
+        event.setNotification(resultSet.getBoolean("notification"));
         setValueOrNull(event::setWarehouseId, resultSet.getLong("warehouse_id"), resultSet);
         setValueOrNull(event::setTransactionId, resultSet.getLong("transaction_id"), resultSet);
         return event;
