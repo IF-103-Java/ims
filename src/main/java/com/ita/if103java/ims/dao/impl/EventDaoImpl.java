@@ -4,6 +4,8 @@ import com.ita.if103java.ims.dao.EventDao;
 import com.ita.if103java.ims.entity.Event;
 import com.ita.if103java.ims.entity.EventName;
 import com.ita.if103java.ims.entity.EventType;
+import com.ita.if103java.ims.entity.Role;
+import com.ita.if103java.ims.entity.User;
 import com.ita.if103java.ims.exception.CRUDException;
 import com.ita.if103java.ims.exception.EventNotFoundException;
 import com.ita.if103java.ims.mapper.jdbc.EventRowMapper;
@@ -18,6 +20,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -66,18 +69,58 @@ public class EventDaoImpl implements EventDao {
     }
 
     @Override
-    public List<Event> findAll(Pageable pageable, Map<String, ?> params) {
-        final String where = Stream
-            .of("account_id", "warehouse_id", "author_id", "name", "type", "date",
-                "after", "before")
+    public List<Event> findAll(Pageable pageable, Map<String, ?> params, User user) {
+        String account_condition = buildSqlFilterCondition("account_id", user.getAccountId());
+        String privatCondition = null;
+        if (user.getRole().equals(Role.WORKER)) {
+            if (params.containsKey("name")) {
+                params.remove("type");
+                privatCondition = buildSqlFilterConditionForWorkerByName(params, user.getId());
+            } else if (params.containsKey("type")) {
+                privatCondition = buildSqlFilterForWorkerByType(params, user.getId());
+            } else {
+                privatCondition = "("
+                    .concat(buildSqlFilterConditionHidePersonal())
+                    .concat(" or ")
+                    .concat(buildSqlFilterConditionShowPersonalForUser(user.getId()))
+                    .concat(")");
+            }
+        }
+        String typeAndNameConditions = Stream
+            .of("type", "name")
             .filter(params::containsKey)
             .map(x -> buildSqlFilterCondition(x, params.get(x)))
             .collect(Collectors.joining("\n and "));
+
+        String conditions = Stream
+            .of("warehouse_id", "author_id", "date", "after", "before")
+            .filter(params::containsKey)
+            .map(x -> buildSqlFilterCondition(x, params.get(x)))
+            .collect(Collectors.joining("\n and "));
+        String where;
+
+        if (typeAndNameConditions.isBlank()) {
+            where = privatCondition;
+        } else {
+            if (privatCondition != null) {
+                where = "(" + typeAndNameConditions + " or " + privatCondition + ")";
+            } else {
+                where = typeAndNameConditions;
+            }
+            ;
+        }
+        if (!conditions.isBlank()) {
+            where = conditions + " and " + where;
+        }
+        System.out.println(conditions);
+        System.out.println(typeAndNameConditions);
+        System.out.println(privatCondition);
+        System.out.println(where);
         String sort = pageable.getSort().toString().replaceAll(": ", " ");
         final String query = String.format("""
                 select * from events where %s ORDER BY %s Limit %s OFFSET %s
                 """,
-            where.isBlank() ? "TRUE" : where,
+            conditions.isBlank() ? account_condition : account_condition + " and " + conditions,
             sort, pageable.getPageSize(), pageable.getOffset());
         try {
             return jdbcTemplate.query(query, eventRowMapper);
@@ -86,6 +129,72 @@ public class EventDaoImpl implements EventDao {
         } catch (DataAccessException e) {
             throw new CRUDException("Error during  " + query + ", EventDao.findAll", e);
         }
+    }
+
+    private String buildSqlFilterConditionForWorkerByName(Map<String, ?> params, Long userId) {
+        String condition = null;
+        if (params.get("name") instanceof Collection) {
+            List<String> names = new ArrayList<>();
+            for (String name : (Collection<String>) params.get("name")) {
+                if (EventName.valueOf(name).getType().equals(EventType.USER)) {
+                    names.add(name);
+                }
+            }
+            for (String name : names) {
+                ((Collection<String>) params.get("name")).remove(name);
+            }
+            if (((Collection<String>) params.get("name")).isEmpty()) {
+                params.remove("name");
+            }
+            if (!names.isEmpty()) {
+                condition = "("
+                    .concat(buildSqlFilterCondition("name", names))
+                    .concat(" and ")
+                    .concat(buildSqlFilterCondition("author_id", userId))
+                    .concat(")");
+            }
+        } else if (EventName.valueOf((String) params.get("name")).getType().equals(EventType.USER)) {
+            condition = "("
+                .concat(buildSqlFilterCondition("name", params.get("name")))
+                .concat(" and ")
+                .concat(buildSqlFilterCondition("author_id", userId))
+                .concat(")");
+            params.remove("name");
+        }
+        return condition;
+    }
+
+    private String buildSqlFilterForWorkerByType(Map<String, ?> params, Long userId) {
+        String condition = null;
+        if (params.get("type") instanceof Collection && ((Collection) params.get("type")).contains("USER")) {
+            ((Collection) params.get("type")).remove("USER");
+            if (((Collection) params.get("type")).size() > 0) {
+                condition = buildSqlFilterConditionShowPersonalForUser(userId);
+            } else {
+                params.remove("type");
+                condition = buildSqlFilterConditionShowPersonalForUser(userId);
+            }
+        } else if (params.get("type").equals("USER")) {
+            params.remove("type");
+            condition = buildSqlFilterConditionShowPersonalForUser(userId);
+        }
+        return condition;
+    }
+
+    private String buildSqlFilterConditionHidePersonal() {
+        String typeCondition = "("
+            .concat(buildSqlFilterCondition("type", EventType.USER))
+            .concat(")");
+        return typeCondition.replace("in", "not in");
+    }
+
+    private String buildSqlFilterConditionShowPersonalForUser(Long userId) {
+        String typeCondition = buildSqlFilterCondition("type", EventType.USER);
+        return "("
+            .concat(typeCondition)
+            .concat(" and ")
+            .concat(buildSqlFilterCondition("author_id", userId))
+            .concat(")");
     }
 
     private String buildSqlFilterCondition(String columnName, Object columnValue) {
