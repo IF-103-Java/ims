@@ -8,6 +8,4 @@ public interface BestTradeDao {
     List<TotalTransactionQuantity> findBestClientsByItemId(Long itemId, Integer limit);
 
     List<TotalTransactionQuantity> findBestSuppliersByItemId(Long itemId, Integer limit);
-
-    List<TotalTransactionQuantity> findBestWarehousesByItemId(Long itemId, Integer limit);
 }
