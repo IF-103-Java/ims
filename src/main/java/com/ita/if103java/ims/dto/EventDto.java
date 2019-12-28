@@ -17,7 +17,8 @@ public class EventDto {
     public EventDto() {
     }
 
-    public EventDto(Long id, String message, ZonedDateTime date, Long accountId, Long warehouseId, Long authorId, EventName name, Long transactionId) {
+    public EventDto(Long id, String message, ZonedDateTime date, Long accountId, Long warehouseId, Long authorId,
+                    EventName name, Long transactionId) {
         this.id = id;
         this.message = message;
         this.date = date;
