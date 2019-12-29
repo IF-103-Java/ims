@@ -128,6 +128,23 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
+    public boolean updateAccountId(Long userId, Long accountId) {
+        int status;
+        try {
+            status = jdbcTemplate.update(
+                Queries.SQL_UPDATE_ACCOUNT_ID,
+                accountId,
+                userId);
+        } catch (DataAccessException e) {
+            throw new CRUDException("Error during `update` accountId {userId = " + userId + "}", e);
+        }
+        if (status == 0) {
+            throw new UserNotFoundException("Failed to obtain user during `update` accountId {userId = " + userId + "}");
+        }
+        return true;
+    }
+
+    @Override
     public boolean softDelete(Long id) {
         int status;
         try {
@@ -258,6 +275,12 @@ public class UserDaoImpl implements UserDao {
                 UPDATE users
                 SET first_name= ?, last_name = ?,
                 email = ?, password = ?, updated_date = ?, active = ?
+                WHERE id = ?
+            """;
+
+        public static final String SQL_UPDATE_ACCOUNT_ID = """
+                UPDATE users
+                SET account_id = ?
                 WHERE id = ?
             """;
 

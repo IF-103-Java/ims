@@ -17,6 +17,8 @@ public interface UserDao {
 
     User update(User user);
 
+    boolean updateAccountId(Long userId, Long accountId);
+
     boolean softDelete(Long id);
 
     boolean hardDelete(Long id);
