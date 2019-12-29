@@ -85,13 +85,12 @@ pipeline {
 def updateDockerContainer(String user, String host, String image, String container, Integer port, String evnFile) {
     commands = [
         "docker pull $image",
-        "docker stop $container",
+        "docker stop $container || true && docker rm $container || true",
         "docker run --env-file $evnFile \
                               --name $container \
                               -p $port:8080 \
                               --restart always \
                               -d $image",
-        "docker rm $container",
         "docker image prune -af --filter 'until=12h'"
     ]
     commands.each { command ->
