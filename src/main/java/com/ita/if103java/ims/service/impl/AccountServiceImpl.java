@@ -3,6 +3,7 @@ package com.ita.if103java.ims.service.impl;
 import com.ita.if103java.ims.dao.AccountDao;
 import com.ita.if103java.ims.dao.UserDao;
 import com.ita.if103java.ims.dto.AccountDto;
+import com.ita.if103java.ims.dto.UserDto;
 import com.ita.if103java.ims.entity.Account;
 import com.ita.if103java.ims.entity.Event;
 import com.ita.if103java.ims.entity.EventName;
@@ -30,10 +31,10 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public AccountDto create(User admin, String accountName) {
-        AccountDto accountDto = new AccountDto();
-        accountDto.setName(accountName);
-        Account account = accountDao.create(accountDtoMapper.toEntity(accountDto));
+    public AccountDto create(UserDto admin, String accountName) {
+        Account account = new Account();
+        account.setName(accountName);
+        Account createdAccount = accountDao.create(account);
         userDao.updateAccountId(admin.getId(), account.getId());
         Event event = new Event("New account was created.", account.getId(), null,
             admin.getId(), EventName.ACCOUNT_CREATED, null);

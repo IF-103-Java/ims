@@ -71,7 +71,6 @@ public class UserController {
     public UserDto update(@AuthenticationPrincipal UserDetailsImpl user, @Validated({ExistData.class}) @RequestBody UserDto userDto) {
         userDto.setId(user.getUser().getId());
         userDto.setEmail(user.getUser().getEmail());
-        userDto.setPassword(user.getPassword());
         userDto.setRole(user.getUser().getRole());
 
         return userService.update(userDto);
