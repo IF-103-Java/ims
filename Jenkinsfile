@@ -36,7 +36,7 @@ pipeline {
             steps {
                 script {
                     def springBootImage = docker.build(env.IMAGE_NAME)
-                    docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
+                    docker.withRegistry('', 'docker-hub-credentials') {
                         springBootImage.push()
                         if (env.BRANCH_NAME == 'master')
                             springBootImage.push("latest")
