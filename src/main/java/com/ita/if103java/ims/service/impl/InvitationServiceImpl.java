@@ -54,7 +54,6 @@ public class InvitationServiceImpl implements InvitationService {
 
             Event event = new Event("New worker was invited.", accountAdmin.getAccountId(), null,
                 accountAdmin.getId(), EventName.WORKER_INVITED, null);
-            event.setMessage("New worker was invited.");
             eventService.create(event);
         }
     }
