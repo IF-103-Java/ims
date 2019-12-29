@@ -16,7 +16,6 @@ public class AccountDtoMapper extends AbstractEntityDtoMapper<Account, AccountDt
             account.setId(dto.getId());
             account.setName(dto.getName());
             account.setTypeId(dto.getTypeId());
-            account.setAdminId(dto.getAdminId());
             account.setActive(dto.isActive());
             return account;
         }
@@ -31,7 +30,6 @@ public class AccountDtoMapper extends AbstractEntityDtoMapper<Account, AccountDt
             accountDto.setId(entity.getId());
             accountDto.setName(entity.getName());
             accountDto.setTypeId(entity.getTypeId());
-            accountDto.setAdminId(entity.getAdminId());
             accountDto.setActive(entity.isActive());
             return accountDto;
         }

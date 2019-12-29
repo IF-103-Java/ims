@@ -7,8 +7,6 @@ public interface AccountDao {
 
     Account findById(Long id);
 
-    Account findByAdminId(Long id);
-
     Account update(Account account);
 
     boolean activate(Long id);
