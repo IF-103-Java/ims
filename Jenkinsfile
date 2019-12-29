@@ -32,14 +32,14 @@ pipeline {
         }
 
         stage('Build & Push docker image') {
-            when { anyOf { branch 'master'; branch 'dev' } }
+            when { anyOf { branch 'ci/master'; branch 'ci/dev' } }
 
             steps {
                 script {
                     def springBootImage = docker.build(env.IMAGE_NAME)
                     docker.withRegistry('', 'docker-hub-credentials') {
                         springBootImage.push()
-                        if (env.BRANCH_NAME == 'master') {
+                        if (env.BRANCH_NAME == 'ci/master') {
                             springBootImage.push("latest")
                             sh "docker rmi ${env.LATEST_IMAGE_NAME}"
                         }
@@ -50,7 +50,7 @@ pipeline {
         }
 
         stage('Deploy docker image(dev)') {
-            when { branch 'dev' }
+            when { branch 'ci/dev' }
             steps {
                 script {
                     deployDockerContainer(
@@ -64,7 +64,7 @@ pipeline {
         }
 
         stage('Deploy docker image(master)') {
-            when { branch 'master' }
+            when { branch 'ci/master' }
             steps {
                 timeout(time: 20, unit: 'MINUTES') { input message: 'Approve Deploy?', ok: 'Yes' }
                 script {
