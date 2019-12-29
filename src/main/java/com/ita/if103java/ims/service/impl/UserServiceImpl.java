@@ -63,7 +63,7 @@ public class UserServiceImpl implements UserService {
         user.setEmailUUID(emailUUID);
 
         User createdUser = userDao.create(user);
-        eventService.create(createEvent(createdUser, SIGN_UP));
+        eventService.create(createEvent(createdUser, SIGN_UP, "signed up."));
         return mapper.toDto(createdUser);
     }
 
@@ -90,7 +90,7 @@ public class UserServiceImpl implements UserService {
         updatedUser.setActive(dbUser.isActive());
 
         User user = userDao.update(updatedUser);
-        eventService.create(createEvent(user, PROFILE_CHANGED));
+        eventService.create(createEvent(user, PROFILE_CHANGED, "updated profile."));
         return mapper.toDto(user);
     }
 
@@ -113,7 +113,7 @@ public class UserServiceImpl implements UserService {
     public boolean updatePassword(Long id, String newPassword) {
         if (userDao.updatePassword(id, passwordEncoder.encode(newPassword))) {
             User user = userDao.findById(id);
-            eventService.create(createEvent(user, PASSWORD_CHANGED));
+            eventService.create(createEvent(user, PASSWORD_CHANGED, "changed the password."));
             return true;
         }
         return false;

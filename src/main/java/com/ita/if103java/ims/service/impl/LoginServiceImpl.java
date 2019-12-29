@@ -59,7 +59,8 @@ public class LoginServiceImpl implements LoginService {
             User user = userDao.findByEmail(userLoginDto.getUsername());
 
             if (passwordEncoder.matches(userLoginDto.getPassword(), user.getPassword())) {
-                eventService.create(createEvent(user, LOGIN));
+                eventService.create(createEvent(user, LOGIN, "logged in." ));
+
                 return jwtTokenProvider.createToken(user.getEmail(), user.getRole());
             }
             throw new UserOrPasswordIncorrectException("Credential aren't correct");
@@ -93,7 +94,7 @@ public class LoginServiceImpl implements LoginService {
             String newEncodedPassword = passwordEncoder.encode(newPassword);
             user.setPassword(newEncodedPassword);
             userDao.updatePassword(user.getId(), newEncodedPassword);
-            eventService.create(createEvent(user, PASSWORD_CHANGED));
+            eventService.create(createEvent(user, PASSWORD_CHANGED , "reset the password."));
         } else {
             throw new PasswordExpiredException("Expired time of token isn't valid");
         }
