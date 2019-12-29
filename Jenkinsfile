@@ -9,6 +9,8 @@ pipeline {
 
     environment {
         DOCKERHUB_REPO = "if103java/ims"
+        IMAGE_TAG = "$BRANCH_NAME-build-$BUILD_NUMBER".replaceAll("/", "-")
+        IMAGE_NAME = "$DOCKERHUB_REPO:$IMAGE_TAG"
     }
 
     stages {
@@ -31,11 +33,6 @@ pipeline {
         stage('Build & Push docker image') {
             when { anyOf { branch 'master'; branch 'dev' } }
 
-            environment {
-                TAG = "$BRANCH_NAME-build-$BUILD_NUMBER".replaceAll("/", "-")
-                IMAGE_NAME = "$DOCKERHUB_REPO:$TAG"
-            }
-
             steps {
                 script {
                     def springBootImage = docker.build(env.IMAGE_NAME)
@@ -44,13 +41,13 @@ pipeline {
                         if (env.BRANCH_NAME == 'master')
                             springBootImage.push("latest")
                     }
+                    sh "docker rmi ${env.IMAGE_NAME}"
                 }
-                dockerClean()
             }
         }
 
         stage('Deploy docker image') {
-            when { branch "master" }
+            when { anyOf { branch 'master'; branch 'dev' } }
 
             steps {
                 timeout(time: 20, unit: 'MINUTES') { input message: 'Approve Deploy?', ok: 'Yes' }
@@ -58,9 +55,25 @@ pipeline {
                     withCredentials([string(credentialsId: 'ims-staging-user', variable: 'SSH_USER'),
                                      string(credentialsId: 'ims-staging-host', variable: 'SSH_HOST')]) {
                         sshagent(credentials: ['ims-staging-ssh-key']) {
-                            SSH_EXEC = "ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST"
-                            updateRemoteDockerContainer(SSH_EXEC)
-                            dockerClean(SSH_EXEC)
+                            if (env.BRANCH_NAME == 'master') {
+                                updateDockerContainer(
+                                    "$SSH_USER",
+                                    "$SSH_HOST",
+                                    "${env.DOCKERHUB_REPO}:latest",
+                                    "ims-spring-boot",
+                                    80,
+                                    ".ims-env"
+                                )
+                            } else {
+                                updateDockerContainer(
+                                    "$SSH_USER",
+                                    "$SSH_HOST",
+                                    "${env.IMAGE_NAME}",
+                                    "ims-spring-boot-dev",
+                                    8080,
+                                    ".ims-env-dev"
+                                )
+                            }
                         }
                     }
                 }
@@ -69,19 +82,19 @@ pipeline {
     }
 }
 
-void dockerClean(String commandPrefix = "") {
-    sh "$commandPrefix docker image prune -af || true"
-    sh "$commandPrefix docker container prune -af || true"
-}
-
-
-void updateRemoteDockerContainer(String sshPrefix) {
-    sh "$sshPrefix docker pull ${env.DOCKERHUB_REPO}:latest"
-    sh "$sshPrefix docker stop ims-spring-boot || true"
-    sh "$sshPrefix docker rm ims-spring-boot || true"
-    sh "$sshPrefix docker run --env-file .ims-env \
-                              --name ims-spring-boot \
-                              -p 80:8080 \
+def updateDockerContainer(String user, String host, String image, String container, Integer port, String evnFile) {
+    commands = [
+        "docker pull $image",
+        "docker stop $container",
+        "docker run --env-file $evnFile \
+                              --name $container \
+                              -p $port:8080 \
                               --restart always \
-                              -d ${env.DOCKERHUB_REPO}:latest"
+                              -d $image",
+        "docker rm $container",
+        "docker image prune -af --filter 'until=12h'"
+    ]
+    commands.each { command ->
+        sh "ssh -o StrictHostKeyChecking=no $user@$host $command"
+    }
 }
