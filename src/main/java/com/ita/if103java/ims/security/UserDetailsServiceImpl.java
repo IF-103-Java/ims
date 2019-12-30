@@ -27,8 +27,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     public UserDetailsImpl loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userDao.findByEmail(username);
-        AccountType type = accountTypeDao.findById(accountDao.findById(user.getAccountId()).getTypeId());
+        //AccountType type = accountTypeDao.findById(accountDao.findById(user.getAccountId()).getTypeId());
 
-        return new UserDetailsImpl(user, type);
+        return new UserDetailsImpl(user, new AccountType());
     }
 }
