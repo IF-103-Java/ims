@@ -1,20 +1,20 @@
 package com.ita.if103java.ims.controller;
 
 import com.ita.if103java.ims.dto.AccountDto;
-import com.ita.if103java.ims.dto.UserDto;
-import com.ita.if103java.ims.dto.transfer.ExistData;
-import com.ita.if103java.ims.dto.transfer.NewData;
-import com.ita.if103java.ims.entity.User;
+import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/account")
+@RequestMapping("/accounts")
 public class AccountController {
 
     private AccountService accountService;
@@ -24,24 +24,21 @@ public class AccountController {
         this.accountService = accountService;
     }
 
-    @GetMapping(value = "/{id}")
-    public AccountDto view(@PathVariable("id") Long id) {
-        return accountService.view(id);
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PutMapping(value = "/")
+    public AccountDto update(@AuthenticationPrincipal UserDetailsImpl user, @RequestBody AccountDto accountDto) {
+        return accountService.update(user.getUser(), accountDto);
     }
 
-    @PostMapping(value = "/")
-    public AccountDto create(@RequestBody AccountDto accountDto) {
-        return accountService.create(accountDto);
+    @GetMapping(value = "/")
+    public AccountDto view(@AuthenticationPrincipal UserDetailsImpl user) {
+        return accountService.view(user.getUser().getAccountId());
     }
 
-    @PutMapping("/{id}")
-    public AccountDto update(@RequestBody AccountDto accountDto) {
-        return accountService.update(accountDto);
-    }
-
-    @DeleteMapping("/{id}")
-    public void delete(@PathVariable("id") Long id) {
-        accountService.delete(id);
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @DeleteMapping(value = "/")
+    public void delete(@AuthenticationPrincipal UserDetailsImpl user) {
+        accountService.delete(user.getUser());
     }
 
 }
