@@ -11,7 +11,8 @@ public interface SavedItemDao {
 
     List<SavedItem> findSavedItemByItemId(Long id);
 
-    SavedItem findSavedItemByWarehouseId(Long id);
+    List<SavedItem> findSavedItemByWarehouseId(Long id);
+    boolean existSavedItemByWarehouseId(Long id);
 
     SavedItem addSavedItem(SavedItem savedItem);
 

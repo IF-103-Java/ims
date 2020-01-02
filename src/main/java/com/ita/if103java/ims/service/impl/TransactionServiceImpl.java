@@ -3,6 +3,7 @@ package com.ita.if103java.ims.service.impl;
 import com.ita.if103java.ims.dao.TransactionDao;
 import com.ita.if103java.ims.dto.TransactionDto;
 import com.ita.if103java.ims.entity.Transaction;
+import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.AccountService;
 import com.ita.if103java.ims.service.AssociateService;
 import com.ita.if103java.ims.service.ItemService;
@@ -34,23 +35,23 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public TransactionDto findById(Long id) {
+    public TransactionDto findById(Long id, UserDetailsImpl user) {
         final Transaction transaction = transactionDao.findById(id);
         return switch (transaction.getType()) {
-            case IN -> buildIncomeTransactionDto(transaction);
-            case OUT -> buildOutcomeTransactionDto(transaction);
-            case MOVE -> buildMoveTransactionDto(transaction);
+            case IN -> buildIncomeTransactionDto(transaction, user);
+            case OUT -> buildOutcomeTransactionDto(transaction, user);
+            case MOVE -> buildMoveTransactionDto(transaction, user);
         };
     }
 
-    private TransactionDto buildIncomeTransactionDto(Transaction transaction) {
+    private TransactionDto buildIncomeTransactionDto(Transaction transaction, UserDetailsImpl user) {
         return new TransactionDto(
             transaction.getId(),
             transaction.getTimestamp(),
             transaction.getType(),
             accountService.view(transaction.getAccountId()),
             userService.findById(transaction.getWorkerId()),
-            itemService.findById(transaction.getItemId()),
+            itemService.findById(transaction.getItemId(), user),
             transaction.getQuantity(),
             associateService.view(transaction.getAssociateId()),
             null,
@@ -58,14 +59,14 @@ public class TransactionServiceImpl implements TransactionService {
         );
     }
 
-    private TransactionDto buildOutcomeTransactionDto(Transaction transaction) {
+    private TransactionDto buildOutcomeTransactionDto(Transaction transaction, UserDetailsImpl user) {
         return new TransactionDto(
             transaction.getId(),
             transaction.getTimestamp(),
             transaction.getType(),
             accountService.view(transaction.getAccountId()),
             userService.findById(transaction.getWorkerId()),
-            itemService.findById(transaction.getItemId()),
+            itemService.findById(transaction.getItemId(), user),
             transaction.getQuantity(),
             associateService.view(transaction.getAssociateId()),
             warehouseService.findWarehouseById(transaction.getMovedFrom()),
@@ -73,14 +74,14 @@ public class TransactionServiceImpl implements TransactionService {
         );
     }
 
-    private TransactionDto buildMoveTransactionDto(Transaction transaction) {
+    private TransactionDto buildMoveTransactionDto(Transaction transaction, UserDetailsImpl user) {
         return new TransactionDto(
             transaction.getId(),
             transaction.getTimestamp(),
             transaction.getType(),
             accountService.view(transaction.getAccountId()),
             userService.findById(transaction.getWorkerId()),
-            itemService.findById(transaction.getItemId()),
+            itemService.findById(transaction.getItemId(), user),
             transaction.getQuantity(),
             null,
             warehouseService.findWarehouseById(transaction.getMovedFrom()),
