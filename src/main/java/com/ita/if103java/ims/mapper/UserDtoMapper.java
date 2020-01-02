@@ -23,7 +23,6 @@ public class UserDtoMapper extends AbstractEntityDtoMapper<User, UserDto> {
             user.setUpdatedDate(dto.getUpdatedDate());
             user.setActive(dto.isActive());
             user.setEmailUUID(dto.getEmailUUID());
-            user.setAccountId(dto.getAccountId());
             return user;
         }
     }
@@ -44,7 +43,6 @@ public class UserDtoMapper extends AbstractEntityDtoMapper<User, UserDto> {
             userDto.setUpdatedDate(entity.getUpdatedDate());
             userDto.setActive(entity.isActive());
             userDto.setEmailUUID(entity.getEmailUUID());
-            userDto.setAccountId(entity.getAccountId());
             return userDto;
         }
     }

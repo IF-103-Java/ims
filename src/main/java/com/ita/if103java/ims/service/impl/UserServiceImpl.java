@@ -50,18 +50,14 @@ public class UserServiceImpl implements UserService {
         User user = mapper.toEntity(userDto);
 
         ZonedDateTime currentDateTime = ZonedDateTime.now(ZoneId.systemDefault());
-        String emailUUID = UUID.randomUUID().toString();
-        String encryptedPassword = "";
-
         if (user.getRole() != Role.WORKER) {
-            encryptedPassword = passwordEncoder.encode(user.getPassword());
             user.setRole(Role.ADMIN);
         }
 
-        user.setPassword(encryptedPassword);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setCreatedDate(currentDateTime);
         user.setUpdatedDate(currentDateTime);
-        user.setEmailUUID(emailUUID);
+        user.setEmailUUID(UUID.randomUUID().toString());
 
         User createdUser = userDao.create(user);
         eventService.create(createEvent(createdUser, SIGN_UP, "signed up."));
@@ -89,6 +85,7 @@ public class UserServiceImpl implements UserService {
         //Activating status can't be changed in this way
         User dbUser = userDao.findById(updatedUser.getId());
         updatedUser.setActive(dbUser.isActive());
+        updatedUser.setPassword(passwordEncoder.encode(userDto.getPassword()));
 
         User user = userDao.update(updatedUser);
         eventService.create(createEvent(user, PROFILE_CHANGED, "updated profile."));
