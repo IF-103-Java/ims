@@ -52,7 +52,8 @@ public class InvitationServiceImpl implements InvitationService {
             UserDto createdUserDto = userService.create(userDto);
             sendInvitationMessage(createdUserDto, user.getAccountId());
 
-            Event event = new Event("New worker was invited.", accountAdmin.getAccountId(), null,
+            Event event = new Event("New worker " + createdUserDto.getFirstName() + " " + createdUserDto.getLastName() + " was invited.",
+                accountAdmin.getAccountId(), null,
                 accountAdmin.getId(), EventName.WORKER_INVITED, null);
             eventService.create(event);
         }
