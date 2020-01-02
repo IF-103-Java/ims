@@ -43,7 +43,7 @@ public class BestTradeDaoImpl implements BestTradeDao {
                 itemId, type.toString(), limit
             );
         } catch (DataAccessException e) {
-            throw new CRUDException("Error during `select` best associates by item_id", e);
+            throw new CRUDException("Error during `select` best associates by item_id = " + itemId, e);
         }
     }
 
