@@ -4,6 +4,8 @@ import com.ita.if103java.ims.dao.EventDao;
 import com.ita.if103java.ims.entity.Event;
 import com.ita.if103java.ims.entity.EventName;
 import com.ita.if103java.ims.entity.EventType;
+import com.ita.if103java.ims.entity.Role;
+import com.ita.if103java.ims.entity.User;
 import com.ita.if103java.ims.exception.CRUDException;
 import com.ita.if103java.ims.exception.EventNotFoundException;
 import com.ita.if103java.ims.mapper.jdbc.EventRowMapper;
@@ -18,6 +20,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -55,30 +58,61 @@ public class EventDaoImpl implements EventDao {
     }
 
     @Override
-    public Event findById(Long id) {
-        try {
-            return jdbcTemplate.queryForObject(Queries.SQL_SELECT_EVENT_BY_ID, eventRowMapper, id);
-        } catch (EmptyResultDataAccessException e) {
-            throw new EventNotFoundException("Failed to obtain event during `select` {id = " + id + "}, EventDao.findById", e);
-        } catch (DataAccessException e) {
-            throw new CRUDException("Error during `select` {id = " + id + "}, EventDao.findById", e);
+    public List<Event> findAll(Pageable pageable, Map<String, ?> params, User user) {
+        if (params.containsKey("name")) {
+            params.remove("type");
         }
-    }
+        String accountCondition = buildSqlCondition("account_id", user.getAccountId());
+        String personalConditions = "";
+        if (user.getRole().equals(Role.WORKER)) {
+            if (params.containsKey("name")) {
+                personalConditions = buildSqlNameCondition(params, user.getId());
+            } else if (params.containsKey("type")) {
+                personalConditions = buildSqlTypeCondition(params, user.getId());
+            } else {
+                personalConditions = "("
+                    .concat(buildSqlPrivacyCondition())
+                    .concat(" or ")
+                    .concat(buildSqlDefaultCondition(user.getId()))
+                    .concat(")");
+            }
+        }
 
-    @Override
-    public List<Event> findAll(Pageable pageable, Map<String, ?> params) {
-        final String where = Stream
-            .of("account_id", "warehouse_id", "author_id", "name", "type", "date",
-                "after", "before")
+        String typeAndNameConditions = Stream
+            .of("type", "name")
             .filter(params::containsKey)
-            .map(x -> buildSqlFilterCondition(x, params.get(x)))
+            .map(x -> buildSqlCondition(x, params.get(x)))
             .collect(Collectors.joining("\n and "));
+
+        String conditions = Stream
+            .of("warehouse_id", "author_id", "date", "after", "before")
+            .filter(params::containsKey)
+            .map(x -> buildSqlCondition(x, params.get(x)))
+            .collect(Collectors.joining("\n and "));
+
+        String where;
+        if (typeAndNameConditions.isBlank()) {
+            where = personalConditions;
+        } else {
+            if (!personalConditions.isBlank()) {
+                where = "(" + typeAndNameConditions + " or " + personalConditions + ")";
+            } else {
+                where = typeAndNameConditions;
+            }
+        }
+        if (!conditions.isBlank()) {
+            if (!where.isBlank()) {
+                where = conditions + " and " + where;
+            } else {
+                where = conditions;
+            }
+        }
+        where = where.isBlank() ? accountCondition : accountCondition.concat(" and " + where);
         String sort = pageable.getSort().toString().replaceAll(": ", " ");
         final String query = String.format("""
                 select * from events where %s ORDER BY %s Limit %s OFFSET %s
                 """,
-            where.isBlank() ? "TRUE" : where,
-            sort, pageable.getPageSize(), pageable.getOffset());
+            where, sort, pageable.getPageSize(), pageable.getOffset());
         try {
             return jdbcTemplate.query(query, eventRowMapper);
         } catch (EmptyResultDataAccessException e) {
@@ -88,7 +122,72 @@ public class EventDaoImpl implements EventDao {
         }
     }
 
-    private String buildSqlFilterCondition(String columnName, Object columnValue) {
+    private String buildSqlNameCondition(Map<String, ?> params, Long userId) {
+        String condition = "";
+        if (params.get("name") instanceof Collection) {
+            List<String> names = new ArrayList<>();
+            for (String name : (Collection<String>) params.get("name")) {
+                if (EventName.valueOf(name).getType().equals(EventType.USER)) {
+                    names.add(name);
+                }
+            }
+            for (String name : names) {
+                ((Collection) params.get("name")).remove(name);
+            }
+            if (((Collection) params.get("name")).isEmpty()) {
+                params.remove("name");
+            }
+            if (!names.isEmpty()) {
+                condition = "("
+                    .concat(buildSqlCondition("name", names))
+                    .concat(" and ")
+                    .concat(buildSqlCondition("author_id", userId))
+                    .concat(")");
+            }
+        } else if (EventName.valueOf((String) params.get("name")).getType().equals(EventType.USER)) {
+            condition = "("
+                .concat(buildSqlCondition("name", params.get("name")))
+                .concat(" and ")
+                .concat(buildSqlCondition("author_id", userId))
+                .concat(")");
+            params.remove("name");
+        }
+        return condition;
+    }
+
+    private String buildSqlTypeCondition(Map<String, ?> params, Long userId) {
+        String condition = "";
+        if (params.get("type") instanceof Collection && ((Collection) params.get("type")).contains("USER")) {
+            ((Collection) params.get("type")).remove("USER");
+            if (((Collection) params.get("type")).size() > 0) {
+                condition = buildSqlDefaultCondition(userId);
+            } else {
+                params.remove("type");
+                condition = buildSqlDefaultCondition(userId);
+            }
+        } else if (params.get("type").equals("USER")) {
+            params.remove("type");
+            condition = buildSqlDefaultCondition(userId);
+        }
+        return condition;
+    }
+
+    private String buildSqlPrivacyCondition() {
+        return "("
+            .concat(buildSqlCondition("type", EventType.USER))
+            .concat(")")
+            .replace("in", "not in");
+    }
+
+    private String buildSqlDefaultCondition(Long userId) {
+        return "("
+            .concat(buildSqlCondition("type", EventType.USER))
+            .concat(" and ")
+            .concat(buildSqlCondition("author_id", userId))
+            .concat(")");
+    }
+
+    private String buildSqlCondition(String columnName, Object columnValue) {
         if (columnValue instanceof Collection && !columnName.equals("type")) {
             StringJoiner values = new StringJoiner("', '", "'", "'");
             for (Object value : (Collection<Object>) columnValue) {
@@ -105,7 +204,7 @@ public class EventDaoImpl implements EventDao {
             } else {
                 names = EventName.getValuesByType(EventType.valueOf(columnValue.toString()));
             }
-            return buildSqlFilterCondition("name", names);
+            return buildSqlCondition("name", names);
         }
         if (columnName.equals("date")) {
             return String.format("DATE(date) = '%s'", columnValue);
@@ -136,14 +235,8 @@ public class EventDaoImpl implements EventDao {
 
         static final String SQL_CREATE_EVENT = """
                 INSERT INTO events
-                (message, date, account_id, author_id, warehouse_id, name, transaction_id)
+                (message, date, account_id, author_id, warehouse_id, name, transaction_id, notification)
                 VALUES(?,?,?,?,?,?,?)
-            """;
-
-        static final String SQL_SELECT_EVENT_BY_ID = """
-                SELECT *
-                FROM events
-                WHERE id = ?
             """;
     }
 }
