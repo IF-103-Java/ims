@@ -3,9 +3,9 @@ package com.ita.if103java.ims.service.impl;
 import com.ita.if103java.ims.dao.AccountDao;
 import com.ita.if103java.ims.dao.AccountTypeDao;
 import com.ita.if103java.ims.dto.AccountTypeDto;
+import com.ita.if103java.ims.dto.UserDto;
 import com.ita.if103java.ims.entity.Event;
 import com.ita.if103java.ims.entity.EventName;
-import com.ita.if103java.ims.entity.User;
 import com.ita.if103java.ims.mapper.AccountTypeDtoMapper;
 import com.ita.if103java.ims.service.EventService;
 import com.ita.if103java.ims.service.UpgradeService;
@@ -31,14 +31,14 @@ public class UpgradeSimpleServiceImpl implements UpgradeService {
     }
 
     @Override
-    public void upgradeAccount(User accountAdmin, Long accountTypeId) {
+    public void upgradeAccount(UserDto accountAdmin, Long accountTypeId) {
         Integer currentLvl = accountTypeDao.findById(accountDao.findById(accountAdmin.getAccountId()).getTypeId()).getLevel();
         Integer newLvl = accountTypeDao.findById(accountTypeId).getLevel();
         if (currentLvl < newLvl) {
             accountDao.upgradeAccount(accountAdmin.getAccountId(), accountTypeId);
-            Event event = new Event(null, accountAdmin.getAccountId(), null,
+            Event event = new Event("Account was upgraded to " + accountTypeDao.findById(accountTypeId).getName() + " level.",
+                accountAdmin.getAccountId(), null,
                 accountAdmin.getId(), EventName.ACCOUNT_UPGRADED, null);
-            event.setMessage("Account was upgraded to " + accountTypeDao.findById(accountTypeId).getName() + " level.");
             eventService.create(event);
         }
     }

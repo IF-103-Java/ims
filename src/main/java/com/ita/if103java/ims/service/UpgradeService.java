@@ -1,13 +1,13 @@
 package com.ita.if103java.ims.service;
 
 import com.ita.if103java.ims.dto.AccountTypeDto;
-import com.ita.if103java.ims.entity.User;
+import com.ita.if103java.ims.dto.UserDto;
 
 import java.util.List;
 
 public interface UpgradeService {
 
-    void upgradeAccount(User accountAdmin, Long accountTypeId);
+    void upgradeAccount(UserDto accountAdmin, Long accountTypeId);
 
     AccountTypeDto findById(Long id);
 

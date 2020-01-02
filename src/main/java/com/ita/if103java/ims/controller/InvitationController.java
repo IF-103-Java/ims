@@ -1,6 +1,7 @@
 package com.ita.if103java.ims.controller;
 
 import com.ita.if103java.ims.dto.UserDto;
+import com.ita.if103java.ims.mapper.UserDtoMapper;
 import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.InvitationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,15 +16,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/invite")
 public class InvitationController {
     private InvitationService invitationService;
+    private UserDtoMapper userDtoMapper;
 
     @Autowired
-    public InvitationController(InvitationService invitationService) {
+    public InvitationController(InvitationService invitationService, UserDtoMapper userDtoMapper) {
         this.invitationService = invitationService;
+        this.userDtoMapper = userDtoMapper;
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/")
     public void invite(@AuthenticationPrincipal UserDetailsImpl user, @RequestBody UserDto userDto) {
-        invitationService.inviteUser(user.getUser(), userDto);
+        invitationService.inviteUser(userDtoMapper.toDto(user.getUser()), userDto);
     }
 }

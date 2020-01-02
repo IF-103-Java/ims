@@ -18,13 +18,17 @@ public class Account {
 
     }
 
-    public Account(Long id, String name, AccountType type, Long typeId, Long adminId, ZonedDateTime createdDate, boolean active) {
+    public Account(Long id, String name, AccountType type, Long typeId, ZonedDateTime createdDate, boolean active) {
         this.id = id;
         this.name = name;
         this.type = type;
         this.typeId = typeId;
         this.createdDate = createdDate;
         this.active = active;
+    }
+
+    public Account(String name) {
+        this.name = name;
     }
 
     public Long getId() {
