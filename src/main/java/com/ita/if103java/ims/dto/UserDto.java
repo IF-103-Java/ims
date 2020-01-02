@@ -59,6 +59,10 @@ public class UserDto implements Serializable {
     @Null(groups = {NewData.class, ExistData.class})
     private String emailUUID;
 
+    @Null(groups = {NewData.class, ExistData.class},
+        message = "This field must be filled with the auto-generator during the creation of organization")
+    private Long accountId;
+
     private String accountName;
 
     public Long getId() {
@@ -141,6 +145,14 @@ public class UserDto implements Serializable {
         this.emailUUID = emailUUID;
     }
 
+    public Long getAccountId() {
+        return accountId;
+    }
+
+    public void setAccountId(Long accountId) {
+        this.accountId = accountId;
+    }
+
     public String getAccountName() {
         return accountName;
     }
@@ -162,6 +174,7 @@ public class UserDto implements Serializable {
             ", updatedDate=" + updatedDate +
             ", active=" + active +
             ", emailUUID='" + emailUUID + '\'' +
+            ", accountId=" + accountId +
             ", accountName='" + accountName + '\'' +
             '}';
     }
