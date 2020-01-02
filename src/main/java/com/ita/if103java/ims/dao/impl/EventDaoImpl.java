@@ -64,7 +64,7 @@ public class EventDaoImpl implements EventDao {
         }
         String accountCondition = buildSqlCondition("account_id", user.getAccountId());
         String personalConditions = "";
-        if (user.getRole().equals(Role.WORKER)) {
+        if (user.getRole().equals(Role.ROLE_WORKER)) {
             if (params.containsKey("name")) {
                 personalConditions = buildSqlNameCondition(params, user.getId());
             } else if (params.containsKey("type")) {

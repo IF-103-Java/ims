@@ -1,5 +1,5 @@
 package com.ita.if103java.ims.entity;
 
 public enum Role {
-    ADMIN, WORKER
+    ROLE_ADMIN, ROLE_WORKER
 }
