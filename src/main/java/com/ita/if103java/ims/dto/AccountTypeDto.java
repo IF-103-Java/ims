@@ -10,13 +10,15 @@ public class AccountTypeDto {
     private Integer maxUsers;
     private Integer maxSuppliers;
     private Integer maxClients;
+    private boolean deepWarehouseAnalytics;
+    private boolean itemStorageAdvisor;
     private boolean active;
 
     public AccountTypeDto() {
 
     }
 
-    public AccountTypeDto(Long id, String name, Double price, Integer level, Integer maxWarehouses, Integer maxWarehouseDepth, Integer maxUsers, Integer maxSuppliers, Integer maxClients, boolean active) {
+    public AccountTypeDto(Long id, String name, Double price, Integer level, Integer maxWarehouses, Integer maxWarehouseDepth, Integer maxUsers, Integer maxSuppliers, Integer maxClients, boolean deepWarehouseAnalytics, boolean itemStorageAdvisor, boolean active) {
         this.id = id;
         this.name = name;
         this.price = price;
@@ -26,6 +28,8 @@ public class AccountTypeDto {
         this.maxUsers = maxUsers;
         this.maxSuppliers = maxSuppliers;
         this.maxClients = maxClients;
+        this.deepWarehouseAnalytics = deepWarehouseAnalytics;
+        this.itemStorageAdvisor = itemStorageAdvisor;
         this.active = active;
     }
 
@@ -99,6 +103,22 @@ public class AccountTypeDto {
 
     public void setMaxClients(Integer maxClients) {
         this.maxClients = maxClients;
+    }
+
+    public boolean isDeepWarehouseAnalytics() {
+        return deepWarehouseAnalytics;
+    }
+
+    public void setDeepWarehouseAnalytics(boolean deepWarehouseAnalytics) {
+        this.deepWarehouseAnalytics = deepWarehouseAnalytics;
+    }
+
+    public boolean isItemStorageAdvisor() {
+        return itemStorageAdvisor;
+    }
+
+    public void setItemStorageAdvisor(boolean itemStorageAdvisor) {
+        this.itemStorageAdvisor = itemStorageAdvisor;
     }
 
     public boolean isActive() {
