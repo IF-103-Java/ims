@@ -4,6 +4,7 @@ import com.ita.if103java.ims.dto.UserDto;
 import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.InvitationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,6 +21,7 @@ public class InvitationController {
         this.invitationService = invitationService;
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/")
     public void invite(@AuthenticationPrincipal UserDetailsImpl user, @RequestBody UserDto userDto) {
         invitationService.inviteUser(user.getUser(), userDto);

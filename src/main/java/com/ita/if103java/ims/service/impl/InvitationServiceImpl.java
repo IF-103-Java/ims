@@ -7,6 +7,7 @@ import com.ita.if103java.ims.dto.UserDto;
 import com.ita.if103java.ims.entity.Account;
 import com.ita.if103java.ims.entity.Event;
 import com.ita.if103java.ims.entity.EventName;
+import com.ita.if103java.ims.entity.Role;
 import com.ita.if103java.ims.entity.User;
 import com.ita.if103java.ims.service.EventService;
 import com.ita.if103java.ims.service.InvitationService;
@@ -47,12 +48,12 @@ public class InvitationServiceImpl implements InvitationService {
         User user = userDao.findById(userDto.getId());
         if (allowToInvite(user.getAccountId())) {
             userDto.setPassword(generatePassword());
+            userDto.setRole(Role.WORKER);
             UserDto createdUserDto = userService.create(userDto);
             sendInvitationMessage(createdUserDto, user.getAccountId());
 
             Event event = new Event("New worker was invited.", accountAdmin.getAccountId(), null,
                 accountAdmin.getId(), EventName.WORKER_INVITED, null);
-            event.setMessage("New worker was invited.");
             eventService.create(event);
         }
     }

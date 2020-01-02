@@ -5,6 +5,7 @@ import com.ita.if103java.ims.dto.UserDto;
 import com.ita.if103java.ims.entity.Role;
 import com.ita.if103java.ims.entity.User;
 import com.ita.if103java.ims.mapper.UserDtoMapper;
+import com.ita.if103java.ims.service.EventService;
 import com.ita.if103java.ims.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
@@ -17,7 +18,11 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import static com.ita.if103java.ims.entity.EventName.PASSWORD_CHANGED;
+import static com.ita.if103java.ims.entity.EventName.PROFILE_CHANGED;
+import static com.ita.if103java.ims.entity.EventName.SIGN_UP;
 import static com.ita.if103java.ims.util.TokenUtil.isValidToken;
+import static com.ita.if103java.ims.util.UserEventUtil.createEvent;
 
 @Service
 @PropertySource("classpath:application.properties")
@@ -26,13 +31,18 @@ public class UserServiceImpl implements UserService {
     private UserDao userDao;
     private UserDtoMapper mapper;
     private PasswordEncoder passwordEncoder;
+    private EventService eventService;
 
 
     @Autowired
-    public UserServiceImpl(UserDao userDao, UserDtoMapper mapper, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserDao userDao,
+                           UserDtoMapper mapper,
+                           PasswordEncoder passwordEncoder,
+                           EventService eventService) {
         this.userDao = userDao;
         this.mapper = mapper;
         this.passwordEncoder = passwordEncoder;
+        this.eventService = eventService;
     }
 
     @Override
@@ -49,7 +59,9 @@ public class UserServiceImpl implements UserService {
         user.setUpdatedDate(currentDateTime);
         user.setEmailUUID(UUID.randomUUID().toString());
 
-        return mapper.toDto(userDao.create(user));
+        User createdUser = userDao.create(user);
+        eventService.create(createEvent(createdUser, SIGN_UP, "signed up."));
+        return mapper.toDto(createdUser);
     }
 
     @Override
@@ -75,7 +87,9 @@ public class UserServiceImpl implements UserService {
         updatedUser.setActive(dbUser.isActive());
         updatedUser.setPassword(passwordEncoder.encode(userDto.getPassword()));
 
-        return mapper.toDto(userDao.update(updatedUser));
+        User user = userDao.update(updatedUser);
+        eventService.create(createEvent(user, PROFILE_CHANGED, "updated profile."));
+        return mapper.toDto(user);
     }
 
     @Override
@@ -95,7 +109,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean updatePassword(Long id, String newPassword) {
-        return userDao.updatePassword(id, passwordEncoder.encode(newPassword));
+        if (userDao.updatePassword(id, passwordEncoder.encode(newPassword))) {
+            User user = userDao.findById(id);
+            eventService.create(createEvent(user, PASSWORD_CHANGED, "changed the password."));
+            return true;
+        }
+        return false;
     }
 
     @Override
