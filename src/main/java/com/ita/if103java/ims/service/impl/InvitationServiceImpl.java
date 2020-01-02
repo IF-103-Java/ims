@@ -48,7 +48,7 @@ public class InvitationServiceImpl implements InvitationService {
         User user = userDao.findById(userDto.getId());
         if (allowToInvite(user.getAccountId())) {
             userDto.setPassword(generatePassword());
-            userDto.setRole(Role.WORKER);
+            userDto.setRole(Role.ROLE_WORKER);
             UserDto createdUserDto = userService.create(userDto);
             sendInvitationMessage(createdUserDto, user.getAccountId());
 

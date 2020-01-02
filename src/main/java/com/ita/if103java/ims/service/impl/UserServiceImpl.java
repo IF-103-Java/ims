@@ -50,8 +50,8 @@ public class UserServiceImpl implements UserService {
         User user = mapper.toEntity(userDto);
 
         ZonedDateTime currentDateTime = ZonedDateTime.now(ZoneId.systemDefault());
-        if (user.getRole() != Role.WORKER) {
-            user.setRole(Role.ADMIN);
+        if (user.getRole() != Role.ROLE_WORKER) {
+            user.setRole(Role.ROLE_ADMIN);
         }
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
