@@ -1,6 +1,7 @@
 package com.ita.if103java.ims.dto;
 
 import com.google.maps.model.Distance;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class WarehouseToAssociateDistanceDto {
     private WarehouseAddressDto warehouseAddress;
@@ -10,6 +11,8 @@ public class WarehouseToAssociateDistanceDto {
     public WarehouseToAssociateDistanceDto() {
     }
 
+
+    @Autowired
     public WarehouseToAssociateDistanceDto(WarehouseAddressDto warehouseAddress,
                                            AssociateAddressDto associateAddress,
                                            Distance distance) {

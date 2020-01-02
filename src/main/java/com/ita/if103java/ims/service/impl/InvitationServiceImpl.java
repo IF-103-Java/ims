@@ -45,14 +45,15 @@ public class InvitationServiceImpl implements InvitationService {
 
     @Override
     public void inviteUser(User accountAdmin, UserDto userDto) {
-        if (allowToInvite(userDto.getAccountId())) {
+        User user = userDao.findById(userDto.getId());
+        if (allowToInvite(user.getAccountId())) {
             userDto.setPassword(generatePassword());
-            userDto.setAccountId(accountAdmin.getAccountId());
-            userDto.setRole(Role.WORKER);
+            userDto.setRole(Role.ROLE_WORKER);
             UserDto createdUserDto = userService.create(userDto);
-            sendInvitationMessage(createdUserDto, userDto.getAccountId());
+            sendInvitationMessage(createdUserDto, user.getAccountId());
 
-            Event event = new Event("New worker was invited.", accountAdmin.getAccountId(), null,
+            Event event = new Event("New worker " + createdUserDto.getFirstName() + " " + createdUserDto.getLastName() + " was invited.",
+                accountAdmin.getAccountId(), null,
                 accountAdmin.getId(), EventName.WORKER_INVITED, null);
             eventService.create(event);
         }

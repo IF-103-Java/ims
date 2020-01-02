@@ -3,6 +3,7 @@ package com.ita.if103java.ims.service.impl;
 import com.ita.if103java.ims.dao.AccountDao;
 import com.ita.if103java.ims.dao.UserDao;
 import com.ita.if103java.ims.dto.AccountDto;
+import com.ita.if103java.ims.dto.UserDto;
 import com.ita.if103java.ims.entity.Account;
 import com.ita.if103java.ims.entity.Event;
 import com.ita.if103java.ims.entity.EventName;
@@ -30,12 +31,10 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public AccountDto create(User admin, String accountName) {
-        AccountDto accountDto = new AccountDto();
-        accountDto.setName(accountName);
-        Account account = accountDao.create(accountDtoMapper.toEntity(accountDto));
+    public AccountDto create(UserDto admin, String accountName) {
+        Account account = accountDao.create(new Account(accountName));
         userDao.updateAccountId(admin.getId(), account.getId());
-        Event event = new Event("New account was created.", account.getId(), null,
+        Event event = new Event("New account \"" + accountName + "\" was created.", account.getId(), null,
             admin.getId(), EventName.ACCOUNT_CREATED, null);
         eventService.create(event);
         return accountDtoMapper.toDto(account);
@@ -45,7 +44,7 @@ public class AccountServiceImpl implements AccountService {
     public AccountDto update(User admin, AccountDto accountDto) {
         accountDto.setId(admin.getAccountId());
         Account account = accountDao.update(accountDtoMapper.toEntity(accountDto));
-        Event event = new Event("Account was updated.", account.getId(), null,
+        Event event = new Event("Account \"" + accountDto.getName() + "\" was updated.", account.getId(), null,
             admin.getId(), EventName.ACCOUNT_EDITED, null);
         eventService.create(event);
         return accountDtoMapper.toDto(account);
@@ -60,7 +59,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public boolean delete(User admin) {
         if (accountDao.delete(admin.getAccountId())) {
-            Event event = new Event("Account was deleted.", admin.getAccountId(), null,
+            Event event = new Event("Account \"" + accountDao.findById(admin.getAccountId()).getName() + "\" was deleted.", admin.getAccountId(), null,
                 admin.getId(), EventName.ACCOUNT_DELETED, null);
             eventService.create(event);
             return true;
