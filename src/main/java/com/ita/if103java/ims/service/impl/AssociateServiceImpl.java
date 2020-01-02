@@ -105,7 +105,7 @@ public class AssociateServiceImpl implements AssociateService {
 
     private void createEvent(UserDetailsImpl user, Associate associate, EventName eventName) {
         Event event = new Event();
-        event.setMessage(eventName.getLabel());
+        event.setMessage(String.format("%s with name %s", eventName.getLabel(), associate.getName()));
         event.setAccountId(user.getUser().getAccountId());
         event.setAuthorId(user.getUser().getId());
         event.setName(eventName);
