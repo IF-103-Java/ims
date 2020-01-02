@@ -8,6 +8,7 @@ import com.ita.if103java.ims.entity.Account;
 import com.ita.if103java.ims.entity.Event;
 import com.ita.if103java.ims.entity.EventName;
 import com.ita.if103java.ims.entity.Role;
+import com.ita.if103java.ims.entity.User;
 import com.ita.if103java.ims.service.EventService;
 import com.ita.if103java.ims.service.InvitationService;
 import com.ita.if103java.ims.service.MailService;
@@ -43,7 +44,7 @@ public class InvitationServiceImpl implements InvitationService {
     }
 
     @Override
-    public void inviteUser(UserDto accountAdmin, UserDto userDto) {
+    public void inviteUser(User accountAdmin, UserDto userDto) {
         if (allowToInvite(userDto.getAccountId())) {
             userDto.setPassword(generatePassword());
             userDto.setAccountId(accountAdmin.getAccountId());

@@ -7,6 +7,7 @@ import com.ita.if103java.ims.dto.UserDto;
 import com.ita.if103java.ims.entity.Account;
 import com.ita.if103java.ims.entity.Event;
 import com.ita.if103java.ims.entity.EventName;
+import com.ita.if103java.ims.entity.User;
 import com.ita.if103java.ims.mapper.AccountDtoMapper;
 import com.ita.if103java.ims.service.AccountService;
 import com.ita.if103java.ims.service.EventService;
@@ -40,7 +41,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public AccountDto update(UserDto admin, AccountDto accountDto) {
+    public AccountDto update(User admin, AccountDto accountDto) {
         accountDto.setId(admin.getAccountId());
         Account account = accountDao.update(accountDtoMapper.toEntity(accountDto));
         Event event = new Event("Account \"" + accountDto.getName() + "\" was updated.", account.getId(), null,
@@ -56,7 +57,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public boolean delete(UserDto admin) {
+    public boolean delete(User admin) {
         if (accountDao.delete(admin.getAccountId())) {
             Event event = new Event("Account \"" + accountDao.findById(admin.getAccountId()).getName() + "\" was deleted.", admin.getAccountId(), null,
                 admin.getId(), EventName.ACCOUNT_DELETED, null);
