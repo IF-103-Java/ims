@@ -12,6 +12,8 @@ import com.ita.if103java.ims.mapper.jdbc.EventRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -58,7 +60,7 @@ public class EventDaoImpl implements EventDao {
     }
 
     @Override
-    public List<Event> findAll(Pageable pageable, Map<String, ?> params, User user) {
+    public Page<Event> findAll(Pageable pageable, Map<String, ?> params, User user) {
         if (params.containsKey("name")) {
             params.remove("type");
         }
@@ -109,16 +111,21 @@ public class EventDaoImpl implements EventDao {
         }
         where = where.isBlank() ? accountCondition : accountCondition.concat(" and " + where);
         String sort = pageable.getSort().toString().replaceAll(": ", " ");
-        final String query = String.format("""
+        final String querySelectEvents = String.format("""
                 select * from events where %s ORDER BY %s Limit %s OFFSET %s
                 """,
             where, sort, pageable.getPageSize(), pageable.getOffset());
+        final String rowCountSql = String.format("""
+            select count(1) from events where %s
+            """, where);
         try {
-            return jdbcTemplate.query(query, eventRowMapper);
+            List<Event> events = jdbcTemplate.query(querySelectEvents, eventRowMapper);
+            Integer rowCount = jdbcTemplate.queryForObject(rowCountSql, Integer.class);
+            return new PageImpl<>(events, pageable, rowCount);
         } catch (EmptyResultDataAccessException e) {
-            throw new EventNotFoundException("Failed to obtain event during " + query + ", EventDao.findAll", e);
+            throw new EventNotFoundException("Failed to obtain event during " + querySelectEvents + ", EventDao.findAll", e);
         } catch (DataAccessException e) {
-            throw new CRUDException("Error during  " + query + ", EventDao.findAll", e);
+            throw new CRUDException("Error during  " + querySelectEvents + ", EventDao.findAll", e);
         }
     }
 

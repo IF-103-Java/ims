@@ -1,7 +1,5 @@
 package com.ita.if103java.ims.dto;
 
-import com.ita.if103java.ims.entity.EventName;
-
 import java.time.ZonedDateTime;
 
 public class EventDto {
@@ -10,15 +8,17 @@ public class EventDto {
     private ZonedDateTime date;
     private Long accountId;
     private Long warehouseId;
+    private String warehouse;
     private Long authorId;
-    private EventName name;
+    private String author;
+    private String name;
     private Long transactionId;
 
     public EventDto() {
     }
 
     public EventDto(Long id, String message, ZonedDateTime date, Long accountId, Long warehouseId, Long authorId,
-                    EventName name, Long transactionId) {
+                    String name, Long transactionId) {
         this.id = id;
         this.message = message;
         this.date = date;
@@ -27,6 +27,22 @@ public class EventDto {
         this.authorId = authorId;
         this.name = name;
         this.transactionId = transactionId;
+    }
+
+    public String getWarehouse() {
+        return warehouse;
+    }
+
+    public void setWarehouse(String warehouse) {
+        this.warehouse = warehouse;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
     }
 
     public Long getId() {
@@ -77,11 +93,11 @@ public class EventDto {
         this.authorId = authorId;
     }
 
-    public EventName getName() {
+    public String getName() {
         return name;
     }
 
-    public void setName(EventName name) {
+    public void setName(String name) {
         this.name = name;
     }
 
