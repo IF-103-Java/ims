@@ -83,7 +83,7 @@ public class ItemDaoImpl implements ItemDao {
     @Override
     public boolean isExistItemById(Long id, Long accountId) {
         try {
-            return jdbcTemplate.queryForObject(Queries.SQL_SELECT_IF_EXIST_ITEM_BY_ACCOUNT_ID, (row, rs)->row.getBoolean("true"), accountId, id);
+            return jdbcTemplate.queryForObject(Queries.SQL_SELECT_IF_EXIST_ITEM_BY_ACCOUNT_ID, (row, rs) -> row.getBoolean("true"), accountId, id);
         } catch (EmptyResultDataAccessException e) {
             throw new ItemNotFoundException("Failed to get item during `select` {id = " + id + "}", e);
         } catch (DataAccessException e) {
@@ -107,6 +107,7 @@ public class ItemDaoImpl implements ItemDao {
             throw new CRUDException("Error during `insert` {account_id = " + item.getAccountId() + "}", e);
         }
     }
+
     private PreparedStatement createItemStatement(Item item, Connection connection) throws SQLException {
         int i = 0;
         PreparedStatement statement = connection.prepareStatement(Queries.SQL_INSERT_INTO_ITEM,

@@ -43,7 +43,7 @@ public class SavedItemController {
     @GetMapping("/usefulWarehouses")
     @ResponseStatus(HttpStatus.OK)
     public List<WarehouseDto> findUsefulWarehouses(@RequestParam("volume") int volume,
-                                                    @RequestParam("capacity") int capacity, @AuthenticationPrincipal UserDetailsImpl user) {
+                                                   @RequestParam("capacity") int capacity, @AuthenticationPrincipal UserDetailsImpl user) {
         return itemService.findUsefulWarehouses(volume, capacity, user);
     }
 

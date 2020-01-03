@@ -107,6 +107,7 @@ public class SavedItemDaoImpl implements SavedItemDao {
         }
 
     }
+
     private PreparedStatement createSavedItemStatement(SavedItem savedItem, Connection connection) throws SQLException {
         int i = 0;
         PreparedStatement statement = connection.prepareStatement(Queries.SQL_INSERT_INTO_SAVED_ITEM,
@@ -116,6 +117,7 @@ public class SavedItemDaoImpl implements SavedItemDao {
         statement.setLong(++i, savedItem.getWarehouseId());
         return statement;
     }
+
     @Override
     public boolean outComeSavedItem(SavedItem savedItem, int quantity) {
         int status;
