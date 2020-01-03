@@ -19,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -131,6 +132,7 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     public List<String> findPath(Long id, UserDetailsImpl user){
         List<String> path = new ArrayList<>();
+        List<Warehouse> groupedWarehouses = new ArrayList<>();
         Warehouse warehouse = warehouseDao.findById(id);
             path.add(warehouse.getName());
 //        if ((Long)warehouse.getParentID() != null) {
