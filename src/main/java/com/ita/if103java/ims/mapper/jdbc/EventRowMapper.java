@@ -11,8 +11,10 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
+import static com.ita.if103java.ims.util.RowMapperUtil.setValueOrNull;
+
 @Component
-public class EventRowMapper extends AbstractRowMapper implements RowMapper<Event> {
+public class EventRowMapper implements RowMapper<Event> {
     @Override
     public Event mapRow(ResultSet resultSet, int i) throws SQLException {
         Event event = new Event();
