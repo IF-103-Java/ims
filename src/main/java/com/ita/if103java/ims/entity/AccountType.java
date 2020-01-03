@@ -12,13 +12,15 @@ public class AccountType {
     private Integer maxUsers;
     private Integer maxSuppliers;
     private Integer maxClients;
+    private boolean deepWarehouseAnalytics;
+    private boolean itemStorageAdvisor;
     private boolean active;
 
     public AccountType() {
 
     }
 
-    public AccountType(Long id, String name, Double price, Integer level, Integer maxWarehouses, Integer maxWarehouseDepth, Integer maxUsers, Integer maxSuppliers, Integer maxClients, boolean active) {
+    public AccountType(Long id, String name, Double price, Integer level, Integer maxWarehouses, Integer maxWarehouseDepth, Integer maxUsers, Integer maxSuppliers, Integer maxClients, boolean deepWarehouseAnalytics, boolean itemStorageAdvisor, boolean active) {
         this.id = id;
         this.name = name;
         this.price = price;
@@ -28,6 +30,8 @@ public class AccountType {
         this.maxUsers = maxUsers;
         this.maxSuppliers = maxSuppliers;
         this.maxClients = maxClients;
+        this.deepWarehouseAnalytics = deepWarehouseAnalytics;
+        this.itemStorageAdvisor = itemStorageAdvisor;
         this.active = active;
     }
 
@@ -103,6 +107,22 @@ public class AccountType {
         this.maxClients = maxClients;
     }
 
+    public boolean isDeepWarehouseAnalytics() {
+        return deepWarehouseAnalytics;
+    }
+
+    public void setDeepWarehouseAnalytics(boolean deepWarehouseAnalytics) {
+        this.deepWarehouseAnalytics = deepWarehouseAnalytics;
+    }
+
+    public boolean isItemStorageAdvisor() {
+        return itemStorageAdvisor;
+    }
+
+    public void setItemStorageAdvisor(boolean itemStorageAdvisor) {
+        this.itemStorageAdvisor = itemStorageAdvisor;
+    }
+
     public boolean isActive() {
         return active;
     }
@@ -123,6 +143,8 @@ public class AccountType {
             ", maxUsers=" + maxUsers +
             ", maxSuppliers=" + maxSuppliers +
             ", maxClients=" + maxClients +
+            ", deepWarehouseAnalytics=" + deepWarehouseAnalytics +
+            ", itemStorageAdvisor=" + itemStorageAdvisor +
             ", active=" + active +
             '}';
     }
@@ -131,20 +153,22 @@ public class AccountType {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof AccountType)) return false;
-        AccountType that = (AccountType) o;
-        return isActive() == that.isActive() &&
-            getName().equals(that.getName()) &&
-            getPrice().equals(that.getPrice()) &&
-            getLevel().equals(that.getLevel()) &&
-            getMaxWarehouses().equals(that.getMaxWarehouses()) &&
-            getMaxWarehouseDepth().equals(that.getMaxWarehouseDepth()) &&
-            getMaxUsers().equals(that.getMaxUsers()) &&
-            getMaxSuppliers().equals(that.getMaxSuppliers()) &&
-            getMaxClients().equals(that.getMaxClients());
+        AccountType type = (AccountType) o;
+        return isDeepWarehouseAnalytics() == type.isDeepWarehouseAnalytics() &&
+            isItemStorageAdvisor() == type.isItemStorageAdvisor() &&
+            isActive() == type.isActive() &&
+            getName().equals(type.getName()) &&
+            getPrice().equals(type.getPrice()) &&
+            getLevel().equals(type.getLevel()) &&
+            getMaxWarehouses().equals(type.getMaxWarehouses()) &&
+            getMaxWarehouseDepth().equals(type.getMaxWarehouseDepth()) &&
+            getMaxUsers().equals(type.getMaxUsers()) &&
+            getMaxSuppliers().equals(type.getMaxSuppliers()) &&
+            getMaxClients().equals(type.getMaxClients());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getName(), getPrice(), getLevel(), getMaxWarehouses(), getMaxWarehouseDepth(), getMaxUsers(), getMaxSuppliers(), getMaxClients(), isActive());
+        return Objects.hash(getName(), getPrice(), getLevel(), getMaxWarehouses(), getMaxWarehouseDepth(), getMaxUsers(), getMaxSuppliers(), getMaxClients(), isDeepWarehouseAnalytics(), isItemStorageAdvisor(), isActive());
     }
 }

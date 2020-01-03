@@ -20,6 +20,8 @@ public class AccountTypeDtoMapper extends AbstractEntityDtoMapper<AccountType, A
             accountType.setMaxUsers(dto.getMaxUsers());
             accountType.setMaxSuppliers(dto.getMaxSuppliers());
             accountType.setMaxClients(dto.getMaxClients());
+            accountType.setDeepWarehouseAnalytics(dto.isDeepWarehouseAnalytics());
+            accountType.setItemStorageAdvisor(dto.isItemStorageAdvisor());
             accountType.setActive(dto.isActive());
             return accountType;
         }
@@ -40,6 +42,8 @@ public class AccountTypeDtoMapper extends AbstractEntityDtoMapper<AccountType, A
             accountTypeDto.setMaxUsers(entity.getMaxUsers());
             accountTypeDto.setMaxSuppliers(entity.getMaxSuppliers());
             accountTypeDto.setMaxClients(entity.getMaxClients());
+            accountTypeDto.setDeepWarehouseAnalytics(entity.isDeepWarehouseAnalytics());
+            accountTypeDto.setItemStorageAdvisor(entity.isItemStorageAdvisor());
             accountTypeDto.setActive(entity.isActive());
             return accountTypeDto;
         }

@@ -20,6 +20,8 @@ public class AccountTypeRowMapper implements RowMapper<AccountType> {
         accountType.setMaxUsers(resultSet.getInt("max_users"));
         accountType.setMaxSuppliers(resultSet.getInt("max_suppliers"));
         accountType.setMaxClients(resultSet.getInt("max_clients"));
+        accountType.setDeepWarehouseAnalytics(resultSet.getBoolean("deep_warehouse_analytics"));
+        accountType.setItemStorageAdvisor(resultSet.getBoolean("item_storage_advisor"));
         accountType.setActive(resultSet.getBoolean("active"));
         return accountType;
     }

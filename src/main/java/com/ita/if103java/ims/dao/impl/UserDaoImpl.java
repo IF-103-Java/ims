@@ -114,6 +114,7 @@ public class UserDaoImpl implements UserDao {
                 user.getPassword(),
                 Timestamp.from(updatedDateTime.toInstant()),
                 user.isActive(),
+                user.getEmailUUID(),
                 user.getId());
 
             user.setUpdatedDate(updatedDateTime);
@@ -125,6 +126,23 @@ public class UserDaoImpl implements UserDao {
         }
 
         return user;
+    }
+
+    @Override
+    public boolean updateAccountId(Long userId, Long accountId) {
+        int status;
+        try {
+            status = jdbcTemplate.update(
+                Queries.SQL_UPDATE_ACCOUNT_ID,
+                accountId,
+                userId);
+        } catch (DataAccessException e) {
+            throw new CRUDException("Error during `update` accountId {userId = " + userId + "}", e);
+        }
+        if (status == 0) {
+            throw new UserNotFoundException("Failed to obtain user during `update` accountId {userId = " + userId + "}");
+        }
+        return true;
     }
 
     @Override
@@ -163,7 +181,10 @@ public class UserDaoImpl implements UserDao {
         int status;
         try {
             ZonedDateTime updatedDateTime = ZonedDateTime.now(ZoneId.systemDefault());
-            status = jdbcTemplate.update(Queries.SQL_UPDATE_PASSWORD, newPassword, updatedDateTime, id);
+            status = jdbcTemplate.update(Queries.SQL_UPDATE_PASSWORD,
+                                         newPassword,
+                                         Timestamp.from(updatedDateTime.toInstant()),
+                                         id);
         } catch (DataAccessException e) {
             throw new CRUDException("Error during `update` password {id = " + id + "}", e);
         }
@@ -257,7 +278,14 @@ public class UserDaoImpl implements UserDao {
         public static final String SQL_UPDATE_USER = """
                 UPDATE users
                 SET first_name= ?, last_name = ?,
-                email = ?, password = ?, updated_date = ?, active = ?
+                email = ?, password = ?, updated_date = ?,
+                active = ?, email_uuid = ?
+                WHERE id = ?
+            """;
+
+        public static final String SQL_UPDATE_ACCOUNT_ID = """
+                UPDATE users
+                SET account_id = ?
                 WHERE id = ?
             """;
 
@@ -269,7 +297,7 @@ public class UserDaoImpl implements UserDao {
 
         public static final String SQL_UPDATE_PASSWORD = """
                 UPDATE users
-                SET password = ?, updated_date = ?
+                SET  password = ?, updated_date = ?
                 WHERE id = ?
             """;
 
