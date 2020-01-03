@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -71,17 +72,10 @@ public class WarehouseServiceImpl implements WarehouseService {
         Warehouse warehouse = warehouseDao.create(warehouseDtoMapper.toEntity(warehouseDto));
         Address address = addressDtoMapper.toEntity(warehouseDto.getAddressDto());
         addressDao.createWarehouseAddress(warehouse.getId(),address);
-        EventName eventName = EventName.WAREHOUSE_CREATED;
-        createEvent(user, warehouse, eventName);
+        createEvent(user, warehouse, EventName.WAREHOUSE_CREATED);
 
         return warehouseDtoMapper.toDto(warehouseDao.create(warehouse));
     }
-
-    //without addresses and events
-//    private WarehouseDto createNewWarehouse(WarehouseDto warehouseDto) {
-//        Warehouse warehouse = warehouseDtoMapper.toEntity(warehouseDto);
-//        return warehouseDtoMapper.toDto(warehouseDao.create(warehouse));
-//    }
 
     @Override
     public List<WarehouseDto> findAll(Pageable pageable, UserDetailsImpl user) {
@@ -103,8 +97,7 @@ public class WarehouseServiceImpl implements WarehouseService {
         Warehouse updatedWarehouse = warehouseDtoMapper.toEntity(warehouseDto);
         Warehouse dBWarehouse = warehouseDao.findById(updatedWarehouse.getId());
         updatedWarehouse.setActive(dBWarehouse.isActive());
-        EventName eventName = EventName.WAREHOUSE_EDITED;
-        createEvent(user, updatedWarehouse, eventName);
+        createEvent(user, updatedWarehouse, EventName.WAREHOUSE_EDITED);
         return warehouseDtoMapper.toDto(warehouseDao.update(updatedWarehouse));
     }
 
@@ -112,21 +105,51 @@ public class WarehouseServiceImpl implements WarehouseService {
     public boolean softDelete(Long id, UserDetailsImpl user) {
         Boolean isDelete = warehouseDao.softDelete(id) ;
         if (isDelete){
-        EventName eventName = EventName.WAREHOUSE_REMOVED;
         Warehouse warehouse = warehouseDao.findById(id);
-        createEvent(user, warehouse, eventName);
+        createEvent(user, warehouse, EventName.WAREHOUSE_REMOVED);
         }
         return isDelete;
     }
 
     private void createEvent(UserDetailsImpl user, Warehouse warehouse, EventName eventName) {
         Event event = new Event();
-        event.setMessage(eventName.getLabel() + " Name : " +
-                         warehouse.getName() + "id : " + warehouse.getId());
+        String message = eventName.getLabel();
+        int level = warehouseDao.findLevelByParentID(warehouse.getParentID());
+        if (eventName == EventName.WAREHOUSE_CREATED) {
+            message += " Name : " + warehouse.getName() + "level : " + level;
+        }
+        if (level != 0) {
+            message += "as a child of warehouse id " + warehouse.getParentID();
+        }
+        event.setMessage(message);
         event.setAccountId(user.getUser().getAccountId());
         event.setAuthorId(user.getUser().getId());
         event.setName(eventName);
 
         eventService.create(event);
+    }
+
+    public List<String> findPath(Long id, UserDetailsImpl user){
+        List<String> path = new ArrayList<>();
+        Warehouse warehouse = warehouseDao.findById(id);
+            path.add(warehouse.getName());
+//        if ((Long)warehouse.getParentID() != null) {
+//
+//            Warehouse parentWarehouse = warehouseDao.findById(warehouse.getParentID());
+//            List<String> parentPath = new ArrayList<>();
+//            if (!parentWarehouse.getPath().isEmpty()) {
+//
+//                parentPath = parentWarehouse.getPath();
+//                System.out.println("Parent path exists: " + parentPath);
+//            } else {
+//                parentPath = findPath(parentWarehouse, groupedWarehouses);
+//                System.out.println("Parent path computed: " + parentPath);
+//            }
+//            path.addAll(parentPath);
+//        }
+//        List<String> reversePath = new ArrayList<>(path);
+//        Collections.reverse(reversePath);
+//        warehouse.setPath(reversePath);
+        return path;
     }
 }

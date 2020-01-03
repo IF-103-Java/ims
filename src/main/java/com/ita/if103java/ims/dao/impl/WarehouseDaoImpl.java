@@ -68,7 +68,7 @@ public class WarehouseDaoImpl implements WarehouseDao {
             throw new WarehouseNotFoundException(e.getMessage());
 
         } catch (DataAccessException e) {
-            throw new CRUDException("find warehouse by id = " + id, e);
+            throw new CRUDException("Error during finding warehouse by id = " + id, e);
         }
 
     }

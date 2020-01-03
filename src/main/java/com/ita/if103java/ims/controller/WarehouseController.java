@@ -68,7 +68,8 @@ public class WarehouseController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public void delete(@PathVariable("id") Long id, UserDetailsImpl user) {
+    public void delete(@PathVariable("id") Long id,
+                       @AuthenticationPrincipal UserDetailsImpl user) {
         warehouseService.softDelete(id, user);
     }
 
