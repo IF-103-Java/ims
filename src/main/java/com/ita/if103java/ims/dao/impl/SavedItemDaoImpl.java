@@ -82,9 +82,10 @@ public class SavedItemDaoImpl implements SavedItemDao {
     @Override
     public boolean existSavedItemByWarehouseId(Long id) {
         try {
-            jdbcTemplate.queryForObject(Queries.SQL_SELECT_SAVED_ITEMS_BY_WAREHOUSE_ID, savedItemRowMapper, id);
+            jdbcTemplate.query(Queries.SQL_SELECT_SAVED_ITEMS_BY_WAREHOUSE_ID, savedItemRowMapper, id);
             return true;
         } catch (EmptyResultDataAccessException e) {
+            System.out.println("false");
             return false;
         } catch (DataAccessException e) {
             throw new CRUDException("Failed during `select` {warehouse_id = " + id + "}", e);
