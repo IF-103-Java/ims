@@ -45,8 +45,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .antMatchers("/",
                 "/signin",
                 "/forgot-password",
-                "/forgot-password/reset-password",
+                "/reset-password",
                 "/signup",
+                "/users/confirmation",
                 //--swagger--
                 "/v2/api-docs",
                 "/configuration/ui",

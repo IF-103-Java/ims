@@ -2,6 +2,7 @@ package com.ita.if103java.ims.controller;
 
 import com.ita.if103java.ims.dto.UserDto;
 import com.ita.if103java.ims.dto.transfer.NewData;
+import com.ita.if103java.ims.service.AccountService;
 import com.ita.if103java.ims.service.MailService;
 import com.ita.if103java.ims.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,18 +29,24 @@ public class RegistrationController {
 
     private UserService userService;
     private MailService mailService;
+    private AccountService accountService;
 
     @Autowired
-    public RegistrationController(UserService userService, MailService mailService) {
+    public RegistrationController(UserService userService,
+                                  AccountService accountService,
+                                  MailService mailService) {
         this.userService = userService;
+        this.accountService = accountService;
         this.mailService = mailService;
     }
 
-    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE,
+    @PostMapping(
+        produces = MediaType.APPLICATION_JSON_VALUE,
         consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public void createUser(@Validated({NewData.class}) @RequestBody UserDto userDto) {
         UserDto createdUser = userService.create(userDto);
+        accountService.create(createdUser, userDto.getAccountName());
         String token = createdUser.getEmailUUID();
         String message = "" +
             ACTIVATE_USER
