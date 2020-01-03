@@ -12,7 +12,7 @@ public interface ItemDao {
 
     List<Item> findItemByAccountId(Long id);
 
-    Item findItemById(Long id);
+    Item findItemById(Long id, Long accountId);
 
     boolean isExistItemById(Long id, Long accountId);
 

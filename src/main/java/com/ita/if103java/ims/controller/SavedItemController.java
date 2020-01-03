@@ -25,7 +25,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/savedItems")
-@CrossOrigin("http://localhost:4200/")
+@CrossOrigin("http://localhost:4200")
 public class SavedItemController {
     private ItemService itemService;
 
@@ -36,40 +36,46 @@ public class SavedItemController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.OK)
-    public SavedItemDto addSavedItem(@RequestBody ItemTransactionRequestDto itemTransaction, @AuthenticationPrincipal UserDetailsImpl user) {
+    public SavedItemDto addSavedItem(@RequestBody ItemTransactionRequestDto itemTransaction,
+                                     @AuthenticationPrincipal UserDetailsImpl user) {
         return itemService.addSavedItem(itemTransaction, user);
     }
 
     @GetMapping("/usefulWarehouses")
     @ResponseStatus(HttpStatus.OK)
     public List<WarehouseDto> findUsefulWarehouses(@RequestParam("volume") int volume,
-                                                   @RequestParam("capacity") int capacity, @AuthenticationPrincipal UserDetailsImpl user) {
+                                                   @RequestParam("capacity") int capacity,
+                                                   @AuthenticationPrincipal UserDetailsImpl user) {
         return itemService.findUsefulWarehouses(volume, capacity, user);
     }
 
     @GetMapping(path = "/itemId/{itemId}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
-    public List<SavedItemDto> findByItemId(@PathVariable("itemId") Long id, @AuthenticationPrincipal UserDetailsImpl user) {
+    public List<SavedItemDto> findByItemId(@PathVariable("itemId") Long id,
+                                           @AuthenticationPrincipal UserDetailsImpl user) {
         return itemService.findByItemId(id, user);
     }
 
     @GetMapping("/{savedItemId}")
     @ResponseStatus(HttpStatus.OK)
-    public SavedItemDto findSavedItemById(@PathVariable("savedItemId") Long id, @AuthenticationPrincipal UserDetailsImpl user) {
+    public SavedItemDto findSavedItemById(@PathVariable("savedItemId") Long id,
+                                          @AuthenticationPrincipal UserDetailsImpl user) {
         return itemService.findSavedItemById(id, user);
     }
 
     @PutMapping(value = "/move", produces = MediaType.APPLICATION_JSON_VALUE,
         consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
-    public boolean moveSavedItem(@RequestBody ItemTransactionRequestDto itemTransaction, @AuthenticationPrincipal UserDetailsImpl user) {
+    public boolean moveSavedItem(@RequestBody ItemTransactionRequestDto itemTransaction,
+                                 @AuthenticationPrincipal UserDetailsImpl user) {
         return itemService.moveItem(itemTransaction, user);
     }
 
     @PutMapping(value = "/outcome", produces = MediaType.APPLICATION_JSON_VALUE,
         consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
-    public SavedItemDto outcomeItem(@RequestBody ItemTransactionRequestDto itemTransaction, @AuthenticationPrincipal UserDetailsImpl user) {
+    public SavedItemDto outcomeItem(@RequestBody ItemTransactionRequestDto itemTransaction,
+                                    @AuthenticationPrincipal UserDetailsImpl user) {
         return itemService.outcomeItem(itemTransaction, user);
     }
 
