@@ -6,7 +6,7 @@ import com.google.maps.errors.ApiException;
 import com.google.maps.model.DistanceMatrix;
 import com.google.maps.model.TravelMode;
 import com.ita.if103java.ims.dto.AddressDto;
-import com.ita.if103java.ims.exception.GoogleAPIException;
+import com.ita.if103java.ims.exception.service.GoogleAPIException;
 import com.ita.if103java.ims.service.DistanceMatrixService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

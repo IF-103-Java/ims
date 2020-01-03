@@ -8,7 +8,7 @@ import com.ita.if103java.ims.entity.Account;
 import com.ita.if103java.ims.entity.Event;
 import com.ita.if103java.ims.entity.EventName;
 import com.ita.if103java.ims.entity.User;
-import com.ita.if103java.ims.mapper.AccountDtoMapper;
+import com.ita.if103java.ims.mapper.dto.AccountDtoMapper;
 import com.ita.if103java.ims.service.AccountService;
 import com.ita.if103java.ims.service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;

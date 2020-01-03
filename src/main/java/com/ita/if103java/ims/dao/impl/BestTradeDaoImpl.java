@@ -3,7 +3,7 @@ package com.ita.if103java.ims.dao.impl;
 import com.ita.if103java.ims.dao.BestTradeDao;
 import com.ita.if103java.ims.entity.TotalTransactionQuantity;
 import com.ita.if103java.ims.entity.TransactionType;
-import com.ita.if103java.ims.exception.CRUDException;
+import com.ita.if103java.ims.exception.dao.CRUDException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
