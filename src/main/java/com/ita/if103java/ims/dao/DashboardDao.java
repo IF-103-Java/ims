@@ -11,7 +11,7 @@ import java.util.List;
 public interface DashboardDao {
     List<WarehouseLoadDto> findWarehouseLoadByAccountId(Long accountId);
 
-    List<PopularItemsDto> findPopularItems(PopularItemsRequestDto popularItems);
+    List<PopularItemsDto> findPopularItems(PopularItemsRequestDto popularItems, Long accountId);
 
     List<EndingItemsDto> findEndedItemsByAccountId(int minQuantity, Long accountId);
 
