@@ -6,7 +6,8 @@ import org.springframework.stereotype.Component;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.function.Consumer;
+
+import static com.ita.if103java.ims.util.RowMapperUtil.setValueOrNull;
 
 @Component
 public class AddressRowMapper implements RowMapper<Address> {
@@ -23,9 +24,5 @@ public class AddressRowMapper implements RowMapper<Address> {
         setValueOrNull(address::setWarehouseId, resultSet.getLong("warehouse_id"), resultSet);
         setValueOrNull(address::setAssociateId, resultSet.getLong("associate_id"), resultSet);
         return address;
-    }
-
-    private <T> void setValueOrNull(Consumer<T> consumer, T value, ResultSet rs) throws SQLException {
-        consumer.accept(rs.wasNull() ? null : value);
     }
 }
