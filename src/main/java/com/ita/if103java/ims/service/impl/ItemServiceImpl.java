@@ -32,6 +32,8 @@ import com.ita.if103java.ims.util.ItemTransactionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -39,9 +41,14 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class ItemServiceImpl implements ItemService {
+    @Value("${items.maxWarehouseLoad}")
+    private String maxWarehouseLoad;
+    @Value("${items.maxWarehouseLoad}")
+    private String minQuantityItemsInWarehouse;
     private static final Logger LOGGER = LoggerFactory.getLogger(ItemServiceImpl.class);
     private ItemDtoMapper itemDtoMapper;
     private SavedItemDtoMapper savedItemDtoMapper;
@@ -69,11 +76,17 @@ public class ItemServiceImpl implements ItemService {
         this.associateDao = associateDao;
     }
 
+    private String checkSort(String... sort) {
+        String direction = sort[1].equals("DESC") ? "desc" : "asc";
+        return Stream.of("id", "name_item", "unit", "description", "volume").
+            filter(x -> x.equalsIgnoreCase(sort[0])).collect(Collectors.joining()) + " " + direction;
+    }
+
     @Override
     public List<ItemDto> findSortedItems(Pageable pageable, UserDetailsImpl user) {
-        String sort = pageable.getSort().toString().replaceAll(": ", " ");
-        return itemDtoMapper.toDtoList(itemDao.getItems(sort, pageable.getPageSize(), pageable.getOffset(),
-            user.getUser().getAccountId()));
+        return itemDtoMapper.toDtoList(itemDao.getItems(checkSort(pageable.getSort().toString().split(": ")),
+            pageable.getPageSize(),
+            pageable.getOffset(), user.getUser().getAccountId()));
     }
 
     @Override
@@ -119,7 +132,7 @@ public class ItemServiceImpl implements ItemService {
                 transaction.getId().longValue()));
             if (!isLowSpaceInWarehouse(itemTransaction, user.getUser().getAccountId())) {
                 Event event =
-                    new Event("Warehouse is loaded more than 90%! Capacity " + warehouseDao.findById(itemTransaction.getDestinationWarehouseId()).getCapacity() +
+                    new Event("Warehouse is loaded more than " + maxWarehouseLoad + "%! Capacity " + warehouseDao.findById(itemTransaction.getDestinationWarehouseId()).getCapacity() +
                         " in Warehouse " + warehouseDao.findById(itemTransaction.getDestinationWarehouseId()).getName(),
                         user.getUser().getAccountId(),
                         itemTransaction.getDestinationWarehouseId(), user.getUser().getId(),
@@ -236,12 +249,12 @@ public class ItemServiceImpl implements ItemService {
                 transaction.getId().longValue()));
 
             if (!isLowSpaceInWarehouse(itemTransaction, user.getUser().getAccountId())) {
-                Event event = new Event("Warehouse is loaded more than 90%! Capacity " +
+                Event event = new Event("Warehouse is loaded more than " + maxWarehouseLoad + "%! Capacity " +
                     warehouseDao.findById(itemTransaction.getDestinationWarehouseId()).getCapacity() +
-                        " in Warehouse " + warehouseDao.findById(itemTransaction.getDestinationWarehouseId()).getName(),
-                        user.getUser().getAccountId(),
-                        itemTransaction.getDestinationWarehouseId(), user.getUser().getId(),
-                        EventName.LOW_SPACE_IN_WAREHOUSE, null);
+                    " in Warehouse " + warehouseDao.findById(itemTransaction.getDestinationWarehouseId()).getName(),
+                    user.getUser().getAccountId(),
+                    itemTransaction.getDestinationWarehouseId(), user.getUser().getId(),
+                    EventName.LOW_SPACE_IN_WAREHOUSE, null);
                 LOGGER.error("Warehouse is loaded more than 90 % Capacity", event);
                 eventService.create(event);
             }
@@ -277,7 +290,8 @@ public class ItemServiceImpl implements ItemService {
                 transaction.getId().longValue()));
             savedItemDto.setQuantity(Long.valueOf(difference).intValue());
             if (savedItemDto.getQuantity() < 10) {
-                Event event = new Event("Left less than 10 items! Quantity" + itemTransaction.getQuantity() + " " +
+                Event event =
+                    new Event("Left less than " + minQuantityItemsInWarehouse + " items! Quantity" + itemTransaction.getQuantity() + " " +
                         itemTransaction.getItemDto().getName() +
                         " in warehouse " + warehouseDao.findById(itemTransaction.getSourceWarehouseId()).getName(),
                         user.getUser().getAccountId(),
