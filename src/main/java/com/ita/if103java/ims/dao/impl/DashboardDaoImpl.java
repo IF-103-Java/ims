@@ -57,24 +57,24 @@ public class DashboardDaoImpl implements DashboardDao {
     }
 
     @Override
-    public List<PopularItemsDto> findPopularItems(PopularItemsRequestDto popularItems) {
+    public List<PopularItemsDto> findPopularItems(PopularItemsRequestDto popularItems, Long accountId) {
         try {
             switch (popularItems.getDateType()) {
                 case YEAR:
                     return jdbcTemplate.query(Queries.SQL_FIND_POPULAR_ITEMS + Queries.SQL_POP_YEAR +
                             (popularItems.getPopType() == TOP ? Queries.SQL_ATR_POP : Queries.SQL_ATR_UNPOP),
                         popularItemsRowMapper,
-                        popularItems.getDate(), popularItems.getQuantity());
+                        accountId, popularItems.getDate(), popularItems.getQuantity());
                 case MONTH:
                     return jdbcTemplate.query(Queries.SQL_FIND_POPULAR_ITEMS + Queries.SQL_POP_MONTH +
                             (popularItems.getPopType() == TOP ? Queries.SQL_ATR_POP : Queries.SQL_ATR_UNPOP),
                         popularItemsRowMapper,
-                        popularItems.getDate(), popularItems.getDate(), popularItems.getQuantity());
+                        accountId, popularItems.getDate(), popularItems.getDate(), popularItems.getQuantity());
                 default:
                     return jdbcTemplate.query(Queries.SQL_FIND_POPULAR_ITEMS +
                             (popularItems.getPopType() == TOP ? Queries.SQL_ATR_POP : Queries.SQL_ATR_UNPOP),
                         popularItemsRowMapper,
-                        popularItems.getQuantity());
+                        accountId, popularItems.getQuantity());
             }
 
         } catch (DataAccessException e) {
@@ -154,8 +154,9 @@ public class DashboardDaoImpl implements DashboardDao {
             sum(ts.quantity) AS quantity
             FROM transactions ts
             JOIN items it
-            ON ts.item_id = it.id
+            ON ts.item_id = it.id and ts.account_id = it.account_id
             WHERE type = 'OUT'
+            AND ts.account_id = ?
         """;
 
         static final String SQL_POP_YEAR = """
@@ -192,7 +193,7 @@ public class DashboardDaoImpl implements DashboardDao {
             RIGHT JOIN
             (SELECT id, capacity, account_id, top_warehouse_id
             FROM warehouses
-            WHERE is_bottom=1) AS cap
+            WHERE is_bottom=1 AND active=1) AS cap
             ON  cha.warehouse_id=cap.id AND  cha.account_id=cap.account_id
             WHERE cap.account_id=?
             GROUP BY top_warehouse_id
@@ -214,6 +215,7 @@ public class DashboardDaoImpl implements DashboardDao {
             FROM warehouses
             WHERE id=?
             AND account_id=?
+            AND active = 1
         """;
 
         static final String SQL_WAREHOUSE_STRUCTURE_SUB = """
@@ -221,6 +223,7 @@ public class DashboardDaoImpl implements DashboardDao {
             FROM warehouses
             WHERE parent_id=?
             AND account_id=?
+            AND active = 1
         """;
 
         static final String SQL_FIND_BOT_CAPACITY_CHARGE = """

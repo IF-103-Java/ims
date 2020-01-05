@@ -25,7 +25,8 @@ public class DistanceMatrixMapper {
             (x, y) -> new WarehouseToAssociateDistanceDto(
                 (WarehouseAddressDto) x.get(0),
                 (AssociateAddressDto) x.get(1),
-                y.distance
+                y.distance,
+                y.status
             )
         );
     }

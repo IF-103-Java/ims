@@ -2,6 +2,7 @@ package com.ita.if103java.ims.mapper;
 
 import com.ita.if103java.ims.dto.EventDto;
 import com.ita.if103java.ims.entity.Event;
+import com.ita.if103java.ims.entity.EventName;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -19,7 +20,7 @@ public class EventDtoMapper extends AbstractEntityDtoMapper<Event, EventDto> {
         event.setWarehouseId(eventDto.getWarehouseId());
         event.setTransactionId(eventDto.getTransactionId());
         event.setDate(eventDto.getDate());
-        event.setName(eventDto.getName());
+        event.setName(EventName.valueOf(eventDto.getName()));
         event.setMessage(eventDto.getMessage());
         return event;
     }
@@ -36,7 +37,7 @@ public class EventDtoMapper extends AbstractEntityDtoMapper<Event, EventDto> {
         eventDto.setWarehouseId(event.getWarehouseId());
         eventDto.setTransactionId(event.getTransactionId());
         eventDto.setDate(event.getDate());
-        eventDto.setName(event.getName());
+        eventDto.setName(event.getName().getLabel());
         eventDto.setMessage(event.getMessage());
         return eventDto;
     }
