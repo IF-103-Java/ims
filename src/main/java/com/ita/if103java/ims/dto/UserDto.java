@@ -43,7 +43,6 @@ public class UserDto implements Serializable {
     @Size(min = 8, max = 32)
     private String password;
 
-    @NotNull(groups = {NewData.class, ExistData.class})
     private Role role;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
@@ -52,7 +51,6 @@ public class UserDto implements Serializable {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
     private ZonedDateTime updatedDate;
 
-    @NotNull(groups = {NewData.class, ExistData.class})
     private boolean active;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
@@ -63,6 +61,8 @@ public class UserDto implements Serializable {
         message = "This field must be filled with the auto-generator during the creation of organization")
     private Long accountId;
 
+    @NotBlank(groups = {NewData.class, ExistData.class},
+        message = "Please, enter an account name")
     private String accountName;
 
     public Long getId() {
