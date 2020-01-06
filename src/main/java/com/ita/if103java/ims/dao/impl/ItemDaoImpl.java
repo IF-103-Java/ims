@@ -33,7 +33,6 @@ public class ItemDaoImpl implements ItemDao {
     @Override
     public List<Item> getItems(String sort, int size, long offset, long accountId) {
         try {
-            System.out.println(sort);
             final String query = " select * from items where account_id=? order by " + sort + " limit ? offset ?";
             return jdbcTemplate.query(query, itemRowMapper, accountId, size, offset);
         } catch (DataAccessException e) {

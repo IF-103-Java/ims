@@ -33,7 +33,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -132,12 +131,13 @@ public class ItemServiceImpl implements ItemService {
                 transaction.getId().longValue()));
             if (!isLowSpaceInWarehouse(itemTransaction, user.getUser().getAccountId())) {
                 Event event =
-                    new Event("Warehouse is loaded more than " + maxWarehouseLoad + "%! Capacity " + warehouseDao.findById(itemTransaction.getDestinationWarehouseId()).getCapacity() +
+                    new Event("Warehouse is loaded more than " + maxWarehouseLoad + "%! Capacity " +
+                        warehouseDao.findById(itemTransaction.getDestinationWarehouseId()).getCapacity() +
                         " in Warehouse " + warehouseDao.findById(itemTransaction.getDestinationWarehouseId()).getName(),
                         user.getUser().getAccountId(),
                         itemTransaction.getDestinationWarehouseId(), user.getUser().getId(),
                         EventName.LOW_SPACE_IN_WAREHOUSE, null);
-                LOGGER.error("Warehouse is loaded more than 90 %!", event);
+                LOGGER.error("Warehouse is loaded more than " + maxWarehouseLoad + " %!", event);
                 eventService.create(event);
             }
             return savedItemDto;
@@ -191,7 +191,8 @@ public class ItemServiceImpl implements ItemService {
         int capacity = volume * quantity;
         List<Warehouse> childWarehouses = new ArrayList<>();
         for (Warehouse warehouse : warehouseDao.findAll()) {
-            childWarehouses.addAll(warehouseDao.findChildrenByTopWarehouseID(warehouse.getId()).stream().filter(x -> x.getCapacity() >= capacity).collect(Collectors.toList()));
+            childWarehouses.addAll(warehouseDao.findChildrenByTopWarehouseID(warehouse.getId()).stream().
+                filter(x -> x.getCapacity() >= capacity).collect(Collectors.toList()));
         }
         return warehouseDtoMapper.toDtoList(childWarehouses);
 
@@ -255,13 +256,13 @@ public class ItemServiceImpl implements ItemService {
                     user.getUser().getAccountId(),
                     itemTransaction.getDestinationWarehouseId(), user.getUser().getId(),
                     EventName.LOW_SPACE_IN_WAREHOUSE, null);
-                LOGGER.error("Warehouse is loaded more than 90 % Capacity", event);
+                LOGGER.error("Warehouse is loaded more than " + maxWarehouseLoad + "% Capacity", event);
                 eventService.create(event);
             }
             return isMove;
         } else {
-            eventService.create(new Event("Not enough capacity! Capacity " + warehouseDao.findById(itemTransaction.getDestinationWarehouseId()).getCapacity() +
-                " in warehouse " + warehouseDao.findById(itemTransaction.getDestinationWarehouseId()).getName(),
+            eventService.create(new Event("Not enough capacity! Capacity " + warehouseDao.findById(itemTransaction.getDestinationWarehouseId()).
+                getCapacity() + " in warehouse " + warehouseDao.findById(itemTransaction.getDestinationWarehouseId()).getName(),
                 user.getUser().getAccountId(),
                 itemTransaction.getDestinationWarehouseId(), user.getUser().getId(), EventName.LOW_SPACE_IN_WAREHOUSE
                 , null));
@@ -296,7 +297,7 @@ public class ItemServiceImpl implements ItemService {
                         " in warehouse " + warehouseDao.findById(itemTransaction.getSourceWarehouseId()).getName(),
                         user.getUser().getAccountId(),
                         itemTransaction.getSourceWarehouseId(), user.getUser().getId(), EventName.ITEM_ENDED, null);
-                LOGGER.error("Left less than 10 items!", event);
+                LOGGER.error("Left less than " + minQuantityItemsInWarehouse + " items!", event);
                 eventService.create(event);
             }
             return savedItemDto;
