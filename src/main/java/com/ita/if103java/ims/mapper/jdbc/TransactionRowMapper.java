@@ -7,7 +7,8 @@ import org.springframework.stereotype.Component;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.function.Consumer;
+
+import static com.ita.if103java.ims.util.RowMapperUtil.setValueOrNull;
 
 @Component
 public class TransactionRowMapper implements RowMapper<Transaction> {
@@ -26,9 +27,5 @@ public class TransactionRowMapper implements RowMapper<Transaction> {
         setValueOrNull(transaction::setMovedFrom, rs.getLong("moved_from"), rs);
         setValueOrNull(transaction::setMovedTo, rs.getLong("moved_to"), rs);
         return transaction;
-    }
-
-    private <T> void setValueOrNull(Consumer<T> consumer, T value, ResultSet rs) throws SQLException {
-        consumer.accept(rs.wasNull() ? null : value);
     }
 }
