@@ -11,7 +11,7 @@ import java.util.List;
 public interface WarehouseService {
     WarehouseDto add(WarehouseDto warehouseDto, UserDetailsImpl user);
 
-    WarehouseDto findWarehouseById(Long id);
+    WarehouseDto findById(Long id);
 
     List<WarehouseDto> findWarehousesByTopLevelId(Long accountId, UserDetailsImpl user);
 

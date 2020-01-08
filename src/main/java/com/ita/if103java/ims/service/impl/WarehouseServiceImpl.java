@@ -20,7 +20,11 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class WarehouseServiceImpl implements WarehouseService {
@@ -35,9 +39,7 @@ public class WarehouseServiceImpl implements WarehouseService {
                                 WarehouseDtoMapper warehouseDtoMapper,
                                 AddressDao addressDao,
                                 AddressDtoMapper addressDtoMapper,
-                                EventService eventService
-    ) {
-
+                                EventService eventService) {
         this.warehouseDao = warehouseDao;
         this.warehouseDtoMapper = warehouseDtoMapper;
         this.addressDao = addressDao;
@@ -62,7 +64,7 @@ public class WarehouseServiceImpl implements WarehouseService {
         Integer maxWarehouseDepth = userDetails.getAccountType().getMaxWarehouseDepth();
         int parentLevel = warehouseDao.findLevelByParentID(warehouseDto.getParentID());
         if (parentLevel + 1 < maxWarehouseDepth) {
-            return createNewWarehouse(warehouseDto,userDetails);
+            return createNewWarehouse(warehouseDto, userDetails);
         } else {
             throw new MaxWarehouseDepthLimitReachedException("The maximum depth of warehouse's levels has been reached for this" +
                 "{accountId = " + accountId + "}");
@@ -72,25 +74,49 @@ public class WarehouseServiceImpl implements WarehouseService {
     private WarehouseDto createNewWarehouse(WarehouseDto warehouseDto, UserDetailsImpl user) {
         Warehouse warehouse = warehouseDao.create(warehouseDtoMapper.toEntity(warehouseDto));
         Address address = addressDtoMapper.toEntity(warehouseDto.getAddressDto());
-        addressDao.createWarehouseAddress(warehouse.getId(),address);
+        addressDao.createWarehouseAddress(warehouse.getId(), address);
         createEvent(user, warehouse, EventName.WAREHOUSE_CREATED);
 
-        return warehouseDtoMapper.toDto(warehouseDao.create(warehouse));
+        Warehouse newWarehouse = warehouseDao.create(warehouse);
+        populatePath(newWarehouse, user);
+        return warehouseDtoMapper.toDto(newWarehouse);
     }
 
     @Override
     public List<WarehouseDto> findAll(Pageable pageable, UserDetailsImpl user) {
-        return warehouseDtoMapper.toDtoList(warehouseDao.findAll(pageable));
+        List<Warehouse> all = warehouseDao.findAll(pageable, user.getUser().getAccountId());
+        Map<Long, Warehouse> groupedWarehouses = all.stream()
+            .collect(Collectors.toMap(Warehouse::getId, Function.identity()));
+        all.forEach(o -> findPath(o, groupedWarehouses));
+        return warehouseDtoMapper.toDtoList(all);
     }
 
     @Override
-    public WarehouseDto findWarehouseById(Long id) {
-        return warehouseDtoMapper.toDto(warehouseDao.findById(id));
+    public WarehouseDto findById(Long id) {
+        Warehouse warehouse = warehouseDao.findById(id);
+        populatePath(warehouse, null);
+        return warehouseDtoMapper.toDto(warehouse);
+    }
+
+    private void populatePath(Warehouse warehouse, UserDetailsImpl userDetails) {
+        Map<Long, Warehouse> groupedWarehouses = new HashMap<>();
+        if (!warehouse.getId().equals(warehouse.getTopWarehouseID())) {
+            List<Warehouse> warehousesInHieararchy = warehouseDao.findByTopWarehouseID(warehouse.getTopWarehouseID());
+            groupedWarehouses = warehousesInHieararchy.stream()
+                .collect(Collectors.toMap(Warehouse::getId, Function.identity()));
+        } else {
+            groupedWarehouses.put(warehouse.getId(), warehouse);
+        }
+        findPath(warehouse, groupedWarehouses);
     }
 
     @Override
     public List<WarehouseDto> findWarehousesByTopLevelId(Long topLevelId, UserDetailsImpl user) {
-        return warehouseDtoMapper.toDtoList(warehouseDao.findChildrenByTopWarehouseID(topLevelId));
+        List<Warehouse> byTopWarehouseID = warehouseDao.findByTopWarehouseID(topLevelId);
+        Map<Long, Warehouse> groupedWarehouses = byTopWarehouseID.stream()
+            .collect(Collectors.toMap(Warehouse::getId, Function.identity()));
+        byTopWarehouseID.forEach(o -> findPath(o, groupedWarehouses));
+        return warehouseDtoMapper.toDtoList(byTopWarehouseID);
     }
 
     @Override
@@ -99,15 +125,17 @@ public class WarehouseServiceImpl implements WarehouseService {
         Warehouse dBWarehouse = warehouseDao.findById(updatedWarehouse.getId());
         updatedWarehouse.setActive(dBWarehouse.isActive());
         createEvent(user, updatedWarehouse, EventName.WAREHOUSE_EDITED);
-        return warehouseDtoMapper.toDto(warehouseDao.update(updatedWarehouse));
+        Warehouse editedWarehouse = warehouseDao.update(updatedWarehouse);
+        populatePath(editedWarehouse, user);
+        return warehouseDtoMapper.toDto(editedWarehouse);
     }
 
     @Override
     public boolean softDelete(Long id, UserDetailsImpl user) {
-        Boolean isDelete = warehouseDao.softDelete(id) ;
-        if (isDelete){
-        Warehouse warehouse = warehouseDao.findById(id);
-        createEvent(user, warehouse, EventName.WAREHOUSE_REMOVED);
+        Boolean isDelete = warehouseDao.softDelete(id);
+        if (isDelete) {
+            Warehouse warehouse = warehouseDao.findById(id);
+            createEvent(user, warehouse, EventName.WAREHOUSE_REMOVED);
         }
         return isDelete;
     }
@@ -120,7 +148,7 @@ public class WarehouseServiceImpl implements WarehouseService {
             message += " Name : " + warehouse.getName() + "level : " + level;
         }
         if (level != 0) {
-            message += "as a child of warehouse id " + warehouse.getParentID();
+            message += " as a child of warehouse id " + warehouse.getParentID();
         }
         event.setMessage(message);
         event.setAccountId(user.getUser().getAccountId());
@@ -130,28 +158,26 @@ public class WarehouseServiceImpl implements WarehouseService {
         eventService.create(event);
     }
 
-    public List<String> findPath(Long id, UserDetailsImpl user){
-        List<String> path = new ArrayList<>();
-        List<Warehouse> groupedWarehouses = new ArrayList<>();
-        Warehouse warehouse = warehouseDao.findById(id);
-            path.add(warehouse.getName());
-//        if ((Long)warehouse.getParentID() != null) {
-//
-//            Warehouse parentWarehouse = warehouseDao.findById(warehouse.getParentID());
-//            List<String> parentPath = new ArrayList<>();
-//            if (!parentWarehouse.getPath().isEmpty()) {
-//
-//                parentPath = parentWarehouse.getPath();
-//                System.out.println("Parent path exists: " + parentPath);
-//            } else {
-//                parentPath = findPath(parentWarehouse, groupedWarehouses);
-//                System.out.println("Parent path computed: " + parentPath);
-//            }
-//            path.addAll(parentPath);
-//        }
-//        List<String> reversePath = new ArrayList<>(path);
-//        Collections.reverse(reversePath);
-//        warehouse.setPath(reversePath);
+    private List<String> findPath(Warehouse warehouse, Map<Long, Warehouse> groupedWarehouses) {
+        List<String> path = warehouse.getPath();
+        path.add(warehouse.getName());
+        if (warehouse.getParentID() != null) {
+
+            Warehouse parentWarehouse = groupedWarehouses.get(warehouse.getParentID());
+            List<String> parentPath = parentWarehouse.getPath();
+            if (!parentWarehouse.getPath().isEmpty()) {
+
+                parentPath = parentWarehouse.getPath();
+                System.out.println("Parent path exists: " + parentPath);
+            } else {
+                parentPath = findPath(parentWarehouse, groupedWarehouses);
+                System.out.println("Parent path computed: " + parentPath);
+            }
+            path.addAll(parentPath);
+        }
+        List<String> reversePath = new ArrayList<>(path);
+        Collections.reverse(reversePath);
+        warehouse.setPath(reversePath);
         return path;
     }
 }

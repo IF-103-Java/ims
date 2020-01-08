@@ -12,13 +12,13 @@ public interface WarehouseDao {
 
     boolean softDelete(Long id);
 
-    List<Warehouse> findAll(Pageable pageable);
+    List<Warehouse> findAll(Pageable pageable, Long accountId);
 
     Warehouse findById(Long id);
 
     Integer findQuantityOfWarehousesByAccountId(Long accountId);
 
-    List<Warehouse> findChildrenByTopWarehouseID(Long id);
+    List<Warehouse> findByTopWarehouseID(Long id);
 
     Integer findLevelByParentID(Long id);
 }

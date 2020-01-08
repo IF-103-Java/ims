@@ -4,6 +4,7 @@ import com.ita.if103java.ims.dto.ItemTransactionRequestDto;
 import com.ita.if103java.ims.dto.SavedItemDto;
 import com.ita.if103java.ims.dto.WarehouseDto;
 import com.ita.if103java.ims.entity.User;
+import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.ItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -40,8 +41,9 @@ public class SavedItemController {
     @GetMapping("/usefullWarehouses")
     @ResponseStatus(HttpStatus.OK)
     public List<WarehouseDto> findUsefullWarehouses(@RequestParam("volume") int volume,
-                                                    @RequestParam("capacity") int capacity) {
-        return itemService.findUsefullWarehouses(volume, capacity);
+                                                    @RequestParam("capacity") int capacity,
+                                                    @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return itemService.findUsefullWarehouses(volume, capacity, userDetails);
     }
 
     @GetMapping(path = "/itemId/{itemId}", produces = MediaType.APPLICATION_JSON_VALUE)

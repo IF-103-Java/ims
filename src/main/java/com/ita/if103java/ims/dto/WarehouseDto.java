@@ -6,6 +6,8 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class WarehouseDto implements Serializable {
@@ -44,6 +46,8 @@ public class WarehouseDto implements Serializable {
 
     private AddressDto addressDto;
 
+    private List<String> path;
+
     public WarehouseDto() {
     }
 
@@ -59,6 +63,8 @@ public class WarehouseDto implements Serializable {
         this.topWarehouseID = topWarehouseID;
         this.active = active;
         this.addressDto = addressDto;
+        this.path = new ArrayList<>();
+
     }
 
     public Long getId() {
@@ -141,6 +147,14 @@ public class WarehouseDto implements Serializable {
         return addressDto;
     }
 
+    public List<String> getPath(){
+        return  path;
+    }
+
+    public void setPath(List<String> path) {
+        this.path = path;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -153,12 +167,13 @@ public class WarehouseDto implements Serializable {
             topWarehouseID.equals(that.topWarehouseID) &&
             active == that.active &&
             Objects.equals(name, that.name) &&
-            Objects.equals(info, that.info);
+            Objects.equals(info, that.info) &&
+            Objects.equals(path, that.path);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, info, capacity, isBottom, parentID, accountID, topWarehouseID, active, addressDto);
+        return Objects.hash(name, info, capacity, isBottom, parentID, accountID, topWarehouseID, active, addressDto, path);
     }
 
     @Override
@@ -174,6 +189,7 @@ public class WarehouseDto implements Serializable {
             ", topWarehouseID=" + topWarehouseID +
             ", active=" + active +
             ", addressDto=" + addressDto +
+            ", path=" + path +
             '}';
     }
 }

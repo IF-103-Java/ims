@@ -24,6 +24,7 @@ import com.ita.if103java.ims.exception.ItemNotEnoughQuantityException;
 import com.ita.if103java.ims.mapper.ItemDtoMapper;
 import com.ita.if103java.ims.mapper.SavedItemDtoMapper;
 import com.ita.if103java.ims.mapper.WarehouseDtoMapper;
+import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.EventService;
 import com.ita.if103java.ims.service.ItemService;
 import com.ita.if103java.ims.util.ItemTransactionUtil;
@@ -97,11 +98,11 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<WarehouseDto> findUsefullWarehouses(int volume, int quantity) {
+    public List<WarehouseDto> findUsefullWarehouses(int volume, int quantity, UserDetailsImpl user) {
         int capacity = volume * quantity;
         List<Warehouse> childWarehouses = new ArrayList<>();
-        for (Warehouse warehouse : warehouseDao.findAll(Pageable.unpaged())) {
-            childWarehouses.addAll(warehouseDao.findChildrenByTopWarehouseID(warehouse.getId()).stream().filter(x -> x.getCapacity() >= capacity).collect(Collectors.toList()));
+        for (Warehouse warehouse : warehouseDao.findAll(Pageable.unpaged(), user.getUser().getAccountId())) {
+            childWarehouses.addAll(warehouseDao.findByTopWarehouseID(warehouse.getId()).stream().filter(x -> x.getCapacity() >= capacity).collect(Collectors.toList()));
         }
         return warehouseDtoMapper.toDtoList(childWarehouses);
 

@@ -40,10 +40,10 @@ public class WarehouseController {
     @GetMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.OK)
     public WarehouseDto findById(@PathVariable("id") Long id) {
-        return warehouseService.findWarehouseById(id);
+        return warehouseService.findById(id);
     }
 
-    @GetMapping(value = "/")
+    @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<WarehouseDto> findAll(Pageable pageable,
                                       @AuthenticationPrincipal UserDetailsImpl user) {
@@ -72,5 +72,11 @@ public class WarehouseController {
                        @AuthenticationPrincipal UserDetailsImpl user) {
         warehouseService.softDelete(id, user);
     }
+
+//    @GetMapping(value = "/{id}")
+//    @ResponseStatus(HttpStatus.OK)
+//    public WarehouseDto findPath(@PathVariable("id") Long id,
+//                                 @AuthenticationPrincipal UserDetailsImpl user) {
+//        return warehouseService.findPath(id, user);
 
 }

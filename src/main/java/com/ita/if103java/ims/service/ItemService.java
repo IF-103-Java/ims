@@ -5,6 +5,7 @@ import com.ita.if103java.ims.dto.ItemTransactionRequestDto;
 import com.ita.if103java.ims.dto.SavedItemDto;
 import com.ita.if103java.ims.dto.WarehouseDto;
 import com.ita.if103java.ims.entity.User;
+import com.ita.if103java.ims.security.UserDetailsImpl;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
@@ -25,7 +26,7 @@ public interface ItemService {
 
     List<SavedItemDto> findByItemId(Long id);
 
-    List<WarehouseDto> findUsefullWarehouses(int volume, int quantity);
+    List<WarehouseDto> findUsefullWarehouses(int volume, int quantity, UserDetailsImpl userDetails);
 
     boolean moveItem(ItemTransactionRequestDto itemTransaction, User user);
 

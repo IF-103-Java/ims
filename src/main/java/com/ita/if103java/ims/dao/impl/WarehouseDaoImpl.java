@@ -5,8 +5,6 @@ import com.ita.if103java.ims.entity.Warehouse;
 import com.ita.if103java.ims.exception.CRUDException;
 import com.ita.if103java.ims.exception.WarehouseNotFoundException;
 import com.ita.if103java.ims.mapper.jdbc.WarehouseRowMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -51,9 +49,10 @@ public class WarehouseDaoImpl implements WarehouseDao {
     }
 
     @Override
-    public List<Warehouse> findAll(Pageable pageable) {
+    public List<Warehouse> findAll(Pageable pageable, Long accountId) {
         try {
-            return jdbcTemplate.query(Queries.SQL_SELECT_ALL_WAREHOUSES, warehouseRowMapper,pageable.getPageSize(),pageable.getOffset());
+            return jdbcTemplate.query(Queries.SQL_SELECT_ALL_WAREHOUSES, warehouseRowMapper, accountId,
+                pageable.getPageSize(), pageable.getOffset());
 
         } catch (DataAccessException e) {
             throw new WarehouseNotFoundException("Error during finding all warehouses", e);
@@ -125,9 +124,9 @@ public class WarehouseDaoImpl implements WarehouseDao {
 
 
     @Override
-    public List<Warehouse> findChildrenByTopWarehouseID(Long id) {
+    public List<Warehouse> findByTopWarehouseID(Long id) {
         try {
-            return jdbcTemplate.query(Queries.SQL_SELECT_CHILDREN_BY_TOP_WAREHOUSE_ID, warehouseRowMapper, id);
+            return jdbcTemplate.query(Queries.SQL_SELECT_BY_TOP_WAREHOUSE_ID, warehouseRowMapper, id);
 
         } catch (DataAccessException e) {
             throw new WarehouseNotFoundException("Error during finding all children of top-level-warehouse {Id = " + id + "}", e);
@@ -169,6 +168,8 @@ public class WarehouseDaoImpl implements WarehouseDao {
 
         static final String SQL_SELECT_ALL_WAREHOUSES = """
             SELECT * FROM warehouses
+            WHERE account_id = ?
+            LIMIT ? OFFSET ?
         """;
 
         static final String SQL_UPDATE_WAREHOUSE = """
@@ -177,7 +178,7 @@ public class WarehouseDaoImpl implements WarehouseDao {
             WHERE id = ?;
         """;
 
-        static final String SQL_SELECT_CHILDREN_BY_TOP_WAREHOUSE_ID = """
+        static final String SQL_SELECT_BY_TOP_WAREHOUSE_ID = """
             SELECT *
             FROM warehouses
             WHERE top_warehouse_id = ?
