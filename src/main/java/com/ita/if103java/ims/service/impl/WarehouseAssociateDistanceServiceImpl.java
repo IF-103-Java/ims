@@ -4,7 +4,7 @@ import com.google.maps.model.DistanceMatrix;
 import com.ita.if103java.ims.dto.AssociateAddressDto;
 import com.ita.if103java.ims.dto.WarehouseAddressDto;
 import com.ita.if103java.ims.dto.WarehouseToAssociateDistanceDto;
-import com.ita.if103java.ims.mapper.DistanceMatrixMapper;
+import com.ita.if103java.ims.mapper.dto.DistanceMatrixDtoMapper;
 import com.ita.if103java.ims.service.DistanceMatrixService;
 import com.ita.if103java.ims.service.WarehouseAssociateDistanceService;
 import com.ita.if103java.ims.util.ListUtils;
@@ -16,11 +16,11 @@ import java.util.List;
 @Service
 public class WarehouseAssociateDistanceServiceImpl implements WarehouseAssociateDistanceService {
     private final DistanceMatrixService distanceMatrixService;
-    private final DistanceMatrixMapper matrixMapper;
+    private final DistanceMatrixDtoMapper matrixMapper;
 
     @Autowired
     public WarehouseAssociateDistanceServiceImpl(DistanceMatrixService distanceMatrixService,
-                                                 DistanceMatrixMapper matrixMapper) {
+                                                 DistanceMatrixDtoMapper matrixMapper) {
         this.distanceMatrixService = distanceMatrixService;
         this.matrixMapper = matrixMapper;
     }
@@ -30,7 +30,7 @@ public class WarehouseAssociateDistanceServiceImpl implements WarehouseAssociate
                                                               List<AssociateAddressDto> supplierAddresses,
                                                               List<AssociateAddressDto> clientAddresses) {
         final List<AssociateAddressDto> associateAddresses = ListUtils.concat(supplierAddresses, clientAddresses);
-        final DistanceMatrix distanceMatrix = distanceMatrixService.getDistances(warehouseAddresses, associateAddresses);
+        final DistanceMatrix distanceMatrix = distanceMatrixService.getDistanceMatrix(warehouseAddresses, associateAddresses);
         return matrixMapper.toDtoList(distanceMatrix, warehouseAddresses, associateAddresses);
     }
 }

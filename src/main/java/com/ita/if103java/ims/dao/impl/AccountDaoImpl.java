@@ -3,8 +3,8 @@ package com.ita.if103java.ims.dao.impl;
 
 import com.ita.if103java.ims.dao.AccountDao;
 import com.ita.if103java.ims.entity.Account;
-import com.ita.if103java.ims.exception.AccountNotFoundException;
-import com.ita.if103java.ims.exception.CRUDException;
+import com.ita.if103java.ims.exception.dao.AccountNotFoundException;
+import com.ita.if103java.ims.exception.dao.CRUDException;
 import com.ita.if103java.ims.mapper.jdbc.AccountRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
