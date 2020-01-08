@@ -4,7 +4,7 @@ import com.ita.if103java.ims.dao.AddressLinkerDao;
 import com.ita.if103java.ims.dto.AddressDto;
 import com.ita.if103java.ims.dto.AssociateAddressDto;
 import com.ita.if103java.ims.dto.WarehouseAddressDto;
-import com.ita.if103java.ims.exception.CRUDException;
+import com.ita.if103java.ims.exception.dao.CRUDException;
 import com.ita.if103java.ims.mapper.jdbc.AssociateAddressRowMapper;
 import com.ita.if103java.ims.mapper.jdbc.WarehouseAddressRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,6 +64,7 @@ public class AddressLinkerDaoImpl implements AddressLinkerDao {
             from addresses a1
                      join associates a2 on a1.associate_id = a2.id
             where a1.associate_id in (:ids)
+            order by field(a1.associate_id, :ids)
             """;
 
         public static final String SQL_FIND_WAREHOUSE_ADDRESSES_BY_IDS = """
@@ -78,6 +79,7 @@ public class AddressLinkerDaoImpl implements AddressLinkerDao {
             from addresses a
                      join warehouses w on a.warehouse_id = w.id
             where a.warehouse_id in (:ids)
+            order by field(a.warehouse_id, :ids)
             """;
     }
 }
