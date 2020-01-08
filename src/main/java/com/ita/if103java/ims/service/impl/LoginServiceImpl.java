@@ -3,8 +3,8 @@ package com.ita.if103java.ims.service.impl;
 import com.ita.if103java.ims.dao.UserDao;
 import com.ita.if103java.ims.dto.UserLoginDto;
 import com.ita.if103java.ims.entity.User;
-import com.ita.if103java.ims.exception.UserOrPasswordIncorrectException;
-import com.ita.if103java.ims.mapper.UserDtoMapper;
+import com.ita.if103java.ims.exception.service.UserOrPasswordIncorrectException;
+import com.ita.if103java.ims.mapper.dto.UserDtoMapper;
 import com.ita.if103java.ims.security.JwtTokenProvider;
 import com.ita.if103java.ims.service.EventService;
 import com.ita.if103java.ims.service.LoginService;
@@ -22,7 +22,6 @@ import java.util.UUID;
 
 import static com.ita.if103java.ims.config.MailMessagesConfig.FOOTER;
 import static com.ita.if103java.ims.config.MailMessagesConfig.RESET_PASSWORD;
-import static com.ita.if103java.ims.entity.EventName.LOGIN;
 import static com.ita.if103java.ims.entity.EventName.PASSWORD_CHANGED;
 import static com.ita.if103java.ims.util.TokenUtil.isValidToken;
 import static com.ita.if103java.ims.util.UserEventUtil.createEvent;

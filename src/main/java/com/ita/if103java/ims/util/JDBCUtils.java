@@ -1,6 +1,6 @@
 package com.ita.if103java.ims.util;
 
-import com.ita.if103java.ims.exception.CRUDException;
+import com.ita.if103java.ims.exception.dao.CRUDException;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.util.NumberUtils;
