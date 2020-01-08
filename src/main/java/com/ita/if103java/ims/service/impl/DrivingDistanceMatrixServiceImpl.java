@@ -24,8 +24,8 @@ public class DrivingDistanceMatrixServiceImpl implements DistanceMatrixService {
     }
 
     @Override
-    public DistanceMatrix getDistances(List<? extends AddressDto> origins,
-                                       List<? extends AddressDto> destinations) {
+    public DistanceMatrix getDistanceMatrix(List<? extends AddressDto> origins,
+                                            List<? extends AddressDto> destinations) {
         try {
             return DistanceMatrixApi
                 .newRequest(apiContext)

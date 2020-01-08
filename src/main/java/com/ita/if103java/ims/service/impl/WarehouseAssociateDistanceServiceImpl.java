@@ -30,7 +30,7 @@ public class WarehouseAssociateDistanceServiceImpl implements WarehouseAssociate
                                                               List<AssociateAddressDto> supplierAddresses,
                                                               List<AssociateAddressDto> clientAddresses) {
         final List<AssociateAddressDto> associateAddresses = ListUtils.concat(supplierAddresses, clientAddresses);
-        final DistanceMatrix distanceMatrix = distanceMatrixService.getDistances(warehouseAddresses, associateAddresses);
+        final DistanceMatrix distanceMatrix = distanceMatrixService.getDistanceMatrix(warehouseAddresses, associateAddresses);
         return matrixMapper.toDtoList(distanceMatrix, warehouseAddresses, associateAddresses);
     }
 }
