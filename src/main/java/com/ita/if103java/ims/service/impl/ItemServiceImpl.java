@@ -46,7 +46,7 @@ import java.util.stream.Stream;
 public class ItemServiceImpl implements ItemService {
     @Value("${items.maxWarehouseLoad}")
     private String maxWarehouseLoad;
-    @Value("${items.maxWarehouseLoad}")
+    @Value("${items.minQuantityItemsInWarehouse}")
     private String minQuantityItemsInWarehouse;
     private static final Logger LOGGER = LoggerFactory.getLogger(ItemServiceImpl.class);
     private ItemDtoMapper itemDtoMapper;
@@ -158,11 +158,11 @@ public class ItemServiceImpl implements ItemService {
 
     private boolean isEnoughCapacityInWarehouse(ItemTransactionRequestDto itemTransaction, Long accountId) {
         float volume =
-            getVolumeOfPassSavedItems(itemTransaction, accountId) + itemTransaction.getQuantity() * itemTransaction.getItemDto().getVolume();
+            toVolumeOfPassSavedItems(itemTransaction, accountId) + itemTransaction.getQuantity() * itemTransaction.getItemDto().getVolume();
         return warehouseDao.findById(itemTransaction.getDestinationWarehouseId()).getCapacity() >= volume;
     }
 
-    private float getVolumeOfPassSavedItems(ItemTransactionRequestDto itemTransaction, Long accountId) {
+    private float toVolumeOfPassSavedItems(ItemTransactionRequestDto itemTransaction, Long accountId) {
         float volumePassSavedItems = 0;
         Long warehouseId = itemTransaction.getDestinationWarehouseId();
 
@@ -177,11 +177,11 @@ public class ItemServiceImpl implements ItemService {
 
 
     private boolean isLowSpaceInWarehouse(ItemTransactionRequestDto itemTransaction, Long accountId) {
-        float volume = getVolumeOfPassSavedItems(itemTransaction, accountId);
+        float volume = toVolumeOfPassSavedItems(itemTransaction, accountId);
         if (volume == 0) {
             return true;
         } else {
-            return volume * 100 / warehouseDao.findById(itemTransaction.getDestinationWarehouseId()).getCapacity() < 90.0;
+            return volume * 100 / warehouseDao.findById(itemTransaction.getDestinationWarehouseId()).getCapacity() < Float.parseFloat(maxWarehouseLoad);
         }
 
     }
@@ -290,7 +290,7 @@ public class ItemServiceImpl implements ItemService {
                 itemTransaction.getSourceWarehouseId(), user.getUser().getId(), EventName.ITEM_SHIPPED,
                 transaction.getId().longValue()));
             savedItemDto.setQuantity(Long.valueOf(difference).intValue());
-            if (savedItemDto.getQuantity() < 10) {
+            if (savedItemDto.getQuantity() < Integer.parseInt(minQuantityItemsInWarehouse)) {
                 Event event =
                     new Event("Left less than " + minQuantityItemsInWarehouse + " items! Quantity" + itemTransaction.getQuantity() + " " +
                         itemTransaction.getItemDto().getName() +
