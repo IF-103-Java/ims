@@ -6,7 +6,7 @@ import com.ita.if103java.ims.dto.AccountTypeDto;
 import com.ita.if103java.ims.entity.Event;
 import com.ita.if103java.ims.entity.EventName;
 import com.ita.if103java.ims.entity.User;
-import com.ita.if103java.ims.mapper.AccountTypeDtoMapper;
+import com.ita.if103java.ims.mapper.dto.AccountTypeDtoMapper;
 import com.ita.if103java.ims.service.EventService;
 import com.ita.if103java.ims.service.UpgradeService;
 import org.springframework.beans.factory.annotation.Autowired;

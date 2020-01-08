@@ -2,8 +2,8 @@ package com.ita.if103java.ims.dao.impl;
 
 import com.ita.if103java.ims.dao.TransactionDao;
 import com.ita.if103java.ims.entity.Transaction;
-import com.ita.if103java.ims.exception.CRUDException;
-import com.ita.if103java.ims.exception.TransactionNotFoundException;
+import com.ita.if103java.ims.exception.dao.CRUDException;
+import com.ita.if103java.ims.exception.dao.TransactionNotFoundException;
 import com.ita.if103java.ims.mapper.jdbc.TransactionRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;

@@ -3,8 +3,7 @@ package com.ita.if103java.ims.controller;
 
 import com.ita.if103java.ims.dto.UserDto;
 import com.ita.if103java.ims.dto.transfer.ExistData;
-import com.ita.if103java.ims.entity.User;
-import com.ita.if103java.ims.mapper.UserDtoMapper;
+import com.ita.if103java.ims.mapper.dto.UserDtoMapper;
 import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
