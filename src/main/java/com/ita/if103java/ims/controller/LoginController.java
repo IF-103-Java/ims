@@ -5,6 +5,7 @@ import com.ita.if103java.ims.dto.UserLoginDto;
 import com.ita.if103java.ims.service.LoginService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/")
+@CrossOrigin("http://localhost:4200")
 public class LoginController {
 
     private LoginService loginService;
@@ -35,7 +37,7 @@ public class LoginController {
         loginService.sendResetPasswordToken(email);
     }
 
-    @GetMapping("/reset-password")
+    @PostMapping("/reset-password")
     @ResponseStatus(HttpStatus.OK)
     public void resetPassword(@RequestParam("emailUUID") String emailUUID,
                               @RequestBody String newPassword) {
