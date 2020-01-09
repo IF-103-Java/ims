@@ -48,6 +48,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 "/reset-password",
                 "/signup",
                 "/users/confirmation",
+                "/events/**",
                 //--swagger--
                 "/v2/api-docs",
                 "/configuration/ui",

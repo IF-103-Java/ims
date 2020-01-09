@@ -5,7 +5,6 @@ import com.ita.if103java.ims.dao.UserDao;
 import com.ita.if103java.ims.dao.WarehouseDao;
 import com.ita.if103java.ims.dto.EventDto;
 import com.ita.if103java.ims.entity.Event;
-import com.ita.if103java.ims.entity.User;
 import com.ita.if103java.ims.mapper.dto.EventDtoMapper;
 import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.EventService;
@@ -21,6 +20,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class EventServiceImpl implements EventService {
@@ -62,12 +62,8 @@ public class EventServiceImpl implements EventService {
     }
 
     private void populateAdditionalInfo(List<EventDto> eventDtos) {
-        for (EventDto eventDto : eventDtos) {
-            User user = userDao.findById(eventDto.getAuthorId());
-            eventDto.setAuthor(user.getFirstName() + " " + user.getLastName());
-            if (eventDto.getWarehouseId() != null) {
-                eventDto.setWarehouse(warehouseDao.findById(eventDto.getWarehouseId()).getName());
-            }
-        }
+        List<Long> listAuthorsId = eventDtos.stream().map(EventDto::getAuthorId).distinct().collect(Collectors.toList());
+        List<Long> listWarehousesId = eventDtos.stream().map(EventDto::getWarehouseId).distinct().collect(Collectors.toList());
+
     }
 }
