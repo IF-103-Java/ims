@@ -64,9 +64,20 @@ public class WarehouseDaoImpl implements WarehouseDao {
 
     @Override
     public Map<Long, String> findWarehouseNames(Long accountId) {
+        String where = String.format("account_id = " + accountId);
+        return getMapNames(where);
+    }
+
+    @Override
+    public Map<Long, String> findWarehouseNames(List<Long> idList) {
+        String where = String.format(" id IN (%s)", idList.toString().substring(1, idList.toString().length() - 1));
+        return getMapNames(where);
+    }
+
+    private Map<Long, String> getMapNames(String where) {
         Map<Long, String> result = new HashMap<>();
         try {
-            for (Map<String, Object> map : jdbcTemplate.queryForList(Queries.SQL_SELECT_NAMES, accountId)) {
+            for (Map<String, Object> map : jdbcTemplate.queryForList(String.format(Queries.SQL_SELECT_NAMES, where))) {
                 result.put(Long.valueOf(map.get("id").toString()), map.get("name").toString());
             }
         } catch (DataAccessException e) {
@@ -74,6 +85,7 @@ public class WarehouseDaoImpl implements WarehouseDao {
         }
         return result;
     }
+
 
     @Override
     public Warehouse findById(Long id) {
@@ -228,7 +240,7 @@ public class WarehouseDaoImpl implements WarehouseDao {
         static final String SQL_SELECT_NAMES = """
                 SELECT id, name
                 FROM warehouses
-                WHERE account_id = ?
+                WHERE %s
             """;
     }
 }

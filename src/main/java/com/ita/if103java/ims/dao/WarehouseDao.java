@@ -16,6 +16,8 @@ public interface WarehouseDao {
 
     Map<Long, String> findWarehouseNames(Long account_id);
 
+    Map<Long, String> findWarehouseNames(List<Long> idList);
+
     Warehouse findById(Long id);
 
     Integer findQuantityOfWarehousesByAccountId(Long accountId);
