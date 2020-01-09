@@ -28,6 +28,8 @@ public interface UserDao {
 
     Map<Long, String> findUsernames(Long accountId);
 
+    Map<Long, String> findUsernames(List<Long> idList);
+
     User findByEmail(String email);
 
     boolean updatePassword(Long id, String newPassword);

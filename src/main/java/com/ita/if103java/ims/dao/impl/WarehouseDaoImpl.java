@@ -65,16 +65,16 @@ public class WarehouseDaoImpl implements WarehouseDao {
     @Override
     public Map<Long, String> findWarehouseNames(Long accountId) {
         String where = String.format("account_id = " + accountId);
-        return getMapNames(where);
+        return getNamesMap(where);
     }
 
     @Override
     public Map<Long, String> findWarehouseNames(List<Long> idList) {
         String where = String.format(" id IN (%s)", idList.toString().substring(1, idList.toString().length() - 1));
-        return getMapNames(where);
+        return getNamesMap(where);
     }
 
-    private Map<Long, String> getMapNames(String where) {
+    private Map<Long, String> getNamesMap(String where) {
         Map<Long, String> result = new HashMap<>();
         try {
             for (Map<String, Object> map : jdbcTemplate.queryForList(String.format(Queries.SQL_SELECT_NAMES, where))) {

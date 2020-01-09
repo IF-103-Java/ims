@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -63,9 +64,12 @@ public class EventServiceImpl implements EventService {
 
     private void populateAdditionalInfo(List<EventDto> eventDtos, Long accountId) {
         List<Long> listAuthorsId = eventDtos.stream().map(EventDto::getAuthorId).distinct().collect(Collectors.toList());
-        List<Long> listWarehousesId = eventDtos.stream().map(EventDto::getWarehouseId).distinct().collect(Collectors.toList());
-        Map<Long, String> userNamesMap = userDao.findUsernames(accountId);
-        Map<Long, String> warehouseNamesMap = warehouseDao.findWarehouseNames(accountId);
+        List<Long> listWarehousesId = eventDtos.stream().map(EventDto::getWarehouseId).filter(x -> x != null).distinct().collect(Collectors.toList());
+        Map<Long, String> userNamesMap = userDao.findUsernames(listAuthorsId);
+        Map<Long, String> warehouseNamesMap = new HashMap<>();
+        if (!listWarehousesId.isEmpty()) {
+            warehouseNamesMap = warehouseDao.findWarehouseNames(listWarehousesId);
+        }
         for (EventDto eventDto : eventDtos) {
             eventDto.setAuthor(userNamesMap.get(eventDto.getAuthorId()));
             if (eventDto.getWarehouseId() != null) {
