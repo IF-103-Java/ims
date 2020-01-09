@@ -254,7 +254,7 @@ public class EventDaoImpl implements EventDao {
 
         static final String SQL_CREATE_EVENT = """
                 INSERT INTO events
-                (message, date, account_id, author_id, warehouse_id, name, transaction_id, notification)
+                (message, date, account_id, author_id, warehouse_id, name, transaction_id)
                 VALUES(?,?,?,?,?,?,?)
             """;
     }
