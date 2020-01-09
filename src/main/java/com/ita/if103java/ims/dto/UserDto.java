@@ -61,6 +61,7 @@ public class UserDto implements Serializable {
         message = "This field must be filled with the auto-generator during the creation of organization")
     private Long accountId;
 
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @NotBlank(groups = {NewData.class, ExistData.class},
         message = "Please, enter an account name")
     private String accountName;
