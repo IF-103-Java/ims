@@ -23,6 +23,7 @@ import java.util.UUID;
 import static com.ita.if103java.ims.config.MailMessagesConfig.FOOTER;
 import static com.ita.if103java.ims.config.MailMessagesConfig.RESET_PASSWORD;
 import static com.ita.if103java.ims.entity.EventName.PASSWORD_CHANGED;
+import static com.ita.if103java.ims.entity.EventName.LOGIN;
 import static com.ita.if103java.ims.util.TokenUtil.isValidToken;
 import static com.ita.if103java.ims.util.UserEventUtil.createEvent;
 
