@@ -61,6 +61,8 @@ public class LoginServiceImpl implements LoginService {
     public String signIn(UserLoginDto user) {
         try {
             authManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
+            User regUser = userDao.findByEmail(user.getUsername());
+            eventService.create(createEvent(regUser, LOGIN , "sign in to account."));
             return jwtTokenProvider.createToken(user.getUsername());
         } catch (AuthenticationException e) {
             throw new UserOrPasswordIncorrectException("Credential aren't correct", e);
