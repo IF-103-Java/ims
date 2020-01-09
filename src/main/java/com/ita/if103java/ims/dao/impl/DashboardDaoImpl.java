@@ -7,7 +7,7 @@ import com.ita.if103java.ims.dto.PopularItemsRequestDto;
 import com.ita.if103java.ims.dto.WarehouseLoadDto;
 import com.ita.if103java.ims.dto.WarehousePremiumStructDto;
 import com.ita.if103java.ims.entity.ChargeCapacity;
-import com.ita.if103java.ims.exception.CRUDException;
+import com.ita.if103java.ims.exception.dao.CRUDException;
 import com.ita.if103java.ims.mapper.jdbc.ChargeCapacityRowMapper;
 import com.ita.if103java.ims.mapper.jdbc.EndingItemsRowMapper;
 import com.ita.if103java.ims.mapper.jdbc.PopularItemsRowMapper;

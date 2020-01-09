@@ -4,7 +4,7 @@ import com.ita.if103java.ims.dao.UserDao;
 import com.ita.if103java.ims.dto.UserDto;
 import com.ita.if103java.ims.entity.Role;
 import com.ita.if103java.ims.entity.User;
-import com.ita.if103java.ims.mapper.UserDtoMapper;
+import com.ita.if103java.ims.mapper.dto.UserDtoMapper;
 import com.ita.if103java.ims.service.EventService;
 import com.ita.if103java.ims.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;

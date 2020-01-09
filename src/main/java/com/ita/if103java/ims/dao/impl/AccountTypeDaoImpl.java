@@ -2,26 +2,18 @@ package com.ita.if103java.ims.dao.impl;
 
 import com.ita.if103java.ims.dao.AccountTypeDao;
 import com.ita.if103java.ims.entity.AccountType;
-import com.ita.if103java.ims.exception.AccountTypeNotFoundException;
-import com.ita.if103java.ims.exception.CRUDException;
+import com.ita.if103java.ims.exception.dao.AccountTypeNotFoundException;
+import com.ita.if103java.ims.exception.dao.CRUDException;
 import com.ita.if103java.ims.mapper.jdbc.AccountTypeRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @Repository
 public class AccountTypeDaoImpl implements AccountTypeDao {

@@ -2,8 +2,8 @@ package com.ita.if103java.ims.dao.impl;
 
 import com.ita.if103java.ims.dao.ItemDao;
 import com.ita.if103java.ims.entity.Item;
-import com.ita.if103java.ims.exception.CRUDException;
-import com.ita.if103java.ims.exception.ItemNotFoundException;
+import com.ita.if103java.ims.exception.dao.CRUDException;
+import com.ita.if103java.ims.exception.dao.ItemNotFoundException;
 import com.ita.if103java.ims.mapper.jdbc.ItemRowMapper;
 import com.ita.if103java.ims.util.JDBCUtils;
 import org.springframework.beans.factory.annotation.Autowired;

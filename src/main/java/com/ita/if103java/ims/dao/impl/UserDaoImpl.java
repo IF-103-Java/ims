@@ -2,8 +2,8 @@ package com.ita.if103java.ims.dao.impl;
 
 import com.ita.if103java.ims.dao.UserDao;
 import com.ita.if103java.ims.entity.User;
-import com.ita.if103java.ims.exception.CRUDException;
-import com.ita.if103java.ims.exception.UserNotFoundException;
+import com.ita.if103java.ims.exception.dao.CRUDException;
+import com.ita.if103java.ims.exception.dao.UserNotFoundException;
 import com.ita.if103java.ims.mapper.jdbc.UserRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;

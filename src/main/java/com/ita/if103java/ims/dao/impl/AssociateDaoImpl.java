@@ -2,8 +2,8 @@ package com.ita.if103java.ims.dao.impl;
 
 import com.ita.if103java.ims.dao.AssociateDao;
 import com.ita.if103java.ims.entity.Associate;
-import com.ita.if103java.ims.exception.CRUDException;
-import com.ita.if103java.ims.exception.EntityNotFoundException;
+import com.ita.if103java.ims.exception.dao.CRUDException;
+import com.ita.if103java.ims.exception.dao.EntityNotFoundException;
 import com.ita.if103java.ims.mapper.jdbc.AssociateRowMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

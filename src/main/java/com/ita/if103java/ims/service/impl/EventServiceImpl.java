@@ -6,7 +6,7 @@ import com.ita.if103java.ims.dao.WarehouseDao;
 import com.ita.if103java.ims.dto.EventDto;
 import com.ita.if103java.ims.entity.Event;
 import com.ita.if103java.ims.entity.User;
-import com.ita.if103java.ims.mapper.EventDtoMapper;
+import com.ita.if103java.ims.mapper.dto.EventDtoMapper;
 import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;

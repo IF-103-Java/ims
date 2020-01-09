@@ -6,6 +6,6 @@ import com.ita.if103java.ims.dto.AddressDto;
 import java.util.List;
 
 public interface DistanceMatrixService {
-    DistanceMatrix getDistances(List<? extends AddressDto> origins,
-                                List<? extends AddressDto> destinations);
+    DistanceMatrix getDistanceMatrix(List<? extends AddressDto> origins,
+                                     List<? extends AddressDto> destinations);
 }
