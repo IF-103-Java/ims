@@ -2,8 +2,8 @@ package com.ita.if103java.ims.dao.impl;
 
 import com.ita.if103java.ims.dao.AddressDao;
 import com.ita.if103java.ims.entity.Address;
-import com.ita.if103java.ims.exception.AddressNotFoundException;
-import com.ita.if103java.ims.exception.CRUDException;
+import com.ita.if103java.ims.exception.dao.AddressNotFoundException;
+import com.ita.if103java.ims.exception.dao.CRUDException;
 import com.ita.if103java.ims.mapper.jdbc.AddressRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
