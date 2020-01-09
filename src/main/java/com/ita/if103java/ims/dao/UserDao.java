@@ -4,6 +4,7 @@ import com.ita.if103java.ims.entity.User;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Map;
 
 public interface UserDao {
 
@@ -24,6 +25,10 @@ public interface UserDao {
     boolean hardDelete(Long id);
 
     List<User> findAll(Pageable pageable);
+
+    Map<Long, String> findUsernames(Long accountId);
+
+    Map<Long, String> findUsernames(List<Long> idList);
 
     User findByEmail(String email);
 
