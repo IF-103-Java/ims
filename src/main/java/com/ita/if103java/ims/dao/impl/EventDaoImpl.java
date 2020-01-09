@@ -202,6 +202,18 @@ public class EventDaoImpl implements EventDao {
             }
             return String.format("%s in (%s)", columnName, values);
         }
+        if (columnName.equals("name")) {
+            Set<EventName> names = new HashSet<>();
+            if (columnValue instanceof Collection) {
+                for (Object name : (Collection) columnValue) {
+                    names.add(EventName.valueOf(name.toString()));
+                }
+            } else {
+                System.out.println(columnValue);
+                names.add(EventName.getByLabel(columnValue.toString()));
+            }
+            return buildSqlCondition("name", names);
+        }
         if (columnName.equals("type")) {
             Set<EventName> names = new HashSet<>();
             if (columnValue instanceof Collection) {

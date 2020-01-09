@@ -1,6 +1,8 @@
 package com.ita.if103java.ims.entity;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public enum EventName {
@@ -34,6 +36,14 @@ public enum EventName {
     private EventType type;
     private boolean isNotification;
 
+    private static final Map<String, EventName> lookup = new HashMap<String, EventName>();
+
+    static {
+        for (EventName d : EventName.values()) {
+            lookup.put(d.getLabel(), d);
+        }
+    }
+
     EventName(String label, EventType type, boolean isNotification) {
         this.label = label;
         this.type = type;
@@ -60,5 +70,9 @@ public enum EventName {
 
     public boolean isNotification() {
         return isNotification;
+    }
+
+    public static EventName getByLabel(String label) {
+        return lookup.get(label);
     }
 }
