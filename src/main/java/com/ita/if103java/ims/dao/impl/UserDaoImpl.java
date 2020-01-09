@@ -100,7 +100,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public Map<Long, String> findUsernames(List<Long> idList) {
-        String where = String.format(" id IN (%s)", idList.toString().substring(1, idList.toString().length() - 1));
+        String where = String.format("id IN (%s)", idList.toString().substring(1, idList.toString().length() - 1));
         return getNamesMap(where);
     }
 
@@ -108,8 +108,7 @@ public class UserDaoImpl implements UserDao {
         Map<Long, String> result = new HashMap<>();
         try {
             for (Map<String, Object> map : jdbcTemplate.queryForList(String.format(Queries.SQL_SELECT_USERNAMES, where))) {
-                result.put(Long.valueOf(map.get("id").toString()),
-                    map.get("first_name").toString().concat(" ").concat(map.get("last_name").toString()));
+                result.put(Long.valueOf(map.get("id").toString()), map.get("name").toString());
             }
         } catch (DataAccessException e) {
             throw new CRUDException("Error during `select * ` users ", e);
@@ -347,7 +346,7 @@ public class UserDaoImpl implements UserDao {
             """;
 
         public static final String SQL_SELECT_USERNAMES = """
-                SELECT id, first_name, last_name
+                SELECT id, CONCAT(first_name, \" \", last_name) AS name
                 FROM users
                 WHERE %s
             """;
