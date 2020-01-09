@@ -2,6 +2,8 @@ package com.ita.if103java.ims.controller;
 
 import com.ita.if103java.ims.dto.EventDto;
 import com.ita.if103java.ims.entity.AccountType;
+import com.ita.if103java.ims.entity.Event;
+import com.ita.if103java.ims.entity.EventName;
 import com.ita.if103java.ims.entity.Role;
 import com.ita.if103java.ims.entity.User;
 import com.ita.if103java.ims.security.UserDetailsImpl;
@@ -52,6 +54,7 @@ public class EventController {
         user1.setRole(Role.ROLE_ADMIN);
         user1.setAccountId((long)2);
         UserDetailsImpl user = new UserDetailsImpl(user1, new AccountType());
+        eventService.create(new Event("hello", (long)2, null, (long) 25, EventName.SIGN_UP, null));
         return eventService.findAll(pageable, new HashMap<>(), user);
     }
 

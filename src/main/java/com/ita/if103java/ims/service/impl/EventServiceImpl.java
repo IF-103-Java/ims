@@ -64,6 +64,7 @@ public class EventServiceImpl implements EventService {
     private void populateAdditionalInfo(List<EventDto> eventDtos) {
         List<Long> listAuthorsId = eventDtos.stream().map(EventDto::getAuthorId).distinct().collect(Collectors.toList());
         List<Long> listWarehousesId = eventDtos.stream().map(EventDto::getWarehouseId).distinct().collect(Collectors.toList());
+        userDao.findUsernamesById((long)2);
 
     }
 }
