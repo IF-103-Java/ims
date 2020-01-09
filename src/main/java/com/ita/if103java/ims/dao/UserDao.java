@@ -26,7 +26,7 @@ public interface UserDao {
 
     List<User> findAll(Pageable pageable);
 
-    Map<Long, String> findUsernamesById(Long accountId);
+    Map<Long, String> findUsernames(Long accountId);
 
     User findByEmail(String email);
 

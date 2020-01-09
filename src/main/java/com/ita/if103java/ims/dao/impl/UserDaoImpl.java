@@ -10,10 +10,8 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 
-import javax.sql.RowSet;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -95,14 +93,13 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public Map<Long, String> findUsernamesById(Long accountId) {
+    public Map<Long, String> findUsernames(Long accountId) {
         Map<Long, String> result = new HashMap<>();
         try {
-            SqlRowSet rowSet = jdbcTemplate.queryForRowSet(Queries.SQL_SELECT_USERNAMES, accountId);
-            do {
-                result.put(rowSet.getLong(1), rowSet.getString("first_name") + rowSet.getString("last_name"));
-                System.out.println(result);
-            } while (rowSet.next());
+            for (Map<String, Object> map : jdbcTemplate.queryForList(Queries.SQL_SELECT_USERNAMES, accountId)) {
+                result.put(Long.valueOf(map.get("id").toString()),
+                    map.get("first_name").toString().concat(" ").concat(map.get("last_name").toString()));
+            }
         } catch (DataAccessException e) {
             throw new CRUDException("Error during `select * ` users ", e);
         }
@@ -201,9 +198,9 @@ public class UserDaoImpl implements UserDao {
         try {
             ZonedDateTime updatedDateTime = ZonedDateTime.now(ZoneId.systemDefault());
             status = jdbcTemplate.update(Queries.SQL_UPDATE_PASSWORD,
-                                         newPassword,
-                                         Timestamp.from(updatedDateTime.toInstant()),
-                                         id);
+                newPassword,
+                Timestamp.from(updatedDateTime.toInstant()),
+                id);
         } catch (DataAccessException e) {
             throw new CRUDException("Error during `update` password {id = " + id + "}", e);
         }
