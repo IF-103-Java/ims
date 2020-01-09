@@ -16,6 +16,8 @@ public interface ItemService {
 
     ItemDto findById(Long id, UserDetailsImpl user);
 
+    ItemDto findById(Long id);
+
     SavedItemDto addSavedItem(ItemTransactionRequestDto itemTransaction, UserDetailsImpl user);
 
     ItemDto addItem(ItemDto itemDto, UserDetailsImpl user);

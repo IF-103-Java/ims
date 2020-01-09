@@ -94,6 +94,11 @@ public class ItemServiceImpl implements ItemService {
         return itemDtoMapper.toDto(itemDao.findItemById(id, user.getUser().getAccountId()));
     }
 
+    @Override
+    public ItemDto findById(Long id) {
+        return itemDtoMapper.toDto(itemDao.findItemById(id));
+    }
+
     private void validateInputsAdd(ItemTransactionRequestDto itemTransaction, Long accountId) {
         if (!(existInAccount(itemTransaction, accountId) &&
             associateDao.findById(itemTransaction.getAssociateId()).getAccountId().equals(accountId))) {

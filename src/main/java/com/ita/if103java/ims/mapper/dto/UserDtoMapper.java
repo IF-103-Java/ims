@@ -39,8 +39,7 @@ public class UserDtoMapper extends AbstractEntityDtoMapper<User, UserDto> {
             userDto.setLastName(entity.getLastName());
             userDto.setEmail(entity.getEmail());
             userDto.setPassword(entity.getPassword());
-
-
+            userDto.setRole(entity.getRole());
             userDto.setCreatedDate(entity.getCreatedDate());
             userDto.setUpdatedDate(entity.getUpdatedDate());
             userDto.setActive(entity.isActive());
