@@ -12,6 +12,7 @@ import com.ita.if103java.ims.service.DashboardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
@@ -25,6 +26,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/dashboard")
+@CrossOrigin("http://localhost:4200")
 public class DashboardController {
     private DashboardService dashboardService;
 

@@ -80,8 +80,8 @@ public class UserController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable("id") Long id) {
-        userService.delete(id);
+    public boolean delete(@PathVariable("id") Long id) {
+        return userService.delete(id);
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -99,9 +99,9 @@ public class UserController {
 
     @PostMapping("/update-password")
     @ResponseStatus(HttpStatus.OK)
-    public void updatePassword(@AuthenticationPrincipal UserDetailsImpl user,
+    public boolean updatePassword(@AuthenticationPrincipal UserDetailsImpl user,
                                @Validated({ExistData.class}) @RequestBody @NotNull String newPassword) {
-        userService.updatePassword(user.getUser().getId(), newPassword);
+        return userService.updatePassword(user.getUser().getId(), newPassword);
     }
 
     @GetMapping("/me")

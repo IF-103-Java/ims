@@ -23,6 +23,7 @@ import java.util.UUID;
 import static com.ita.if103java.ims.config.MailMessagesConfig.FOOTER;
 import static com.ita.if103java.ims.config.MailMessagesConfig.RESET_PASSWORD;
 import static com.ita.if103java.ims.entity.EventName.PASSWORD_CHANGED;
+import static com.ita.if103java.ims.entity.EventName.LOGIN;
 import static com.ita.if103java.ims.util.TokenUtil.isValidToken;
 import static com.ita.if103java.ims.util.UserEventUtil.createEvent;
 
@@ -61,6 +62,8 @@ public class LoginServiceImpl implements LoginService {
     public String signIn(UserLoginDto user) {
         try {
             authManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
+            User regUser = userDao.findByEmail(user.getUsername());
+            eventService.create(createEvent(regUser, LOGIN , "sign in to account."));
             return jwtTokenProvider.createToken(user.getUsername());
         } catch (AuthenticationException e) {
             throw new UserOrPasswordIncorrectException("Credential aren't correct", e);

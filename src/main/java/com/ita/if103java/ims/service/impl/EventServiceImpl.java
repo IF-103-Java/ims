@@ -58,11 +58,11 @@ public class EventServiceImpl implements EventService {
     public Page<EventDto> findAll(Pageable pageable, Map<String, ?> params, UserDetailsImpl user) {
         Page<Event> page = eventDao.findAll(pageable, params, user.getUser());
         List<EventDto> eventDtos = eventDtoMapper.toDtoList(page.getContent());
-        populateAdditionalInfo(eventDtos, user.getUser().getAccountId());
+        populateAdditionalInfo(eventDtos);
         return new PageImpl<EventDto>(eventDtos, pageable, page.getTotalElements());
     }
 
-    private void populateAdditionalInfo(List<EventDto> eventDtos, Long accountId) {
+    private void populateAdditionalInfo(List<EventDto> eventDtos) {
         List<Long> listAuthorsId = eventDtos.stream().map(EventDto::getAuthorId).distinct().collect(Collectors.toList());
         List<Long> listWarehousesId = eventDtos.stream().map(EventDto::getWarehouseId).filter(x -> x != null).distinct().collect(Collectors.toList());
         Map<Long, String> userNamesMap = userDao.findUsernames(listAuthorsId);
@@ -76,6 +76,5 @@ public class EventServiceImpl implements EventService {
                 eventDto.setWarehouse(warehouseNamesMap.get(eventDto.getWarehouseId()));
             }
         }
-
     }
 }
