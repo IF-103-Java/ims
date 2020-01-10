@@ -24,6 +24,7 @@ import java.util.List;
 @RequestMapping("/warehouses")
 public class WarehouseController {
     private WarehouseService warehouseService;
+
     @Autowired
     public WarehouseController(WarehouseService warehouseService) {
         this.warehouseService = warehouseService;
@@ -34,7 +35,7 @@ public class WarehouseController {
     public WarehouseDto add(@RequestBody WarehouseDto warehouseDto,
                             AddressDto addressDto,
                             @AuthenticationPrincipal UserDetailsImpl user) {
-        return warehouseService.add(warehouseDto,user);
+        return warehouseService.add(warehouseDto, user);
     }
 
     @GetMapping(value = "/{id}")
@@ -47,7 +48,7 @@ public class WarehouseController {
     @ResponseStatus(HttpStatus.OK)
     public List<WarehouseDto> findAll(Pageable pageable,
                                       @AuthenticationPrincipal UserDetailsImpl user) {
-        return warehouseService.findAll(pageable, user );
+        return warehouseService.findAll(pageable, user);
     }
 
     @GetMapping(value = "/topWarehouseId/{id}")
@@ -72,11 +73,5 @@ public class WarehouseController {
                        @AuthenticationPrincipal UserDetailsImpl user) {
         warehouseService.softDelete(id, user);
     }
-
-//    @GetMapping(value = "/{id}")
-//    @ResponseStatus(HttpStatus.OK)
-//    public WarehouseDto findPath(@PathVariable("id") Long id,
-//                                 @AuthenticationPrincipal UserDetailsImpl user) {
-//        return warehouseService.findPath(id, user);
 
 }
