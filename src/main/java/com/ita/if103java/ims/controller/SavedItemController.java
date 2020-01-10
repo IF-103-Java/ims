@@ -25,7 +25,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/savedItems")
-@CrossOrigin("http://localhost:4200")
 public class SavedItemController {
     private ItemService itemService;
 

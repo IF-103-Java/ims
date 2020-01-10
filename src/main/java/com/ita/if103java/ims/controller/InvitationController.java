@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/invite")
-@CrossOrigin("http://localhost:4200")
 public class InvitationController {
     private InvitationService invitationService;
 
