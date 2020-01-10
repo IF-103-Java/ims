@@ -1,10 +1,11 @@
 package com.ita.if103java.ims.service;
 
 import com.ita.if103java.ims.dto.UserLoginDto;
+import org.springframework.http.ResponseEntity;
 
 public interface LoginService {
 
-    String signIn(UserLoginDto userLoginDto);
+    ResponseEntity signIn(UserLoginDto userLoginDto);
 
     void sendResetPasswordToken(String email);
 
