@@ -12,12 +12,15 @@ import com.ita.if103java.ims.service.MailService;
 import com.mysql.cj.exceptions.PasswordExpiredException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import static com.ita.if103java.ims.config.MailMessagesConfig.FOOTER;
@@ -26,6 +29,7 @@ import static com.ita.if103java.ims.entity.EventName.PASSWORD_CHANGED;
 import static com.ita.if103java.ims.entity.EventName.LOGIN;
 import static com.ita.if103java.ims.util.TokenUtil.isValidToken;
 import static com.ita.if103java.ims.util.UserEventUtil.createEvent;
+import static org.springframework.http.ResponseEntity.ok;
 
 @Service
 public class LoginServiceImpl implements LoginService {
@@ -59,12 +63,15 @@ public class LoginServiceImpl implements LoginService {
     }
 
     @Override
-    public String signIn(UserLoginDto user) {
+    public ResponseEntity signIn(UserLoginDto user) {
         try {
             authManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
             User regUser = userDao.findByEmail(user.getUsername());
             eventService.create(createEvent(regUser, LOGIN , "sign in to account."));
-            return jwtTokenProvider.createToken(user.getUsername());
+            String token = jwtTokenProvider.createToken(user.getUsername());
+            Map<Object, Object> model = new HashMap<>();
+            model.put("token", token);
+            return ok(model);
         } catch (AuthenticationException e) {
             throw new UserOrPasswordIncorrectException("Credential aren't correct", e);
         }

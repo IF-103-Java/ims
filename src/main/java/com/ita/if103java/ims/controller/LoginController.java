@@ -5,6 +5,7 @@ import com.ita.if103java.ims.dto.UserLoginDto;
 import com.ita.if103java.ims.service.LoginService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,8 +27,8 @@ public class LoginController {
         this.loginService = loginService;
     }
 
-    @PostMapping("/signin")
-    public String singIn(@RequestBody UserLoginDto userLoginDto) {
+    @PostMapping(value = "/signin", produces = "application/json")
+    public ResponseEntity singIn(@RequestBody UserLoginDto userLoginDto) {
         return loginService.signIn(userLoginDto);
     }
 
