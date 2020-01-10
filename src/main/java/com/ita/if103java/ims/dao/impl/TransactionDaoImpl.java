@@ -1,7 +1,10 @@
 package com.ita.if103java.ims.dao.impl;
 
 import com.ita.if103java.ims.dao.TransactionDao;
+import com.ita.if103java.ims.dto.ItemTransactionRequestDto;
 import com.ita.if103java.ims.entity.Transaction;
+import com.ita.if103java.ims.entity.TransactionType;
+import com.ita.if103java.ims.entity.User;
 import com.ita.if103java.ims.exception.dao.CRUDException;
 import com.ita.if103java.ims.exception.dao.TransactionNotFoundException;
 import com.ita.if103java.ims.mapper.jdbc.TransactionRowMapper;
@@ -43,6 +46,25 @@ public class TransactionDaoImpl implements TransactionDao {
         } catch (DataAccessException e) {
             throw new CRUDException("Error during a transaction 'insert' -> Transaction.create(" + transaction + ")", e);
         }
+    }
+
+    @Override
+    public Transaction create(ItemTransactionRequestDto itemTransactionRequestDto,
+                              User user,
+                              Long associateId,
+                              TransactionType type) {
+        final Transaction transaction = new Transaction();
+        transaction.setAccountId(user.getAccountId());
+        transaction.setAssociateId(associateId);
+        transaction.setItemId(itemTransactionRequestDto.getItemDto().getId());
+        transaction.setQuantity(itemTransactionRequestDto.getQuantity());
+        transaction.setWorkerId(user.getId());
+        transaction.setType(type);
+        switch (type) {
+            case OUT -> transaction.setMovedFrom(itemTransactionRequestDto.getSourceWarehouseId());
+            case IN -> transaction.setMovedTo(itemTransactionRequestDto.getDestinationWarehouseId());
+        }
+        return transaction;
     }
 
     @Override

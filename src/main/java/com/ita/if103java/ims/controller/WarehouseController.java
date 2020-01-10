@@ -22,7 +22,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/warehouses")
-@CrossOrigin("http://localhost:4200")
 public class WarehouseController {
     private WarehouseService warehouseService;
 

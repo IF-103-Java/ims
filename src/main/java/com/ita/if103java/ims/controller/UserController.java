@@ -31,7 +31,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/users")
-@CrossOrigin("http://localhost:4200")
 public class UserController {
 
     private UserService userService;
