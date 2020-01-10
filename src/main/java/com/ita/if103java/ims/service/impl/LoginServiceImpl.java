@@ -69,7 +69,7 @@ public class LoginServiceImpl implements LoginService {
             User regUser = userDao.findByEmail(user.getUsername());
             eventService.create(createEvent(regUser, LOGIN , "sign in to account."));
             String token = jwtTokenProvider.createToken(user.getUsername());
-            Map<Object, Object> model = new HashMap<>();
+            Map<String, String> model = new HashMap<>();
             model.put("token", token);
             return ok(model);
         } catch (AuthenticationException e) {
