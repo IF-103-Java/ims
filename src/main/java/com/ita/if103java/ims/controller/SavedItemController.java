@@ -3,7 +3,7 @@ package com.ita.if103java.ims.controller;
 import com.ita.if103java.ims.dto.ItemTransactionRequestDto;
 import com.ita.if103java.ims.dto.SavedItemDto;
 import com.ita.if103java.ims.dto.WarehouseDto;
-import com.ita.if103java.ims.entity.User;
+import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.ItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+
 import java.util.List;
 
 @RestController
@@ -35,41 +36,47 @@ public class SavedItemController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.OK)
-    public SavedItemDto addSavedItem(@RequestBody ItemTransactionRequestDto itemTransaction, @AuthenticationPrincipal User user) {
+    public SavedItemDto addSavedItem(@RequestBody ItemTransactionRequestDto itemTransaction,
+                                     @AuthenticationPrincipal UserDetailsImpl user) {
         return itemService.addSavedItem(itemTransaction, user);
     }
 
-    @GetMapping("/usefullWarehouses")
+    @GetMapping("/usefulWarehouses")
     @ResponseStatus(HttpStatus.OK)
-    public List<WarehouseDto> findUsefullWarehouses(@RequestParam("volume") int volume,
-                                                    @RequestParam("capacity") int capacity) {
-        return itemService.findUsefullWarehouses(volume, capacity);
+    public List<WarehouseDto> findUsefulWarehouses(@RequestParam("volume") int volume,
+                                                   @RequestParam("capacity") int capacity,
+                                                   @AuthenticationPrincipal UserDetailsImpl user) {
+        return itemService.findUsefulWarehouses(volume, capacity, user);
     }
 
     @GetMapping(path = "/itemId/{itemId}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
-    public List<SavedItemDto> findByItemDto(@PathVariable("itemId") Long id) {
-        return itemService.findByItemId(id);
+    public List<SavedItemDto> findByItemId(@PathVariable("itemId") Long id,
+                                           @AuthenticationPrincipal UserDetailsImpl user) {
+        return itemService.findByItemId(id, user);
     }
 
     @GetMapping("/{savedItemId}")
     @ResponseStatus(HttpStatus.OK)
-    public SavedItemDto findSavedItemById(@PathVariable("savedItemId") Long id) {
-        return itemService.findSavedItemById(id);
+    public SavedItemDto findSavedItemById(@PathVariable("savedItemId") Long id,
+                                          @AuthenticationPrincipal UserDetailsImpl user) {
+        return itemService.findSavedItemById(id, user);
     }
 
     @PutMapping(value = "/move", produces = MediaType.APPLICATION_JSON_VALUE,
         consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
-    public boolean moveSavedItem(@RequestBody ItemTransactionRequestDto itemTransaction, @RequestParam("warehouseId") Long id, @AuthenticationPrincipal User user) {
+    public boolean moveSavedItem(@RequestBody ItemTransactionRequestDto itemTransaction,
+                                 @AuthenticationPrincipal UserDetailsImpl user) {
         return itemService.moveItem(itemTransaction, user);
     }
 
     @PutMapping(value = "/outcome", produces = MediaType.APPLICATION_JSON_VALUE,
         consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
-    public SavedItemDto outcomeItem(@RequestBody ItemTransactionRequestDto itemTransaction, @RequestParam("quantity") Long quantity, @AuthenticationPrincipal User user) {
-        return itemService.outcomeItem(itemTransaction, quantity, user);
+    public SavedItemDto outcomeItem(@RequestBody ItemTransactionRequestDto itemTransaction,
+                                    @AuthenticationPrincipal UserDetailsImpl user) {
+        return itemService.outcomeItem(itemTransaction, user);
     }
 
 }
