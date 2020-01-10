@@ -20,7 +20,6 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/associates")
-@CrossOrigin("http://localhost:4200")
 public class AssociateController {
 
     private AssociateService associateService;

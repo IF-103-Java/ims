@@ -22,7 +22,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/items")
-@CrossOrigin("http://localhost:4200")
 public class ItemController {
     private ItemService itemService;
 

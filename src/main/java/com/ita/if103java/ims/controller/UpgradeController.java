@@ -17,7 +17,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/upgrade")
-@CrossOrigin("http://localhost:4200")
 public class UpgradeController {
     private UpgradeService upgradeService;
 
