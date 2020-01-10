@@ -79,17 +79,6 @@ public class ItemDaoImpl implements ItemDao {
     }
 
     @Override
-    public Item findItemById(Long id) {
-        try {
-            return jdbcTemplate.queryForObject(Queries.SQL_SELECT_ITEM_BY_ID, itemRowMapper, id);
-        } catch (EmptyResultDataAccessException e) {
-            throw new ItemNotFoundException("Failed to get item during `select` {id = " + id + "}", e);
-        } catch (DataAccessException e) {
-            throw new CRUDException("Failed during `select` {id = " + id + "}", e);
-        }
-    }
-
-    @Override
     public boolean isExistItemById(Long id, Long accountId) {
         try {
             return jdbcTemplate.queryForObject(Queries.SQL_SELECT_IF_EXIST_ITEM_BY_ACCOUNT_ID,
@@ -163,11 +152,6 @@ public class ItemDaoImpl implements ItemDao {
                 select *
                 from items
                 where account_id=? and id=?
-            """;
-        static final String SQL_SELECT_ITEM_BY_ID = """
-                select *
-                from items
-                where id=?
             """;
         static final String SQL_INSERT_INTO_ITEM = """
                 insert into items(name_item, unit, description, volume, active, account_id)
