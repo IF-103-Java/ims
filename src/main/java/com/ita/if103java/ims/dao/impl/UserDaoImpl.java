@@ -93,13 +93,13 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public Map<Long, String> findUsernames(Long accountId) {
+    public Map<Long, String> findUserNames(Long accountId) {
         String where = String.format("account_id = " + accountId);
         return getNamesMap(where);
     }
 
     @Override
-    public Map<Long, String> findUsernames(List<Long> idList) {
+    public Map<Long, String> findUserNames(List<Long> idList) {
         String where = String.format("id IN (%s)", idList.toString().substring(1, idList.toString().length() - 1));
         return getNamesMap(where);
     }

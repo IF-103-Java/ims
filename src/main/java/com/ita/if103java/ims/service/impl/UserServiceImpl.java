@@ -5,6 +5,7 @@ import com.ita.if103java.ims.dto.UserDto;
 import com.ita.if103java.ims.entity.Role;
 import com.ita.if103java.ims.entity.User;
 import com.ita.if103java.ims.mapper.dto.UserDtoMapper;
+import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.EventService;
 import com.ita.if103java.ims.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static com.ita.if103java.ims.entity.EventName.PASSWORD_CHANGED;
@@ -130,5 +132,8 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-
+    @Override
+    public Map<Long, String> findUserNames(UserDetailsImpl user) {
+        return userDao.findUserNames(user.getUser().getAccountId());
+    }
 }

@@ -5,6 +5,8 @@ import com.ita.if103java.ims.dao.UserDao;
 import com.ita.if103java.ims.dao.WarehouseDao;
 import com.ita.if103java.ims.dto.EventDto;
 import com.ita.if103java.ims.entity.Event;
+import com.ita.if103java.ims.entity.EventName;
+import com.ita.if103java.ims.entity.EventType;
 import com.ita.if103java.ims.mapper.dto.EventDtoMapper;
 import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.EventService;
@@ -55,6 +57,16 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    public Map<String, EventType> getEventTypes() {
+        return EventType.getLookup();
+    }
+
+    @Override
+    public Map<String, EventName> getEventNames() {
+        return EventName.getLookup();
+    }
+
+    @Override
     public Page<EventDto> findAll(Pageable pageable, Map<String, ?> params, UserDetailsImpl user) {
         Page<Event> page = eventDao.findAll(pageable, params, user.getUser());
         List<EventDto> eventDtos = eventDtoMapper.toDtoList(page.getContent());
@@ -65,7 +77,10 @@ public class EventServiceImpl implements EventService {
     private void populateAdditionalInfo(List<EventDto> eventDtos) {
         List<Long> listAuthorsId = eventDtos.stream().map(EventDto::getAuthorId).distinct().collect(Collectors.toList());
         List<Long> listWarehousesId = eventDtos.stream().map(EventDto::getWarehouseId).filter(x -> x != null).distinct().collect(Collectors.toList());
-        Map<Long, String> userNamesMap = userDao.findUsernames(listAuthorsId);
+        Map<Long, String> userNamesMap = new HashMap<>();
+        if (!listAuthorsId.isEmpty()) {
+            userNamesMap = userDao.findUsernames(listAuthorsId);
+        }
         Map<Long, String> warehouseNamesMap = new HashMap<>();
         if (!listWarehousesId.isEmpty()) {
             warehouseNamesMap = warehouseDao.findWarehouseNames(listWarehousesId);
