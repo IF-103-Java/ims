@@ -1,11 +1,8 @@
 package com.ita.if103java.ims.service.impl;
 
 import com.ita.if103java.ims.dao.TransactionDao;
-import com.ita.if103java.ims.dto.ItemTransactionRequestDto;
 import com.ita.if103java.ims.dto.TransactionDto;
 import com.ita.if103java.ims.entity.Transaction;
-import com.ita.if103java.ims.entity.TransactionType;
-import com.ita.if103java.ims.entity.User;
 import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.AccountService;
 import com.ita.if103java.ims.service.AssociateService;
@@ -45,25 +42,6 @@ public class TransactionServiceImpl implements TransactionService {
             case OUT -> buildOutcomeTransactionDto(transaction, userDetails);
             case MOVE -> buildMoveTransactionDto(transaction, userDetails);
         };
-    }
-
-    @Override
-    public Transaction create(ItemTransactionRequestDto itemTransactionRequestDto,
-                              User user,
-                              Long associateId,
-                              TransactionType type) {
-        final Transaction transaction = new Transaction();
-        transaction.setAccountId(user.getAccountId());
-        transaction.setAssociateId(associateId);
-        transaction.setItemId(itemTransactionRequestDto.getItemDto().getId());
-        transaction.setQuantity(itemTransactionRequestDto.getQuantity());
-        transaction.setWorkerId(user.getId());
-        transaction.setType(type);
-        switch (type) {
-            case OUT -> transaction.setMovedFrom(itemTransactionRequestDto.getSourceWarehouseId());
-            case IN -> transaction.setMovedTo(itemTransactionRequestDto.getDestinationWarehouseId());
-        }
-        return transactionDao.create(transaction);
     }
 
     private TransactionDto buildIncomeTransactionDto(Transaction transaction, UserDetailsImpl userDetails) {
