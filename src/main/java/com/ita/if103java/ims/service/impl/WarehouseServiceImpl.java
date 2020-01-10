@@ -73,7 +73,7 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     private WarehouseDto createNewWarehouse(WarehouseDto warehouseDto, UserDetailsImpl user) {
         Warehouse warehouse = warehouseDao.create(warehouseDtoMapper.toEntity(warehouseDto));
-        Address address = addressDtoMapper.toEntity(warehouseDto.getAddressDto());
+        Address address = addressDtoMapper.toEntity(warehouseDto.getWarehouseAddressDto());
         addressDao.createWarehouseAddress(warehouse.getId(), address);
         createEvent(user, warehouse, EventName.WAREHOUSE_CREATED);
 

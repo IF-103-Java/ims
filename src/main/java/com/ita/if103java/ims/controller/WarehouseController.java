@@ -1,6 +1,6 @@
 package com.ita.if103java.ims.controller;
 
-import com.ita.if103java.ims.dto.AddressDto;
+import com.ita.if103java.ims.dto.WarehouseAddressDto;
 import com.ita.if103java.ims.dto.WarehouseDto;
 import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.WarehouseService;
@@ -33,7 +33,6 @@ public class WarehouseController {
     @PostMapping(value = "/add")
     @ResponseStatus(HttpStatus.OK)
     public WarehouseDto add(@RequestBody WarehouseDto warehouseDto,
-                            AddressDto addressDto,
                             @AuthenticationPrincipal UserDetailsImpl user) {
         return warehouseService.add(warehouseDto, user);
     }
