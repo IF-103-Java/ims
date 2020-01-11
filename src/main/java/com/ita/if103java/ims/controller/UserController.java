@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/users")
@@ -99,13 +100,18 @@ public class UserController {
     @PostMapping("/update-password")
     @ResponseStatus(HttpStatus.OK)
     public boolean updatePassword(@AuthenticationPrincipal UserDetailsImpl user,
-                               @Validated({ExistData.class}) @RequestBody @NotNull String newPassword) {
+                                  @Validated({ExistData.class}) @RequestBody @NotNull String newPassword) {
         return userService.updatePassword(user.getUser().getId(), newPassword);
     }
 
     @GetMapping("/me")
     public UserDto getCurrentUser(@AuthenticationPrincipal UserDetailsImpl user) {
         return mapper.toDto(user.getUser());
+    }
+
+    @GetMapping("/usernames")
+    public Map<Long, String> getUserNames(@AuthenticationPrincipal UserDetailsImpl user) {
+        return userService.findUserNames(user);
     }
 
 }
