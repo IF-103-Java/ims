@@ -203,7 +203,7 @@ public class WarehouseDaoImpl implements WarehouseDao {
                 WHERE id = ?;
             """;
 
-        static final String SQL_SELECT_CHILDREN_BY_TOP_WAREHOUSE_ID = """
+        static final String SQL_SELECT_BY_TOP_WAREHOUSE_ID = """
                 SELECT *
                 FROM warehouses
                 WHERE top_warehouse_id = ?
