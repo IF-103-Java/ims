@@ -92,9 +92,9 @@ public class WarehouseServiceImpl implements WarehouseService {
     }
 
     @Override
-    public WarehouseDto findById(Long id) {
+    public WarehouseDto findById(Long id, UserDetailsImpl user) {
         Warehouse warehouse = warehouseDao.findById(id);
-        populatePath(warehouse, null);
+        populatePath(warehouse, user);
         return warehouseDtoMapper.toDto(warehouse);
     }
 

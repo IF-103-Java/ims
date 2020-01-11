@@ -12,7 +12,7 @@ import java.util.Map;
 public interface WarehouseService {
     WarehouseDto add(WarehouseDto warehouseDto, UserDetailsImpl user);
 
-    WarehouseDto findById(Long id);
+    WarehouseDto findById(Long id, UserDetailsImpl user);
 
     List<WarehouseDto> findWarehousesByTopLevelId(Long accountId, UserDetailsImpl user);
 

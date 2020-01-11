@@ -41,8 +41,8 @@ public class WarehouseController {
 
     @GetMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public WarehouseDto findById(@PathVariable("id") Long id) {
-        return warehouseService.findById(id);
+    public WarehouseDto findById(@PathVariable("id") Long id, UserDetailsImpl user) {
+        return warehouseService.findById(id, user);
     }
 
     @GetMapping
