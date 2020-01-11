@@ -74,7 +74,9 @@ public class WarehouseServiceImpl implements WarehouseService {
     private WarehouseDto createNewWarehouse(WarehouseDto warehouseDto, UserDetailsImpl user) {
         Warehouse warehouse = warehouseDao.create(warehouseDtoMapper.toEntity(warehouseDto));
         Address address = addressDtoMapper.toEntity(warehouseDto.getWarehouseAddressDto());
-        addressDao.createWarehouseAddress(warehouse.getId(), address);
+        if (warehouse.getTopWarehouseID().equals(warehouse.getId())) {
+            addressDao.createWarehouseAddress(warehouse.getId(), address);
+        }
         createEvent(user, warehouse, EventName.WAREHOUSE_CREATED);
 
         Warehouse newWarehouse = warehouseDao.create(warehouse);
@@ -124,6 +126,10 @@ public class WarehouseServiceImpl implements WarehouseService {
         Warehouse updatedWarehouse = warehouseDtoMapper.toEntity(warehouseDto);
         Warehouse dBWarehouse = warehouseDao.findById(updatedWarehouse.getId(), user.getUser().getAccountId());
         updatedWarehouse.setActive(dBWarehouse.isActive());
+        Address address = addressDtoMapper.toEntity(warehouseDto.getWarehouseAddressDto());
+        if (warehouseDto.getTopWarehouseID().equals(warehouseDto.getId())) {
+            addressDao.updateWarehouseAddress(updatedWarehouse.getId(), address);
+        }
         createEvent(user, updatedWarehouse, EventName.WAREHOUSE_EDITED);
         Warehouse editedWarehouse = warehouseDao.update(updatedWarehouse);
         populatePath(editedWarehouse, user);
