@@ -29,7 +29,6 @@ import com.ita.if103java.ims.mapper.dto.WarehouseDtoMapper;
 import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.EventService;
 import com.ita.if103java.ims.service.ItemService;
-import com.ita.if103java.ims.service.TransactionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,7 +56,6 @@ public class ItemServiceImpl implements ItemService {
     private WarehouseDao warehouseDao;
     private WarehouseDtoMapper warehouseDtoMapper;
     private TransactionDao transactionDao;
-    private TransactionService transactionService;
     private EventService eventService;
     private AssociateDao associateDao;
 
@@ -65,8 +63,7 @@ public class ItemServiceImpl implements ItemService {
     public ItemServiceImpl(ItemDtoMapper itemDtoMapper, SavedItemDtoMapper savedItemDtoMapper, ItemDao itemDao,
                            SavedItemDao savedItemDao, WarehouseDao warehouseDao,
                            WarehouseDtoMapper warehouseDtoMapper, TransactionDao transactionDao,
-                           TransactionService transactionService, EventService eventService,
-                           AssociateDao associateDao) {
+                           EventService eventService, AssociateDao associateDao) {
         this.itemDtoMapper = itemDtoMapper;
         this.savedItemDtoMapper = savedItemDtoMapper;
         this.itemDao = itemDao;
@@ -74,7 +71,6 @@ public class ItemServiceImpl implements ItemService {
         this.warehouseDao = warehouseDao;
         this.warehouseDtoMapper = warehouseDtoMapper;
         this.transactionDao = transactionDao;
-        this.transactionService = transactionService;
         this.eventService = eventService;
         this.associateDao = associateDao;
     }
@@ -125,7 +121,7 @@ public class ItemServiceImpl implements ItemService {
             SavedItem savedItem = new SavedItem(itemTransaction.getItemDto().getId(),
                 itemTransaction.getQuantity().intValue(), itemTransaction.getDestinationWarehouseId());
             SavedItemDto savedItemDto = savedItemDtoMapper.toDto(savedItemDao.addSavedItem(savedItem));
-            Transaction transaction = transactionDao.create(transactionService.create(itemTransaction,
+            Transaction transaction = transactionDao.create(transactionDao.create(itemTransaction,
                 user.getUser(), itemTransaction.getAssociateId(), TransactionType.IN));
             eventService.create(new Event("Moved " + itemTransaction.getQuantity() + " " + itemTransaction.getItemDto().getName() +
                 " to warehouse " + warehouseDao.findById(itemTransaction.getDestinationWarehouseId()).getName() + " " +
@@ -244,7 +240,7 @@ public class ItemServiceImpl implements ItemService {
         if (isEnoughCapacityInWarehouse(itemTransaction, user.getUser().getAccountId())) {
             boolean isMove = savedItemDao.updateSavedItem(itemTransaction.getDestinationWarehouseId(),
                 itemTransaction.getSourceWarehouseId());
-            Transaction transaction = transactionDao.create(transactionService.create(itemTransaction,
+            Transaction transaction = transactionDao.create(transactionDao.create(itemTransaction,
                 user.getUser(), itemTransaction.getAssociateId(), TransactionType.MOVE));
             eventService.create(new Event("Moved " + itemTransaction.getQuantity() + " " + itemTransaction.getItemDto().getName() +
                 " from warehouse " + warehouseDao.findById(itemTransaction.getSourceWarehouseId()).getName() + " to " +
@@ -286,7 +282,7 @@ public class ItemServiceImpl implements ItemService {
         if (savedItemDto.getQuantity() < itemTransaction.getQuantity()) {
             savedItemDao.outComeSavedItem(savedItemDtoMapper.toEntity(savedItemDto),
                 Long.valueOf(difference).intValue());
-            Transaction transaction = transactionDao.create(transactionService.create(itemTransaction,
+            Transaction transaction = transactionDao.create(transactionDao.create(itemTransaction,
                 user.getUser(), itemTransaction.getAssociateId(), TransactionType.OUT));
             eventService.create(new Event("Sold  " + itemTransaction.getQuantity() + " " + itemTransaction.getItemDto().getName() +
                 " to client " + associateDao.findById(itemTransaction.getAssociateId()).getName(),
