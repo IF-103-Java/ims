@@ -7,10 +7,9 @@ import com.ita.if103java.ims.entity.Address;
 import com.ita.if103java.ims.entity.Event;
 import com.ita.if103java.ims.entity.EventName;
 import com.ita.if103java.ims.entity.Warehouse;
-import com.ita.if103java.ims.exception.MaxWarehouseDepthLimitReachedException;
-import com.ita.if103java.ims.exception.MaxWarehousesLimitReachedException;
-import com.ita.if103java.ims.mapper.AddressDtoMapper;
-import com.ita.if103java.ims.mapper.WarehouseDtoMapper;
+import com.ita.if103java.ims.exception.service.MaxWarehouseDepthLimitReachedException;
+import com.ita.if103java.ims.exception.service.MaxWarehousesLimitReachedException;
+import com.ita.if103java.ims.mapper.dto.WarehouseDtoMapper;
 import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.EventService;
 import com.ita.if103java.ims.service.WarehouseService;
@@ -23,8 +22,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Service
 public class WarehouseServiceImpl implements WarehouseService {
@@ -179,5 +176,10 @@ public class WarehouseServiceImpl implements WarehouseService {
         Collections.reverse(reversePath);
         warehouse.setPath(reversePath);
         return path;
+    }
+
+    @Override
+    public Map<Long, String> findWarehouseNames(UserDetailsImpl user) {
+        return warehouseDao.findWarehouseNames(user.getUser().getAccountId());
     }
 }

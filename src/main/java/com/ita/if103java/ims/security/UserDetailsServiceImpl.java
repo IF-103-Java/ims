@@ -30,7 +30,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetailsImpl loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userDao.findByEmail(username);
         AccountType type = accountTypeDao.findById(accountDao.findById(user.getAccountId()).getTypeId());
-
         return new UserDetailsImpl(user, type);
     }
 }

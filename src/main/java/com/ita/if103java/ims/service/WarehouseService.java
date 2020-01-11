@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Map;
 
 @Component
 public interface WarehouseService {
@@ -20,5 +21,7 @@ public interface WarehouseService {
     boolean softDelete(Long id, UserDetailsImpl user);
 
     List<WarehouseDto> findAll(Pageable pageable, UserDetailsImpl user);
+
+    Map<Long, String> findWarehouseNames(UserDetailsImpl user);
 
 }

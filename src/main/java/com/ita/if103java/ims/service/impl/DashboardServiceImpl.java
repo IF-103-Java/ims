@@ -32,8 +32,8 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public List<PopularItemsDto> getPopularItems(PopularItemsRequestDto popularItems) {
-        return dashboardDao.findPopularItems(popularItems);
+    public List<PopularItemsDto> getPopularItems(PopularItemsRequestDto popularItems, Long accountId) {
+        return dashboardDao.findPopularItems(popularItems, accountId);
     }
 
 

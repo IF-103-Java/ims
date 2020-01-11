@@ -4,6 +4,7 @@ import com.ita.if103java.ims.entity.Warehouse;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Map;
 
 public interface WarehouseDao {
     Warehouse create(Warehouse warehouse);
@@ -13,6 +14,10 @@ public interface WarehouseDao {
     boolean softDelete(Long id);
 
     List<Warehouse> findAll(Pageable pageable, Long accountId);
+
+    Map<Long, String> findWarehouseNames(Long account_id);
+
+    Map<Long, String> findWarehouseNames(List<Long> idList);
 
     Warehouse findById(Long id);
 

@@ -12,24 +12,26 @@ import java.util.List;
 
 public interface ItemService {
 
-    List<ItemDto> findSortedItem(Pageable pageable);
+    List<ItemDto> findSortedItems(Pageable pageable, UserDetailsImpl user);
+
+    ItemDto findById(Long id, UserDetailsImpl user);
 
     ItemDto findById(Long id);
 
-    SavedItemDto addSavedItem(ItemTransactionRequestDto itemTransaction, User user);
+    SavedItemDto addSavedItem(ItemTransactionRequestDto itemTransaction, UserDetailsImpl user);
 
-    ItemDto addItem(ItemDto itemDto, User user);
+    ItemDto addItem(ItemDto itemDto, UserDetailsImpl user);
 
-    SavedItemDto findSavedItemById(Long id);
+    SavedItemDto findSavedItemById(Long id, UserDetailsImpl user);
 
-    boolean softDelete(Long id);
+    boolean softDelete(Long id, UserDetailsImpl user);
 
-    List<SavedItemDto> findByItemId(Long id);
+    List<SavedItemDto> findByItemId(Long id, UserDetailsImpl user);
 
-    List<WarehouseDto> findUsefullWarehouses(int volume, int quantity, UserDetailsImpl userDetails);
+    List<WarehouseDto> findUsefulWarehouses(int volume, int quantity, UserDetailsImpl user);
 
-    boolean moveItem(ItemTransactionRequestDto itemTransaction, User user);
+    boolean moveItem(ItemTransactionRequestDto itemTransaction, UserDetailsImpl user);
 
-    SavedItemDto outcomeItem(ItemTransactionRequestDto itemTransaction, long quantity, User user);
+    SavedItemDto outcomeItem(ItemTransactionRequestDto itemTransaction, UserDetailsImpl user);
 
 }

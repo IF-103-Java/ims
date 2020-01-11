@@ -13,7 +13,7 @@ public interface DashboardService {
 
     WarehousePremiumStructDto getPreLoad(Long id, Long accountId);
 
-    List<PopularItemsDto> getPopularItems(PopularItemsRequestDto popularItems);
+    List<PopularItemsDto> getPopularItems(PopularItemsRequestDto popularItems, Long accountId);
 
     List<EndingItemsDto> getEndingItems(int minQuantity, Long accountID);
 }
