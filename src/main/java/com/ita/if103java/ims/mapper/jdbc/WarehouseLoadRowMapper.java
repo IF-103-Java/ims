@@ -13,6 +13,7 @@ public class WarehouseLoadRowMapper implements RowMapper<WarehouseLoadDto> {
     public WarehouseLoadDto mapRow(ResultSet resultSet, int rowNum) throws SQLException {
         WarehouseLoadDto warehouseLoadDto = new WarehouseLoadDto();
         warehouseLoadDto.setId(resultSet.getLong("id"));
+        warehouseLoadDto.setName(resultSet.getString("name"));
         warehouseLoadDto.setCapacity(resultSet.getLong("capacity"));
         warehouseLoadDto.setCharge(resultSet.getLong("charge"));
         return warehouseLoadDto;
