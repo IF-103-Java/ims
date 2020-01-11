@@ -98,10 +98,10 @@ public class WarehouseServiceImpl implements WarehouseService {
         return warehouseDtoMapper.toDto(warehouse);
     }
 
-    private void populatePath(Warehouse warehouse, UserDetailsImpl userDetails) {
+    private void populatePath(Warehouse warehouse, UserDetailsImpl user) {
         Map<Long, Warehouse> groupedWarehouses = new HashMap<>();
         if (!warehouse.getId().equals(warehouse.getTopWarehouseID())) {
-            List<Warehouse> warehousesInHieararchy = warehouseDao.findByTopWarehouseID(warehouse.getTopWarehouseID());
+            List<Warehouse> warehousesInHieararchy = warehouseDao.findByTopWarehouseID(warehouse.getTopWarehouseID(), user.getUser().getAccountId());
             groupedWarehouses = warehousesInHieararchy.stream()
                 .collect(Collectors.toMap(Warehouse::getId, Function.identity()));
         } else {
@@ -112,7 +112,7 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Override
     public List<WarehouseDto> findWarehousesByTopLevelId(Long topLevelId, UserDetailsImpl user) {
-        List<Warehouse> byTopWarehouseID = warehouseDao.findByTopWarehouseID(topLevelId);
+        List<Warehouse> byTopWarehouseID = warehouseDao.findByTopWarehouseID(topLevelId, user.getUser().getAccountId());
         Map<Long, Warehouse> groupedWarehouses = byTopWarehouseID.stream()
             .collect(Collectors.toMap(Warehouse::getId, Function.identity()));
         byTopWarehouseID.forEach(o -> findPath(o, groupedWarehouses));
@@ -132,7 +132,7 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Override
     public boolean softDelete(Long id, UserDetailsImpl user) {
-        Boolean isDelete = warehouseDao.softDelete(id);
+        boolean isDelete = warehouseDao.softDelete(id);
         if (isDelete) {
             Warehouse warehouse = warehouseDao.findById(id, user.getUser().getAccountId());
             createEvent(user, warehouse, EventName.WAREHOUSE_REMOVED);
@@ -164,7 +164,7 @@ public class WarehouseServiceImpl implements WarehouseService {
         if (warehouse.getParentID() != null) {
 
             Warehouse parentWarehouse = groupedWarehouses.get(warehouse.getParentID());
-            List<String> parentPath = parentWarehouse.getPath();
+            List<String> parentPath;
             if (!parentWarehouse.getPath().isEmpty()) {
 
                 parentPath = parentWarehouse.getPath();

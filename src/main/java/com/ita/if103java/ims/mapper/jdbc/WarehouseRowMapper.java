@@ -18,7 +18,7 @@ public class WarehouseRowMapper implements RowMapper<Warehouse> {
         warehouse.setName(resultSet.getString("name"));
         warehouse.setInfo(resultSet.getString("info"));
         warehouse.setCapacity(resultSet.getInt("capacity"));
-        warehouse.setBottom(resultSet.getBoolean("is_Bottom"));
+        warehouse.setBottom(resultSet.getBoolean("is_bottom"));
         setValueOrNull(warehouse::setParentID, resultSet.getLong("parent_id"), resultSet);
         warehouse.setAccountID(resultSet.getLong("account_id"));
         warehouse.setTopWarehouseID(resultSet.getLong("top_warehouse_id"));

@@ -23,7 +23,7 @@ public interface WarehouseDao {
 
     Integer findQuantityOfWarehousesByAccountId(Long accountId);
 
-    List<Warehouse> findByTopWarehouseID(Long id);
+    List<Warehouse> findByTopWarehouseID(Long id, Long accountId);
 
     Integer findLevelByParentID(Long id);
 }

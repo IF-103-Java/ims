@@ -197,7 +197,7 @@ public class ItemServiceImpl implements ItemService {
         int capacity = volume * quantity;
         List<Warehouse> childWarehouses = new ArrayList<>();
         for (Warehouse warehouse : warehouseDao.findAll(Pageable.unpaged(), user.getUser().getAccountId())) {
-            childWarehouses.addAll(warehouseDao.findByTopWarehouseID(warehouse.getId()).stream().
+            childWarehouses.addAll(warehouseDao.findByTopWarehouseID(warehouse.getId(), user.getUser().getAccountId()).stream().
                 filter(x -> x.getCapacity() >= capacity).collect(Collectors.toList()));
         }
         return warehouseDtoMapper.toDtoList(childWarehouses);

@@ -151,7 +151,7 @@ public class WarehouseDaoImpl implements WarehouseDao {
 
 
     @Override
-    public List<Warehouse> findByTopWarehouseID(Long id) {
+    public List<Warehouse> findByTopWarehouseID(Long id, Long accountId) {
         try {
             return jdbcTemplate.query(Queries.SQL_SELECT_BY_TOP_WAREHOUSE_ID, warehouseRowMapper, id);
 
@@ -195,6 +195,7 @@ public class WarehouseDaoImpl implements WarehouseDao {
 
         static final String SQL_SELECT_ALL_WAREHOUSES = """
                 SELECT * FROM warehouses
+                 WHERE account_id = ?
             """;
 
         static final String SQL_UPDATE_WAREHOUSE = """
@@ -206,7 +207,7 @@ public class WarehouseDaoImpl implements WarehouseDao {
         static final String SQL_SELECT_BY_TOP_WAREHOUSE_ID = """
                 SELECT *
                 FROM warehouses
-                WHERE top_warehouse_id = ?
+                WHERE top_warehouse_id = ? AND account_id = ?
             """;
 
         static final String SQL_SET_ACTIVE_STATUS_WAREHOUSE = """
