@@ -93,7 +93,7 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Override
     public WarehouseDto findById(Long id, UserDetailsImpl user) {
-        Warehouse warehouse = warehouseDao.findById(id);
+        Warehouse warehouse = warehouseDao.findById(id, user.getUser().getAccountId());
         populatePath(warehouse, user);
         return warehouseDtoMapper.toDto(warehouse);
     }
@@ -122,7 +122,7 @@ public class WarehouseServiceImpl implements WarehouseService {
     @Override
     public WarehouseDto update(WarehouseDto warehouseDto, UserDetailsImpl user) {
         Warehouse updatedWarehouse = warehouseDtoMapper.toEntity(warehouseDto);
-        Warehouse dBWarehouse = warehouseDao.findById(updatedWarehouse.getId());
+        Warehouse dBWarehouse = warehouseDao.findById(updatedWarehouse.getId(), user.getUser().getAccountId());
         updatedWarehouse.setActive(dBWarehouse.isActive());
         createEvent(user, updatedWarehouse, EventName.WAREHOUSE_EDITED);
         Warehouse editedWarehouse = warehouseDao.update(updatedWarehouse);
@@ -134,7 +134,7 @@ public class WarehouseServiceImpl implements WarehouseService {
     public boolean softDelete(Long id, UserDetailsImpl user) {
         Boolean isDelete = warehouseDao.softDelete(id);
         if (isDelete) {
-            Warehouse warehouse = warehouseDao.findById(id);
+            Warehouse warehouse = warehouseDao.findById(id, user.getUser().getAccountId());
             createEvent(user, warehouse, EventName.WAREHOUSE_REMOVED);
         }
         return isDelete;

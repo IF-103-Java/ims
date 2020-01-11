@@ -87,9 +87,9 @@ public class WarehouseDaoImpl implements WarehouseDao {
 
 
     @Override
-    public Warehouse findById(Long id) {
+    public Warehouse findById(Long id, Long accountId) {
         try {
-            return jdbcTemplate.queryForObject(Queries.SQL_SELECT_WAREHOUSE_BY_ID, warehouseRowMapper, id);
+            return jdbcTemplate.queryForObject(Queries.SQL_SELECT_WAREHOUSE_BY_ID, warehouseRowMapper, id, accountId);
         } catch (EmptyResultDataAccessException e) {
             throw new WarehouseNotFoundException(e.getMessage());
 
@@ -190,7 +190,7 @@ public class WarehouseDaoImpl implements WarehouseDao {
         static final String SQL_SELECT_WAREHOUSE_BY_ID = """
                 SELECT *
                 FROM warehouses
-                WHERE id = ?
+                WHERE id = ? AND account_id = ?
             """;
 
         static final String SQL_SELECT_ALL_WAREHOUSES = """
