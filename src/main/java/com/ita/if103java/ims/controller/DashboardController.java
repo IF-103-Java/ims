@@ -26,7 +26,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/dashboard")
-@CrossOrigin("http://localhost:4200")
 public class DashboardController {
     private DashboardService dashboardService;
 
