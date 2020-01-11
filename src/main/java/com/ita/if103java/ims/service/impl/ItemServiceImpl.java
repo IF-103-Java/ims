@@ -133,7 +133,7 @@ public class ItemServiceImpl implements ItemService {
                 user.getUser().getAccountId(),
                 itemTransaction.getDestinationWarehouseId(), user.getUser().getId(), EventName.ITEM_CAME,
                 transaction.getId().longValue()));
-            if (!isLowSpaceInWarehouse(itemTransaction, user.getUser().getAccountId())) {
+            if (isLowSpaceInWarehouse(itemTransaction, user.getUser().getAccountId())) {
                 Event event =
                     new Event("Warehouse is loaded more than " + maxWarehouseLoad + "%! Capacity " +
                         warehouseDao.findById(itemTransaction.getDestinationWarehouseId()).getCapacity() +
@@ -185,7 +185,7 @@ public class ItemServiceImpl implements ItemService {
         if (volume == 0) {
             return true;
         } else {
-            return volume * 100 / warehouseDao.findById(itemTransaction.getDestinationWarehouseId()).getCapacity() < Float.parseFloat(maxWarehouseLoad);
+            return volume * 100 / warehouseDao.findById(itemTransaction.getDestinationWarehouseId()).getCapacity() > Float.parseFloat(maxWarehouseLoad);
         }
 
     }
@@ -253,7 +253,7 @@ public class ItemServiceImpl implements ItemService {
                 itemTransaction.getSourceWarehouseId(), user.getUser().getId(), EventName.ITEM_MOVED,
                 transaction.getId().longValue()));
 
-            if (!isLowSpaceInWarehouse(itemTransaction, user.getUser().getAccountId())) {
+            if (isLowSpaceInWarehouse(itemTransaction, user.getUser().getAccountId())) {
                 Event event = new Event("Warehouse is loaded more than " + maxWarehouseLoad + "%! Capacity " +
                     warehouseDao.findById(itemTransaction.getDestinationWarehouseId()).getCapacity() +
                     " in Warehouse " + warehouseDao.findById(itemTransaction.getDestinationWarehouseId()).getName(),
