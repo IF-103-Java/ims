@@ -29,7 +29,6 @@ import com.ita.if103java.ims.mapper.dto.WarehouseDtoMapper;
 import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.EventService;
 import com.ita.if103java.ims.service.ItemService;
-import com.ita.if103java.ims.util.ItemTransactionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,11 +93,6 @@ public class ItemServiceImpl implements ItemService {
         return itemDtoMapper.toDto(itemDao.findItemById(id, user.getUser().getAccountId()));
     }
 
-    @Override
-    public ItemDto findById(Long id) {
-        return itemDtoMapper.toDto(itemDao.findItemById(id));
-    }
-
     private void validateInputsAdd(ItemTransactionRequestDto itemTransaction, Long accountId) {
         if (!(existInAccount(itemTransaction, accountId) &&
             associateDao.findById(itemTransaction.getAssociateId()).getAccountId().equals(accountId))) {
@@ -127,7 +121,7 @@ public class ItemServiceImpl implements ItemService {
             SavedItem savedItem = new SavedItem(itemTransaction.getItemDto().getId(),
                 itemTransaction.getQuantity().intValue(), itemTransaction.getDestinationWarehouseId());
             SavedItemDto savedItemDto = savedItemDtoMapper.toDto(savedItemDao.addSavedItem(savedItem));
-            Transaction transaction = transactionDao.create(ItemTransactionUtil.createTransaction(itemTransaction,
+            Transaction transaction = transactionDao.create(transactionDao.create(itemTransaction,
                 user.getUser(), itemTransaction.getAssociateId(), TransactionType.IN));
             eventService.create(new Event("Moved " + itemTransaction.getQuantity() + " " + itemTransaction.getItemDto().getName() +
                 " to warehouse " + warehouseDao.findById(itemTransaction.getDestinationWarehouseId()).getName() + " " +
@@ -135,7 +129,7 @@ public class ItemServiceImpl implements ItemService {
                 user.getUser().getAccountId(),
                 itemTransaction.getDestinationWarehouseId(), user.getUser().getId(), EventName.ITEM_CAME,
                 transaction.getId().longValue()));
-            if (!isLowSpaceInWarehouse(itemTransaction, user.getUser().getAccountId())) {
+            if (isLowSpaceInWarehouse(itemTransaction, user.getUser().getAccountId())) {
                 Event event =
                     new Event("Warehouse is loaded more than " + maxWarehouseLoad + "%! Capacity " +
                         warehouseDao.findById(itemTransaction.getDestinationWarehouseId()).getCapacity() +
@@ -187,7 +181,7 @@ public class ItemServiceImpl implements ItemService {
         if (volume == 0) {
             return true;
         } else {
-            return volume * 100 / warehouseDao.findById(itemTransaction.getDestinationWarehouseId()).getCapacity() < Float.parseFloat(maxWarehouseLoad);
+            return volume * 100 / warehouseDao.findById(itemTransaction.getDestinationWarehouseId()).getCapacity() > Float.parseFloat(maxWarehouseLoad);
         }
 
     }
@@ -246,7 +240,7 @@ public class ItemServiceImpl implements ItemService {
         if (isEnoughCapacityInWarehouse(itemTransaction, user.getUser().getAccountId())) {
             boolean isMove = savedItemDao.updateSavedItem(itemTransaction.getDestinationWarehouseId(),
                 itemTransaction.getSourceWarehouseId());
-            Transaction transaction = transactionDao.create(ItemTransactionUtil.createTransaction(itemTransaction,
+            Transaction transaction = transactionDao.create(transactionDao.create(itemTransaction,
                 user.getUser(), itemTransaction.getAssociateId(), TransactionType.MOVE));
             eventService.create(new Event("Moved " + itemTransaction.getQuantity() + " " + itemTransaction.getItemDto().getName() +
                 " from warehouse " + warehouseDao.findById(itemTransaction.getSourceWarehouseId()).getName() + " to " +
@@ -255,7 +249,7 @@ public class ItemServiceImpl implements ItemService {
                 itemTransaction.getSourceWarehouseId(), user.getUser().getId(), EventName.ITEM_MOVED,
                 transaction.getId().longValue()));
 
-            if (!isLowSpaceInWarehouse(itemTransaction, user.getUser().getAccountId())) {
+            if (isLowSpaceInWarehouse(itemTransaction, user.getUser().getAccountId())) {
                 Event event = new Event("Warehouse is loaded more than " + maxWarehouseLoad + "%! Capacity " +
                     warehouseDao.findById(itemTransaction.getDestinationWarehouseId()).getCapacity() +
                     " in Warehouse " + warehouseDao.findById(itemTransaction.getDestinationWarehouseId()).getName(),
@@ -288,7 +282,7 @@ public class ItemServiceImpl implements ItemService {
         if (savedItemDto.getQuantity() < itemTransaction.getQuantity()) {
             savedItemDao.outComeSavedItem(savedItemDtoMapper.toEntity(savedItemDto),
                 Long.valueOf(difference).intValue());
-            Transaction transaction = transactionDao.create(ItemTransactionUtil.createTransaction(itemTransaction,
+            Transaction transaction = transactionDao.create(transactionDao.create(itemTransaction,
                 user.getUser(), itemTransaction.getAssociateId(), TransactionType.OUT));
             eventService.create(new Event("Sold  " + itemTransaction.getQuantity() + " " + itemTransaction.getItemDto().getName() +
                 " to client " + associateDao.findById(itemTransaction.getAssociateId()).getName(),
