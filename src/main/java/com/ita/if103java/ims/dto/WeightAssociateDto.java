@@ -34,7 +34,7 @@ public class WeightAssociateDto {
 
     @Override
     public String toString() {
-        return "BenefitAssociateDto{" +
+        return "WeightAssociateDto{" +
             "associateId=" + associateId +
             ", weight=" + weight +
             ", reverseWeight=" + getReverseWeight() +
