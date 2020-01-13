@@ -9,6 +9,8 @@ import com.ita.if103java.ims.dto.WarehouseIdAdviceDto;
 import com.ita.if103java.ims.dto.WarehouseItemAdviceDto;
 import com.ita.if103java.ims.dto.WarehouseToAssociateDistanceDto;
 import com.ita.if103java.ims.dto.WeightAssociateDto;
+import com.ita.if103java.ims.entity.User;
+import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.AssociateService;
 import com.ita.if103java.ims.service.BestTradeService;
 import com.ita.if103java.ims.service.ItemService;
@@ -54,25 +56,32 @@ public class WarehouseItemAdviceServiceImpl implements WarehouseItemAdviceServic
     }
 
     @Override
-    public WarehouseItemAdviceDto getAdvice(Long itemId, Long accountId) {
+    public WarehouseItemAdviceDto getAdvice(Long itemId, UserDetailsImpl userDetails) {
+        final User user = userDetails.getUser();
         final List<WeightAssociateDto> suppliers = bestTradeService.findBestSuppliersByItemId(itemId);
         final List<WeightAssociateDto> clients = bestTradeService.findBestClientsByItemId(itemId);
         final List<WarehouseToAssociateDistanceDto> warehouseAssociateDistances = keepIfAvailableRoute(
             distanceService.getDistances(
-                addressLinkerDao.findWarehouseAddressesByIds(topWarehouseDao.findAllIds(accountId)),
+                addressLinkerDao.findWarehouseAddressesByIds(topWarehouseDao.findAllIds(user.getAccountId())),
                 addressLinkerDao.findAssociateAddressesByIds(getAssociateIds(suppliers)),
                 addressLinkerDao.findAssociateAddressesByIds(getAssociateIds(clients))
             )
         );
-        return toDto(itemId, suppliers, clients, calculationService.calculate(suppliers, clients, warehouseAssociateDistances));
+        return toDto(
+            itemId,
+            userDetails,
+            suppliers,
+            clients,
+            calculationService.calculate(suppliers, clients, warehouseAssociateDistances)
+        );
     }
 
     private WarehouseItemAdviceDto toDto(Long itemId,
-                                         List<WeightAssociateDto> suppliers,
+                                         UserDetailsImpl userDetails, List<WeightAssociateDto> suppliers,
                                          List<WeightAssociateDto> clients,
                                          List<WarehouseIdAdviceDto> warehouseIdAdvices) {
         return new WarehouseItemAdviceDto(
-            itemService.findById(itemId),
+            itemService.findById(itemId, userDetails),
             mapWarehouseAdvices(warehouseIdAdvices),
             mapAssociates(suppliers),
             mapAssociates(clients)
