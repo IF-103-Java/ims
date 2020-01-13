@@ -182,9 +182,9 @@ public class UserDaoImpl implements UserDao {
         try {
             ZonedDateTime updatedDateTime = ZonedDateTime.now(ZoneId.systemDefault());
             status = jdbcTemplate.update(Queries.SQL_UPDATE_PASSWORD,
-                                         newPassword,
-                                         Timestamp.from(updatedDateTime.toInstant()),
-                                         id);
+                newPassword,
+                Timestamp.from(updatedDateTime.toInstant()),
+                id);
         } catch (DataAccessException e) {
             throw new CRUDException("Error during `update` password {id = " + id + "}", e);
         }
@@ -210,7 +210,9 @@ public class UserDaoImpl implements UserDao {
     @Override
     public Integer countOfUsers(Long accountId) {
         try {
-            return jdbcTemplate.update(Queries.SQL_COUNT_OF_USERS, false, accountId);
+            return jdbcTemplate.queryForObject(Queries.SQL_COUNT_OF_USERS, Integer.class, accountId);
+        } catch (EmptyResultDataAccessException e) {
+            throw new UserNotFoundException("Failed to obtain users during searching count of users. {id = " + accountId);
         } catch (DataAccessException e) {
             throw new CRUDException("Error during `select count(*)` of users {accountId = " + accountId + "}", e);
         }
