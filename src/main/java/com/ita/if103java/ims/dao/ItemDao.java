@@ -14,8 +14,6 @@ public interface ItemDao {
 
     Item findItemById(Long id, Long accountId);
 
-    Item findItemById(Long id);
-
     boolean isExistItemById(Long id, Long accountId);
 
     Item addItem(Item item);

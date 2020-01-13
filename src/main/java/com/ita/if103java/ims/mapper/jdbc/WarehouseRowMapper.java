@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.function.Consumer;
 
 @Component
 public class WarehouseRowMapper implements RowMapper<Warehouse> {
@@ -18,11 +19,15 @@ public class WarehouseRowMapper implements RowMapper<Warehouse> {
         warehouse.setInfo(resultSet.getString("info"));
         warehouse.setCapacity(resultSet.getInt("capacity"));
         warehouse.setBottom(resultSet.getBoolean("is_bottom"));
-        warehouse.setParentID(resultSet.getLong("parent_id"));
+        setValueOrNull(warehouse::setParentID, resultSet.getLong("parent_id"), resultSet);
         warehouse.setAccountID(resultSet.getLong("account_id"));
         warehouse.setTopWarehouseID(resultSet.getLong("top_warehouse_id"));
         warehouse.setActive(resultSet.getBoolean("active"));
 
         return warehouse;
+    }
+
+    private <T> void setValueOrNull(Consumer<T> consumer, T value, ResultSet rs) throws SQLException {
+        consumer.accept(rs.wasNull() ? null : value);
     }
 }
