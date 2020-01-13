@@ -11,7 +11,7 @@ public interface AssociateService {
 
     AssociateDto update(UserDetailsImpl user, AssociateDto associateDto);
 
-    AssociateDto view(Long id);
+    AssociateDto view(UserDetailsImpl user, Long id);
 
     List<AssociateDto> findAll();
 

@@ -16,6 +16,7 @@ import com.ita.if103java.ims.service.AssociateService;
 import com.ita.if103java.ims.service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -41,10 +42,11 @@ public class AssociateServiceImpl implements AssociateService {
     }
 
     @Override
+    @Transactional
     public Optional<AssociateDto> create(UserDetailsImpl user, AssociateDto associateDto) {
 
         if (allowToCreateNewAssociate(user, associateDto.getType())) {
-            Associate associate = associateDao.create(associateDtoMapper.toEntity(associateDto));
+            Associate associate = associateDao.create(user.getUser().getAccountId(), associateDtoMapper.toEntity(associateDto));
             Address address = addressDtoMapper.toEntity(associateDto.getAddressDto());
             address.setAssociateId(associate.getId());
 
@@ -61,7 +63,7 @@ public class AssociateServiceImpl implements AssociateService {
 
     @Override
     public AssociateDto update(UserDetailsImpl user, AssociateDto associateDto) {
-        Associate associate = associateDao.update(associateDtoMapper.toEntity(associateDto));
+        Associate associate = associateDao.update(user.getUser().getAccountId(), associateDtoMapper.toEntity(associateDto));
 
         EventName eventName = associate.getType() == AssociateType.SUPPLIER ? EventName.SUPPLIER_EDITED : EventName.CLIENT_EDITED;
         createEvent(user, associate, eventName);
@@ -70,8 +72,8 @@ public class AssociateServiceImpl implements AssociateService {
     }
 
     @Override
-    public AssociateDto view(Long id) {
-        AssociateDto associateDto = associateDtoMapper.toDto(associateDao.findById(id));
+    public AssociateDto view(UserDetailsImpl user, Long id) {
+        AssociateDto associateDto = associateDtoMapper.toDto(associateDao.findById(user.getUser().getAccountId(), id));
         AddressDto addressDto = addressDtoMapper.toDto(addressDao.findByAssociateId(id));
 
         associateDto.setAddressDto(addressDto);
@@ -91,9 +93,9 @@ public class AssociateServiceImpl implements AssociateService {
     @Override
     public boolean delete(UserDetailsImpl user, Long id) {
 
-        Associate associate = associateDao.findById(id);
+        Associate associate = associateDao.findById(user.getUser().getAccountId(), id);
 
-        if (associateDao.delete(id)) {
+        if (associateDao.delete(user.getUser().getAccountId(), id)) {
             EventName eventName = associate.getType() == AssociateType.SUPPLIER ? EventName.SUPPLIER_REMOVED : EventName.CLIENT_REMOVED;
             createEvent(user, associate, eventName);
 
