@@ -72,7 +72,7 @@ public enum EventName {
         return isNotification;
     }
 
-    public static EventName getByLabel(String label) {
-        return lookup.get(label);
+    public static Map<String, EventName> getLookup() {
+        return lookup;
     }
 }

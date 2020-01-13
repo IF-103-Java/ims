@@ -22,7 +22,6 @@ import static com.ita.if103java.ims.config.MailMessagesConfig.FOOTER;
 
 @RestController
 @RequestMapping("/signup")
-@CrossOrigin("http://localhost:4200")
 public class RegistrationController {
 
     @Value("${mail.activationURL}")

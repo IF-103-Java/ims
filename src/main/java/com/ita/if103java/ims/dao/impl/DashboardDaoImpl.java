@@ -181,22 +181,23 @@ public class DashboardDaoImpl implements DashboardDao {
         """;
 
         static final String SQL_FIND_WAREHOUSE_LOAD_BY_ACCOUNT_ID = """
-            SELECT top_warehouse_id id,  ifnull(sum(charge),0) charge, ifnull(sum(capacity),0) capacity
-            FROM
-            (SELECT warehouse_id, it.account_id, sum(quantity*volume) charge
-            FROM saved_items si
-            JOIN items it
-            ON si.item_id = it.id
-            JOIN warehouses wh
-            ON si.warehouse_id = wh.id
-            GROUP BY warehouse_id) AS  cha
-            RIGHT JOIN
-            (SELECT id, capacity, account_id, top_warehouse_id
-            FROM warehouses
-            WHERE is_bottom=1 AND active=1) AS cap
-            ON  cha.warehouse_id=cap.id AND  cha.account_id=cap.account_id
-            WHERE cap.account_id=?
-            GROUP BY top_warehouse_id
+            SELECT top_warehouse_id id, cap.name, ifnull(sum(charge),0) charge, ifnull(sum(capacity),0) capacity
+             FROM
+             (SELECT warehouse_id, it.account_id, sum(quantity*volume) charge
+             FROM saved_items si
+             JOIN items it
+             ON si.item_id = it.id
+             JOIN warehouses wh
+             ON si.warehouse_id = wh.id
+             GROUP BY warehouse_id) AS  cha
+             RIGHT JOIN
+             (SELECT w1.id, w2.name, w1.capacity, w1.account_id, w1.top_warehouse_id
+             FROM warehouses w1
+             JOIN warehouses w2
+             WHERE w1.is_bottom=1 AND w1.active=1 and w2.id=w1.top_warehouse_id) AS cap
+             ON  cha.warehouse_id=cap.id AND  cha.account_id=cap.account_id
+             WHERE cap.account_id=?
+             GROUP BY top_warehouse_id
         """;
 
         static final String SQL_FIND_ENDED_ITEMS_BY_ACCOUNT_ID = """

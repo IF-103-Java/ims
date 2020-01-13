@@ -5,8 +5,7 @@ import com.ita.if103java.ims.dto.PopularItemsDto;
 import com.ita.if103java.ims.dto.PopularItemsRequestDto;
 import com.ita.if103java.ims.dto.WarehouseLoadDto;
 import com.ita.if103java.ims.dto.WarehousePremiumStructDto;
-import com.ita.if103java.ims.entity.AccountType;
-import com.ita.if103java.ims.entity.User;
+import com.ita.if103java.ims.exception.UserPermissionException;
 import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.DashboardService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,18 +14,15 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/dashboard")
-@CrossOrigin("http://localhost:4200")
 public class DashboardController {
     private DashboardService dashboardService;
 
@@ -45,7 +41,10 @@ public class DashboardController {
         produces = MediaType.APPLICATION_JSON_VALUE)
     public WarehousePremiumStructDto getPreLoad(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                 @RequestParam Long id) {
-            return dashboardService.getPreLoad(id, userDetails.getUser().getAccountId());
+        if(!userDetails.getAccountType().isDeepWarehouseAnalytics()){
+            throw new UserPermissionException("Upgrade your account to premium!");
+        }
+        return dashboardService.getPreLoad(id, userDetails.getUser().getAccountId());
     }
 
     @PostMapping(value = "/popularityItems",

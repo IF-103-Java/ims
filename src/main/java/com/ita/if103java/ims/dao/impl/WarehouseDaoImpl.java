@@ -18,7 +18,9 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Repository
@@ -59,6 +61,31 @@ public class WarehouseDaoImpl implements WarehouseDao {
             throw new WarehouseNotFoundException("Error during finding all warehouses", e);
         }
     }
+
+    @Override
+    public Map<Long, String> findWarehouseNames(Long accountId) {
+        String where = String.format("account_id = " + accountId);
+        return getNamesMap(where);
+    }
+
+    @Override
+    public Map<Long, String> findWarehouseNames(List<Long> idList) {
+        String where = String.format(" id IN (%s)", idList.toString().substring(1, idList.toString().length() - 1));
+        return getNamesMap(where);
+    }
+
+    private Map<Long, String> getNamesMap(String where) {
+        Map<Long, String> result = new HashMap<>();
+        try {
+            for (Map<String, Object> map : jdbcTemplate.queryForList(String.format(Queries.SQL_SELECT_NAMES, where))) {
+                result.put(Long.valueOf(map.get("id").toString()), map.get("name").toString());
+            }
+        } catch (DataAccessException e) {
+            throw new WarehouseNotFoundException("Error during `select * ` warehouses ", e);
+        }
+        return result;
+    }
+
 
     @Override
     public Warehouse findById(Long id) {
@@ -156,58 +183,64 @@ public class WarehouseDaoImpl implements WarehouseDao {
     class Queries {
 
         static final String SQL_CREATE_WAREHOUSE = """
-            INSERT INTO warehouses
-            (name, info, capacity, is_bottom, parent_id, account_id, top_warehouse_id, active)
-            VALUES(?,?,?,?,?,?,?,?);
-        """;
+                INSERT INTO warehouses
+                (name, info, capacity, is_bottom, parent_id, account_id, top_warehouse_id, active)
+                VALUES(?,?,?,?,?,?,?,?);
+            """;
 
         static final String SQL_SELECT_WAREHOUSE_BY_ID = """
-            SELECT *
-            FROM warehouses
-            WHERE id = ?
-        """;
+                SELECT *
+                FROM warehouses
+                WHERE id = ?
+            """;
 
         static final String SQL_SELECT_ALL_WAREHOUSES = """
-            SELECT * FROM warehouses
-        """;
+                SELECT * FROM warehouses
+            """;
 
         static final String SQL_UPDATE_WAREHOUSE = """
-            UPDATE warehouses
-            SET name= ?, info = ?, capacity = ?, is_bottom = ?, top_warehouse_id = ?, active = ?
-            WHERE id = ?;
-        """;
+                UPDATE warehouses
+                SET name= ?, info = ?, capacity = ?, is_bottom = ?, top_warehouse_id = ?, active = ?
+                WHERE id = ?;
+            """;
 
         static final String SQL_SELECT_CHILDREN_BY_TOP_WAREHOUSE_ID = """
-            SELECT *
-            FROM warehouses
-            WHERE top_warehouse_id = ?
-        """;
+                SELECT *
+                FROM warehouses
+                WHERE top_warehouse_id = ?
+            """;
 
         static final String SQL_SET_ACTIVE_STATUS_WAREHOUSE = """
-            UPDATE warehouses
-            SET active = ?
-            WHERE id = ?
-        """;
+                UPDATE warehouses
+                SET active = ?
+                WHERE id = ?
+            """;
 
         static final String SQL_COUNT_QUANTITY_OF_WAREHOUSE_BY_ACCOUNT_ID = """
-            SELECT COUNT(id)
-            FROM warehouses
-            WHERE parent_id IS NULL
-            AND account_id = ?
-        """;
+                SELECT COUNT(id)
+                FROM warehouses
+                WHERE parent_id IS NULL
+                AND account_id = ?
+            """;
 
         static final String SQL_LEVEL_WAREHOUSE_BY_PARENT_ID = """
-            WITH RECURSIVE cte AS
-            (SELECT id, 1 as depth
-             FROM warehouses
-             WHERE parent_id IS NULL
-             UNION ALL
-             SELECT w.id, cte.depth+1
-             FROM warehouses w JOIN cte
-             ON cte.id=w.parent_id)
-             SELECT depth
-             FROM cte
-             WHERE cte.id = ?
-        """;
+                WITH RECURSIVE cte AS
+                (SELECT id, 1 as depth
+                 FROM warehouses
+                 WHERE parent_id IS NULL
+                 UNION ALL
+                 SELECT w.id, cte.depth+1
+                 FROM warehouses w JOIN cte
+                 ON cte.id=w.parent_id)
+                 SELECT depth
+                 FROM cte
+                 WHERE cte.id = ?
+            """;
+
+        static final String SQL_SELECT_NAMES = """
+                SELECT id, name
+                FROM warehouses
+                WHERE %s
+            """;
     }
 }

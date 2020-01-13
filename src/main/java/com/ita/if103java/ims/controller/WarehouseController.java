@@ -1,9 +1,11 @@
 package com.ita.if103java.ims.controller;
 
 import com.ita.if103java.ims.dto.WarehouseDto;
+import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.WarehouseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,10 +18,10 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/warehouses")
-@CrossOrigin("http://localhost:4200")
 public class WarehouseController {
     private WarehouseService warehouseService;
 
@@ -63,6 +65,11 @@ public class WarehouseController {
     @ResponseStatus(HttpStatus.OK)
     public void delete(@PathVariable("id") Long id) {
         warehouseService.softDelete(id);
+    }
+
+    @GetMapping("/warehousenames")
+    public Map<Long, String> getWarehouseNames(@AuthenticationPrincipal UserDetailsImpl user) {
+        return warehouseService.findWarehouseNames(user);
     }
 
 }

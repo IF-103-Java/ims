@@ -1,9 +1,11 @@
 package com.ita.if103java.ims.service;
 
 import com.ita.if103java.ims.dto.UserDto;
+import com.ita.if103java.ims.security.UserDetailsImpl;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Map;
 
 public interface UserService {
 
@@ -26,5 +28,7 @@ public interface UserService {
     boolean updatePassword(Long id, String newPassword);
 
     boolean activateUser(String emailUUID);
+
+    Map<Long, String> findUserNames(UserDetailsImpl user);
 
 }
