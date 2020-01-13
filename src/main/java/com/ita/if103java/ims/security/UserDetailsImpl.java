@@ -7,7 +7,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -32,9 +31,6 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        if (!user.isActive()) {
-            return Collections.emptyList();
-        }
         final Stream<String> authoritiesStream = Stream.of(
             user.getRole().name(),
             accountType.isItemStorageAdvisor() ? "ITEM_STORAGE_ADVISOR" : null,
