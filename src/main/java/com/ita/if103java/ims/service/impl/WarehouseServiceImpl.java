@@ -174,10 +174,8 @@ public class WarehouseServiceImpl implements WarehouseService {
             if (!parentWarehouse.getPath().isEmpty()) {
 
                 parentPath = parentWarehouse.getPath();
-                System.out.println("Parent path exists: " + parentPath);
             } else {
                 parentPath = findPath(parentWarehouse, groupedWarehouses);
-                System.out.println("Parent path computed: " + parentPath);
             }
             path.addAll(parentPath);
         }
