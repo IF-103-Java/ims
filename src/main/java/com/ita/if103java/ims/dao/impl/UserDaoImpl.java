@@ -236,7 +236,9 @@ public class UserDaoImpl implements UserDao {
     @Override
     public Integer countOfUsers(Long accountId) {
         try {
-            return jdbcTemplate.update(Queries.SQL_COUNT_OF_USERS, false, accountId);
+            return jdbcTemplate.queryForObject(Queries.SQL_COUNT_OF_USERS, Integer.class, accountId);
+        } catch (EmptyResultDataAccessException e) {
+            throw new UserNotFoundException("Failed to obtain users during searching count of users. {id = " + accountId);
         } catch (DataAccessException e) {
             throw new CRUDException("Error during `select count(*)` of users {accountId = " + accountId + "}", e);
         }

@@ -3,6 +3,7 @@ package com.ita.if103java.ims.service.impl;
 import com.ita.if103java.ims.dao.TransactionDao;
 import com.ita.if103java.ims.dto.TransactionDto;
 import com.ita.if103java.ims.entity.Transaction;
+import com.ita.if103java.ims.entity.User;
 import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.AccountService;
 import com.ita.if103java.ims.service.AssociateService;
@@ -36,7 +37,8 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public TransactionDto findById(Long id, UserDetailsImpl userDetails) {
-        final Transaction transaction = transactionDao.findById(id);
+        final User user = userDetails.getUser();
+        final Transaction transaction = transactionDao.findByIdAndAccountId(id, user.getAccountId());
         return switch (transaction.getType()) {
             case IN -> buildIncomeTransactionDto(transaction, userDetails);
             case OUT -> buildOutcomeTransactionDto(transaction, userDetails);
