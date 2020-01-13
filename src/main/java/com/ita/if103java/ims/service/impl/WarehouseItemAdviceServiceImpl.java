@@ -82,7 +82,7 @@ public class WarehouseItemAdviceServiceImpl implements WarehouseItemAdviceServic
                                          List<WarehouseIdAdviceDto> warehouseIdAdvices) {
         return new WarehouseItemAdviceDto(
             itemService.findById(itemId, userDetails),
-            mapWarehouseAdvices(warehouseIdAdvices),
+            mapWarehouseAdvices(warehouseIdAdvices, userDetails),
             mapAssociates(suppliers),
             mapAssociates(clients)
         );
@@ -95,10 +95,10 @@ public class WarehouseItemAdviceServiceImpl implements WarehouseItemAdviceServic
             .collect(Collectors.toUnmodifiableList());
     }
 
-    private List<WarehouseAdviceDto> mapWarehouseAdvices(List<WarehouseIdAdviceDto> warehouseAdvices) {
+    private List<WarehouseAdviceDto> mapWarehouseAdvices(List<WarehouseIdAdviceDto> warehouseAdvices, UserDetailsImpl userDetails) {
         return warehouseAdvices.stream()
             .map(x -> new WarehouseAdviceDto(
-                warehouseService.findWarehouseById(x.getWarehouseId()),
+                warehouseService.findById(x.getWarehouseId(), userDetails),
                 x.getWeightedAvgDistance()
             ))
             .collect(Collectors.toUnmodifiableList());
