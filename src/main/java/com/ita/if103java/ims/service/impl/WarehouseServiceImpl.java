@@ -2,6 +2,8 @@ package com.ita.if103java.ims.service.impl;
 
 import com.ita.if103java.ims.dao.AddressDao;
 import com.ita.if103java.ims.dao.WarehouseDao;
+import com.ita.if103java.ims.dto.AddressDto;
+import com.ita.if103java.ims.dto.WarehouseAddressDto;
 import com.ita.if103java.ims.dto.WarehouseDto;
 import com.ita.if103java.ims.entity.Address;
 import com.ita.if103java.ims.entity.Event;
@@ -17,6 +19,7 @@ import com.ita.if103java.ims.service.WarehouseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,6 +30,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class WarehouseServiceImpl implements WarehouseService {
     private WarehouseDao warehouseDao;
     private WarehouseDtoMapper warehouseDtoMapper;
@@ -90,21 +94,39 @@ public class WarehouseServiceImpl implements WarehouseService {
         Map<Long, Warehouse> groupedWarehouses = all.stream()
             .collect(Collectors.toMap(Warehouse::getId, Function.identity()));
         all.forEach(o -> findPath(o, groupedWarehouses));
+        for (int i = 0; i < all.size(); i++) {
+            Warehouse warehouse = all.get(i);
+             =warehouseDao.findById(warehouse.getId(), user.getUser().getAccountId());
+            WarehouseDto warehouseDto = warehouseDtoMapper.toDto(warehouse);
+            if (warehouse.getId().equals(warehouse.getTopWarehouseID())) {
+                AddressDto addressDto = addressDtoMapper.toDto(addressDao.findByWarehouseId(warehouse.getId()));
+                warehouseDto.setWarehouseAddressDto((WarehouseAddressDto) addressDto);
+            }
+
+        }
+
+
         return warehouseDtoMapper.toDtoList(all);
     }
 
     @Override
     public WarehouseDto findById(Long id, UserDetailsImpl user) {
         Warehouse warehouse = warehouseDao.findById(id, user.getUser().getAccountId());
+        WarehouseDto warehouseDto = warehouseDtoMapper.toDto(warehouse);
+        if (warehouse.getId().equals(warehouse.getTopWarehouseID())) {
+            AddressDto addressDto = addressDtoMapper.toDto(addressDao.findByWarehouseId(id));
+            warehouseDto.setWarehouseAddressDto((WarehouseAddressDto) addressDto);
+        }
         populatePath(warehouse, user);
-        return warehouseDtoMapper.toDto(warehouse);
+        return warehouseDto;
     }
 
     private void populatePath(Warehouse warehouse, UserDetailsImpl user) {
         Map<Long, Warehouse> groupedWarehouses = new HashMap<>();
         if (!warehouse.getId().equals(warehouse.getTopWarehouseID())) {
-            List<Warehouse> warehousesInHieararchy = warehouseDao.findByTopWarehouseID(warehouse.getTopWarehouseID(), user.getUser().getAccountId());
-            groupedWarehouses = warehousesInHieararchy.stream()
+            List<Warehouse> warehousesInHierarchy = warehouseDao.findByTopWarehouseID(warehouse.getTopWarehouseID(),
+                user.getUser().getAccountId());
+            groupedWarehouses = warehousesInHierarchy.stream()
                 .collect(Collectors.toMap(Warehouse::getId, Function.identity()));
         } else {
             groupedWarehouses.put(warehouse.getId(), warehouse);

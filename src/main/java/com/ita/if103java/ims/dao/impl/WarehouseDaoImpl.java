@@ -225,7 +225,7 @@ public class WarehouseDaoImpl implements WarehouseDao {
 
         static final String SQL_LEVEL_WAREHOUSE_BY_PARENT_ID = """
                 WITH RECURSIVE cte AS
-                (SELECT id, 1 as depth
+                (SELECT id, 0 as depth
                  FROM warehouses
                  WHERE parent_id IS NULL
                  UNION ALL
