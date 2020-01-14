@@ -207,7 +207,6 @@ public class EventDaoImpl implements EventDao {
             Set<EventName> names = new HashSet<>();
             if (columnValue instanceof Collection) {
                 for (Object type : (Collection) columnValue) {
-                    System.out.println("here1 " + type);
                     names.addAll(EventName.getValuesByType(EventType.valueOf(type.toString())));
                 }
             } else {
@@ -235,9 +234,9 @@ public class EventDaoImpl implements EventDao {
         preparedStatement.setObject(++i, event.getDate().toLocalDateTime());
         preparedStatement.setLong(++i, event.getAccountId());
         preparedStatement.setLong(++i, event.getAuthorId());
-        preparedStatement.setObject(++i, event.getWarehouseId() != null ? event.getWarehouseId() : null);
+        preparedStatement.setObject(++i, event.getWarehouseId());
         preparedStatement.setString(++i, event.getName().toString());
-        preparedStatement.setObject(++i, event.getTransactionId() != null ? event.getTransactionId() : null);
+        preparedStatement.setObject(++i, event.getTransactionId());
         return preparedStatement;
     }
 

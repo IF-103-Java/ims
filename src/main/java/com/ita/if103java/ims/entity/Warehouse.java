@@ -35,6 +35,10 @@ public class Warehouse {
         this.children = new ArrayList<>();
     }
 
+    public boolean isTopLevel() {
+        return this.id.equals(this.topWarehouseID);
+    }
+
     public Long getId() {
         return id;
     }

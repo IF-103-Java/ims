@@ -59,7 +59,7 @@ public class AccountTypeDaoImpl implements AccountTypeDao {
     @Override
     public Long minLvlType() {
         try {
-            return Objects.requireNonNull(jdbcTemplate.queryForObject(Queries.SQL_FIND_MIN_LVL_TYPE, accountTypeRowMapper)).getId();
+            return jdbcTemplate.queryForObject(Queries.SQL_FIND_MIN_LVL_TYPE, Long.class);
         } catch (EmptyResultDataAccessException e) {
             throw new AccountTypeNotFoundException("Find min lvl type", e);
         } catch (DataAccessException e) {
@@ -82,8 +82,11 @@ public class AccountTypeDaoImpl implements AccountTypeDao {
         """;
 
         static final String SQL_FIND_MIN_LVL_TYPE = """
-            SELECT MIN(level)
+            SELECT id
             FROM account_types
+            WHERE level =
+            (SELECT MIN(level)
+            FROM account_types)
         """;
 
         static final String SQL_FIND_ALL_POSSIBLE_TO_UPGRADE = """

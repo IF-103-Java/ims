@@ -2,6 +2,7 @@ package com.ita.if103java.ims.service.impl;
 
 import com.ita.if103java.ims.dao.AddressDao;
 import com.ita.if103java.ims.dao.WarehouseDao;
+import com.ita.if103java.ims.dto.AddressDto;
 import com.ita.if103java.ims.dto.WarehouseDto;
 import com.ita.if103java.ims.entity.Address;
 import com.ita.if103java.ims.entity.Event;
@@ -17,6 +18,7 @@ import com.ita.if103java.ims.service.WarehouseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -48,6 +50,7 @@ public class WarehouseServiceImpl implements WarehouseService {
     }
 
     @Override
+    @Transactional
     public WarehouseDto add(WarehouseDto warehouseDto, UserDetailsImpl userDetails) {
         Long accountId = userDetails.getUser().getAccountId();
         if (warehouseDto.getParentID() == null) {
@@ -71,10 +74,11 @@ public class WarehouseServiceImpl implements WarehouseService {
         }
     }
 
+
     private WarehouseDto createNewWarehouse(WarehouseDto warehouseDto, UserDetailsImpl user) {
         Warehouse warehouse = warehouseDao.create(warehouseDtoMapper.toEntity(warehouseDto));
-        Address address = addressDtoMapper.toEntity(warehouseDto.getWarehouseAddressDto());
-        if (warehouse.getTopWarehouseID().equals(warehouse.getId())) {
+        Address address = addressDtoMapper.toEntity(warehouseDto.getAddressDto());
+        if (warehouse.isTopLevel()) {
             addressDao.createWarehouseAddress(warehouse.getId(), address);
         }
         createEvent(user, warehouse, EventName.WAREHOUSE_CREATED);
@@ -90,21 +94,36 @@ public class WarehouseServiceImpl implements WarehouseService {
         Map<Long, Warehouse> groupedWarehouses = all.stream()
             .collect(Collectors.toMap(Warehouse::getId, Function.identity()));
         all.forEach(o -> findPath(o, groupedWarehouses));
+        for (Warehouse warehouse : all) {
+            WarehouseDto warehouseDto = warehouseDtoMapper.toDto(warehouse);
+            if (warehouse.isTopLevel()) {
+                AddressDto addressDto = addressDtoMapper.toDto(addressDao.findByWarehouseId(warehouse.getId()));
+                warehouseDto.setAddressDto(addressDto);
+            }
+
+        }
+
         return warehouseDtoMapper.toDtoList(all);
     }
 
     @Override
     public WarehouseDto findById(Long id, UserDetailsImpl user) {
         Warehouse warehouse = warehouseDao.findById(id, user.getUser().getAccountId());
+        WarehouseDto warehouseDto = warehouseDtoMapper.toDto(warehouse);
+        if (warehouse.isTopLevel()) {
+            AddressDto addressDto = addressDtoMapper.toDto(addressDao.findByWarehouseId(id));
+            warehouseDto.setAddressDto(addressDto);
+        }
         populatePath(warehouse, user);
-        return warehouseDtoMapper.toDto(warehouse);
+        return warehouseDto;
     }
 
     private void populatePath(Warehouse warehouse, UserDetailsImpl user) {
         Map<Long, Warehouse> groupedWarehouses = new HashMap<>();
-        if (!warehouse.getId().equals(warehouse.getTopWarehouseID())) {
-            List<Warehouse> warehousesInHieararchy = warehouseDao.findByTopWarehouseID(warehouse.getTopWarehouseID(), user.getUser().getAccountId());
-            groupedWarehouses = warehousesInHieararchy.stream()
+        if (!warehouse.isTopLevel()) {
+            List<Warehouse> warehousesInHierarchy = warehouseDao.findByTopWarehouseID(warehouse.getTopWarehouseID(),
+                user.getUser().getAccountId());
+            groupedWarehouses = warehousesInHierarchy.stream()
                 .collect(Collectors.toMap(Warehouse::getId, Function.identity()));
         } else {
             groupedWarehouses.put(warehouse.getId(), warehouse);
@@ -126,8 +145,8 @@ public class WarehouseServiceImpl implements WarehouseService {
         Warehouse updatedWarehouse = warehouseDtoMapper.toEntity(warehouseDto);
         Warehouse dBWarehouse = warehouseDao.findById(updatedWarehouse.getId(), user.getUser().getAccountId());
         updatedWarehouse.setActive(dBWarehouse.isActive());
-        Address address = addressDtoMapper.toEntity(warehouseDto.getWarehouseAddressDto());
-        if (warehouseDto.getTopWarehouseID().equals(warehouseDto.getId())) {
+        Address address = addressDtoMapper.toEntity(warehouseDto.getAddressDto());
+        if (dBWarehouse.isTopLevel()) {
             addressDao.updateWarehouseAddress(updatedWarehouse.getId(), address);
         }
         createEvent(user, updatedWarehouse, EventName.WAREHOUSE_EDITED);

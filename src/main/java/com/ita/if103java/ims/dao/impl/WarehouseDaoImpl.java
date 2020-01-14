@@ -153,7 +153,7 @@ public class WarehouseDaoImpl implements WarehouseDao {
     @Override
     public List<Warehouse> findByTopWarehouseID(Long id, Long accountId) {
         try {
-            return jdbcTemplate.query(Queries.SQL_SELECT_BY_TOP_WAREHOUSE_ID, warehouseRowMapper, id);
+            return jdbcTemplate.query(Queries.SQL_SELECT_BY_TOP_WAREHOUSE_ID, warehouseRowMapper, id, accountId);
 
         } catch (DataAccessException e) {
             throw new WarehouseNotFoundException("Error during finding all children of top-level-warehouse {Id = " + id + "}", e);
@@ -225,7 +225,7 @@ public class WarehouseDaoImpl implements WarehouseDao {
 
         static final String SQL_LEVEL_WAREHOUSE_BY_PARENT_ID = """
                 WITH RECURSIVE cte AS
-                (SELECT id, 1 as depth
+                (SELECT id, 0 as depth
                  FROM warehouses
                  WHERE parent_id IS NULL
                  UNION ALL
