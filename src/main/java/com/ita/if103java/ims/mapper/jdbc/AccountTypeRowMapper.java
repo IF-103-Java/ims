@@ -15,6 +15,7 @@ public class AccountTypeRowMapper implements RowMapper<AccountType> {
         accountType.setId(resultSet.getLong("id"));
         accountType.setName(resultSet.getString("name"));
         accountType.setPrice(resultSet.getDouble("price"));
+        accountType.setLevel(resultSet.getInt("level"));
         accountType.setMaxWarehouses(resultSet.getInt("max_warehouses"));
         accountType.setMaxWarehouseDepth(resultSet.getInt("max_warehouse_depth"));
         accountType.setMaxUsers(resultSet.getInt("max_users"));
