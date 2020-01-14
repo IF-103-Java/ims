@@ -33,10 +33,10 @@ public class MailServiceImpl implements MailService {
         try {
             mimeMessage.addRecipient(Message.RecipientType.TO, new InternetAddress(userDto.getEmail()));
             mimeMessage.setSubject(subject);
-            mimeMessage.setContent(message, "text/plain");
+            mimeMessage.setContent(message, "text/html");
             javaMailSender.send(mimeMessage);
         } catch (MessagingException e) {
-            String msg = "Sending message " + subject + " to user id( " + userDto.getId() + ") was failed!";
+            String msg = "Sending message " + subject + " to user " + userDto.getEmail() + " with id( " + userDto.getId() + ") was failed!";
             LOGGER.error(msg, e);
         }
     }

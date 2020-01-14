@@ -25,6 +25,7 @@ import java.util.UUID;
 
 import static com.ita.if103java.ims.config.MailMessagesConfig.ACTIVATE_USER;
 import static com.ita.if103java.ims.config.MailMessagesConfig.FOOTER;
+import static com.ita.if103java.ims.config.MailMessagesConfig.HEADER;
 import static com.ita.if103java.ims.entity.EventName.PASSWORD_CHANGED;
 import static com.ita.if103java.ims.entity.EventName.PROFILE_CHANGED;
 import static com.ita.if103java.ims.util.TokenUtil.isValidToken;
@@ -85,8 +86,9 @@ public class UserServiceImpl implements UserService {
         accountService.create(createdUser, userDto.getAccountName());
         String token = createdUser.getEmailUUID();
         String message = "" +
-            ACTIVATE_USER
-            + activationURL + token + "\n" +
+            HEADER +
+            ACTIVATE_USER +
+            "<a href=\"" + activationURL + token + "\">" + "Confirm" + "</a>" +
             FOOTER;
         mailService.sendMessage(createdUser, message, "ACCOUNT ACTIVATION");
         return createdUser;
