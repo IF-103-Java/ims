@@ -35,6 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 import java.util.ArrayList;
@@ -113,7 +114,7 @@ public class ItemServiceImpl implements ItemService {
                 " associateId = " + itemTransaction.getAssociateId() + "}");
         }
     }
-
+    @Transactional
     @Override
     public SavedItemDto addSavedItem(ItemTransactionRequestDto itemTransaction, UserDetailsImpl user) {
         validateInputsAdd(itemTransaction, user.getUser().getAccountId());
@@ -233,7 +234,7 @@ public class ItemServiceImpl implements ItemService {
         return itemDao.isExistItemById(itemTransaction.getItemDto().getId(), accountId) &&
             accountId.equals(warehouseDao.findById(itemTransaction.getDestinationWarehouseId()).getAccountID());
     }
-
+    @Transactional
     @Override
     public boolean moveItem(ItemTransactionRequestDto itemTransaction, UserDetailsImpl user) {
         validateInputsMove(itemTransaction, user.getUser().getAccountId());
@@ -272,7 +273,7 @@ public class ItemServiceImpl implements ItemService {
         }
     }
 
-
+    @Transactional
     @Override
     public SavedItemDto outcomeItem(ItemTransactionRequestDto itemTransaction, UserDetailsImpl user) {
         validateInputsOut(itemTransaction, user);
