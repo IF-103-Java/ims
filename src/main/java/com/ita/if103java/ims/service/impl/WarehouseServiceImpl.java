@@ -94,9 +94,7 @@ public class WarehouseServiceImpl implements WarehouseService {
         Map<Long, Warehouse> groupedWarehouses = all.stream()
             .collect(Collectors.toMap(Warehouse::getId, Function.identity()));
         all.forEach(o -> findPath(o, groupedWarehouses));
-        for (int i = 0; i < all.size(); i++) {
-            Warehouse warehouse = all.get(i);
-            warehouseDao.findById(warehouse.getId(), user.getUser().getAccountId());
+        for (Warehouse warehouse : all) {
             WarehouseDto warehouseDto = warehouseDtoMapper.toDto(warehouse);
             if (warehouse.getId().equals(warehouse.getTopWarehouseID())) {
                 AddressDto addressDto = addressDtoMapper.toDto(addressDao.findByWarehouseId(warehouse.getId()));
@@ -112,7 +110,7 @@ public class WarehouseServiceImpl implements WarehouseService {
     public WarehouseDto findById(Long id, UserDetailsImpl user) {
         Warehouse warehouse = warehouseDao.findById(id, user.getUser().getAccountId());
         WarehouseDto warehouseDto = warehouseDtoMapper.toDto(warehouse);
-        if (warehouse.getId().equals(warehouse.getTopWarehouseID())) {
+        if (warehouse.isTopLevel()) {
             AddressDto addressDto = addressDtoMapper.toDto(addressDao.findByWarehouseId(id));
             warehouseDto.setAddressDto(addressDto);
         }
@@ -122,7 +120,7 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     private void populatePath(Warehouse warehouse, UserDetailsImpl user) {
         Map<Long, Warehouse> groupedWarehouses = new HashMap<>();
-        if (!warehouse.getId().equals(warehouse.getTopWarehouseID())) {
+        if (!warehouse.isTopLevel()) {
             List<Warehouse> warehousesInHierarchy = warehouseDao.findByTopWarehouseID(warehouse.getTopWarehouseID(),
                 user.getUser().getAccountId());
             groupedWarehouses = warehousesInHierarchy.stream()

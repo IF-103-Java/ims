@@ -53,8 +53,8 @@ public class WarehouseDaoImpl implements WarehouseDao {
     @Override
     public List<Warehouse> findAll(Pageable pageable, Long accountId) {
         try {
-            return jdbcTemplate.query(Queries.SQL_SELECT_ALL_WAREHOUSES, warehouseRowMapper, accountId,
-                pageable.getPageSize(), pageable.getOffset());
+            return jdbcTemplate.query(Queries.SQL_SELECT_ALL_WAREHOUSES, warehouseRowMapper, accountId
+                );
 
         } catch (DataAccessException e) {
             throw new WarehouseNotFoundException("Error during finding all warehouses", e);
