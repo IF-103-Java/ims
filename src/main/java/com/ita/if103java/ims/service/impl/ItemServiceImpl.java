@@ -9,7 +9,6 @@ import com.ita.if103java.ims.dao.AssociateDao;
 import com.ita.if103java.ims.dto.ItemDto;
 import com.ita.if103java.ims.dto.ItemTransactionRequestDto;
 import com.ita.if103java.ims.dto.SavedItemDto;
-import com.ita.if103java.ims.dto.WarehouseDto;
 
 import com.ita.if103java.ims.entity.Event;
 import com.ita.if103java.ims.entity.EventName;
@@ -17,7 +16,6 @@ import com.ita.if103java.ims.entity.Item;
 import com.ita.if103java.ims.entity.SavedItem;
 import com.ita.if103java.ims.entity.Transaction;
 import com.ita.if103java.ims.entity.TransactionType;
-import com.ita.if103java.ims.entity.Warehouse;
 
 import com.ita.if103java.ims.exception.dao.ItemNotFoundException;
 import com.ita.if103java.ims.exception.dao.SavedItemNotFoundException;
@@ -38,7 +36,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -114,6 +111,7 @@ public class ItemServiceImpl implements ItemService {
                 " associateId = " + itemTransaction.getAssociateId() + "}");
         }
     }
+
     @Transactional
     @Override
     public SavedItemDto addSavedItem(ItemTransactionRequestDto itemTransaction, UserDetailsImpl user) {
@@ -187,17 +185,6 @@ public class ItemServiceImpl implements ItemService {
 
     }
 
-    @Override
-    public List<WarehouseDto> findUsefulWarehouses(int volume, int quantity, UserDetailsImpl user) {
-        int capacity = volume * quantity;
-        List<Warehouse> childWarehouses = new ArrayList<>();
-        for (Warehouse warehouse : warehouseDao.findAll()) {
-            childWarehouses.addAll(warehouseDao.findChildrenByTopWarehouseID(warehouse.getId()).stream().
-                filter(x -> x.getCapacity() >= capacity).collect(Collectors.toList()));
-        }
-        return warehouseDtoMapper.toDtoList(childWarehouses);
-
-    }
 
     @Override
     public ItemDto addItem(ItemDto itemDto, UserDetailsImpl user) {
@@ -234,6 +221,7 @@ public class ItemServiceImpl implements ItemService {
         return itemDao.isExistItemById(itemTransaction.getItemDto().getId(), accountId) &&
             accountId.equals(warehouseDao.findById(itemTransaction.getDestinationWarehouseId()).getAccountID());
     }
+
     @Transactional
     @Override
     public boolean moveItem(ItemTransactionRequestDto itemTransaction, UserDetailsImpl user) {
