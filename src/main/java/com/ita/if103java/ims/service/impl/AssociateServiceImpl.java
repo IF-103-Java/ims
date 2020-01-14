@@ -53,6 +53,7 @@ public class AssociateServiceImpl implements AssociateService {
             address = addressDao.createAssociateAddress(associate.getId(), address);
             associateDto = associateDtoMapper.toDto(associate);
             associateDto.setAddressDto(addressDtoMapper.toDto(address));
+            associateDto.setAccountId(user.getUser().getAccountId());
 
             EventName eventName = associate.getType() == AssociateType.SUPPLIER ? EventName.NEW_SUPPLIER : EventName.NEW_CLIENT;
             createEvent(user, associate, eventName);
@@ -71,6 +72,7 @@ public class AssociateServiceImpl implements AssociateService {
         Address address = addressDao.updateAssociateAddress(associate.getId(), addressDtoMapper.toEntity(associateDto.getAddressDto()));
         associateDto = associateDtoMapper.toDto(associate);
         associateDto.setAddressDto(addressDtoMapper.toDto(address));
+        associateDto.setAccountId(user.getUser().getAccountId());
 
         EventName eventName = associate.getType() == AssociateType.SUPPLIER ? EventName.SUPPLIER_EDITED : EventName.CLIENT_EDITED;
         createEvent(user, associate, eventName);
