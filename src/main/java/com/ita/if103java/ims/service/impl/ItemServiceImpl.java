@@ -52,22 +52,19 @@ public class ItemServiceImpl implements ItemService {
     private ItemDao itemDao;
     private SavedItemDao savedItemDao;
     private WarehouseDao warehouseDao;
-    private WarehouseDtoMapper warehouseDtoMapper;
     private TransactionDao transactionDao;
     private EventService eventService;
     private AssociateDao associateDao;
 
     @Autowired
     public ItemServiceImpl(ItemDtoMapper itemDtoMapper, SavedItemDtoMapper savedItemDtoMapper, ItemDao itemDao,
-                           SavedItemDao savedItemDao, WarehouseDao warehouseDao,
-                           WarehouseDtoMapper warehouseDtoMapper, TransactionDao transactionDao,
+                           SavedItemDao savedItemDao, WarehouseDao warehouseDao, TransactionDao transactionDao,
                            EventService eventService, AssociateDao associateDao) {
         this.itemDtoMapper = itemDtoMapper;
         this.savedItemDtoMapper = savedItemDtoMapper;
         this.itemDao = itemDao;
         this.savedItemDao = savedItemDao;
         this.warehouseDao = warehouseDao;
-        this.warehouseDtoMapper = warehouseDtoMapper;
         this.transactionDao = transactionDao;
         this.eventService = eventService;
         this.associateDao = associateDao;
