@@ -36,7 +36,6 @@ public class Warehouse {
     }
 
     public boolean isTopLevel() {
-        ;
         return this.id.equals(this.topWarehouseID);
     }
 
