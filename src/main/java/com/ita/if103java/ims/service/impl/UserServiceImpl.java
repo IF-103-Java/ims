@@ -6,13 +6,16 @@ import com.ita.if103java.ims.entity.Role;
 import com.ita.if103java.ims.entity.User;
 import com.ita.if103java.ims.mapper.dto.UserDtoMapper;
 import com.ita.if103java.ims.security.UserDetailsImpl;
+import com.ita.if103java.ims.service.AccountService;
 import com.ita.if103java.ims.service.EventService;
 import com.ita.if103java.ims.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -20,9 +23,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static com.ita.if103java.ims.config.MailMessagesConfig.ACTIVATE_USER;
+import static com.ita.if103java.ims.config.MailMessagesConfig.FOOTER;
 import static com.ita.if103java.ims.entity.EventName.PASSWORD_CHANGED;
 import static com.ita.if103java.ims.entity.EventName.PROFILE_CHANGED;
-import static com.ita.if103java.ims.entity.EventName.SIGN_UP;
 import static com.ita.if103java.ims.util.TokenUtil.isValidToken;
 import static com.ita.if103java.ims.util.UserEventUtil.createEvent;
 
@@ -30,21 +34,30 @@ import static com.ita.if103java.ims.util.UserEventUtil.createEvent;
 @PropertySource("classpath:application.properties")
 public class UserServiceImpl implements UserService {
 
+    @Value("${mail.activationURL}")
+    private String activationURL;
+
     private UserDao userDao;
     private UserDtoMapper mapper;
     private PasswordEncoder passwordEncoder;
     private EventService eventService;
+    private AccountService accountService;
+    private MailServiceImpl mailService;
 
 
     @Autowired
     public UserServiceImpl(UserDao userDao,
                            UserDtoMapper mapper,
                            PasswordEncoder passwordEncoder,
-                           EventService eventService) {
+                           EventService eventService,
+                           AccountService accountService,
+                           MailServiceImpl mailService) {
         this.userDao = userDao;
         this.mapper = mapper;
         this.passwordEncoder = passwordEncoder;
         this.eventService = eventService;
+        this.accountService = accountService;
+        this.mailService = mailService;
     }
 
     @Override
@@ -62,8 +75,21 @@ public class UserServiceImpl implements UserService {
         user.setEmailUUID(UUID.randomUUID().toString());
 
         User createdUser = userDao.create(user);
-        eventService.create(createEvent(createdUser, SIGN_UP, "signed up."));
         return mapper.toDto(createdUser);
+    }
+
+    @Override
+    @Transactional
+    public UserDto createAndSendMessage(UserDto userDto) {
+        UserDto createdUser = create(userDto);
+        accountService.create(createdUser, userDto.getAccountName());
+        String token = createdUser.getEmailUUID();
+        String message = "" +
+            ACTIVATE_USER
+            + activationURL + token + "\n" +
+            FOOTER;
+        mailService.sendMessage(createdUser, message, "ACCOUNT ACTIVATION");
+        return createdUser;
     }
 
     @Override

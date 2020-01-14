@@ -21,6 +21,7 @@ import org.passay.PasswordGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class InvitationServiceImpl implements InvitationService {
@@ -45,6 +46,7 @@ public class InvitationServiceImpl implements InvitationService {
     }
 
     @Override
+    @Transactional
     public void inviteUser(User accountAdmin, UserDto userDto) {
         if (allowToInvite(accountAdmin.getAccountId())) {
             userDto.setPassword(generatePassword());
