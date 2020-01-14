@@ -6,6 +6,8 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class WarehouseDto implements Serializable {
@@ -42,11 +44,15 @@ public class WarehouseDto implements Serializable {
 
     private boolean active;
 
+    private WarehouseAddressDto warehouseAddressDto;
+
+    private List<String> path;
+
     public WarehouseDto() {
     }
 
     public WarehouseDto(Long id, String name, String info, Integer capacity, boolean isBottom, Long parentID, Long accountID,
-                        Long topWarehouseID, boolean active) {
+                        Long topWarehouseID, boolean active, WarehouseAddressDto warehouseAddressDto) {
         this.id = id;
         this.name = name;
         this.info = info;
@@ -56,6 +62,9 @@ public class WarehouseDto implements Serializable {
         this.accountID = accountID;
         this.topWarehouseID = topWarehouseID;
         this.active = active;
+        this.warehouseAddressDto = warehouseAddressDto;
+        this.path = new ArrayList<>();
+
     }
 
     public Long getId() {
@@ -130,6 +139,22 @@ public class WarehouseDto implements Serializable {
         this.active = active;
     }
 
+    public WarehouseAddressDto getWarehouseAddressDto() {
+        return warehouseAddressDto;
+    }
+
+    public void setWarehouseAddressDto(WarehouseAddressDto warehouseAddressDto) {
+        this.warehouseAddressDto = warehouseAddressDto;
+    }
+
+    public List<String> getPath(){
+        return  path;
+    }
+
+    public void setPath(List<String> path) {
+        this.path = path;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -142,12 +167,14 @@ public class WarehouseDto implements Serializable {
             topWarehouseID.equals(that.topWarehouseID) &&
             active == that.active &&
             Objects.equals(name, that.name) &&
-            Objects.equals(info, that.info);
+            Objects.equals(info, that.info) &&
+            Objects.equals(path, that.path) &&
+            Objects.equals(warehouseAddressDto, that.warehouseAddressDto);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, info, capacity, isBottom, parentID, accountID, topWarehouseID, active);
+        return Objects.hash(name, info, capacity, isBottom, parentID, accountID, topWarehouseID, active, warehouseAddressDto, path);
     }
 
     @Override
@@ -162,6 +189,8 @@ public class WarehouseDto implements Serializable {
             ", accountID=" + accountID +
             ", topWarehouseID=" + topWarehouseID +
             ", active=" + active +
+            ", warehouseAddressDto=" + warehouseAddressDto +
+            ", path=" + path +
             '}';
     }
 }

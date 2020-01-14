@@ -14,4 +14,6 @@ public interface TransactionDao {
                        TransactionType type);
 
     Transaction findById(Long id);
+
+    Transaction findByIdAndAccountId(Long id, Long accountId);
 }
