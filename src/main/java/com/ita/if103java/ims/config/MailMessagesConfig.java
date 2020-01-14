@@ -58,8 +58,8 @@ public class MailMessagesConfig {
 
     public final static String ACTIVATE_USER = """
             <div>
-            Hello, we are happy to see you in our Inventory Management System.<br>
-            Please, activate your account!
+            Hello, we are happy to see you in our web-application.<br>
+            Activate your account!
             </div>
         """;
 
