@@ -5,11 +5,10 @@ import com.ita.if103java.ims.entity.Warehouse;
 import com.ita.if103java.ims.exception.dao.CRUDException;
 import com.ita.if103java.ims.exception.dao.WarehouseNotFoundException;
 import com.ita.if103java.ims.mapper.jdbc.WarehouseRowMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
@@ -25,7 +24,6 @@ import java.util.Optional;
 
 @Repository
 public class WarehouseDaoImpl implements WarehouseDao {
-    private static final Logger LOGGER = LoggerFactory.getLogger(WarehouseDaoImpl.class);
     private JdbcTemplate jdbcTemplate;
     private WarehouseRowMapper warehouseRowMapper;
 
@@ -53,9 +51,10 @@ public class WarehouseDaoImpl implements WarehouseDao {
     }
 
     @Override
-    public List<Warehouse> findAll() {
+    public List<Warehouse> findAll(Pageable pageable, Long accountId) {
         try {
-            return jdbcTemplate.query(Queries.SQL_SELECT_ALL_WAREHOUSES, warehouseRowMapper);
+            return jdbcTemplate.query(Queries.SQL_SELECT_ALL_WAREHOUSES, warehouseRowMapper, accountId,
+                pageable.getPageSize(), pageable.getOffset());
 
         } catch (DataAccessException e) {
             throw new WarehouseNotFoundException("Error during finding all warehouses", e);
@@ -88,14 +87,14 @@ public class WarehouseDaoImpl implements WarehouseDao {
 
 
     @Override
-    public Warehouse findById(Long id) {
+    public Warehouse findById(Long id, Long accountId) {
         try {
-            return jdbcTemplate.queryForObject(Queries.SQL_SELECT_WAREHOUSE_BY_ID, warehouseRowMapper, id);
+            return jdbcTemplate.queryForObject(Queries.SQL_SELECT_WAREHOUSE_BY_ID, warehouseRowMapper, id, accountId);
         } catch (EmptyResultDataAccessException e) {
             throw new WarehouseNotFoundException(e.getMessage());
 
         } catch (DataAccessException e) {
-            throw new CRUDException("find warehouse by id = " + id, e);
+            throw new CRUDException("Error during finding warehouse by id = " + id, e);
         }
 
     }
@@ -152,9 +151,9 @@ public class WarehouseDaoImpl implements WarehouseDao {
 
 
     @Override
-    public List<Warehouse> findChildrenByTopWarehouseID(Long id) {
+    public List<Warehouse> findByTopWarehouseID(Long id, Long accountId) {
         try {
-            return jdbcTemplate.query(Queries.SQL_SELECT_CHILDREN_BY_TOP_WAREHOUSE_ID, warehouseRowMapper, id);
+            return jdbcTemplate.query(Queries.SQL_SELECT_BY_TOP_WAREHOUSE_ID, warehouseRowMapper, id, accountId);
 
         } catch (DataAccessException e) {
             throw new WarehouseNotFoundException("Error during finding all children of top-level-warehouse {Id = " + id + "}", e);
@@ -191,11 +190,12 @@ public class WarehouseDaoImpl implements WarehouseDao {
         static final String SQL_SELECT_WAREHOUSE_BY_ID = """
                 SELECT *
                 FROM warehouses
-                WHERE id = ?
+                WHERE id = ? AND account_id = ?
             """;
 
         static final String SQL_SELECT_ALL_WAREHOUSES = """
                 SELECT * FROM warehouses
+                 WHERE account_id = ?
             """;
 
         static final String SQL_UPDATE_WAREHOUSE = """
@@ -204,10 +204,10 @@ public class WarehouseDaoImpl implements WarehouseDao {
                 WHERE id = ?;
             """;
 
-        static final String SQL_SELECT_CHILDREN_BY_TOP_WAREHOUSE_ID = """
+        static final String SQL_SELECT_BY_TOP_WAREHOUSE_ID = """
                 SELECT *
                 FROM warehouses
-                WHERE top_warehouse_id = ?
+                WHERE top_warehouse_id = ? AND account_id = ?
             """;
 
         static final String SQL_SET_ACTIVE_STATUS_WAREHOUSE = """
@@ -225,7 +225,7 @@ public class WarehouseDaoImpl implements WarehouseDao {
 
         static final String SQL_LEVEL_WAREHOUSE_BY_PARENT_ID = """
                 WITH RECURSIVE cte AS
-                (SELECT id, 1 as depth
+                (SELECT id, 0 as depth
                  FROM warehouses
                  WHERE parent_id IS NULL
                  UNION ALL

@@ -13,7 +13,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/users")
@@ -99,13 +99,18 @@ public class UserController {
     @PostMapping("/update-password")
     @ResponseStatus(HttpStatus.OK)
     public boolean updatePassword(@AuthenticationPrincipal UserDetailsImpl user,
-                               @Validated({ExistData.class}) @RequestBody @NotNull String newPassword) {
+                                  @Validated({ExistData.class}) @RequestBody @NotNull String newPassword) {
         return userService.updatePassword(user.getUser().getId(), newPassword);
     }
 
     @GetMapping("/me")
     public UserDto getCurrentUser(@AuthenticationPrincipal UserDetailsImpl user) {
         return mapper.toDto(user.getUser());
+    }
+
+    @GetMapping("/usernames")
+    public Map<Long, String> getUserNames(@AuthenticationPrincipal UserDetailsImpl user) {
+        return userService.findUserNames(user);
     }
 
 }

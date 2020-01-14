@@ -11,7 +11,6 @@ import com.ita.if103java.ims.service.DashboardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -41,7 +40,7 @@ public class DashboardController {
         produces = MediaType.APPLICATION_JSON_VALUE)
     public WarehousePremiumStructDto getPreLoad(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                 @RequestParam Long id) {
-        if(!userDetails.getAccountType().isDeepWarehouseAnalytics()){
+        if (!userDetails.getAccountType().isDeepWarehouseAnalytics()) {
             throw new UserPermissionException("Upgrade your account to premium!");
         }
         return dashboardService.getPreLoad(id, userDetails.getUser().getAccountId());

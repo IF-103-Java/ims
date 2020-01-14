@@ -6,7 +6,6 @@ import com.ita.if103java.ims.service.UpgradeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -28,7 +27,7 @@ public class UpgradeController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/{typeId}")
     public void upgrade(@AuthenticationPrincipal UserDetailsImpl user, @PathVariable("typeId") Long typeId) {
-        upgradeService.upgradeAccount(user.getUser(), typeId);
+        upgradeService.upgradeAccount(user, typeId);
     }
 
     @GetMapping(value = "/")

@@ -1,7 +1,7 @@
 package com.ita.if103java.ims.service.impl;
 
 import com.ita.if103java.ims.dao.BestTradeDao;
-import com.ita.if103java.ims.dto.BestTradeDto;
+import com.ita.if103java.ims.dto.WeightAssociateDto;
 import com.ita.if103java.ims.entity.TotalTransactionQuantity;
 import com.ita.if103java.ims.service.BestTradeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,22 +21,22 @@ public class BestTradeServiceImpl implements BestTradeService {
     }
 
     @Override
-    public List<BestTradeDto> findBestSuppliersByItemId(Long itemId) {
+    public List<WeightAssociateDto> findBestSuppliersByItemId(Long itemId) {
         final List<TotalTransactionQuantity> suppliers = bestTradeDao.findBestSuppliersByItemId(itemId, 3);
         return toDtoList(suppliers);
     }
 
     @Override
-    public List<BestTradeDto> findBestClientsByItemId(Long itemId) {
+    public List<WeightAssociateDto> findBestClientsByItemId(Long itemId) {
         final List<TotalTransactionQuantity> clients = bestTradeDao.findBestClientsByItemId(itemId, 3);
         return toDtoList(clients);
     }
 
-    private List<BestTradeDto> toDtoList(List<TotalTransactionQuantity> associates) {
+    private List<WeightAssociateDto> toDtoList(List<TotalTransactionQuantity> associates) {
         final double sum = associates.stream().mapToDouble(TotalTransactionQuantity::getTotalQuantity).sum();
         return associates
             .stream()
-            .map(x -> new BestTradeDto(x.getReferenceId(), x.getTotalQuantity() / sum))
+            .map(x -> new WeightAssociateDto(x.getReferenceId(), x.getTotalQuantity() / sum))
             .collect(Collectors.toList());
     }
 }

@@ -9,6 +9,7 @@ import com.ita.if103java.ims.entity.Event;
 import com.ita.if103java.ims.entity.EventName;
 import com.ita.if103java.ims.entity.Role;
 import com.ita.if103java.ims.entity.User;
+import com.ita.if103java.ims.exception.service.UserLimitReachedException;
 import com.ita.if103java.ims.service.EventService;
 import com.ita.if103java.ims.service.InvitationService;
 import com.ita.if103java.ims.service.MailService;
@@ -20,6 +21,7 @@ import org.passay.PasswordGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class InvitationServiceImpl implements InvitationService {
@@ -44,19 +46,20 @@ public class InvitationServiceImpl implements InvitationService {
     }
 
     @Override
+    @Transactional
     public void inviteUser(User accountAdmin, UserDto userDto) {
-        User user = userDao.findById(userDto.getId());
-        if (allowToInvite(user.getAccountId())) {
+        if (allowToInvite(accountAdmin.getAccountId())) {
             userDto.setPassword(generatePassword());
             userDto.setRole(Role.ROLE_WORKER);
+            userDto.setAccountId(accountAdmin.getAccountId());
             UserDto createdUserDto = userService.create(userDto);
-            sendInvitationMessage(createdUserDto, user.getAccountId());
+            sendInvitationMessage(createdUserDto, accountAdmin.getAccountId());
 
             Event event = new Event("New worker " + createdUserDto.getFirstName() + " " + createdUserDto.getLastName() + " was invited.",
                 accountAdmin.getAccountId(), null,
                 accountAdmin.getId(), EventName.WORKER_INVITED, null);
             eventService.create(event);
-        }
+        } else throw new UserLimitReachedException("The maximum users for account has been reached.");
     }
 
     private void sendInvitationMessage(UserDto userDto, Long accountId) {
