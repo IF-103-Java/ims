@@ -78,6 +78,19 @@ public class TransactionDaoImpl implements TransactionDao {
         }
     }
 
+    @Override
+    public Transaction findByIdAndAccountId(Long id, Long accountId) {
+        try {
+            return jdbcTemplate.queryForObject(Queries.SQL_SELECT_TRANSACTION_BY_ID_AND_ACCOUNT_ID, mapper, id, accountId);
+        } catch (EmptyResultDataAccessException e) {
+            throw new TransactionNotFoundException("Transaction not found -> " +
+                "Transaction.findByIdAndAccountId(" + id + ", " + accountId + ")", e);
+        } catch (DataAccessException e) {
+            throw new CRUDException("Error during a transaction 'select' -> " +
+                "Transaction.findByIdAndAccountId(" + id + ", " + accountId + ")", e);
+        }
+    }
+
     private MapSqlParameterSource getSqlParameterSource(Transaction transaction) {
         final MapSqlParameterSource parameterSource = new MapSqlParameterSource()
             .addValue("account_id", transaction.getAccountId())
@@ -99,7 +112,15 @@ public class TransactionDaoImpl implements TransactionDao {
             """;
 
         public static final String SQL_SELECT_TRANSACTION_BY_ID = """
-                select * from transactions where id = ?
+                select *
+                from transactions
+                where id = ?
+            """;
+
+        public static final String SQL_SELECT_TRANSACTION_BY_ID_AND_ACCOUNT_ID = """
+                select *
+                from transactions
+                where id = ? and account_id = ?
             """;
     }
 }

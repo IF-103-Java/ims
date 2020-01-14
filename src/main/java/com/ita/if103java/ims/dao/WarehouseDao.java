@@ -1,6 +1,7 @@
 package com.ita.if103java.ims.dao;
 
 import com.ita.if103java.ims.entity.Warehouse;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Map;
@@ -12,17 +13,17 @@ public interface WarehouseDao {
 
     boolean softDelete(Long id);
 
-    List<Warehouse> findAll();
+    List<Warehouse> findAll(Pageable pageable, Long accountId);
 
     Map<Long, String> findWarehouseNames(Long account_id);
 
     Map<Long, String> findWarehouseNames(List<Long> idList);
 
-    Warehouse findById(Long id);
+    Warehouse findById(Long id, Long accountId);
 
     Integer findQuantityOfWarehousesByAccountId(Long accountId);
 
-    List<Warehouse> findChildrenByTopWarehouseID(Long id);
+    List<Warehouse> findByTopWarehouseID(Long id, Long accountId);
 
     Integer findLevelByParentID(Long id);
 }
