@@ -153,7 +153,7 @@ public class WarehouseDaoImpl implements WarehouseDao {
     @Override
     public List<Warehouse> findByTopWarehouseID(Long id, Long accountId) {
         try {
-            return jdbcTemplate.query(Queries.SQL_SELECT_BY_TOP_WAREHOUSE_ID, warehouseRowMapper, id);
+            return jdbcTemplate.query(Queries.SQL_SELECT_BY_TOP_WAREHOUSE_ID, warehouseRowMapper, id, accountId);
 
         } catch (DataAccessException e) {
             throw new WarehouseNotFoundException("Error during finding all children of top-level-warehouse {Id = " + id + "}", e);

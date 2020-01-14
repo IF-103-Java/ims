@@ -3,7 +3,6 @@ package com.ita.if103java.ims.service.impl;
 import com.ita.if103java.ims.dao.AddressDao;
 import com.ita.if103java.ims.dao.WarehouseDao;
 import com.ita.if103java.ims.dto.AddressDto;
-import com.ita.if103java.ims.dto.WarehouseAddressDto;
 import com.ita.if103java.ims.dto.WarehouseDto;
 import com.ita.if103java.ims.entity.Address;
 import com.ita.if103java.ims.entity.Event;
@@ -30,7 +29,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional
 public class WarehouseServiceImpl implements WarehouseService {
     private WarehouseDao warehouseDao;
     private WarehouseDtoMapper warehouseDtoMapper;
@@ -52,6 +50,7 @@ public class WarehouseServiceImpl implements WarehouseService {
     }
 
     @Override
+    @Transactional
     public WarehouseDto add(WarehouseDto warehouseDto, UserDetailsImpl userDetails) {
         Long accountId = userDetails.getUser().getAccountId();
         if (warehouseDto.getParentID() == null) {
@@ -75,9 +74,10 @@ public class WarehouseServiceImpl implements WarehouseService {
         }
     }
 
+
     private WarehouseDto createNewWarehouse(WarehouseDto warehouseDto, UserDetailsImpl user) {
         Warehouse warehouse = warehouseDao.create(warehouseDtoMapper.toEntity(warehouseDto));
-        Address address = addressDtoMapper.toEntity(warehouseDto.getWarehouseAddressDto());
+        Address address = addressDtoMapper.toEntity(warehouseDto.getAddressDto());
         if (warehouse.getTopWarehouseID().equals(warehouse.getId())) {
             addressDao.createWarehouseAddress(warehouse.getId(), address);
         }
@@ -96,15 +96,14 @@ public class WarehouseServiceImpl implements WarehouseService {
         all.forEach(o -> findPath(o, groupedWarehouses));
         for (int i = 0; i < all.size(); i++) {
             Warehouse warehouse = all.get(i);
-             =warehouseDao.findById(warehouse.getId(), user.getUser().getAccountId());
+            warehouseDao.findById(warehouse.getId(), user.getUser().getAccountId());
             WarehouseDto warehouseDto = warehouseDtoMapper.toDto(warehouse);
             if (warehouse.getId().equals(warehouse.getTopWarehouseID())) {
                 AddressDto addressDto = addressDtoMapper.toDto(addressDao.findByWarehouseId(warehouse.getId()));
-                warehouseDto.setWarehouseAddressDto((WarehouseAddressDto) addressDto);
+                warehouseDto.setAddressDto(addressDto);
             }
 
         }
-
 
         return warehouseDtoMapper.toDtoList(all);
     }
@@ -115,7 +114,7 @@ public class WarehouseServiceImpl implements WarehouseService {
         WarehouseDto warehouseDto = warehouseDtoMapper.toDto(warehouse);
         if (warehouse.getId().equals(warehouse.getTopWarehouseID())) {
             AddressDto addressDto = addressDtoMapper.toDto(addressDao.findByWarehouseId(id));
-            warehouseDto.setWarehouseAddressDto((WarehouseAddressDto) addressDto);
+            warehouseDto.setAddressDto(addressDto);
         }
         populatePath(warehouse, user);
         return warehouseDto;
@@ -148,7 +147,7 @@ public class WarehouseServiceImpl implements WarehouseService {
         Warehouse updatedWarehouse = warehouseDtoMapper.toEntity(warehouseDto);
         Warehouse dBWarehouse = warehouseDao.findById(updatedWarehouse.getId(), user.getUser().getAccountId());
         updatedWarehouse.setActive(dBWarehouse.isActive());
-        Address address = addressDtoMapper.toEntity(warehouseDto.getWarehouseAddressDto());
+        Address address = addressDtoMapper.toEntity(warehouseDto.getAddressDto());
         if (warehouseDto.getTopWarehouseID().equals(warehouseDto.getId())) {
             addressDao.updateWarehouseAddress(updatedWarehouse.getId(), address);
         }
