@@ -1,6 +1,7 @@
 package com.ita.if103java.ims.config;
 
 import com.google.common.collect.Lists;
+import com.ita.if103java.ims.security.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -40,6 +41,7 @@ public class SwaggerConfig {
     @Bean
     public Docket api() {
         return new Docket(DocumentationType.SWAGGER_2)
+            .ignoredParameterTypes(UserDetailsImpl.class)
             .select()
             .apis(RequestHandlerSelectors.any())
             .paths(PathSelectors.any())
