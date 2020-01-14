@@ -12,10 +12,6 @@ public interface AssociateDao {
 
     List<Associate> findByAccountId(Long accountId);
 
-    Associate findByEmail(Long accountId, String email);
-
-    List<Associate> findAll();
-
     Associate update(Long accountId, Associate associate);
 
     boolean delete(Long accountId, Long id);

@@ -64,13 +64,18 @@ public class AssociateServiceImpl implements AssociateService {
     }
 
     @Override
+    @Transactional
     public AssociateDto update(UserDetailsImpl user, AssociateDto associateDto) {
         Associate associate = associateDao.update(user.getUser().getAccountId(), associateDtoMapper.toEntity(associateDto));
+
+        Address address = addressDao.updateAssociateAddress(associate.getId(), addressDtoMapper.toEntity(associateDto.getAddressDto()));
+        associateDto = associateDtoMapper.toDto(associate);
+        associateDto.setAddressDto(addressDtoMapper.toDto(address));
 
         EventName eventName = associate.getType() == AssociateType.SUPPLIER ? EventName.SUPPLIER_EDITED : EventName.CLIENT_EDITED;
         createEvent(user, associate, eventName);
 
-        return associateDtoMapper.toDto(associate);
+        return associateDto;
     }
 
     @Override
@@ -84,8 +89,8 @@ public class AssociateServiceImpl implements AssociateService {
     }
 
     @Override
-    public List<AssociateDto> findAll() {
-        List<AssociateDto> associateDtos = associateDtoMapper.toDtoList(associateDao.findAll());
+    public List<AssociateDto> findByAccountId(Long accountId) {
+        List<AssociateDto> associateDtos = associateDtoMapper.toDtoList(associateDao.findByAccountId(accountId));
 
         associateDtos.stream().forEach(a -> a.setAddressDto(addressDtoMapper.toDto(addressDao.findByAssociateId(a.getId()))));
 

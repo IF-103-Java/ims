@@ -34,8 +34,8 @@ public class AssociateController {
     }
 
     @GetMapping(value = "/")
-    public List<AssociateDto> findAll() {
-        return associateService.findAll();
+    public List<AssociateDto> findAllByAccountId(@AuthenticationPrincipal UserDetailsImpl user) {
+        return associateService.findByAccountId(user.getUser().getAccountId());
     }
 
     @PostMapping(value = "/")

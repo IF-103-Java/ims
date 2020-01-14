@@ -13,7 +13,7 @@ public interface AssociateService {
 
     AssociateDto view(UserDetailsImpl user, Long id);
 
-    List<AssociateDto> findAll();
+    List<AssociateDto> findByAccountId(Long accountId);
 
     boolean delete(UserDetailsImpl user, Long id);
 }

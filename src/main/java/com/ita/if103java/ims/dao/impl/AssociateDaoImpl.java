@@ -73,26 +73,6 @@ public class AssociateDaoImpl implements AssociateDao {
     }
 
     @Override
-    public Associate findByEmail(Long accountId, String email) {
-        try {
-            return jdbcTemplate.queryForObject(Queries.SQL_SELECT_ASSOCIATE_BY_EMAIL, associateRowMapper, accountId, email);
-        } catch (EmptyResultDataAccessException e) {
-            throw new AssociateEntityNotFoundException("Failed to obtain associate during `select`, email = " + email, e);
-        } catch (DataAccessException e) {
-            throw new CRUDException("Error during `select` associate, email = " + email, e);
-        }
-    }
-
-    @Override
-    public List<Associate> findAll() {
-        try {
-            return jdbcTemplate.query(Queries.SQL_SELECT_ALL_ASSOCIATES, associateRowMapper);
-        } catch (DataAccessException e) {
-            throw new CRUDException("Error during `select` associates", e);
-        }
-    }
-
-    @Override
     public Associate update(Long accountId, Associate associate) {
         int status;
         try {
