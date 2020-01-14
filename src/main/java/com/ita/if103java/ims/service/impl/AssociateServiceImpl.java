@@ -50,12 +50,14 @@ public class AssociateServiceImpl implements AssociateService {
             Address address = addressDtoMapper.toEntity(associateDto.getAddressDto());
             address.setAssociateId(associate.getId());
 
-            addressDao.createAssociateAddress(associate.getId(), address);
+            address = addressDao.createAssociateAddress(associate.getId(), address);
+            associateDto = associateDtoMapper.toDto(associate);
+            associateDto.setAddressDto(addressDtoMapper.toDto(address));
 
             EventName eventName = associate.getType() == AssociateType.SUPPLIER ? EventName.NEW_SUPPLIER : EventName.NEW_CLIENT;
             createEvent(user, associate, eventName);
 
-            return Optional.of(associateDtoMapper.toDto(associate));
+            return Optional.of(associateDto);
         }
 
         return Optional.empty();
