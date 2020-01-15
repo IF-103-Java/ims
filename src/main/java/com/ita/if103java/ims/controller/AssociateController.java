@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/associates")
@@ -39,7 +38,7 @@ public class AssociateController {
     }
 
     @PostMapping(value = "/")
-    public Optional<AssociateDto> create(@AuthenticationPrincipal UserDetailsImpl user, @RequestBody AssociateDto associateDto) {
+    public AssociateDto create(@AuthenticationPrincipal UserDetailsImpl user, @RequestBody AssociateDto associateDto) {
         return associateService.create(user, associateDto);
     }
 

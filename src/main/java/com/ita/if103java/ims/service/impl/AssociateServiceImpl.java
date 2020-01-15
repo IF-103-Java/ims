@@ -9,6 +9,7 @@ import com.ita.if103java.ims.entity.Associate;
 import com.ita.if103java.ims.entity.AssociateType;
 import com.ita.if103java.ims.entity.Event;
 import com.ita.if103java.ims.entity.EventName;
+import com.ita.if103java.ims.exception.service.AssociateLimitReachedException;
 import com.ita.if103java.ims.mapper.dto.AddressDtoMapper;
 import com.ita.if103java.ims.mapper.dto.AssociateDtoMapper;
 import com.ita.if103java.ims.security.UserDetailsImpl;
@@ -19,7 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class AssociateServiceImpl implements AssociateService {
@@ -43,14 +43,17 @@ public class AssociateServiceImpl implements AssociateService {
 
     @Override
     @Transactional
-    public Optional<AssociateDto> create(UserDetailsImpl user, AssociateDto associateDto) {
+    public AssociateDto create(UserDetailsImpl user, AssociateDto associateDto) {
 
         if (allowToCreateNewAssociate(user, associateDto.getType())) {
-            Associate associate = associateDao.create(user.getUser().getAccountId(), associateDtoMapper.toEntity(associateDto));
+            Associate associate = associateDao.create(user.getUser().getAccountId(),
+                associateDtoMapper.toEntity(associateDto));
+
             Address address = addressDtoMapper.toEntity(associateDto.getAddressDto());
             address.setAssociateId(associate.getId());
 
             address = addressDao.createAssociateAddress(associate.getId(), address);
+
             associateDto = associateDtoMapper.toDto(associate);
             associateDto.setAddressDto(addressDtoMapper.toDto(address));
             associateDto.setAccountId(user.getUser().getAccountId());
@@ -58,10 +61,9 @@ public class AssociateServiceImpl implements AssociateService {
             EventName eventName = associate.getType() == AssociateType.SUPPLIER ? EventName.NEW_SUPPLIER : EventName.NEW_CLIENT;
             createEvent(user, associate, eventName);
 
-            return Optional.of(associateDto);
-        }
-
-        return Optional.empty();
+            return associateDto;
+        } else
+            throw new AssociateLimitReachedException("The maximum of " + associateDto.getType() + "s for account has been reached.");
     }
 
     @Override
