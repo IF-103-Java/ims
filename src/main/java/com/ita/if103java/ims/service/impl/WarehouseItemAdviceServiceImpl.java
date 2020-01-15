@@ -4,12 +4,12 @@ import com.google.maps.model.DistanceMatrixElementStatus;
 import com.ita.if103java.ims.dao.AddressLinkerDao;
 import com.ita.if103java.ims.dao.TopWarehouseDao;
 import com.ita.if103java.ims.dto.AssociateDto;
+import com.ita.if103java.ims.dto.ItemDto;
 import com.ita.if103java.ims.dto.WarehouseAdviceDto;
 import com.ita.if103java.ims.dto.WarehouseIdAdviceDto;
 import com.ita.if103java.ims.dto.WarehouseItemAdviceDto;
 import com.ita.if103java.ims.dto.WarehouseToAssociateDistanceDto;
 import com.ita.if103java.ims.dto.WeightAssociateDto;
-import com.ita.if103java.ims.entity.User;
 import com.ita.if103java.ims.exception.service.ImpossibleWarehouseAdviceException;
 import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.AssociateService;
@@ -58,12 +58,13 @@ public class WarehouseItemAdviceServiceImpl implements WarehouseItemAdviceServic
 
     @Override
     public WarehouseItemAdviceDto getAdvice(Long itemId, UserDetailsImpl userDetails) {
-        final User user = userDetails.getUser();
+        final ItemDto item = itemService.findById(itemId, userDetails);
+
         final List<WeightAssociateDto> suppliers = bestTradeService.findBestSuppliersByItemId(itemId);
         final List<WeightAssociateDto> clients = bestTradeService.findBestClientsByItemId(itemId);
         final List<Long> supplierIds = getAssociateIds(suppliers);
         final List<Long> clientIds = getAssociateIds(clients);
-        final List<Long> topWarehouseIds = topWarehouseDao.findAllIds(user.getAccountId());
+        final List<Long> topWarehouseIds = topWarehouseDao.findAllIds(userDetails.getUser().getAccountId());
 
         if (supplierIds.isEmpty() || clientIds.isEmpty() || topWarehouseIds.isEmpty()) {
             throw new ImpossibleWarehouseAdviceException("Your account doesn't have enough valuable info to provide an advice");
@@ -76,16 +77,16 @@ public class WarehouseItemAdviceServiceImpl implements WarehouseItemAdviceServic
                 addressLinkerDao.findAssociateAddressesByIds(clientIds)
             )
         );
-        return toDto(itemId, userDetails, suppliers, clients, calculationService.calculate(suppliers, clients, distances));
+        return toDto(item, userDetails, suppliers, clients, calculationService.calculate(suppliers, clients, distances));
     }
 
-    private WarehouseItemAdviceDto toDto(Long itemId,
+    private WarehouseItemAdviceDto toDto(ItemDto item,
                                          UserDetailsImpl userDetails,
                                          List<WeightAssociateDto> suppliers,
                                          List<WeightAssociateDto> clients,
                                          List<WarehouseIdAdviceDto> warehouseIdAdvices) {
         return new WarehouseItemAdviceDto(
-            itemService.findById(itemId, userDetails),
+            item,
             mapWarehouseAdvices(warehouseIdAdvices, userDetails),
             mapAssociates(suppliers, userDetails),
             mapAssociates(clients, userDetails)
