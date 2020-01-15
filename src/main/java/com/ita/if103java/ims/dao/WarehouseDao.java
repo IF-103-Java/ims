@@ -15,9 +15,9 @@ public interface WarehouseDao {
 
     List<Warehouse> findAll(Pageable pageable, Long accountId);
 
-    Map<Long, String> findWarehouseNames(Long account_id);
+    Map<Long, String> findAllWarehouseNames(Long account_id);
 
-    Map<Long, String> findWarehouseNames(List<Long> idList);
+    Map<Long, String> findWarehouseNamesById(List<Long> idList);
 
     Warehouse findById(Long id, Long accountId);
 

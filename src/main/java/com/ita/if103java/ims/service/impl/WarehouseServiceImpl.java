@@ -205,7 +205,7 @@ public class WarehouseServiceImpl implements WarehouseService {
     }
 
     @Override
-    public Map<Long, String> findWarehouseNames(UserDetailsImpl user) {
-        return warehouseDao.findWarehouseNames(user.getUser().getAccountId());
+    public Map<Long, String> findAllWarehouseNames(UserDetailsImpl user) {
+        return warehouseDao.findAllWarehouseNames(user.getUser().getAccountId());
     }
 }
