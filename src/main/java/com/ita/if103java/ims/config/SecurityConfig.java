@@ -15,6 +15,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 
 
 @Configuration
@@ -25,12 +26,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private UserDetailsService userDetailsService;
     private PasswordEncoder passwordEncoder;
     private JwtTokenProvider jwtTokenProvider;
+    private AuthenticationEntryPoint authenticationEntryPoint;
 
     @Autowired
-    public SecurityConfig(@Qualifier("userDetailsServiceImpl") UserDetailsService userDetailsService, PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider) {
+    public SecurityConfig(@Qualifier("userDetailsServiceImpl") UserDetailsService userDetailsService,
+                          PasswordEncoder passwordEncoder,
+                          JwtTokenProvider jwtTokenProvider,
+                          AuthenticationEntryPoint authenticationEntryPoint) {
         this.userDetailsService = userDetailsService;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
+        this.authenticationEntryPoint = authenticationEntryPoint;
     }
 
     @Override
@@ -59,7 +65,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 "/ims-websocket/**").permitAll()
             .anyRequest().authenticated()
             .and()
-            .apply(new JwtTokenFilterConfigurer(jwtTokenProvider));
+            .apply(new JwtTokenFilterConfigurer(jwtTokenProvider))
+            .and()
+            .exceptionHandling()
+            .authenticationEntryPoint(authenticationEntryPoint);
     }
 
     @Override
