@@ -196,6 +196,7 @@ public class WarehouseDaoImpl implements WarehouseDao {
         static final String SQL_SELECT_ALL_WAREHOUSES = """
                 SELECT * FROM warehouses
                  WHERE account_id = ?
+                 LIMIT ? OFFSET ?
             """;
 
         static final String SQL_UPDATE_WAREHOUSE = """

@@ -16,6 +16,7 @@ import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.EventService;
 import com.ita.if103java.ims.service.WarehouseService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -91,8 +92,7 @@ public class WarehouseServiceImpl implements WarehouseService {
     @Override
     public List<WarehouseDto> findAll(Pageable pageable, UserDetailsImpl user) {
         List<Warehouse> all = warehouseDao.findAll(pageable, user.getUser().getAccountId());
-        Map<Long, Warehouse> groupedWarehouses = all.stream()
-            .collect(Collectors.toMap(Warehouse::getId, Function.identity()));
+        Map<Long, Warehouse> groupedWarehouses = getGroupedWarehouses(pageable, user, all);
         all.forEach(o -> findPath(o, groupedWarehouses));
         for (Warehouse warehouse : all) {
             WarehouseDto warehouseDto = warehouseDtoMapper.toDto(warehouse);
@@ -104,6 +104,19 @@ public class WarehouseServiceImpl implements WarehouseService {
         }
 
         return warehouseDtoMapper.toDtoList(all);
+    }
+
+    private Map<Long, Warehouse> getGroupedWarehouses(Pageable pageable, UserDetailsImpl user,
+                                                      List<Warehouse> all) {
+        Map<Long, Warehouse> groupedWarehouses = all.stream()
+            .collect(Collectors.toMap(Warehouse::getId, Function.identity()));
+        if (pageable.isPaged()) {
+            List<Warehouse> allUnpaged = warehouseDao.findAll(PageRequest.of(0, Integer.MAX_VALUE),
+                user.getUser().getAccountId());
+            groupedWarehouses = allUnpaged.stream()
+                .collect(Collectors.toMap(Warehouse::getId, Function.identity()));
+        }
+        return groupedWarehouses;
     }
 
     @Override
