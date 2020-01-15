@@ -7,7 +7,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.Collections;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 public class UserDetailsImpl implements UserDetails {
@@ -29,7 +31,12 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList(new SimpleGrantedAuthority(user.getRole().name()));
+        final Stream<String> authoritiesStream = Stream.of(
+            user.getRole().name(),
+            accountType.isItemStorageAdvisor() ? "ITEM_STORAGE_ADVISOR" : null,
+            accountType.isDeepWarehouseAnalytics() ? "DEEP_WAREHOUSE_ANALYTICS" : null
+        );
+        return authoritiesStream.filter(Objects::nonNull).map(SimpleGrantedAuthority::new).collect(Collectors.toList());
     }
 
     public User getUser() {

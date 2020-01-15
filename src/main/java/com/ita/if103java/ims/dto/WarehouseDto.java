@@ -44,7 +44,7 @@ public class WarehouseDto implements Serializable {
 
     private boolean active;
 
-    private WarehouseAddressDto warehouseAddressDto;
+    private AddressDto addressDto;
 
     private List<String> path;
 
@@ -52,7 +52,7 @@ public class WarehouseDto implements Serializable {
     }
 
     public WarehouseDto(Long id, String name, String info, Integer capacity, boolean isBottom, Long parentID, Long accountID,
-                        Long topWarehouseID, boolean active, WarehouseAddressDto warehouseAddressDto) {
+                        Long topWarehouseID, boolean active, AddressDto addressDto) {
         this.id = id;
         this.name = name;
         this.info = info;
@@ -62,7 +62,7 @@ public class WarehouseDto implements Serializable {
         this.accountID = accountID;
         this.topWarehouseID = topWarehouseID;
         this.active = active;
-        this.warehouseAddressDto = warehouseAddressDto;
+        this.addressDto = addressDto;
         this.path = new ArrayList<>();
 
     }
@@ -139,12 +139,12 @@ public class WarehouseDto implements Serializable {
         this.active = active;
     }
 
-    public WarehouseAddressDto getWarehouseAddressDto() {
-        return warehouseAddressDto;
+    public AddressDto getAddressDto() {
+        return addressDto;
     }
 
-    public void setWarehouseAddressDto(WarehouseAddressDto warehouseAddressDto) {
-        this.warehouseAddressDto = warehouseAddressDto;
+    public void setAddressDto(AddressDto addressDto) {
+        this.addressDto = addressDto;
     }
 
     public List<String> getPath(){
@@ -169,12 +169,12 @@ public class WarehouseDto implements Serializable {
             Objects.equals(name, that.name) &&
             Objects.equals(info, that.info) &&
             Objects.equals(path, that.path) &&
-            Objects.equals(warehouseAddressDto, that.warehouseAddressDto);
+            Objects.equals(addressDto, that.addressDto);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, info, capacity, isBottom, parentID, accountID, topWarehouseID, active, warehouseAddressDto, path);
+        return Objects.hash(name, info, capacity, isBottom, parentID, accountID, topWarehouseID, active, addressDto, path);
     }
 
     @Override
@@ -189,7 +189,7 @@ public class WarehouseDto implements Serializable {
             ", accountID=" + accountID +
             ", topWarehouseID=" + topWarehouseID +
             ", active=" + active +
-            ", warehouseAddressDto=" + warehouseAddressDto +
+            ", addressDto=" + addressDto +
             ", path=" + path +
             '}';
     }

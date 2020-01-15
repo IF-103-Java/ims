@@ -13,6 +13,7 @@ import com.ita.if103java.ims.service.AccountService;
 import com.ita.if103java.ims.service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class AccountServiceImpl implements AccountService {
@@ -30,11 +31,13 @@ public class AccountServiceImpl implements AccountService {
         this.userDao = userDao;
     }
 
+
     @Override
     public AccountDto create(UserDto admin, String accountName) {
         Account account = accountDao.create(new Account(accountName));
         userDao.updateAccountId(admin.getId(), account.getId());
-        Event event = new Event("New account \"" + accountName + "\" was created.", account.getId(), null,
+        Event event = new Event("User " + admin.getFirstName() + " " + admin.getLastName() + " signed up. "
+            + "New account \"" + accountName + "\" was created.", account.getId(), null,
             admin.getId(), EventName.ACCOUNT_CREATED, null);
         eventService.create(event);
         return accountDtoMapper.toDto(account);

@@ -1,6 +1,7 @@
 package com.ita.if103java.ims.mapper.jdbc;
 
 import com.ita.if103java.ims.entity.Warehouse;
+import com.ita.if103java.ims.util.RowMapperUtil;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 
@@ -19,7 +20,7 @@ public class WarehouseRowMapper implements RowMapper<Warehouse> {
         warehouse.setInfo(resultSet.getString("info"));
         warehouse.setCapacity(resultSet.getInt("capacity"));
         warehouse.setBottom(resultSet.getBoolean("is_bottom"));
-        setValueOrNull(warehouse::setParentID, resultSet.getLong("parent_id"), resultSet);
+        RowMapperUtil.setValueOrNull(warehouse::setParentID, resultSet.getLong("parent_id"), resultSet);
         warehouse.setAccountID(resultSet.getLong("account_id"));
         warehouse.setTopWarehouseID(resultSet.getLong("top_warehouse_id"));
         warehouse.setActive(resultSet.getBoolean("active"));
@@ -27,7 +28,4 @@ public class WarehouseRowMapper implements RowMapper<Warehouse> {
         return warehouse;
     }
 
-    private <T> void setValueOrNull(Consumer<T> consumer, T value, ResultSet rs) throws SQLException {
-        consumer.accept(rs.wasNull() ? null : value);
-    }
 }
