@@ -93,13 +93,13 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public Map<Long, String> findUsernames(Long accountId) {
+    public Map<Long, String> findUserNames(Long accountId) {
         String where = String.format("account_id = " + accountId);
         return getNamesMap(where);
     }
 
     @Override
-    public Map<Long, String> findUsernames(List<Long> idList) {
+    public Map<Long, String> findUserNames(List<Long> idList) {
         String where = String.format("id IN (%s)", idList.toString().substring(1, idList.toString().length() - 1));
         return getNamesMap(where);
     }
@@ -236,7 +236,9 @@ public class UserDaoImpl implements UserDao {
     @Override
     public Integer countOfUsers(Long accountId) {
         try {
-            return jdbcTemplate.update(Queries.SQL_COUNT_OF_USERS, false, accountId);
+            return jdbcTemplate.queryForObject(Queries.SQL_COUNT_OF_USERS, Integer.class, accountId);
+        } catch (EmptyResultDataAccessException e) {
+            throw new UserNotFoundException("Failed to obtain users during searching count of users. {id = " + accountId);
         } catch (DataAccessException e) {
             throw new CRUDException("Error during `select count(*)` of users {accountId = " + accountId + "}", e);
         }

@@ -202,18 +202,7 @@ public class EventDaoImpl implements EventDao {
             }
             return String.format("%s in (%s)", columnName, values);
         }
-        if (columnName.equals("name")) {
-            Set<EventName> names = new HashSet<>();
-            if (columnValue instanceof Collection) {
-                for (Object name : (Collection) columnValue) {
-                    names.add(EventName.valueOf(name.toString()));
-                }
-            } else {
-                System.out.println(columnValue);
-                names.add(EventName.getByLabel(columnValue.toString()));
-            }
-            return buildSqlCondition("name", names);
-        }
+
         if (columnName.equals("type")) {
             Set<EventName> names = new HashSet<>();
             if (columnValue instanceof Collection) {
@@ -223,6 +212,7 @@ public class EventDaoImpl implements EventDao {
             } else {
                 names = EventName.getValuesByType(EventType.valueOf(columnValue.toString()));
             }
+
             return buildSqlCondition("name", names);
         }
         if (columnName.equals("date")) {
@@ -244,9 +234,9 @@ public class EventDaoImpl implements EventDao {
         preparedStatement.setObject(++i, event.getDate().toLocalDateTime());
         preparedStatement.setLong(++i, event.getAccountId());
         preparedStatement.setLong(++i, event.getAuthorId());
-        preparedStatement.setObject(++i, event.getWarehouseId() != null ? event.getWarehouseId() : null);
+        preparedStatement.setObject(++i, event.getWarehouseId());
         preparedStatement.setString(++i, event.getName().toString());
-        preparedStatement.setObject(++i, event.getTransactionId() != null ? event.getTransactionId() : null);
+        preparedStatement.setObject(++i, event.getTransactionId());
         return preparedStatement;
     }
 
