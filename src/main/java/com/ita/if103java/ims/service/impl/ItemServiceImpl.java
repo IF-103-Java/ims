@@ -118,7 +118,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public SavedItemDto addSavedItem(ItemTransactionRequestDto itemTransaction, UserDetailsImpl user) {
         validateInputsAdd(itemTransaction, user.getUser().getAccountId());
-        if (isEnoughCapacityInWarehouse(itemTransaction, user.getUser().getAccountId())) {
+        if (!isEnoughCapacityInWarehouse(itemTransaction, user.getUser().getAccountId())) {
             SavedItem savedItem = new SavedItem(itemTransaction.getItemDto().getId(),
                 itemTransaction.getQuantity().intValue(), itemTransaction.getDestinationWarehouseId());
             SavedItemDto savedItemDto = savedItemDtoMapper.toDto(savedItemDao.addSavedItem(savedItem));
@@ -238,7 +238,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public boolean moveItem(ItemTransactionRequestDto itemTransaction, UserDetailsImpl user) {
         validateInputsMove(itemTransaction, user.getUser().getAccountId());
-        if (isEnoughCapacityInWarehouse(itemTransaction, user.getUser().getAccountId())) {
+        if (!isEnoughCapacityInWarehouse(itemTransaction, user.getUser().getAccountId())) {
             boolean isMove = savedItemDao.updateSavedItem(itemTransaction.getDestinationWarehouseId(),
                 itemTransaction.getSourceWarehouseId());
             Transaction transaction = transactionDao.create(transactionDao.create(itemTransaction,
