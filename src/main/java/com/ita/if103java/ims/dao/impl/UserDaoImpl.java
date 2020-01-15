@@ -299,7 +299,7 @@ public class UserDaoImpl implements UserDao {
         public static final String SQL_SELECT_ADMIN_BY_ACCOUNT_ID = """
                 SELECT *
                 FROM users
-                WHERE role = 'ADMIN'
+                WHERE role = 'ROLE_ADMIN'
                 AND account_id = ?
             """;
 
