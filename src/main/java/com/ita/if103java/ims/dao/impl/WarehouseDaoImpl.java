@@ -123,7 +123,7 @@ public class WarehouseDaoImpl implements WarehouseDao {
             status = jdbcTemplate.update(Queries.SQL_UPDATE_WAREHOUSE,
                 warehouse.getName(), warehouse.getInfo(), warehouse.getCapacity(),
                 warehouse.isBottom(), warehouse.getParentID(), warehouse.getTopWarehouseID(),
-                warehouse.getAccountID(), warehouse.isActive());
+                warehouse.getAccountID(), warehouse.isActive(), warehouse.getId());
         } catch (DataAccessException e) {
             throw new CRUDException("Error duringupdate warehouse id = " + warehouse.getId(), e);
         }
@@ -194,14 +194,14 @@ public class WarehouseDaoImpl implements WarehouseDao {
 
         static final String SQL_SELECT_ALL_WAREHOUSES = """
                 SELECT * FROM warehouses
-                 WHERE account_id = ?
-                 LIMIT ? OFFSET ?
+                WHERE account_id = ?
+                LIMIT ? OFFSET ?
             """;
 
         static final String SQL_UPDATE_WAREHOUSE = """
                 UPDATE warehouses
                 SET name= ?, info = ?, capacity = ?, is_bottom = ?, parent_id = ?,
-                 top_warehouse_id = ?, account_id = ?, active = ? WHERE id = ?;
+                top_warehouse_id = ?, account_id = ?, active = ? WHERE id = ?
             """;
 
         static final String SQL_SELECT_BY_TOP_WAREHOUSE_ID = """

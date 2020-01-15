@@ -14,7 +14,7 @@ public interface WarehouseService {
 
     WarehouseDto findById(Long id, UserDetailsImpl user);
 
-    List<WarehouseDto> findWarehousesByTopLevelId(Long accountId, UserDetailsImpl user);
+    List<WarehouseDto> findWarehousesByTopLevelId(Long topLevelId, UserDetailsImpl user);
 
     WarehouseDto update(WarehouseDto warehouseDto, UserDetailsImpl user);
 
