@@ -85,7 +85,7 @@ public class EventServiceImpl implements EventService {
         }
         Map<Long, String> warehouseNamesMap = new HashMap<>();
         if (!listWarehousesId.isEmpty()) {
-            warehouseNamesMap = warehouseDao.findWarehouseNames(listWarehousesId);
+            warehouseNamesMap = warehouseDao.findWarehouseNamesById(listWarehousesId);
         }
         for (EventDto eventDto : eventDtos) {
             eventDto.setAuthor(userNamesMap.get(eventDto.getAuthorId()));

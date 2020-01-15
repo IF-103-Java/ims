@@ -62,21 +62,10 @@ public class WarehouseDaoImpl implements WarehouseDao {
     }
 
     @Override
-    public Map<Long, String> findWarehouseNames(Long accountId) {
-        String where = String.format("account_id = " + accountId);
-        return getNamesMap(where);
-    }
-
-    @Override
-    public Map<Long, String> findWarehouseNames(List<Long> idList) {
-        String where = String.format(" id IN (%s)", idList.toString().substring(1, idList.toString().length() - 1));
-        return getNamesMap(where);
-    }
-
-    private Map<Long, String> getNamesMap(String where) {
+    public Map<Long, String> findAllWarehouseNames(Long accountId) {
         Map<Long, String> result = new HashMap<>();
         try {
-            for (Map<String, Object> map : jdbcTemplate.queryForList(String.format(Queries.SQL_SELECT_NAMES, where))) {
+            for (Map<String, Object> map : jdbcTemplate.queryForList(Queries.SQL_SELECT_ALL_NAMES, accountId)) {
                 result.put(Long.valueOf(map.get("id").toString()), map.get("name").toString());
             }
         } catch (DataAccessException e) {
@@ -85,6 +74,19 @@ public class WarehouseDaoImpl implements WarehouseDao {
         return result;
     }
 
+    @Override
+    public Map<Long, String> findWarehouseNamesById(List<Long> idList) {
+        String ids = idList.toString().substring(1, idList.toString().length() - 1);
+        Map<Long, String> result = new HashMap<>();
+        try {
+            for (Map<String, Object> map : jdbcTemplate.queryForList(Queries.SQL_SELECT_NAMES_BY_ID, ids)) {
+                result.put(Long.valueOf(map.get("id").toString()), map.get("name").toString());
+            }
+        } catch (DataAccessException e) {
+            throw new WarehouseNotFoundException("Error during `select * ` warehouses ", e);
+        }
+        return result;
+    }
 
     @Override
     public Warehouse findById(Long id, Long accountId) {
@@ -237,10 +239,16 @@ public class WarehouseDaoImpl implements WarehouseDao {
                  WHERE cte.id = ?
             """;
 
-        static final String SQL_SELECT_NAMES = """
+        static final String SQL_SELECT_ALL_NAMES = """
                 SELECT id, name
                 FROM warehouses
-                WHERE %s
+                WHERE account_id = ?
+            """;
+
+        static final String SQL_SELECT_NAMES_BY_ID = """
+                SELECT id, name
+                FROM warehouses
+                WHERE id IN (?)
             """;
     }
 }
