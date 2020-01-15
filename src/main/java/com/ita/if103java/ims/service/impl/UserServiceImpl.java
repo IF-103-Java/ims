@@ -1,6 +1,7 @@
 package com.ita.if103java.ims.service.impl;
 
 import com.ita.if103java.ims.dao.UserDao;
+import com.ita.if103java.ims.dto.AccountDto;
 import com.ita.if103java.ims.dto.UserDto;
 import com.ita.if103java.ims.entity.Role;
 import com.ita.if103java.ims.entity.User;
@@ -107,16 +108,21 @@ public class UserServiceImpl implements UserService {
         return mapper.toDto(userDao.findAdminByAccountId(accountID));
     }
 
+    @Transactional
     @Override
     public UserDto update(UserDto userDto) {
-        User updatedUser = mapper.toEntity(userDto);
-        //Activating status can't be changed in this way
-        User dbUser = userDao.findById(updatedUser.getId());
-        updatedUser.setActive(dbUser.isActive());
-        updatedUser.setPassword(passwordEncoder.encode(userDto.getPassword()));
+        User user = userDao.findById(userDto.getId());
+        user.setFirstName(userDto.getFirstName());
+        user.setLastName(userDto.getLastName());
+        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
 
-        User user = userDao.update(updatedUser);
+        User updatedUser = userDao.update(user);
+        user.setUpdatedDate(updatedUser.getUpdatedDate());
         eventService.create(createEvent(user, PROFILE_CHANGED, "updated profile."));
+
+        AccountDto account = new AccountDto();
+        account.setName(userDto.getAccountName());
+        accountService.update(user, account);
         return mapper.toDto(user);
     }
 
