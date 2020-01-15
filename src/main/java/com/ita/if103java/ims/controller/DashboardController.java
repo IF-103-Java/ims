@@ -5,11 +5,11 @@ import com.ita.if103java.ims.dto.PopularItemsDto;
 import com.ita.if103java.ims.dto.PopularItemsRequestDto;
 import com.ita.if103java.ims.dto.WarehouseLoadDto;
 import com.ita.if103java.ims.dto.WarehousePremiumStructDto;
-import com.ita.if103java.ims.exception.UserPermissionException;
 import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.DashboardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,13 +36,11 @@ public class DashboardController {
         return dashboardService.getWarehouseLoad(userDetails.getUser().getAccountId());
     }
 
+    @PreAuthorize("hasAuthority('DEEP_WAREHOUSE_ANALYTICS')")
     @GetMapping(value = "/premiumLoad",
         produces = MediaType.APPLICATION_JSON_VALUE)
     public WarehousePremiumStructDto getPreLoad(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                 @RequestParam Long id) {
-        if (!userDetails.getAccountType().isDeepWarehouseAnalytics()) {
-            throw new UserPermissionException("Upgrade your account to premium!");
-        }
         return dashboardService.getPreLoad(id, userDetails.getUser().getAccountId());
     }
 
