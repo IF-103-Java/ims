@@ -22,6 +22,6 @@ public interface WarehouseService {
 
     List<WarehouseDto> findAll(Pageable pageable, UserDetailsImpl user);
 
-    Map<Long, String> findWarehouseNames(UserDetailsImpl user);
+    Map<Long, String> findAllWarehouseNames(UserDetailsImpl user);
 
 }
