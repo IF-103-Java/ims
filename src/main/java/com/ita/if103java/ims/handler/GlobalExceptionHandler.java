@@ -4,6 +4,7 @@ import com.ita.if103java.ims.dto.handler.ResponseMessageDto;
 import com.ita.if103java.ims.exception.dao.CRUDException;
 import com.ita.if103java.ims.exception.dao.EntityNotFoundException;
 import com.ita.if103java.ims.exception.service.GoogleAPIException;
+import com.ita.if103java.ims.exception.service.ImpossibleWarehouseAdviceException;
 import com.ita.if103java.ims.exception.service.UserOrPasswordIncorrectException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +39,14 @@ public class GlobalExceptionHandler {
         LOGGER.error(e.getMessage(), e);
         return ResponseEntity
             .status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body(new ResponseMessageDto(e.getMessage()));
+    }
+
+    @ExceptionHandler({ImpossibleWarehouseAdviceException.class})
+    public ResponseEntity<ResponseMessageDto> handleImpossibleWarehouseAdviceException(Exception e) {
+        LOGGER.info(e.getMessage(), e);
+        return ResponseEntity
+            .status(HttpStatus.OK)
             .body(new ResponseMessageDto(e.getMessage()));
     }
 }
