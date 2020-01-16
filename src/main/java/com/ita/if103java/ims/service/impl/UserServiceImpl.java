@@ -1,7 +1,6 @@
 package com.ita.if103java.ims.service.impl;
 
 import com.ita.if103java.ims.dao.UserDao;
-import com.ita.if103java.ims.dto.AccountDto;
 import com.ita.if103java.ims.dto.UserDto;
 import com.ita.if103java.ims.entity.Role;
 import com.ita.if103java.ims.entity.User;
@@ -108,7 +107,6 @@ public class UserServiceImpl implements UserService {
         return mapper.toDto(userDao.findAdminByAccountId(accountID));
     }
 
-    @Transactional
     @Override
     public UserDto update(UserDto userDto) {
         User user = userDao.findById(userDto.getId());
@@ -120,9 +118,6 @@ public class UserServiceImpl implements UserService {
         user.setUpdatedDate(updatedUser.getUpdatedDate());
         eventService.create(createEvent(user, PROFILE_CHANGED, "updated profile."));
 
-        AccountDto account = new AccountDto();
-        account.setName(userDto.getAccountName());
-        accountService.update(user, account);
         return mapper.toDto(user);
     }
 
