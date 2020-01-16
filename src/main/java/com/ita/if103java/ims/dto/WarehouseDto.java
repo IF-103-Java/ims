@@ -2,6 +2,7 @@ package com.ita.if103java.ims.dto;
 
 import com.ita.if103java.ims.dto.transfer.ExistData;
 import com.ita.if103java.ims.dto.transfer.NewData;
+
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
@@ -145,8 +146,8 @@ public class WarehouseDto implements Serializable {
         this.addressDto = addressDto;
     }
 
-    public List<String> getPath(){
-        return  path;
+    public List<String> getPath() {
+        return path;
     }
 
     public void setPath(List<String> path) {
