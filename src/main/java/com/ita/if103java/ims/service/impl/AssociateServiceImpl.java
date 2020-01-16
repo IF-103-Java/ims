@@ -97,9 +97,13 @@ public class AssociateServiceImpl implements AssociateService {
 
     @Override
     public List<AssociateDto> findSortedAssociates(Pageable pageable, UserDetailsImpl user) {
-        return associateDtoMapper.toDtoList(associateDao.getAssociates(checkSort(pageable.getSort().toString().split(": ")),
+        List<AssociateDto> associateDtos = associateDtoMapper.toDtoList(associateDao.getAssociates(checkSort(pageable.getSort().toString().split(": ")),
             pageable.getPageSize(),
             pageable.getOffset(), user.getUser().getAccountId()));
+
+        associateDtos.stream().forEach(a -> a.setAddressDto(addressDtoMapper.toDto(addressDao.findByAssociateId(a.getId()))));
+
+        return associateDtos;
     }
 
     @Override
