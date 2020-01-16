@@ -1,7 +1,6 @@
 package com.ita.if103java.ims.handler;
 
 import com.ita.if103java.ims.dto.handler.ResponseMessageDto;
-import com.ita.if103java.ims.exception.UserPermissionException;
 import com.ita.if103java.ims.exception.dao.CRUDException;
 import com.ita.if103java.ims.exception.dao.EntityNotFoundException;
 import com.ita.if103java.ims.exception.service.GoogleAPIException;
@@ -39,13 +38,6 @@ public class GlobalExceptionHandler {
         LOGGER.error(e.getMessage(), e);
         return ResponseEntity
             .status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body(new ResponseMessageDto(e.getMessage()));
-    }
-    @ExceptionHandler({UserPermissionException.class})
-    public ResponseEntity<ResponseMessageDto> handleUserPermissionExceptions(Exception e) {
-        LOGGER.error(e.getMessage(), e);
-        return ResponseEntity
-            .status(HttpStatus.FORBIDDEN)
             .body(new ResponseMessageDto(e.getMessage()));
     }
 }
