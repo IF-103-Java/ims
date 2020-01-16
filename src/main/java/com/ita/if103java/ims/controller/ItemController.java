@@ -3,6 +3,8 @@ package com.ita.if103java.ims.controller;
 import com.ita.if103java.ims.dto.ItemDto;
 import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.ItemService;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -36,6 +38,11 @@ public class ItemController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "page", dataType = "integer", paramType = "query"),
+        @ApiImplicitParam(name = "size", dataType = "integer", paramType = "query"),
+        @ApiImplicitParam(name = "sort", dataType = "string", paramType = "query")
+    })
     public List<ItemDto> sort(Pageable pageable, @AuthenticationPrincipal UserDetailsImpl user) {
         return itemService.findSortedItems(pageable, user);
     }
