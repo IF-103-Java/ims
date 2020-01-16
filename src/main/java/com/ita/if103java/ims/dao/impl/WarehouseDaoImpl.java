@@ -167,7 +167,7 @@ public class WarehouseDaoImpl implements WarehouseDao {
             return jdbcTemplate.queryForObject(Queries.SQL_LEVEL_WAREHOUSE_BY_PARENT_ID, Integer.class, id);
 
         } catch (DataAccessException e) {
-            throw new WarehouseNotFoundException("Error during finding warehouse level {Id = " + id + "}", e);
+            throw new WarehouseNotFoundException("Error during finding level of warehouse {Id = " + id + "}", e);
         }
     }
 
