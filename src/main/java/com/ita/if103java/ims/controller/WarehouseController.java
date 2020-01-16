@@ -1,5 +1,6 @@
 package com.ita.if103java.ims.controller;
 
+import com.ita.if103java.ims.annotation.ApiPageable;
 import com.ita.if103java.ims.dto.WarehouseDto;
 import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.WarehouseService;
@@ -45,6 +46,7 @@ public class WarehouseController {
     }
 
     @GetMapping
+    @ApiPageable
     @ResponseStatus(HttpStatus.OK)
     public List<WarehouseDto> findAll(Pageable pageable,
                                       @AuthenticationPrincipal UserDetailsImpl user) {
@@ -76,7 +78,7 @@ public class WarehouseController {
 
     @GetMapping("/warehousenames")
     public Map<Long, String> getWarehouseNames(@AuthenticationPrincipal UserDetailsImpl user) {
-        return warehouseService.findWarehouseNames(user);
+        return warehouseService.findAllWarehouseNames(user);
     }
 
 }

@@ -116,6 +116,7 @@ public class ItemServiceImpl implements ItemService {
             SavedItem savedItem = new SavedItem(itemTransaction.getItemDto().getId(),
                 itemTransaction.getQuantity().intValue(), itemTransaction.getDestinationWarehouseId());
             SavedItemDto savedItemDto = savedItemDtoMapper.toDto(savedItemDao.addSavedItem(savedItem));
+            savedItemDto.setItemDto(itemTransaction.getItemDto());
             Transaction transaction = transactionDao.create(transactionDao.create(itemTransaction,
                 user.getUser(), itemTransaction.getAssociateId(), TransactionType.IN));
             eventService.create(new Event("Moved " + itemTransaction.getQuantity() + " " + itemTransaction.getItemDto().getName() +
@@ -223,7 +224,7 @@ public class ItemServiceImpl implements ItemService {
         validateInputsMove(itemTransaction, user.getUser().getAccountId());
         if (!isEnoughCapacityInWarehouse(itemTransaction, user.getUser().getAccountId())) {
             boolean isMove = savedItemDao.updateSavedItem(itemTransaction.getDestinationWarehouseId(),
-                itemTransaction.getSourceWarehouseId());
+                itemTransaction.getSavedItemId());
             Transaction transaction = transactionDao.create(transactionDao.create(itemTransaction,
                 user.getUser(), itemTransaction.getAssociateId(), TransactionType.MOVE));
             eventService.create(new Event("Moved " + itemTransaction.getQuantity() + " " + itemTransaction.getItemDto().getName() +
@@ -262,8 +263,9 @@ public class ItemServiceImpl implements ItemService {
         validateInputsOut(itemTransaction, user);
         SavedItemDto savedItemDto =
             savedItemDtoMapper.toDto(savedItemDao.findSavedItemById(itemTransaction.getSavedItemId()));
+        savedItemDto.setItemDto(itemTransaction.getItemDto());
         long difference = savedItemDto.getQuantity() - itemTransaction.getQuantity();
-        if (savedItemDto.getQuantity() < itemTransaction.getQuantity()) {
+        if (savedItemDto.getQuantity() <= itemTransaction.getQuantity()) {
             savedItemDao.outComeSavedItem(savedItemDtoMapper.toEntity(savedItemDto),
                 Long.valueOf(difference).intValue());
             Transaction transaction = transactionDao.create(transactionDao.create(itemTransaction,

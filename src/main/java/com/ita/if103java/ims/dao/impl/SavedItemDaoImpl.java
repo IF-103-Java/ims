@@ -138,7 +138,7 @@ public class SavedItemDaoImpl implements SavedItemDao {
             status = jdbcTemplate.update(Queries.SQL_SET_WAREHOUSE_ID_SAVED_ITEMS, warehouseId, savedItemId);
 
         } catch (DataAccessException e) {
-            throw new CRUDException("Error during `update` {warehouse_id = " + warehouseId + "id" + savedItemId + "}"
+            throw new CRUDException("Error during `update` {warehouse_id = " + warehouseId + "id " + savedItemId + "}"
                 , e);
 
         }
