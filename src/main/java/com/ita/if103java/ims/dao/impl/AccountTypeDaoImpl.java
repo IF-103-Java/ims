@@ -13,7 +13,6 @@ import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.util.List;
-import java.util.Objects;
 
 @Repository
 public class AccountTypeDaoImpl implements AccountTypeDao {

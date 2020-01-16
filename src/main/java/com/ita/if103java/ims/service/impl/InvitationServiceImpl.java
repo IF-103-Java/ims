@@ -23,9 +23,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.ita.if103java.ims.config.MailMessagesConfig.INVITE_START;
-import static com.ita.if103java.ims.config.MailMessagesConfig.INVITE_MIDDLE;
 import static com.ita.if103java.ims.config.MailMessagesConfig.INVITE_FOOTER;
+import static com.ita.if103java.ims.config.MailMessagesConfig.INVITE_MIDDLE;
+import static com.ita.if103java.ims.config.MailMessagesConfig.INVITE_START;
 
 @Service
 public class InvitationServiceImpl implements InvitationService {

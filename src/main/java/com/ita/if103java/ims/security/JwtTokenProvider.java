@@ -2,7 +2,6 @@ package com.ita.if103java.ims.security;
 
 import com.ita.if103java.ims.exception.security.InvalidJwtTokenException;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
