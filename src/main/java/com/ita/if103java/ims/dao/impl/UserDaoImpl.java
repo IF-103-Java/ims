@@ -86,7 +86,14 @@ public class UserDaoImpl implements UserDao {
     @Override
     public List<User> findAll(Pageable pageable) {
         try {
-            return jdbcTemplate.query(Queries.SQL_SELECT_ALL_USERS, userRowMapper, pageable.getPageSize(), pageable.getOffset());
+
+            String sort = pageable.getSort().toString().replaceAll(": ", " ");
+            final String selectAllUsersQuery = String.format(Queries.SQL_SELECT_ALL_USERS,
+                                                            sort,
+                                                            pageable.getPageSize(),
+                                                            pageable.getOffset());
+            System.out.println(selectAllUsersQuery);
+            return jdbcTemplate.query(selectAllUsersQuery, userRowMapper);
         } catch (DataAccessException e) {
             throw new CRUDException("Error during `select * ` users ", e);
         }
@@ -286,8 +293,9 @@ public class UserDaoImpl implements UserDao {
         public static final String SQL_SELECT_ALL_USERS = """
                 SELECT *
                 FROM users
-                Limit ?
-                Offset ?
+                ORDER BY %s
+                Limit %s
+                Offset %S
             """;
 
         public static final String SQL_SELECT_USERS_BY_ACCOUNT_ID = """
