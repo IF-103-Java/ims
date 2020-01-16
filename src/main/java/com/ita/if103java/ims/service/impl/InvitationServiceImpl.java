@@ -64,7 +64,7 @@ public class InvitationServiceImpl implements InvitationService {
 
     private void sendInvitationMessage(UserDto userDto, Long accountId) {
         Account account = accountDao.findById(accountId);
-        mailService.sendMessage(userDto, "Hello, We invite you to join our organization " + account.getName() + " in the Inventory Management System.\n" +
+        mailService.sendMessage(userDto, "Hello, We invite you to join our organization \"" + account.getName() + "\" in the Inventory Management System.\n" +
             "Please follow link bellow to proceed with registration:\n" +
             activationURL + userDto.getEmailUUID() + "\n" +
             "Your password: " + userDto.getPassword() + "\n" +
