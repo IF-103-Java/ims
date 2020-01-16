@@ -88,12 +88,11 @@ public class UserDaoImpl implements UserDao {
         try {
 
             String sort = pageable.getSort().toString().replaceAll(": ", " ");
-            final String selectAllUsersQuery = String.format(Queries.SQL_SELECT_ALL_USERS,
-                                                            sort,
-                                                            pageable.getPageSize(),
-                                                            pageable.getOffset());
-            System.out.println(selectAllUsersQuery);
-            return jdbcTemplate.query(selectAllUsersQuery, userRowMapper);
+            return jdbcTemplate.query(Queries.SQL_SELECT_ALL_USERS,
+                                        userRowMapper,
+                                        sort,
+                                        pageable.getPageSize(),
+                                        pageable.getOffset());
         } catch (DataAccessException e) {
             throw new CRUDException("Error during `select * ` users ", e);
         }
@@ -293,9 +292,9 @@ public class UserDaoImpl implements UserDao {
         public static final String SQL_SELECT_ALL_USERS = """
                 SELECT *
                 FROM users
-                ORDER BY %s
-                Limit %s
-                Offset %S
+                ORDER BY ?
+                Limit ?
+                Offset ?
             """;
 
         public static final String SQL_SELECT_USERS_BY_ACCOUNT_ID = """
