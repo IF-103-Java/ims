@@ -129,7 +129,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean delete(Long id) {
-        return userDao.softDelete(id);
+        return userDao.activate(id, false);
     }
 
     @Override
@@ -156,8 +156,7 @@ public class UserServiceImpl implements UserService {
     public boolean activateUser(String emailUUID) {
         User activatedUser = userDao.findByEmailUUID(emailUUID);
         if (isValidToken(activatedUser)) {
-            activatedUser.setActive(true);
-            userDao.update(activatedUser);
+            userDao.activate(activatedUser.getId(), true);
             accountDao.activate(activatedUser.getAccountId());
             return true;
         } else {
