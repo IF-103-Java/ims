@@ -12,6 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,10 +38,10 @@ public class DashboardController {
     }
 
     @PreAuthorize("hasAuthority('DEEP_WAREHOUSE_ANALYTICS')")
-    @GetMapping(value = "/premiumLoad",
+    @GetMapping(value = "/premiumLoad/{id}",
         produces = MediaType.APPLICATION_JSON_VALUE)
     public WarehousePremiumStructDto getPreLoad(@AuthenticationPrincipal UserDetailsImpl userDetails,
-                                                @RequestParam Long id) {
+                                                @PathVariable Long id) {
         return dashboardService.getPreLoad(id, userDetails.getUser().getAccountId());
     }
 

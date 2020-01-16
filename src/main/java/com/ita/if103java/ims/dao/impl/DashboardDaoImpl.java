@@ -169,14 +169,14 @@ public class DashboardDaoImpl implements DashboardDao {
         """;
 
         static final String SQL_ATR_POP = """
-            GROUP BY ts.item_id
-            ORDER BY sum(ts.quantity)
-            DESC LIMIT ?
+            GROUP BY ts.item_id, name
+            ORDER BY sum(ts.quantity) DESC, name DESC
+            LIMIT ?
         """;
 
         static final String SQL_ATR_UNPOP = """
-            GROUP BY ts.item_id
-            ORDER BY sum(ts.quantity)
+            GROUP BY ts.item_id, name
+            ORDER BY sum(ts.quantity), name DESC
             LIMIT ?
         """;
 
