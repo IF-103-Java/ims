@@ -127,7 +127,7 @@ public class WarehouseDaoImpl implements WarehouseDao {
                 warehouse.isBottom(), warehouse.getParentID(), warehouse.getTopWarehouseID(),
                 warehouse.getAccountID(), warehouse.isActive(), warehouse.getId());
         } catch (DataAccessException e) {
-            throw new CRUDException("Error duringupdate warehouse id = " + warehouse.getId(), e);
+            throw new CRUDException("Error during update warehouse id = " + warehouse.getId(), e);
         }
         if (status == 0)
             throw new WarehouseNotFoundException("Failed to obtain warehouse during update warehouse {id = " + warehouse.getId());
