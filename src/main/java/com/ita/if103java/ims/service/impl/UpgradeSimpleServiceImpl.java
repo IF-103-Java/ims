@@ -12,7 +12,6 @@ import com.ita.if103java.ims.service.EventService;
 import com.ita.if103java.ims.service.UpgradeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
