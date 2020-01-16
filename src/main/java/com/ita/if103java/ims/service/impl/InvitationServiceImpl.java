@@ -63,7 +63,9 @@ public class InvitationServiceImpl implements InvitationService {
                 accountAdmin.getAccountId(), null,
                 accountAdmin.getId(), EventName.WORKER_INVITED, null);
             eventService.create(event);
-        } else throw new UserLimitReachedException("The maximum users for account has been reached.");
+        } else {
+            throw new UserLimitReachedException("The maximum users for account has been reached.");
+        }
     }
 
     private void sendInvitationMessage(UserDto userDto, Long accountId) {

@@ -42,7 +42,9 @@ public class UpgradeSimpleServiceImpl implements UpgradeService {
                 accountAdmin.getUser().getAccountId(), null,
                 accountAdmin.getUser().getId(), EventName.ACCOUNT_UPGRADED, null);
             eventService.create(event);
-        } else throw new UpgradationException("The level of new type is lower, than current.");
+        } else {
+            throw new UpgradationException("The level of new type is lower, than current.");
+        }
     }
 
     @Override
