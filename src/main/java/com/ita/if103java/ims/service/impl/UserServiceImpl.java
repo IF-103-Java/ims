@@ -171,7 +171,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Map<Long, String> findUserNames(UserDetailsImpl user) {
-        return userDao.findUserNames(user.getUser().getAccountId());
+    public Map<Long, String> findAllUserNames(UserDetailsImpl user) {
+        return userDao.findAllUserNames(user.getUser().getAccountId());
     }
 }

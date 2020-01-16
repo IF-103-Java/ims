@@ -110,7 +110,7 @@ public class UserController {
 
     @GetMapping("/usernames")
     public Map<Long, String> getUserNames(@AuthenticationPrincipal UserDetailsImpl user) {
-        return userService.findUserNames(user);
+        return userService.findAllUserNames(user);
     }
 
 }
