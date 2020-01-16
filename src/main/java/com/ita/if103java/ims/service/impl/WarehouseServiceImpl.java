@@ -186,7 +186,7 @@ public class WarehouseServiceImpl implements WarehouseService {
         if (warehouse.getParentID() != null) {
             level = warehouseDao.findLevelByParentID(warehouse.getParentID());
         }
-        message += " Name : " + warehouse.getName() + "level : " + level;
+        message += " Name : " + warehouse.getName() + " level : " + level;
 
         if (level != 0) {
             message += " as a child of warehouse id " + warehouse.getParentID();
