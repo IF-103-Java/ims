@@ -23,6 +23,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static com.ita.if103java.ims.config.MailMessagesConfig.INVITE_START;
+import static com.ita.if103java.ims.config.MailMessagesConfig.INVITE_MIDDLE;
+import static com.ita.if103java.ims.config.MailMessagesConfig.INVITE_FOOTER;
+
 @Service
 public class InvitationServiceImpl implements InvitationService {
 
@@ -59,20 +63,17 @@ public class InvitationServiceImpl implements InvitationService {
                 accountAdmin.getAccountId(), null,
                 accountAdmin.getId(), EventName.WORKER_INVITED, null);
             eventService.create(event);
-        } else throw new UserLimitReachedException("The maximum users for account has been reached.");
+        } else {
+            throw new UserLimitReachedException("The maximum users for account has been reached.");
+        }
     }
 
     private void sendInvitationMessage(UserDto userDto, Long accountId) {
         Account account = accountDao.findById(accountId);
-        mailService.sendMessage(userDto, "Hello, We invite you to join our organization " + account.getName() + " in the Inventory Management System.\n" +
-            "Please follow link bellow to proceed with registration:\n" +
+        mailService.sendMessage(userDto,  INVITE_START + account.getName() + INVITE_MIDDLE +
             activationURL + userDto.getEmailUUID() + "\n" +
             "Your password: " + userDto.getPassword() + "\n" +
-            "For security purpose please change it as soon as possible." +
-            "If you didn't provide your email for registration, please ignore this email.\n" +
-            "\n" +
-            "Regards,\n" +
-            "IMS team", "IMS. Invitation to " + account.getName() + " organization");
+            INVITE_FOOTER, "IMS. Invitation to " + account.getName() + " organization");
     }
 
     private boolean allowToInvite(Long accountId) {

@@ -17,4 +17,20 @@ public class MailMessagesConfig {
         Please, follow this link if you would like to change your password:
     """;
 
+    public final static String INVITE_START = """
+        Hello, We invite you to join our organization
+        """;
+
+    public final static String INVITE_MIDDLE = """
+        in the Inventory Management System.
+        "Please follow link bellow to proceed with registration:
+        """;
+
+    public final static String INVITE_FOOTER = """
+        For security purpose please change it as soon as possible.
+        If you didn't provide your email for registration, please ignore this email.
+
+        Regards,
+        IMS team.
+        """;
 }

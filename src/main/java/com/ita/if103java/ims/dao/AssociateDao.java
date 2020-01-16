@@ -12,6 +12,8 @@ public interface AssociateDao {
 
     List<Associate> findByAccountId(Long accountId);
 
+    List<Associate> getAssociates(String sort, int size, long offset, long accountId);
+
     Associate update(Long accountId, Associate associate);
 
     boolean delete(Long accountId, Long id);

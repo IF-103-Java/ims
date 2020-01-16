@@ -1,7 +1,9 @@
 package com.ita.if103java.ims.service.impl;
 
 import com.ita.if103java.ims.dao.UserDao;
+import com.ita.if103java.ims.dto.AccountDto;
 import com.ita.if103java.ims.dto.UserDto;
+import com.ita.if103java.ims.entity.Account;
 import com.ita.if103java.ims.entity.Role;
 import com.ita.if103java.ims.entity.User;
 import com.ita.if103java.ims.mapper.dto.UserDtoMapper;
@@ -82,7 +84,8 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserDto createAndSendMessage(UserDto userDto) {
         UserDto createdUser = create(userDto);
-        accountService.create(createdUser, userDto.getAccountName());
+        AccountDto account = accountService.create(createdUser, userDto.getAccountName());
+        createdUser.setAccountId(account.getId());
         String token = createdUser.getEmailUUID();
         String message = "" +
             ACTIVATE_USER
@@ -109,14 +112,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto update(UserDto userDto) {
-        User updatedUser = mapper.toEntity(userDto);
-        //Activating status can't be changed in this way
-        User dbUser = userDao.findById(updatedUser.getId());
-        updatedUser.setActive(dbUser.isActive());
-        updatedUser.setPassword(passwordEncoder.encode(userDto.getPassword()));
+        User user = userDao.findById(userDto.getId());
+        user.setFirstName(userDto.getFirstName());
+        user.setLastName(userDto.getLastName());
+        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
 
-        User user = userDao.update(updatedUser);
+        User updatedUser = userDao.update(user);
+        user.setUpdatedDate(updatedUser.getUpdatedDate());
         eventService.create(createEvent(user, PROFILE_CHANGED, "updated profile."));
+
         return mapper.toDto(user);
     }
 
