@@ -65,14 +65,12 @@ public class UserController {
         return userService.findAdminByAccountId(accountId);
     }
 
-    @PutMapping(value = "/me", produces = MediaType.APPLICATION_JSON_VALUE,
+    @PutMapping(value = "/me",
+        produces = MediaType.APPLICATION_JSON_VALUE,
         consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public UserDto update(@AuthenticationPrincipal UserDetailsImpl user, @Validated({ExistData.class}) @RequestBody UserDto userDto) {
         userDto.setId(user.getUser().getId());
-        userDto.setEmail(user.getUser().getEmail());
-        userDto.setRole(user.getUser().getRole());
-
         return userService.update(userDto);
     }
 

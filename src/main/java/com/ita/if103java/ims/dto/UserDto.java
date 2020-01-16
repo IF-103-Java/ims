@@ -62,7 +62,7 @@ public class UserDto implements Serializable {
     private Long accountId;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @NotBlank(groups = {NewData.class, ExistData.class},
+    @NotBlank(groups = {NewData.class},
         message = "Please, enter an account name")
     private String accountName;
 
