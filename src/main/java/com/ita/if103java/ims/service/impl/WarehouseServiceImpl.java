@@ -79,14 +79,17 @@ public class WarehouseServiceImpl implements WarehouseService {
     private WarehouseDto createNewWarehouse(WarehouseDto warehouseDto, UserDetailsImpl user) {
         Warehouse warehouse = warehouseDao.create(warehouseDtoMapper.toEntity(warehouseDto));
         Address address = addressDtoMapper.toEntity(warehouseDto.getAddressDto());
+        AddressDto addressDto = null;
         if (warehouse.isTopLevel()) {
-            addressDao.createWarehouseAddress(warehouse.getId(), address);
+            Address warehouseAddress = addressDao.createWarehouseAddress(warehouse.getId(), address);
+            addressDto = addressDtoMapper.toDto(warehouseAddress);
         }
         createEvent(user, warehouse, EventName.WAREHOUSE_CREATED);
 
-        Warehouse newWarehouse = warehouseDao.create(warehouse);
-        populatePath(newWarehouse, user);
-        return warehouseDtoMapper.toDto(newWarehouse);
+        populatePath(warehouse, user);
+        WarehouseDto createdWarehouseDto = warehouseDtoMapper.toDto(warehouse);
+        createdWarehouseDto.setAddressDto(addressDto);
+        return createdWarehouseDto;
     }
 
     @Override
@@ -180,11 +183,14 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     private void createEvent(UserDetailsImpl user, Warehouse warehouse, EventName eventName) {
         Event event = new Event();
+        int level = 0;
         String message = eventName.getLabel();
-        int level = warehouseDao.findLevelByParentID(warehouse.getParentID());
-        if (eventName == EventName.WAREHOUSE_CREATED) {
-            message += " Name : " + warehouse.getName() + "level : " + level;
+
+        if (warehouse.getParentID() != null) {
+            level = warehouseDao.findLevelByParentID(warehouse.getParentID());
         }
+        message += " Name : " + warehouse.getName() + " level : " + level;
+
         if (level != 0) {
             message += " as a child of warehouse id " + warehouse.getParentID();
         }
