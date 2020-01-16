@@ -70,7 +70,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private String checkSort(String... sort) {
-        String direction = sort[1].equals("DESC") ? "desc" : "asc";
+        String direction = sort[1].equalsIgnoreCase("desc") ? "desc" : "asc";
         return Stream.of("id", "name_item", "unit", "description", "volume").
             filter(x -> x.equalsIgnoreCase(sort[0])).collect(Collectors.joining()) + " " + direction;
     }
