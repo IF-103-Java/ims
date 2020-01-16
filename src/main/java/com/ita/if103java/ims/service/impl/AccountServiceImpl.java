@@ -44,10 +44,11 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public AccountDto update(User admin, AccountDto accountDto) {
-        accountDto.setId(admin.getAccountId());
-        Account account = accountDao.update(accountDtoMapper.toEntity(accountDto));
-        Event event = new Event("Account \"" + accountDto.getName() + "\" was updated.", account.getId(), null,
+    public AccountDto update(User admin, String name) {
+        Account account = accountDao.findById(admin.getAccountId());
+        account.setName(name);
+        account = accountDao.update(account);
+        Event event = new Event("Account \"" + name + "\" was updated.", account.getId(), null,
             admin.getId(), EventName.ACCOUNT_EDITED, null);
         eventService.create(event);
         return accountDtoMapper.toDto(account);

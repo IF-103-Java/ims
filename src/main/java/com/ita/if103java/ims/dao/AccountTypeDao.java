@@ -10,7 +10,7 @@ public interface AccountTypeDao {
 
     List<AccountType> selectAllActive();
 
-    List<AccountType> selectAllPossibleToUpgrade(Long typeId);
+    List<AccountType> selectAllPossibleToUpgrade(Integer accountLvl);
 
     Long minLvlType();
 }

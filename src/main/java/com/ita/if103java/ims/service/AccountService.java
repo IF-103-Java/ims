@@ -8,7 +8,7 @@ import com.ita.if103java.ims.entity.User;
 public interface AccountService {
     AccountDto create(UserDto adminDto, String accountName);
 
-    AccountDto update(User admin, AccountDto accountUpdateDto);
+    AccountDto update(User admin, String name);
 
     AccountDto view(Long id);
 
