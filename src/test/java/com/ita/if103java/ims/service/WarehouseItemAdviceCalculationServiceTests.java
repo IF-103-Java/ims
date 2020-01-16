@@ -21,13 +21,12 @@ public class WarehouseItemAdviceCalculationServiceTests {
     private final WarehouseItemAdviceCalculationServiceImpl service = new WarehouseItemAdviceCalculationServiceImpl();
 
     @Test
-    public void testAvgDistanceCalculations() {
-        final List<WeightAssociateDto> associates = Arrays.asList(
+    public void testAvgDistanceCalculationsWithoutWeights() {
+        final List<WeightAssociateDto> suppliers = Arrays.asList(
             new WeightAssociateDto(1L, 0.0),
             new WeightAssociateDto(2L, 0.0),
             new WeightAssociateDto(3L, 0.0)
         );
-
         final List<WeightAssociateDto> clients = Arrays.asList(
             new WeightAssociateDto(4L, 0.0),
             new WeightAssociateDto(5L, 0.0),
@@ -72,13 +71,59 @@ public class WarehouseItemAdviceCalculationServiceTests {
             clientDistance(6L, 5L, 75)
         );
 
-        final List<WarehouseIdAdviceDto> advices = service.calculate(associates, clients, distances);
+        final List<WarehouseIdAdviceDto> advices = service.calculate(suppliers, clients, distances);
         assertThat(advices.size()).isEqualTo(5);
         assertAdvice(advices.get(0), 4L, 158.33);
         assertAdvice(advices.get(1), 1L, 174.99);
         assertAdvice(advices.get(2), 2L, 174.99);
         assertAdvice(advices.get(3), 3L, 233.33);
         assertAdvice(advices.get(4), 5L, 241.66);
+    }
+
+    @Test
+    public void testAvgDistanceCalculationsWithWeights() {
+        final List<WeightAssociateDto> suppliers = Arrays.asList(
+            new WeightAssociateDto(1L, 0.47),
+            new WeightAssociateDto(2L, 0.13),
+            new WeightAssociateDto(3L, 0.40)
+        );
+        final List<WeightAssociateDto> clients = Arrays.asList(
+            new WeightAssociateDto(4L, 0.33),
+            new WeightAssociateDto(5L, 0.37),
+            new WeightAssociateDto(6L, 0.30)
+        );
+
+        final List<WarehouseToAssociateDistanceDto> distances = Arrays.asList(
+            supplierDistance(1L, 1L, 5129),
+            supplierDistance(1L, 2L, 4370),
+            supplierDistance(1L, 3L, 346),
+//                ----------------------------------------------------------------------------------------
+            supplierDistance(2L, 1L, 2587),
+            supplierDistance(2L, 2L, 720),
+            supplierDistance(2L, 3L, 3751),
+//                ----------------------------------------------------------------------------------------
+            supplierDistance(3L, 1L, 2529),
+            supplierDistance(3L, 2L, 508),
+            supplierDistance(3L, 3L, 4199),
+//                ----------------------------------------------------------------------------------------
+            clientDistance(4L, 1L, 3999),
+            clientDistance(4L, 2L, 3239),
+            clientDistance(4L, 3L, 989),
+//                ----------------------------------------------------------------------------------------
+            clientDistance(5L, 1L, 1528),
+            clientDistance(5L, 2L, 917),
+            clientDistance(5L, 3L, 4671),
+//                ----------------------------------------------------------------------------------------
+            clientDistance(6L, 1L, 320),
+            clientDistance(6L, 2L, 1757),
+            clientDistance(6L, 3L, 4492)
+        );
+
+        final List<WarehouseIdAdviceDto> advices = service.calculate(suppliers, clients, distances);
+        assertThat(advices.size()).isEqualTo(3);
+        assertAdvice(advices.get(0), 2L, 2408.34);
+        assertAdvice(advices.get(1), 1L, 3450.80);
+        assertAdvice(advices.get(2), 3L, 4238.63);
     }
 
     private void assertAdvice(WarehouseIdAdviceDto advice,
@@ -107,11 +152,13 @@ public class WarehouseItemAdviceCalculationServiceTests {
     }
 
     private WarehouseAddressDto warehouseAddress(Long warehouseId) {
-        return new WarehouseAddressDto(null, null, null, null, null, null, null, warehouseId);
+        return new WarehouseAddressDto(null, null, null, null, null,
+            null, null, warehouseId);
     }
 
     private AssociateAddressDto associateAddress(Long associateId, AssociateType associateType) {
-        return new AssociateAddressDto(null, null, null, null, null, null, null, associateId, associateType);
+        return new AssociateAddressDto(null, null, null, null, null,
+            null, null, associateId, associateType);
     }
 
     private Distance distance(long distance) {

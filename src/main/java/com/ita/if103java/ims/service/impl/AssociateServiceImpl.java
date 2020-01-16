@@ -16,10 +16,13 @@ import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.AssociateService;
 import com.ita.if103java.ims.service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class AssociateServiceImpl implements AssociateService {
@@ -93,8 +96,10 @@ public class AssociateServiceImpl implements AssociateService {
     }
 
     @Override
-    public List<AssociateDto> findByAccountId(Long accountId) {
-        List<AssociateDto> associateDtos = associateDtoMapper.toDtoList(associateDao.findByAccountId(accountId));
+    public List<AssociateDto> findSortedAssociates(Pageable pageable, UserDetailsImpl user) {
+        List<AssociateDto> associateDtos = associateDtoMapper.toDtoList(associateDao.getAssociates(checkSort(pageable.getSort().toString().split(": ")),
+            pageable.getPageSize(),
+            pageable.getOffset(), user.getUser().getAccountId()));
 
         associateDtos.stream().forEach(a -> a.setAddressDto(addressDtoMapper.toDto(addressDao.findByAssociateId(a.getId()))));
 
@@ -139,5 +144,11 @@ public class AssociateServiceImpl implements AssociateService {
         }
 
         return false;
+    }
+
+    private String checkSort(String... sort) {
+        String direction = sort[1].equalsIgnoreCase("desc") ? "desc" : "asc";
+        return Stream.of("id", "name", "type").
+            filter(x -> x.equalsIgnoreCase(sort[0])).collect(Collectors.joining()) + " " + direction;
     }
 }

@@ -3,7 +3,10 @@ package com.ita.if103java.ims.controller;
 import com.ita.if103java.ims.dto.AssociateDto;
 import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.AssociateService;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,8 +36,13 @@ public class AssociateController {
     }
 
     @GetMapping(value = "/")
-    public List<AssociateDto> findAllByAccountId(@AuthenticationPrincipal UserDetailsImpl user) {
-        return associateService.findByAccountId(user.getUser().getAccountId());
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "page", dataType = "integer", paramType = "query"),
+        @ApiImplicitParam(name = "size", dataType = "integer", paramType = "query"),
+        @ApiImplicitParam(name = "sort", dataType = "string", paramType = "query")
+    })
+    public List<AssociateDto> findAllSortedAssociates(Pageable pageable, @AuthenticationPrincipal UserDetailsImpl user) {
+        return associateService.findSortedAssociates(pageable, user);
     }
 
     @PostMapping(value = "/")
