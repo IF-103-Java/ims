@@ -32,7 +32,7 @@ public class AccountTypeDaoImpl implements AccountTypeDao {
         try {
             return jdbcTemplate.queryForObject(Queries.SQL_SELECT_ACCOUNT_TYPE_BY_ID, accountTypeRowMapper, id);
         } catch (EmptyResultDataAccessException e) {
-            throw new AccountTypeNotFoundException("id = " + id, e);
+            throw new AccountTypeNotFoundException("Account type not found. id = " + id, e);
         } catch (DataAccessException e) {
             throw new CRUDException("Searching current type exception, id = " + id, e);
         }

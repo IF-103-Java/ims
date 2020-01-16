@@ -32,7 +32,7 @@ public class UpgradeController {
 
     @GetMapping(value = "/")
     public AccountTypeDto findCurrentType(@AuthenticationPrincipal UserDetailsImpl user) {
-        return upgradeService.findById(user.getUser().getAccountId());
+        return upgradeService.findById(user.getAccountType().getId());
     }
 
     @GetMapping(value = "/all")
