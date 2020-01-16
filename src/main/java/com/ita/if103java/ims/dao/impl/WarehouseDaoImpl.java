@@ -124,14 +124,13 @@ public class WarehouseDaoImpl implements WarehouseDao {
         try {
             status = jdbcTemplate.update(Queries.SQL_UPDATE_WAREHOUSE,
                 warehouse.getName(), warehouse.getInfo(), warehouse.getCapacity(),
-                warehouse.isBottom(), warehouse.getParentID(), warehouse.getAccountID(),
-                warehouse.isActive(), warehouse.getChildren());
-
+                warehouse.isBottom(), warehouse.getParentID(), warehouse.getTopWarehouseID(),
+                warehouse.getAccountID(), warehouse.isActive(), warehouse.getId());
         } catch (DataAccessException e) {
-            throw new CRUDException("update warehouse id = " + warehouse.getId(), e);
+            throw new CRUDException("Error duringupdate warehouse id = " + warehouse.getId(), e);
         }
         if (status == 0)
-            throw new WarehouseNotFoundException("Update warehouse exception id = " + warehouse.getId());
+            throw new WarehouseNotFoundException("Failed to obtain warehouse during update warehouse {id = " + warehouse.getId());
 
         return warehouse;
     }
@@ -168,7 +167,7 @@ public class WarehouseDaoImpl implements WarehouseDao {
             return jdbcTemplate.queryForObject(Queries.SQL_LEVEL_WAREHOUSE_BY_PARENT_ID, Integer.class, id);
 
         } catch (DataAccessException e) {
-            throw new WarehouseNotFoundException("Error during finding warehouse level {Id = " + id + "}", e);
+            throw new WarehouseNotFoundException("Error during finding level of warehouse {Id = " + id + "}", e);
         }
     }
 
@@ -197,13 +196,14 @@ public class WarehouseDaoImpl implements WarehouseDao {
 
         static final String SQL_SELECT_ALL_WAREHOUSES = """
                 SELECT * FROM warehouses
-                 WHERE account_id = ?
+                WHERE account_id = ?
+                LIMIT ? OFFSET ?
             """;
 
         static final String SQL_UPDATE_WAREHOUSE = """
                 UPDATE warehouses
-                SET name= ?, info = ?, capacity = ?, is_bottom = ?, top_warehouse_id = ?, active = ?
-                WHERE id = ?;
+                SET name= ?, info = ?, capacity = ?, is_bottom = ?, parent_id = ?,
+                top_warehouse_id = ?, account_id = ?, active = ? WHERE id = ?
             """;
 
         static final String SQL_SELECT_BY_TOP_WAREHOUSE_ID = """
