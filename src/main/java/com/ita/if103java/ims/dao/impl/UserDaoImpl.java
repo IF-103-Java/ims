@@ -89,10 +89,10 @@ public class UserDaoImpl implements UserDao {
 
             String sort = pageable.getSort().toString().replaceAll(": ", " ");
             return jdbcTemplate.query(Queries.SQL_SELECT_ALL_USERS,
-                                        userRowMapper,
-                                        sort,
-                                        pageable.getPageSize(),
-                                        pageable.getOffset());
+                userRowMapper,
+                sort,
+                pageable.getPageSize(),
+                pageable.getOffset());
         } catch (DataAccessException e) {
             throw new CRUDException("Error during `select * ` users ", e);
         }

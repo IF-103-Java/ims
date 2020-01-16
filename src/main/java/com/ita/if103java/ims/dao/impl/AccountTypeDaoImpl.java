@@ -69,30 +69,30 @@ public class AccountTypeDaoImpl implements AccountTypeDao {
     class Queries {
 
         static final String SQL_SELECT_ACCOUNT_TYPE_BY_ID = """
-            SELECT *
-            FROM account_types
-            WHERE id = ?
-        """;
+                SELECT *
+                FROM account_types
+                WHERE id = ?
+            """;
 
         static final String SQL_SELECT_ALL_ACCOUNT_TYPES = """
-            SELECT *
-            FROM account_types
-            where active = true
-        """;
+                SELECT *
+                FROM account_types
+                where active = true
+            """;
 
         static final String SQL_FIND_MIN_LVL_TYPE = """
-            SELECT id
-            FROM account_types
-            WHERE level =
-            (SELECT MIN(level)
-            FROM account_types)
-        """;
+                SELECT id
+                FROM account_types
+                WHERE level =
+                (SELECT MIN(level)
+                FROM account_types)
+            """;
 
         static final String SQL_FIND_ALL_POSSIBLE_TO_UPGRADE = """
-            SELECT *
-            FROM account_types
-            WHERE level > ?
-            AND active = true
-        """;
+                SELECT *
+                FROM account_types
+                WHERE level > ?
+                AND active = true
+            """;
     }
 }
