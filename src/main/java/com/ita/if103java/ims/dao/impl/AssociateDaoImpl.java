@@ -75,8 +75,8 @@ public class AssociateDaoImpl implements AssociateDao {
     @Override
     public List<Associate> getAssociates(String sort, int size, long offset, long accountId) {
         try {
-            final String query = " select * from associates where account_id=? order by " + sort + " limit ? offset ?";
-            return jdbcTemplate.query(query, associateRowMapper, accountId, size, offset);
+
+            return jdbcTemplate.query(String.format(Queries.SQL_SELECT_SORTED_ASSOICATES, sort), associateRowMapper, accountId, size, offset);
         } catch (DataAccessException e) {
             throw new CRUDException("Error during `select * `", e);
         }
@@ -139,6 +139,12 @@ public class AssociateDaoImpl implements AssociateDao {
 
     class Queries {
 
+        static final String SQL_SELECT_SORTED_ASSOICATES = """
+             SELECT *
+             FROM associates
+             WHERE account_id= ? order by %s limit ? offset ?
+        """;
+
         static final String SQL_CREATE_ASSOCIATE = """
             INSERT INTO associates
             ( account_id, name, email, phone, additional_info, type, active)
@@ -149,11 +155,6 @@ public class AssociateDaoImpl implements AssociateDao {
             SELECT *
             FROM associates
             WHERE account_id = ? and id = ?
-        """;
-
-        static final String SQL_SELECT_ALL_ASSOCIATES = """
-            SELECT *
-            FROM associates
         """;
 
         static final String SQL_SELECT_ASSOCIATE_BY_ACCOUNT_ID = """
