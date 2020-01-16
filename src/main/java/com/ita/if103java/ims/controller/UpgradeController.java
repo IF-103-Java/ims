@@ -32,7 +32,7 @@ public class UpgradeController {
 
     @GetMapping(value = "/")
     public AccountTypeDto findCurrentType(@AuthenticationPrincipal UserDetailsImpl user) {
-        return upgradeService.findById(user.getUser().getAccountId());
+        return upgradeService.findById(user.getAccountType().getId());
     }
 
     @GetMapping(value = "/all")
@@ -42,6 +42,6 @@ public class UpgradeController {
 
     @GetMapping(value = "/all-possible")
     public List<AccountTypeDto> findAllPossible(@AuthenticationPrincipal UserDetailsImpl user) {
-        return upgradeService.findAllPossibleToUpgrade(user.getUser().getAccountId());
+        return upgradeService.findAllPossibleToUpgrade(user.getAccountType().getLevel());
     }
 }

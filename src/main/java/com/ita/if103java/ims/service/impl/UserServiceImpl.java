@@ -1,6 +1,8 @@
 package com.ita.if103java.ims.service.impl;
 
+import com.ita.if103java.ims.dao.AccountDao;
 import com.ita.if103java.ims.dao.UserDao;
+import com.ita.if103java.ims.dto.AccountDto;
 import com.ita.if103java.ims.dto.UserDto;
 import com.ita.if103java.ims.entity.Role;
 import com.ita.if103java.ims.entity.User;
@@ -43,6 +45,7 @@ public class UserServiceImpl implements UserService {
     private EventService eventService;
     private AccountService accountService;
     private MailServiceImpl mailService;
+    private AccountDao accountDao;
 
 
     @Autowired
@@ -51,13 +54,15 @@ public class UserServiceImpl implements UserService {
                            PasswordEncoder passwordEncoder,
                            EventService eventService,
                            AccountService accountService,
-                           MailServiceImpl mailService) {
+                           MailServiceImpl mailService,
+                           AccountDao accountDao) {
         this.userDao = userDao;
         this.mapper = mapper;
         this.passwordEncoder = passwordEncoder;
         this.eventService = eventService;
         this.accountService = accountService;
         this.mailService = mailService;
+        this.accountDao = accountDao;
     }
 
     @Override
@@ -82,7 +87,8 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserDto createAndSendMessage(UserDto userDto) {
         UserDto createdUser = create(userDto);
-        accountService.create(createdUser, userDto.getAccountName());
+        AccountDto account = accountService.create(createdUser, userDto.getAccountName());
+        createdUser.setAccountId(account.getId());
         String token = createdUser.getEmailUUID();
         String message = "" +
             ACTIVATE_USER
@@ -109,20 +115,26 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto update(UserDto userDto) {
-        User updatedUser = mapper.toEntity(userDto);
-        //Activating status can't be changed in this way
-        User dbUser = userDao.findById(updatedUser.getId());
-        updatedUser.setActive(dbUser.isActive());
-        updatedUser.setPassword(passwordEncoder.encode(userDto.getPassword()));
+        User user = userDao.findById(userDto.getId());
+        user.setFirstName(userDto.getFirstName());
+        user.setLastName(userDto.getLastName());
+        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
 
-        User user = userDao.update(updatedUser);
+        User updatedUser = userDao.update(user);
+        user.setUpdatedDate(updatedUser.getUpdatedDate());
         eventService.create(createEvent(user, PROFILE_CHANGED, "updated profile."));
+
         return mapper.toDto(user);
     }
 
+    @Transactional
     @Override
     public boolean delete(Long id) {
-        return userDao.softDelete(id);
+        User user = userDao.findById(id);
+        if (user.getRole() == Role.ROLE_ADMIN) {
+            accountDao.delete(user.getAccountId());
+        }
+        return userDao.activate(id, false);
     }
 
     @Override
@@ -149,8 +161,8 @@ public class UserServiceImpl implements UserService {
     public boolean activateUser(String emailUUID) {
         User activatedUser = userDao.findByEmailUUID(emailUUID);
         if (isValidToken(activatedUser)) {
-            activatedUser.setActive(true);
-            userDao.update(activatedUser);
+            userDao.activate(activatedUser.getId(), true);
+            accountDao.activate(activatedUser.getAccountId());
             return true;
         } else {
             userDao.hardDelete(activatedUser.getId());

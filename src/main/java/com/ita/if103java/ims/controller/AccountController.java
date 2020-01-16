@@ -6,7 +6,6 @@ import com.ita.if103java.ims.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,19 +25,12 @@ public class AccountController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping(value = "/")
-    public AccountDto update(@AuthenticationPrincipal UserDetailsImpl user, @RequestBody AccountDto accountDto) {
-        return accountService.update(user.getUser(), accountDto);
+    public AccountDto update(@AuthenticationPrincipal UserDetailsImpl user, @RequestBody String name) {
+        return accountService.update(user.getUser(), name);
     }
 
     @GetMapping(value = "/")
     public AccountDto view(@AuthenticationPrincipal UserDetailsImpl user) {
         return accountService.view(user.getUser().getAccountId());
     }
-
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @DeleteMapping(value = "/")
-    public void delete(@AuthenticationPrincipal UserDetailsImpl user) {
-        accountService.delete(user.getUser());
-    }
-
 }

@@ -86,7 +86,13 @@ public class UserDaoImpl implements UserDao {
     @Override
     public List<User> findAll(Pageable pageable) {
         try {
-            return jdbcTemplate.query(Queries.SQL_SELECT_ALL_USERS, userRowMapper, pageable.getPageSize(), pageable.getOffset());
+
+            String sort = pageable.getSort().toString().replaceAll(": ", " ");
+            return jdbcTemplate.query(Queries.SQL_SELECT_ALL_USERS,
+                                        userRowMapper,
+                                        sort,
+                                        pageable.getPageSize(),
+                                        pageable.getOffset());
         } catch (DataAccessException e) {
             throw new CRUDException("Error during `select * ` users ", e);
         }
@@ -139,7 +145,6 @@ public class UserDaoImpl implements UserDao {
                 user.getEmail(),
                 user.getPassword(),
                 Timestamp.from(updatedDateTime.toInstant()),
-                user.isActive(),
                 user.getEmailUUID(),
                 user.getId());
 
@@ -172,10 +177,10 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public boolean softDelete(Long id) {
+    public boolean activate(Long id, boolean state) {
         int status;
         try {
-            status = jdbcTemplate.update(Queries.SQL_SET_ACTIVE_STATUS_USER, false, id);
+            status = jdbcTemplate.update(Queries.SQL_SET_ACTIVE_STATUS_USER, state, id);
         } catch (DataAccessException e) {
             throw new CRUDException("Error during soft `delete` user {id = " + id + "}", e);
         }
@@ -286,6 +291,7 @@ public class UserDaoImpl implements UserDao {
         public static final String SQL_SELECT_ALL_USERS = """
                 SELECT *
                 FROM users
+                ORDER BY ?
                 Limit ?
                 Offset ?
             """;
@@ -305,9 +311,10 @@ public class UserDaoImpl implements UserDao {
 
         public static final String SQL_UPDATE_USER = """
                 UPDATE users
-                SET first_name= ?, last_name = ?,
-                email = ?, password = ?, updated_date = ?,
-                active = ?, email_uuid = ?
+                SET
+                first_name= ?, last_name = ?,
+                email = ?, password = ?,
+                updated_date = ?, email_uuid = ?
                 WHERE id = ?
             """;
 
