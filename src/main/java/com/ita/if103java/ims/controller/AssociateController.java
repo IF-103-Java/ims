@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/associates")
@@ -29,17 +28,17 @@ public class AssociateController {
     }
 
     @GetMapping(value = "/{id}")
-    public AssociateDto view(@PathVariable("id") Long id) {
-        return associateService.view(id);
+    public AssociateDto view(@AuthenticationPrincipal UserDetailsImpl user, @PathVariable("id") Long id) {
+        return associateService.view(user, id);
     }
 
     @GetMapping(value = "/")
-    public List<AssociateDto> findAll() {
-        return associateService.findAll();
+    public List<AssociateDto> findAllByAccountId(@AuthenticationPrincipal UserDetailsImpl user) {
+        return associateService.findByAccountId(user.getUser().getAccountId());
     }
 
     @PostMapping(value = "/")
-    public Optional<AssociateDto> create(@AuthenticationPrincipal UserDetailsImpl user, @RequestBody AssociateDto associateDto) {
+    public AssociateDto create(@AuthenticationPrincipal UserDetailsImpl user, @RequestBody AssociateDto associateDto) {
         return associateService.create(user, associateDto);
     }
 

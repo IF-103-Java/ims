@@ -89,7 +89,7 @@ public class ItemServiceImpl implements ItemService {
 
     private void validateInputsAdd(ItemTransactionRequestDto itemTransaction, Long accountId) {
         if (!(existInAccount(itemTransaction, accountId) &&
-            associateDao.findById(itemTransaction.getAssociateId()).getAccountId().equals(accountId))) {
+            associateDao.findById(accountId, itemTransaction.getAssociateId()).getAccountId().equals(accountId))) {
             throw new SavedItemNotFoundException("Failed to get savedItem during `create` {account_id = " + itemTransaction.getItemDto().getAccountId() + "}");
         }
     }
@@ -102,7 +102,7 @@ public class ItemServiceImpl implements ItemService {
 
     private void validateInputsOut(ItemTransactionRequestDto itemTransaction, UserDetailsImpl user) {
         if (!(itemDao.isExistItemById(itemTransaction.getItemDto().getId(), user.getUser().getAccountId())
-            && associateDao.findById(itemTransaction.getAssociateId()).getAccountId().equals(user.getUser().getAccountId()))) {
+            && associateDao.findById(user.getUser().getAccountId(), itemTransaction.getAssociateId()).getAccountId().equals(user.getUser().getAccountId()))) {
             throw new SavedItemNotFoundException("Failed to get savedItem during `outcomeItem` {account_id = " + user.getUser().getAccountId() +
                 " associateId = " + itemTransaction.getAssociateId() + "}");
         }
@@ -121,7 +121,7 @@ public class ItemServiceImpl implements ItemService {
                 user.getUser(), itemTransaction.getAssociateId(), TransactionType.IN));
             eventService.create(new Event("Moved " + itemTransaction.getQuantity() + " " + itemTransaction.getItemDto().getName() +
                 " to warehouse " + warehouseDao.findById(itemTransaction.getDestinationWarehouseId(), user.getUser().getAccountId()).getName() + " " +
-                "from supplier " + associateDao.findById(itemTransaction.getAssociateId()).getName(),
+                "from supplier " + associateDao.findById(user.getUser().getAccountId(), itemTransaction.getAssociateId()).getName(),
                 user.getUser().getAccountId(),
                 itemTransaction.getDestinationWarehouseId(), user.getUser().getId(), EventName.ITEM_CAME,
                 transaction.getId().longValue()));
@@ -271,7 +271,7 @@ public class ItemServiceImpl implements ItemService {
             Transaction transaction = transactionDao.create(transactionDao.create(itemTransaction,
                 user.getUser(), itemTransaction.getAssociateId(), TransactionType.OUT));
             eventService.create(new Event("Sold  " + itemTransaction.getQuantity() + " " + itemTransaction.getItemDto().getName() +
-                " to client " + associateDao.findById(itemTransaction.getAssociateId()).getName(),
+                " to client " + associateDao.findById(user.getUser().getAccountId(), itemTransaction.getAssociateId()).getName(),
                 user.getUser().getAccountId(),
                 itemTransaction.getSourceWarehouseId(), user.getUser().getId(), EventName.ITEM_SHIPPED,
                 transaction.getId().longValue()));
