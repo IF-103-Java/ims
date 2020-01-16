@@ -56,7 +56,7 @@ public class UpgradeSimpleServiceImpl implements UpgradeService {
     }
 
     @Override
-    public List<AccountTypeDto> findAllPossibleToUpgrade(Long typeId) {
-        return accountTypeDtoMapper.toDtoList(accountTypeDao.selectAllPossibleToUpgrade(typeId));
+    public List<AccountTypeDto> findAllPossibleToUpgrade(Integer accountLvl) {
+        return accountTypeDtoMapper.toDtoList(accountTypeDao.selectAllPossibleToUpgrade(accountLvl));
     }
 }

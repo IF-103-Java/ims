@@ -42,6 +42,6 @@ public class UpgradeController {
 
     @GetMapping(value = "/all-possible")
     public List<AccountTypeDto> findAllPossible(@AuthenticationPrincipal UserDetailsImpl user) {
-        return upgradeService.findAllPossibleToUpgrade(user.getUser().getAccountId());
+        return upgradeService.findAllPossibleToUpgrade(user.getAccountType().getLevel());
     }
 }

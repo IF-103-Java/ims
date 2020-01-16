@@ -34,7 +34,7 @@ public class AccountTypeDaoImpl implements AccountTypeDao {
         } catch (EmptyResultDataAccessException e) {
             throw new AccountTypeNotFoundException("id = " + id, e);
         } catch (DataAccessException e) {
-            throw new CRUDException("get, id = " + id, e);
+            throw new CRUDException("Searching current type exception, id = " + id, e);
         }
     }
 
@@ -43,16 +43,16 @@ public class AccountTypeDaoImpl implements AccountTypeDao {
         try {
             return jdbcTemplate.query(Queries.SQL_SELECT_ALL_ACCOUNT_TYPES, accountTypeRowMapper);
         } catch (DataAccessException e) {
-            throw new CRUDException("get, *", e);
+            throw new CRUDException("Searching all active type exception, *", e);
         }
     }
 
     @Override
-    public List<AccountType> selectAllPossibleToUpgrade(Long typeId) {
+    public List<AccountType> selectAllPossibleToUpgrade(Integer accountLvl) {
         try {
-            return jdbcTemplate.query(Queries.SQL_FIND_ALL_POSSIBLE_TO_UPGRADE, accountTypeRowMapper, typeId);
+            return jdbcTemplate.query(Queries.SQL_FIND_ALL_POSSIBLE_TO_UPGRADE, accountTypeRowMapper, accountLvl);
         } catch (DataAccessException e) {
-            throw new CRUDException("get, *", e);
+            throw new CRUDException("Searching all possible types exception, *", e);
         }
     }
 
@@ -61,9 +61,9 @@ public class AccountTypeDaoImpl implements AccountTypeDao {
         try {
             return jdbcTemplate.queryForObject(Queries.SQL_FIND_MIN_LVL_TYPE, Long.class);
         } catch (EmptyResultDataAccessException e) {
-            throw new AccountTypeNotFoundException("Find min lvl type", e);
+            throw new AccountTypeNotFoundException("Account not found while min lvl type searching", e);
         } catch (DataAccessException e) {
-            throw new CRUDException("Find min lvl type", e);
+            throw new CRUDException("Find min lvl type exception", e);
         }
     }
 
