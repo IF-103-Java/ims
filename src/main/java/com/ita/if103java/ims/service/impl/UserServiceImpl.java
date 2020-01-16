@@ -109,14 +109,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto update(UserDto userDto) {
-        User updatedUser = mapper.toEntity(userDto);
-        //Activating status can't be changed in this way
-        User dbUser = userDao.findById(updatedUser.getId());
-        updatedUser.setActive(dbUser.isActive());
-        updatedUser.setPassword(passwordEncoder.encode(userDto.getPassword()));
+        User user = userDao.findById(userDto.getId());
+        user.setFirstName(userDto.getFirstName());
+        user.setLastName(userDto.getLastName());
+        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
 
-        User user = userDao.update(updatedUser);
+        User updatedUser = userDao.update(user);
+        user.setUpdatedDate(updatedUser.getUpdatedDate());
         eventService.create(createEvent(user, PROFILE_CHANGED, "updated profile."));
+
         return mapper.toDto(user);
     }
 
