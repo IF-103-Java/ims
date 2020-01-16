@@ -11,11 +11,9 @@ public interface AssociateService {
 
     AssociateDto update(UserDetailsImpl user, AssociateDto associateDto);
 
-    AssociateDto view(UserDetailsImpl user, Long id);
-
-    List<AssociateDto> findByAccountId(Long accountId);
-
     List<AssociateDto> findSortedAssociates(Pageable pageable, UserDetailsImpl user);
+
+    AssociateDto view(UserDetailsImpl user, Long id);
 
     boolean delete(UserDetailsImpl user, Long id);
 }
