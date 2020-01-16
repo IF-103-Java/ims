@@ -38,8 +38,6 @@ public class WarehouseDto implements Serializable {
         message = "This field mustn't be empty")
     private Long accountID;
 
-    @NotNull(groups = {NewData.class, ExistData.class},
-        message = "This field mustn't be empty")
     private Long topWarehouseID;
 
     private boolean active;
