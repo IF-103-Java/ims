@@ -79,14 +79,17 @@ public class WarehouseServiceImpl implements WarehouseService {
     private WarehouseDto createNewWarehouse(WarehouseDto warehouseDto, UserDetailsImpl user) {
         Warehouse warehouse = warehouseDao.create(warehouseDtoMapper.toEntity(warehouseDto));
         Address address = addressDtoMapper.toEntity(warehouseDto.getAddressDto());
+        AddressDto addressDto = null;
         if (warehouse.isTopLevel()) {
-            addressDao.createWarehouseAddress(warehouse.getId(), address);
+            Address warehouseAddress = addressDao.createWarehouseAddress(warehouse.getId(), address);
+            addressDto = addressDtoMapper.toDto(warehouseAddress);
         }
         createEvent(user, warehouse, EventName.WAREHOUSE_CREATED);
 
-        Warehouse newWarehouse = warehouseDao.create(warehouse);
-        populatePath(newWarehouse, user);
-        return warehouseDtoMapper.toDto(newWarehouse);
+        populatePath(warehouse, user);
+        WarehouseDto createdWarehouseDto = warehouseDtoMapper.toDto(warehouse);
+        createdWarehouseDto.setAddressDto(addressDto);
+        return createdWarehouseDto;
     }
 
     @Override
