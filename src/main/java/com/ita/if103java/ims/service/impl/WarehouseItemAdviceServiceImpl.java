@@ -83,15 +83,15 @@ public class WarehouseItemAdviceServiceImpl implements WarehouseItemAdviceServic
         return new WarehouseItemAdviceDto(
             itemService.findById(itemId, userDetails),
             mapWarehouseAdvices(warehouseIdAdvices, userDetails),
-            mapAssociates(suppliers),
-            mapAssociates(clients)
+            mapAssociates(suppliers, userDetails),
+            mapAssociates(clients, userDetails)
         );
     }
 
-    private List<AssociateDto> mapAssociates(List<WeightAssociateDto> associateDtoList) {
+    private List<AssociateDto> mapAssociates(List<WeightAssociateDto> associateDtoList, UserDetailsImpl userDetails) {
         return associateDtoList.stream()
             .map(WeightAssociateDto::getAssociateId)
-            .map(associateService::view)
+            .map(id -> associateService.view(userDetails, id))
             .collect(Collectors.toUnmodifiableList());
     }
 

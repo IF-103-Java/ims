@@ -76,7 +76,7 @@ public class WarehouseController {
 
     @GetMapping("/warehousenames")
     public Map<Long, String> getWarehouseNames(@AuthenticationPrincipal UserDetailsImpl user) {
-        return warehouseService.findWarehouseNames(user);
+        return warehouseService.findAllWarehouseNames(user);
     }
 
 }

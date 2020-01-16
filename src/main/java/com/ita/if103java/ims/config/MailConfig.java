@@ -13,22 +13,22 @@ import java.util.Properties;
 @PropertySource("classpath:application.properties")
 public class MailConfig {
 
-    @Value("${spring.mail.host}")
+    @Value("${mail.host}")
     private String host;
 
-    @Value("${spring.mail.port}")
+    @Value("${mail.port}")
     private String port;
 
-    @Value("${spring.mail.username}")
+    @Value("${mail.username}")
     private String username;
 
-    @Value("${spring.mail.password}")
+    @Value("${mail.password}")
     private String password;
 
     @Value("${mail.debug}")
     private String debug;
 
-    @Value("${spring.mail.protocol}")
+    @Value("${mail.protocol}")
     private String protocol;
 
     @Value("${mail.smtp.auth}")

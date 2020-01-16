@@ -34,7 +34,6 @@ public class ItemController {
         return itemService.addItem(itemDto, user);
     }
 
-
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<ItemDto> sort(Pageable pageable, @AuthenticationPrincipal UserDetailsImpl user) {

@@ -3,8 +3,6 @@ package com.ita.if103java.ims.service;
 import com.ita.if103java.ims.dto.ItemDto;
 import com.ita.if103java.ims.dto.ItemTransactionRequestDto;
 import com.ita.if103java.ims.dto.SavedItemDto;
-import com.ita.if103java.ims.dto.WarehouseDto;
-import com.ita.if103java.ims.entity.User;
 import com.ita.if103java.ims.security.UserDetailsImpl;
 import org.springframework.data.domain.Pageable;
 
@@ -25,8 +23,6 @@ public interface ItemService {
     boolean softDelete(Long id, UserDetailsImpl user);
 
     List<SavedItemDto> findByItemId(Long id, UserDetailsImpl user);
-
-    List<WarehouseDto> findUsefulWarehouses(int volume, int quantity, UserDetailsImpl user);
 
     boolean moveItem(ItemTransactionRequestDto itemTransaction, UserDetailsImpl user);
 

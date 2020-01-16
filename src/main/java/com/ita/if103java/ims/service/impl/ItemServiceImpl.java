@@ -9,7 +9,6 @@ import com.ita.if103java.ims.dao.AssociateDao;
 import com.ita.if103java.ims.dto.ItemDto;
 import com.ita.if103java.ims.dto.ItemTransactionRequestDto;
 import com.ita.if103java.ims.dto.SavedItemDto;
-import com.ita.if103java.ims.dto.WarehouseDto;
 
 import com.ita.if103java.ims.entity.Event;
 import com.ita.if103java.ims.entity.EventName;
@@ -17,7 +16,6 @@ import com.ita.if103java.ims.entity.Item;
 import com.ita.if103java.ims.entity.SavedItem;
 import com.ita.if103java.ims.entity.Transaction;
 import com.ita.if103java.ims.entity.TransactionType;
-import com.ita.if103java.ims.entity.Warehouse;
 
 import com.ita.if103java.ims.exception.dao.ItemNotFoundException;
 import com.ita.if103java.ims.exception.dao.SavedItemNotFoundException;
@@ -25,7 +23,6 @@ import com.ita.if103java.ims.exception.service.ItemNotEnoughCapacityInWarehouseE
 import com.ita.if103java.ims.exception.service.ItemNotEnoughQuantityException;
 import com.ita.if103java.ims.mapper.dto.ItemDtoMapper;
 import com.ita.if103java.ims.mapper.dto.SavedItemDtoMapper;
-import com.ita.if103java.ims.mapper.dto.WarehouseDtoMapper;
 import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.EventService;
 import com.ita.if103java.ims.service.ItemService;
@@ -35,9 +32,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -54,22 +51,19 @@ public class ItemServiceImpl implements ItemService {
     private ItemDao itemDao;
     private SavedItemDao savedItemDao;
     private WarehouseDao warehouseDao;
-    private WarehouseDtoMapper warehouseDtoMapper;
     private TransactionDao transactionDao;
     private EventService eventService;
     private AssociateDao associateDao;
 
     @Autowired
     public ItemServiceImpl(ItemDtoMapper itemDtoMapper, SavedItemDtoMapper savedItemDtoMapper, ItemDao itemDao,
-                           SavedItemDao savedItemDao, WarehouseDao warehouseDao,
-                           WarehouseDtoMapper warehouseDtoMapper, TransactionDao transactionDao,
+                           SavedItemDao savedItemDao, WarehouseDao warehouseDao, TransactionDao transactionDao,
                            EventService eventService, AssociateDao associateDao) {
         this.itemDtoMapper = itemDtoMapper;
         this.savedItemDtoMapper = savedItemDtoMapper;
         this.itemDao = itemDao;
         this.savedItemDao = savedItemDao;
         this.warehouseDao = warehouseDao;
-        this.warehouseDtoMapper = warehouseDtoMapper;
         this.transactionDao = transactionDao;
         this.eventService = eventService;
         this.associateDao = associateDao;
@@ -95,7 +89,7 @@ public class ItemServiceImpl implements ItemService {
 
     private void validateInputsAdd(ItemTransactionRequestDto itemTransaction, Long accountId) {
         if (!(existInAccount(itemTransaction, accountId) &&
-            associateDao.findById(itemTransaction.getAssociateId()).getAccountId().equals(accountId))) {
+            associateDao.findById(accountId, itemTransaction.getAssociateId()).getAccountId().equals(accountId))) {
             throw new SavedItemNotFoundException("Failed to get savedItem during `create` {account_id = " + itemTransaction.getItemDto().getAccountId() + "}");
         }
     }
@@ -108,16 +102,17 @@ public class ItemServiceImpl implements ItemService {
 
     private void validateInputsOut(ItemTransactionRequestDto itemTransaction, UserDetailsImpl user) {
         if (!(itemDao.isExistItemById(itemTransaction.getItemDto().getId(), user.getUser().getAccountId())
-            && associateDao.findById(itemTransaction.getAssociateId()).getAccountId().equals(user.getUser().getAccountId()))) {
+            && associateDao.findById(user.getUser().getAccountId(), itemTransaction.getAssociateId()).getAccountId().equals(user.getUser().getAccountId()))) {
             throw new SavedItemNotFoundException("Failed to get savedItem during `outcomeItem` {account_id = " + user.getUser().getAccountId() +
                 " associateId = " + itemTransaction.getAssociateId() + "}");
         }
     }
 
+    @Transactional
     @Override
     public SavedItemDto addSavedItem(ItemTransactionRequestDto itemTransaction, UserDetailsImpl user) {
         validateInputsAdd(itemTransaction, user.getUser().getAccountId());
-        if (isEnoughCapacityInWarehouse(itemTransaction, user.getUser().getAccountId())) {
+        if (!isEnoughCapacityInWarehouse(itemTransaction, user.getUser().getAccountId())) {
             SavedItem savedItem = new SavedItem(itemTransaction.getItemDto().getId(),
                 itemTransaction.getQuantity().intValue(), itemTransaction.getDestinationWarehouseId());
             SavedItemDto savedItemDto = savedItemDtoMapper.toDto(savedItemDao.addSavedItem(savedItem));
@@ -125,7 +120,7 @@ public class ItemServiceImpl implements ItemService {
                 user.getUser(), itemTransaction.getAssociateId(), TransactionType.IN));
             eventService.create(new Event("Moved " + itemTransaction.getQuantity() + " " + itemTransaction.getItemDto().getName() +
                 " to warehouse " + warehouseDao.findById(itemTransaction.getDestinationWarehouseId(), user.getUser().getAccountId()).getName() + " " +
-                "from supplier " + associateDao.findById(itemTransaction.getAssociateId()).getName(),
+                "from supplier " + associateDao.findById(user.getUser().getAccountId(), itemTransaction.getAssociateId()).getName(),
                 user.getUser().getAccountId(),
                 itemTransaction.getDestinationWarehouseId(), user.getUser().getId(), EventName.ITEM_CAME,
                 transaction.getId().longValue()));
@@ -181,20 +176,8 @@ public class ItemServiceImpl implements ItemService {
         if (volume == 0) {
             return true;
         } else {
-           return volume * 100 / warehouseDao.findById(itemTransaction.getDestinationWarehouseId(), accountId).getCapacity() < Float.parseFloat(maxWarehouseLoad);
+            return volume * 100 / warehouseDao.findById(itemTransaction.getDestinationWarehouseId(), accountId).getCapacity() > Float.parseFloat(maxWarehouseLoad);
         }
-
-    }
-
-    @Override
-    public List<WarehouseDto> findUsefulWarehouses(int volume, int quantity, UserDetailsImpl user) {
-        int capacity = volume * quantity;
-        List<Warehouse> childWarehouses = new ArrayList<>();
-        for (Warehouse warehouse : warehouseDao.findAll(Pageable.unpaged(), user.getUser().getAccountId())) {
-            childWarehouses.addAll(warehouseDao.findByTopWarehouseID(warehouse.getId(), user.getUser().getAccountId()).stream().
-                filter(x -> x.getCapacity() >= capacity).collect(Collectors.toList()));
-        }
-        return warehouseDtoMapper.toDtoList(childWarehouses);
 
     }
 
@@ -234,10 +217,11 @@ public class ItemServiceImpl implements ItemService {
             accountId.equals(warehouseDao.findById(itemTransaction.getDestinationWarehouseId(), accountId).getAccountID());
     }
 
+    @Transactional
     @Override
     public boolean moveItem(ItemTransactionRequestDto itemTransaction, UserDetailsImpl user) {
         validateInputsMove(itemTransaction, user.getUser().getAccountId());
-        if (isEnoughCapacityInWarehouse(itemTransaction, user.getUser().getAccountId())) {
+        if (!isEnoughCapacityInWarehouse(itemTransaction, user.getUser().getAccountId())) {
             boolean isMove = savedItemDao.updateSavedItem(itemTransaction.getDestinationWarehouseId(),
                 itemTransaction.getSourceWarehouseId());
             Transaction transaction = transactionDao.create(transactionDao.create(itemTransaction,
@@ -272,7 +256,7 @@ public class ItemServiceImpl implements ItemService {
         }
     }
 
-
+    @Transactional
     @Override
     public SavedItemDto outcomeItem(ItemTransactionRequestDto itemTransaction, UserDetailsImpl user) {
         validateInputsOut(itemTransaction, user);
@@ -285,7 +269,7 @@ public class ItemServiceImpl implements ItemService {
             Transaction transaction = transactionDao.create(transactionDao.create(itemTransaction,
                 user.getUser(), itemTransaction.getAssociateId(), TransactionType.OUT));
             eventService.create(new Event("Sold  " + itemTransaction.getQuantity() + " " + itemTransaction.getItemDto().getName() +
-                " to client " + associateDao.findById(itemTransaction.getAssociateId()).getName(),
+                " to client " + associateDao.findById(user.getUser().getAccountId(), itemTransaction.getAssociateId()).getName(),
                 user.getUser().getAccountId(),
                 itemTransaction.getSourceWarehouseId(), user.getUser().getId(), EventName.ITEM_SHIPPED,
                 transaction.getId().longValue()));

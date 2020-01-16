@@ -12,7 +12,6 @@ public class SavedItemDto {
     private int quantity;
     @NotNull
     private Long warehouseId;
-    private WarehouseDto warehouseDto;
 
     public SavedItemDto() {
     }
@@ -62,13 +61,5 @@ public class SavedItemDto {
 
     public void setWarehouseId(Long warehouseId) {
         this.warehouseId = warehouseId;
-    }
-
-    public WarehouseDto getWarehouseDto() {
-        return warehouseDto;
-    }
-
-    public void setWarehouseDto(WarehouseDto warehouseDto) {
-        this.warehouseDto = warehouseDto;
     }
 }
