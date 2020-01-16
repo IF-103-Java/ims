@@ -1,9 +1,9 @@
 package com.ita.if103java.ims.service.impl;
 
+import com.ita.if103java.ims.dao.AccountDao;
 import com.ita.if103java.ims.dao.UserDao;
 import com.ita.if103java.ims.dto.AccountDto;
 import com.ita.if103java.ims.dto.UserDto;
-import com.ita.if103java.ims.entity.Account;
 import com.ita.if103java.ims.entity.Role;
 import com.ita.if103java.ims.entity.User;
 import com.ita.if103java.ims.mapper.dto.UserDtoMapper;
@@ -45,6 +45,7 @@ public class UserServiceImpl implements UserService {
     private EventService eventService;
     private AccountService accountService;
     private MailServiceImpl mailService;
+    private AccountDao accountDao;
 
 
     @Autowired
@@ -53,13 +54,15 @@ public class UserServiceImpl implements UserService {
                            PasswordEncoder passwordEncoder,
                            EventService eventService,
                            AccountService accountService,
-                           MailServiceImpl mailService) {
+                           MailServiceImpl mailService,
+                           AccountDao accountDao) {
         this.userDao = userDao;
         this.mapper = mapper;
         this.passwordEncoder = passwordEncoder;
         this.eventService = eventService;
         this.accountService = accountService;
         this.mailService = mailService;
+        this.accountDao = accountDao;
     }
 
     @Override
@@ -155,6 +158,7 @@ public class UserServiceImpl implements UserService {
         if (isValidToken(activatedUser)) {
             activatedUser.setActive(true);
             userDao.update(activatedUser);
+            accountDao.activate(activatedUser.getAccountId());
             return true;
         } else {
             userDao.hardDelete(activatedUser.getId());
