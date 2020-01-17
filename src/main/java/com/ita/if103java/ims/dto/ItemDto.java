@@ -1,12 +1,9 @@
 package com.ita.if103java.ims.dto;
 
-import org.springframework.stereotype.Component;
-
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 
-@Component
 public class ItemDto {
     private Long id;
     @NotBlank
@@ -17,7 +14,6 @@ public class ItemDto {
     private String description;
     @NotNull
     private int volume;
-    @NotNull
     private Long accountId;
     private boolean active;
 

@@ -1,18 +1,19 @@
 package com.ita.if103java.ims.service;
 
 import com.ita.if103java.ims.dto.AssociateDto;
+import com.ita.if103java.ims.security.UserDetailsImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface AssociateService {
-    Optional<AssociateDto> create(AssociateDto associateDto);
+    AssociateDto create(UserDetailsImpl user, AssociateDto associateDto);
 
-    AssociateDto update(AssociateDto associateDto);
+    AssociateDto update(UserDetailsImpl user, AssociateDto associateDto);
 
-    AssociateDto view(Long id);
+    List<AssociateDto> findSortedAssociates(Pageable pageable, UserDetailsImpl user);
 
-    List<AssociateDto> findAll();
+    AssociateDto view(UserDetailsImpl user, Long id);
 
-    boolean delete(Long id);
+    boolean delete(UserDetailsImpl user, Long id);
 }

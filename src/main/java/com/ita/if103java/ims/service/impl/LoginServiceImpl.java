@@ -3,23 +3,33 @@ package com.ita.if103java.ims.service.impl;
 import com.ita.if103java.ims.dao.UserDao;
 import com.ita.if103java.ims.dto.UserLoginDto;
 import com.ita.if103java.ims.entity.User;
-import com.ita.if103java.ims.exception.UserNotFoundException;
-import com.ita.if103java.ims.exception.UserOrPasswordIncorrectException;
-import com.ita.if103java.ims.mapper.UserDtoMapper;
+import com.ita.if103java.ims.exception.service.UserOrPasswordIncorrectException;
+import com.ita.if103java.ims.mapper.dto.UserDtoMapper;
 import com.ita.if103java.ims.security.JwtTokenProvider;
+import com.ita.if103java.ims.service.EventService;
 import com.ita.if103java.ims.service.LoginService;
 import com.ita.if103java.ims.service.MailService;
 import com.mysql.cj.exceptions.PasswordExpiredException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import static com.ita.if103java.ims.config.MailMessagesConfig.FOOTER;
 import static com.ita.if103java.ims.config.MailMessagesConfig.RESET_PASSWORD;
+import static com.ita.if103java.ims.entity.EventName.LOGIN;
+import static com.ita.if103java.ims.entity.EventName.PASSWORD_CHANGED;
 import static com.ita.if103java.ims.util.TokenUtil.isValidToken;
+import static com.ita.if103java.ims.util.UserEventUtil.createEvent;
+import static org.springframework.http.ResponseEntity.ok;
 
 @Service
 public class LoginServiceImpl implements LoginService {
@@ -32,28 +42,37 @@ public class LoginServiceImpl implements LoginService {
     private JwtTokenProvider jwtTokenProvider;
     private MailService mailService;
     private UserDtoMapper mapper;
+    private EventService eventService;
+    private AuthenticationManager authManager;
 
     @Autowired
-    public LoginServiceImpl(UserDao userDao, PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider,
-                            MailService mailService, UserDtoMapper mapper) {
+    public LoginServiceImpl(UserDao userDao,
+                            PasswordEncoder passwordEncoder,
+                            JwtTokenProvider jwtTokenProvider,
+                            MailService mailService,
+                            UserDtoMapper mapper,
+                            EventService eventService,
+                            AuthenticationManager authManager) {
         this.userDao = userDao;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
         this.mailService = mailService;
         this.mapper = mapper;
+        this.eventService = eventService;
+        this.authManager = authManager;
     }
 
     @Override
-    public String signIn(UserLoginDto userLoginDto) {
+    public ResponseEntity signIn(UserLoginDto user) {
         try {
-            User user = userDao.findByEmail(userLoginDto.getUsername());
-
-            if (passwordEncoder.matches(userLoginDto.getPassword(), user.getPassword())) {
-                return jwtTokenProvider.createToken(user.getEmail(), user.getRole());
-            }
-            throw new UserOrPasswordIncorrectException("Credential aren't correct");
-
-        } catch (UserNotFoundException e) {
+            authManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
+            User regUser = userDao.findByEmail(user.getUsername());
+            eventService.create(createEvent(regUser, LOGIN, "sign in to account."));
+            String token = jwtTokenProvider.createToken(user.getUsername());
+            Map<String, String> model = new HashMap<>();
+            model.put("token", token);
+            return ok(model);
+        } catch (AuthenticationException e) {
             throw new UserOrPasswordIncorrectException("Credential aren't correct", e);
         }
 
@@ -82,6 +101,7 @@ public class LoginServiceImpl implements LoginService {
             String newEncodedPassword = passwordEncoder.encode(newPassword);
             user.setPassword(newEncodedPassword);
             userDao.updatePassword(user.getId(), newEncodedPassword);
+            eventService.create(createEvent(user, PASSWORD_CHANGED, "reset the password."));
         } else {
             throw new PasswordExpiredException("Expired time of token isn't valid");
         }

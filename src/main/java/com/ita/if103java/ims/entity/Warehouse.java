@@ -6,22 +6,23 @@ import java.util.List;
 import java.util.Objects;
 
 public class Warehouse {
-    private long id;
+    private Long id;
     private String name;
     private String info;
     private int capacity;
     private boolean isBottom;
-    private long parentID;
-    private long accountID;
-    private long topWarehouseID;
+    private Long parentID;
+    private Long accountID;
+    private Long topWarehouseID;
     private boolean active;
     private List<Warehouse> children;
+    private List<String> path = new ArrayList<>();
 
     public Warehouse() {
     }
 
-    public Warehouse(long id, String name, String info, int capacity, boolean isBottom,
-                     long parentID, long accountID, long topWarehouseID, boolean active) {
+    public Warehouse(Long id, String name, String info, int capacity, boolean isBottom,
+                     Long parentID, Long accountID, Long topWarehouseID, boolean active) {
         this.id = id;
         this.name = name;
         this.info = info;
@@ -34,11 +35,15 @@ public class Warehouse {
         this.children = new ArrayList<>();
     }
 
-    public long getId() {
+    public boolean isTopLevel() {
+        return this.getParentID() == null;
+    }
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -74,27 +79,27 @@ public class Warehouse {
         isBottom = bottom;
     }
 
-    public long getParentID() {
+    public Long getParentID() {
         return parentID;
     }
 
-    public void setParentID(long parentID) {
+    public void setParentID(Long parentID) {
         this.parentID = parentID;
     }
 
-    public long getAccountID() {
+    public Long getAccountID() {
         return accountID;
     }
 
-    public void setAccountID(long accountID) {
+    public void setAccountID(Long accountID) {
         this.accountID = accountID;
     }
 
-    public long getTopWarehouseID() {
+    public Long getTopWarehouseID() {
         return topWarehouseID;
     }
 
-    public void setTopWarehouseID(long topWarehouseID) {
+    public void setTopWarehouseID(Long topWarehouseID) {
         this.topWarehouseID = topWarehouseID;
     }
 
@@ -108,6 +113,14 @@ public class Warehouse {
 
     public List<Warehouse> getChildren() {
         return children;
+    }
+
+    public List<String> getPath() {
+        return path;
+    }
+
+    public void setPath(List<String> path) {
+        this.path = path;
     }
 
     @Override

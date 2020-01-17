@@ -1,10 +1,7 @@
 package com.ita.if103java.ims.dto;
 
-import org.springframework.stereotype.Component;
-
 import java.util.List;
 
-@Component
 public class WarehousePremiumStructDto {
     private Long id;
     private String name;

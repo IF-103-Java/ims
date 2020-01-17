@@ -4,22 +4,21 @@ package com.ita.if103java.ims.dto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.ita.if103java.ims.entity.TransactionType;
 
-import java.math.BigInteger;
 import java.sql.Timestamp;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
 public class TransactionDto {
-    private BigInteger id;
+    private Long id;
     private Timestamp timestamp;
     private TransactionType type;
-    private AccountDto accountDto;
-    private UserDto workerId;
-    private ItemDto itemDto;
+    private AccountDto account;
+    private UserDto worker;
+    private ItemDto item;
     private Long quantity;
 
     @JsonInclude(NON_NULL)
-    private AssociateDto associateDto;
+    private AssociateDto associate;
     @JsonInclude(NON_NULL)
     private WarehouseDto movedFrom;
     @JsonInclude(NON_NULL)
@@ -28,39 +27,26 @@ public class TransactionDto {
     public TransactionDto() {
     }
 
-    public TransactionDto(BigInteger id, Timestamp timestamp, TransactionType type, AccountDto accountDto,
-                          UserDto workerId, ItemDto itemDto, Long quantity, AssociateDto associateDto,
-                          WarehouseDto movedFrom, WarehouseDto movedTo) {
+    public TransactionDto(Long id, Timestamp timestamp, TransactionType type,
+                          AccountDto account, UserDto worker, ItemDto item, Long quantity,
+                          AssociateDto associate, WarehouseDto movedFrom, WarehouseDto movedTo) {
         this.id = id;
         this.timestamp = timestamp;
         this.type = type;
-        this.accountDto = accountDto;
-        this.workerId = workerId;
-        this.itemDto = itemDto;
+        this.account = account;
+        this.worker = worker;
+        this.item = item;
         this.quantity = quantity;
-        this.associateDto = associateDto;
+        this.associate = associate;
         this.movedFrom = movedFrom;
         this.movedTo = movedTo;
     }
 
-    public TransactionDto(BigInteger id, Timestamp timestamp, TransactionType type, AccountDto accountDto,
-                          UserDto workerId, ItemDto itemDto, Long quantity, WarehouseDto movedFrom, WarehouseDto movedTo) {
-        this.id = id;
-        this.timestamp = timestamp;
-        this.type = type;
-        this.accountDto = accountDto;
-        this.workerId = workerId;
-        this.itemDto = itemDto;
-        this.quantity = quantity;
-        this.movedFrom = movedFrom;
-        this.movedTo = movedTo;
-    }
-
-    public BigInteger getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(BigInteger id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -80,28 +66,28 @@ public class TransactionDto {
         this.type = type;
     }
 
-    public AccountDto getAccountDto() {
-        return accountDto;
+    public AccountDto getAccount() {
+        return account;
     }
 
-    public void setAccountDto(AccountDto accountDto) {
-        this.accountDto = accountDto;
+    public void setAccount(AccountDto account) {
+        this.account = account;
     }
 
-    public UserDto getWorkerId() {
-        return workerId;
+    public UserDto getWorker() {
+        return worker;
     }
 
-    public void setWorkerId(UserDto workerId) {
-        this.workerId = workerId;
+    public void setWorker(UserDto worker) {
+        this.worker = worker;
     }
 
-    public ItemDto getItemDto() {
-        return itemDto;
+    public ItemDto getItem() {
+        return item;
     }
 
-    public void setItemDto(ItemDto itemDto) {
-        this.itemDto = itemDto;
+    public void setItem(ItemDto item) {
+        this.item = item;
     }
 
     public Long getQuantity() {
@@ -112,12 +98,12 @@ public class TransactionDto {
         this.quantity = quantity;
     }
 
-    public AssociateDto getAssociateDto() {
-        return associateDto;
+    public AssociateDto getAssociate() {
+        return associate;
     }
 
-    public void setAssociateDto(AssociateDto associateDto) {
-        this.associateDto = associateDto;
+    public void setAssociate(AssociateDto associate) {
+        this.associate = associate;
     }
 
     public WarehouseDto getMovedFrom() {
@@ -134,5 +120,21 @@ public class TransactionDto {
 
     public void setMovedTo(WarehouseDto movedTo) {
         this.movedTo = movedTo;
+    }
+
+    @Override
+    public String toString() {
+        return "TransactionDto{" +
+            "id=" + id +
+            ", timestamp=" + timestamp +
+            ", type=" + type +
+            ", account=" + account +
+            ", worker=" + worker +
+            ", item=" + item +
+            ", quantity=" + quantity +
+            ", associate=" + associate +
+            ", movedFrom=" + movedFrom +
+            ", movedTo=" + movedTo +
+            '}';
     }
 }

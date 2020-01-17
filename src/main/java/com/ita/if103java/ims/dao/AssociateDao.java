@@ -6,17 +6,15 @@ import java.util.List;
 
 public interface AssociateDao {
 
-    Associate create(Associate associate);
+    Associate create(Long accountId, Associate associate);
 
-    Associate findById(Long id);
+    Associate findById(Long accountId, Long id);
 
     List<Associate> findByAccountId(Long accountId);
 
-    Associate findByEmail(String email);
+    List<Associate> getAssociates(String sort, int size, long offset, long accountId);
 
-    List<Associate> findAll();
+    Associate update(Long accountId, Associate associate);
 
-    Associate update(Associate associate);
-
-    boolean delete(Long id);
+    boolean delete(Long accountId, Long id);
 }

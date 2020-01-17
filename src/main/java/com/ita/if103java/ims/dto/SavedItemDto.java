@@ -1,10 +1,7 @@
 package com.ita.if103java.ims.dto;
 
-import org.springframework.stereotype.Component;
-
 import javax.validation.constraints.NotNull;
 
-@Component
 public class SavedItemDto {
     private Long id;
     @NotNull
@@ -15,7 +12,16 @@ public class SavedItemDto {
     private int quantity;
     @NotNull
     private Long warehouseId;
-    private WarehouseDto warehouseDto;
+
+    public SavedItemDto() {
+    }
+
+    public SavedItemDto(Long id, Long itemId, int quantity, Long warehouseId) {
+        this.id = id;
+        this.itemId = itemId;
+        this.quantity = quantity;
+        this.warehouseId = warehouseId;
+    }
 
     public Long getId() {
         return id;
@@ -55,13 +61,5 @@ public class SavedItemDto {
 
     public void setWarehouseId(Long warehouseId) {
         this.warehouseId = warehouseId;
-    }
-
-    public WarehouseDto getWarehouseDto() {
-        return warehouseDto;
-    }
-
-    public void setWarehouseDto(WarehouseDto warehouseDto) {
-        this.warehouseDto = warehouseDto;
     }
 }

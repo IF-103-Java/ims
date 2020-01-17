@@ -5,19 +5,12 @@ import com.ita.if103java.ims.entity.AccountType;
 import java.util.List;
 
 public interface AccountTypeDao {
-    AccountType create(AccountType accountType);
 
     AccountType findById(Long id);
 
-    AccountType findByName(String name);
-
     List<AccountType> selectAllActive();
 
-    List<AccountType> selectAllPossibleToUpgrade(Long typeId);
-
-    AccountType update(AccountType account);
+    List<AccountType> selectAllPossibleToUpgrade(Integer accountLvl);
 
     Long minLvlType();
-
-    boolean delete(Long id);
 }

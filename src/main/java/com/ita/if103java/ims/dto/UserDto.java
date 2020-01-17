@@ -1,39 +1,29 @@
 package com.ita.if103java.ims.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ita.if103java.ims.dto.transfer.ExistData;
 import com.ita.if103java.ims.dto.transfer.NewData;
-import com.ita.if103java.ims.dto.transfer.NewDataAdmin;
-import com.ita.if103java.ims.dto.transfer.NewDataWorker;
 import com.ita.if103java.ims.entity.Role;
-import org.springframework.stereotype.Component;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.time.ZonedDateTime;
 
-@Component
 public class UserDto implements Serializable {
 
     @Null(groups = {NewData.class},
         message = "This field must be filled with the auto-generator during registration")
-    @NotNull(groups = {ExistData.class},
-        message = "This field mustn't be empty")
     private Long id;
 
-    @Null(groups = {NewDataWorker.class},
-        message = "This field must be empty until confirmation via email and a real registration of Worker")
-    @NotBlank(groups = {NewDataAdmin.class, ExistData.class},
+    @NotBlank(groups = {NewData.class, ExistData.class},
         message = "Please, enter these data")
     private String firstName;
 
-    @Null(groups = {NewDataWorker.class},
-        message = "This field must be empty until confirmation via email and a real registration of Worker")
-    @NotBlank(groups = {NewDataAdmin.class, ExistData.class},
+    @NotBlank(groups = {NewData.class, ExistData.class},
         message = "Please, enter these data")
     private String lastName;
 
@@ -43,14 +33,12 @@ public class UserDto implements Serializable {
         message = "Please, enter a valid email")
     private String email;
 
-    @Null(groups = {NewDataWorker.class},
-        message = "This field must be empty until confirmation via email and a real registration of Worker")
-    @NotBlank(groups = {NewDataAdmin.class, ExistData.class},
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @NotBlank(groups = {NewData.class, ExistData.class},
         message = "Please, enter these data")
     @Size(min = 8, max = 32)
     private String password;
 
-    @NotNull(groups = {NewData.class, ExistData.class})
     private Role role;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
@@ -59,34 +47,20 @@ public class UserDto implements Serializable {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
     private ZonedDateTime updatedDate;
 
-    @NotNull(groups = {NewData.class, ExistData.class})
     private boolean active;
 
-    @NotBlank(groups = {ExistData.class})
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @Null(groups = {NewData.class, ExistData.class})
     private String emailUUID;
 
-    @Null(groups = {NewDataAdmin.class},
+    @Null(groups = {NewData.class, ExistData.class},
         message = "This field must be filled with the auto-generator during the creation of organization")
-    @NotNull(groups = {ExistData.class, NewDataWorker.class},
-        message = "This field mustn't be empty")
     private Long accountId;
 
-    public UserDto() {
-    }
-
-    public UserDto(Long id, String firstName, String lastName, String email, String password, Role role, ZonedDateTime createdDate, ZonedDateTime updatedDate, boolean active, String emailUUID, Long accountId) {
-        this.id = id;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.password = password;
-        this.role = role;
-        this.createdDate = createdDate;
-        this.updatedDate = updatedDate;
-        this.active = active;
-        this.emailUUID = emailUUID;
-        this.accountId = accountId;
-    }
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @NotBlank(groups = {NewData.class},
+        message = "Please, enter an account name")
+    private String accountName;
 
     public Long getId() {
         return id;
@@ -176,6 +150,14 @@ public class UserDto implements Serializable {
         this.accountId = accountId;
     }
 
+    public String getAccountName() {
+        return accountName;
+    }
+
+    public void setAccountName(String accountName) {
+        this.accountName = accountName;
+    }
+
     @Override
     public String toString() {
         return "UserDto{" +
@@ -183,12 +165,14 @@ public class UserDto implements Serializable {
             ", firstName='" + firstName + '\'' +
             ", lastName='" + lastName + '\'' +
             ", email='" + email + '\'' +
+            ", password='" + password + '\'' +
             ", role=" + role +
             ", createdDate=" + createdDate +
             ", updatedDate=" + updatedDate +
             ", active=" + active +
+            ", emailUUID='" + emailUUID + '\'' +
             ", accountId=" + accountId +
+            ", accountName='" + accountName + '\'' +
             '}';
     }
-
 }

@@ -3,6 +3,8 @@ package com.ita.if103java.ims.service.impl;
 import com.ita.if103java.ims.dao.TransactionDao;
 import com.ita.if103java.ims.dto.TransactionDto;
 import com.ita.if103java.ims.entity.Transaction;
+import com.ita.if103java.ims.entity.User;
+import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.AccountService;
 import com.ita.if103java.ims.service.AssociateService;
 import com.ita.if103java.ims.service.ItemService;
@@ -11,8 +13,6 @@ import com.ita.if103java.ims.service.UserService;
 import com.ita.if103java.ims.service.WarehouseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.math.BigInteger;
 
 @Service
 public class TransactionServiceImpl implements TransactionService {
@@ -36,56 +36,58 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public TransactionDto findById(BigInteger id) {
-        final Transaction transaction = transactionDao.findById(id);
+    public TransactionDto findById(Long id, UserDetailsImpl userDetails) {
+        final User user = userDetails.getUser();
+        final Transaction transaction = transactionDao.findByIdAndAccountId(id, user.getAccountId());
         return switch (transaction.getType()) {
-            case IN -> buildIncomeTransactionDto(transaction);
-            case OUT -> buildOutcomeTransactionDto(transaction);
-            case MOVE -> buildMoveTransactionDto(transaction);
+            case IN -> buildIncomeTransactionDto(transaction, userDetails);
+            case OUT -> buildOutcomeTransactionDto(transaction, userDetails);
+            case MOVE -> buildMoveTransactionDto(transaction, userDetails);
         };
     }
 
-    private TransactionDto buildIncomeTransactionDto(Transaction transaction) {
+    private TransactionDto buildIncomeTransactionDto(Transaction transaction, UserDetailsImpl userDetails) {
         return new TransactionDto(
             transaction.getId(),
             transaction.getTimestamp(),
             transaction.getType(),
             accountService.view(transaction.getAccountId()),
             userService.findById(transaction.getWorkerId()),
-            itemService.findById(transaction.getItemId()),
+            itemService.findById(transaction.getItemId(), userDetails),
             transaction.getQuantity(),
-            associateService.view(transaction.getAssociateId()),
+            associateService.view(userDetails, transaction.getAssociateId()),
             null,
-            warehouseService.findWarehouseById(transaction.getMovedTo())
+            warehouseService.findById(transaction.getMovedTo(), userDetails)
         );
     }
 
-    private TransactionDto buildOutcomeTransactionDto(Transaction transaction) {
+    private TransactionDto buildOutcomeTransactionDto(Transaction transaction, UserDetailsImpl userDetails) {
         return new TransactionDto(
             transaction.getId(),
             transaction.getTimestamp(),
             transaction.getType(),
             accountService.view(transaction.getAccountId()),
             userService.findById(transaction.getWorkerId()),
-            itemService.findById(transaction.getItemId()),
+            itemService.findById(transaction.getItemId(), userDetails),
             transaction.getQuantity(),
-            associateService.view(transaction.getAssociateId()),
-            warehouseService.findWarehouseById(transaction.getMovedFrom()),
+            associateService.view(userDetails, transaction.getAssociateId()),
+            warehouseService.findById(transaction.getMovedFrom(), userDetails),
             null
         );
     }
 
-    private TransactionDto buildMoveTransactionDto(Transaction transaction) {
+    private TransactionDto buildMoveTransactionDto(Transaction transaction, UserDetailsImpl userDetails) {
         return new TransactionDto(
             transaction.getId(),
             transaction.getTimestamp(),
             transaction.getType(),
             accountService.view(transaction.getAccountId()),
             userService.findById(transaction.getWorkerId()),
-            itemService.findById(transaction.getItemId()),
+            itemService.findById(transaction.getItemId(), userDetails),
             transaction.getQuantity(),
-            warehouseService.findWarehouseById(transaction.getMovedFrom()),
-            warehouseService.findWarehouseById(transaction.getMovedTo())
+            null,
+            warehouseService.findById(transaction.getMovedFrom(), userDetails),
+            warehouseService.findById(transaction.getMovedTo(), userDetails)
         );
     }
 }

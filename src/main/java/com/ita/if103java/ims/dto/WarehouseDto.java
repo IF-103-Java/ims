@@ -1,27 +1,57 @@
 package com.ita.if103java.ims.dto;
 
-import org.springframework.stereotype.Component;
+import com.ita.if103java.ims.dto.transfer.ExistData;
+import com.ita.if103java.ims.dto.transfer.NewData;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
-@Component
 public class WarehouseDto implements Serializable {
+    @Null(groups = {NewData.class},
+        message = "This field must be filled with the auto-generator during warehouse creation")
+    @NotNull(groups = {ExistData.class},
+        message = "This field mustn't be empty")
     private Long id;
+
+    @NotBlank(groups = {NewData.class, ExistData.class},
+        message = "This field mustn't be empty")
     private String name;
+
+    @NotBlank(groups = {NewData.class, ExistData.class})
     private String info;
+
+    @Null(groups = {NewData.class, ExistData.class},
+        message = "This field should be filled if that warehouse is on bottom level")
     private Integer capacity;
+
     private boolean isBottom;
+
+    @Null(groups = {NewData.class, ExistData.class},
+        message = "This field should be filled if that warehouse is on top level")
     private Long parentID;
+
+    @NotNull(groups = {NewData.class, ExistData.class},
+        message = "This field mustn't be empty")
     private Long accountID;
+
     private Long topWarehouseID;
+
     private boolean active;
+
+    private AddressDto addressDto;
+
+    private List<String> path;
 
     public WarehouseDto() {
     }
 
     public WarehouseDto(Long id, String name, String info, Integer capacity, boolean isBottom, Long parentID, Long accountID,
-                        Long topWarehouseID, boolean active) {
+                        Long topWarehouseID, boolean active, AddressDto addressDto) {
         this.id = id;
         this.name = name;
         this.info = info;
@@ -31,6 +61,9 @@ public class WarehouseDto implements Serializable {
         this.accountID = accountID;
         this.topWarehouseID = topWarehouseID;
         this.active = active;
+        this.addressDto = addressDto;
+        this.path = new ArrayList<>();
+
     }
 
     public Long getId() {
@@ -105,24 +138,42 @@ public class WarehouseDto implements Serializable {
         this.active = active;
     }
 
+    public AddressDto getAddressDto() {
+        return addressDto;
+    }
+
+    public void setAddressDto(AddressDto addressDto) {
+        this.addressDto = addressDto;
+    }
+
+    public List<String> getPath() {
+        return path;
+    }
+
+    public void setPath(List<String> path) {
+        this.path = path;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         WarehouseDto that = (WarehouseDto) o;
-        return capacity == that.capacity &&
+        return capacity.equals(that.capacity) &&
             isBottom == that.isBottom &&
-            parentID == that.parentID &&
-            accountID == that.accountID &&
-            topWarehouseID == that.topWarehouseID &&
+            parentID.equals(that.parentID) &&
+            accountID.equals(that.accountID) &&
+            topWarehouseID.equals(that.topWarehouseID) &&
             active == that.active &&
             Objects.equals(name, that.name) &&
-            Objects.equals(info, that.info);
+            Objects.equals(info, that.info) &&
+            Objects.equals(path, that.path) &&
+            Objects.equals(addressDto, that.addressDto);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, info, capacity, isBottom, parentID, accountID, topWarehouseID, active);
+        return Objects.hash(name, info, capacity, isBottom, parentID, accountID, topWarehouseID, active, addressDto, path);
     }
 
     @Override
@@ -137,6 +188,8 @@ public class WarehouseDto implements Serializable {
             ", accountID=" + accountID +
             ", topWarehouseID=" + topWarehouseID +
             ", active=" + active +
+            ", addressDto=" + addressDto +
+            ", path=" + path +
             '}';
     }
 }

@@ -1,5 +1,6 @@
 package com.ita.if103java.ims.config;
 
+import com.ita.if103java.ims.handler.AsyncExceptionHandler;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

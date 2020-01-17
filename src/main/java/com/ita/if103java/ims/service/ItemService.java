@@ -1,32 +1,31 @@
 package com.ita.if103java.ims.service;
 
 import com.ita.if103java.ims.dto.ItemDto;
+import com.ita.if103java.ims.dto.ItemTransactionRequestDto;
 import com.ita.if103java.ims.dto.SavedItemDto;
-import com.ita.if103java.ims.dto.WarehouseDto;
-import com.ita.if103java.ims.dto.WarehouseLoadDto;
+import com.ita.if103java.ims.security.UserDetailsImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
-
 public interface ItemService {
-    List<ItemDto> findItems();
 
-    ItemDto findById(Long id);
+    List<ItemDto> findSortedItems(Pageable pageable, UserDetailsImpl user);
 
-    SavedItemDto addSavedItem(SavedItemDto savedItemDto);
+    ItemDto findById(Long id, UserDetailsImpl user);
 
-    ItemDto addItem(ItemDto itemDto);
+    SavedItemDto addSavedItem(ItemTransactionRequestDto itemTransaction, UserDetailsImpl user);
 
-    SavedItemDto findSavedItemById(SavedItemDto savedItemDto);
+    ItemDto addItem(ItemDto itemDto, UserDetailsImpl user);
 
-    boolean softDelete(ItemDto itemDto);
+    SavedItemDto findSavedItemById(Long id, UserDetailsImpl user);
 
-    SavedItemDto findByItemDto(ItemDto itemDto);
+    boolean softDelete(Long id, UserDetailsImpl user);
 
-    List<WarehouseDto> findUsefullWarehouses(SavedItemDto savedItemDto);
+    List<SavedItemDto> findByItemId(Long id, UserDetailsImpl user);
 
-    boolean moveItem(WarehouseLoadDto warehouseLoadDto, SavedItemDto savedItemDto);
+    boolean moveItem(ItemTransactionRequestDto itemTransaction, UserDetailsImpl user);
 
-    SavedItemDto outcomeItem(SavedItemDto savedItemDto, int quantity);
+    SavedItemDto outcomeItem(ItemTransactionRequestDto itemTransaction, UserDetailsImpl user);
 
 }

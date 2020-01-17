@@ -1,14 +1,17 @@
 package com.ita.if103java.ims.controller;
 
 
+import com.ita.if103java.ims.annotation.ApiPageable;
 import com.ita.if103java.ims.dto.UserDto;
 import com.ita.if103java.ims.dto.transfer.ExistData;
-import com.ita.if103java.ims.entity.User;
-import com.ita.if103java.ims.mapper.UserDtoMapper;
+import com.ita.if103java.ims.mapper.dto.UserDtoMapper;
+import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -24,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/users")
@@ -62,29 +66,28 @@ public class UserController {
         return userService.findAdminByAccountId(accountId);
     }
 
-    @PutMapping(value = "/me", produces = MediaType.APPLICATION_JSON_VALUE,
+    @PutMapping(value = "/me",
+        produces = MediaType.APPLICATION_JSON_VALUE,
         consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
-    public UserDto update(@AuthenticationPrincipal User user, @Validated({ExistData.class}) @RequestBody UserDto userDto) {
-        userDto.setId(user.getId());
-        userDto.setEmail(user.getEmail());
-        userDto.setPassword(user.getPassword());
-        userDto.setRole(user.getRole());
-
+    public UserDto update(@AuthenticationPrincipal UserDetailsImpl user, @Validated({ExistData.class}) @RequestBody UserDto userDto) {
+        userDto.setId(user.getUser().getId());
         return userService.update(userDto);
     }
 
-    //TODO: add @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable("id") Long id) {
-        userService.delete(id);
+    public boolean delete(@PathVariable("id") Long id) {
+        return userService.delete(id);
     }
 
+    @ApiPageable
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(value = "")
-    public List<UserDto> findAll() {
-        return userService.findAll();
+    public List<UserDto> findAll(Pageable pageable) {
+        return userService.findAll(pageable);
     }
 
     @GetMapping(value = "/confirmation")
@@ -95,14 +98,19 @@ public class UserController {
 
     @PostMapping("/update-password")
     @ResponseStatus(HttpStatus.OK)
-    public void updatePassword(@AuthenticationPrincipal User user,
-                               @Validated({ExistData.class}) @RequestBody @NotNull String newPassword) {
-        userService.updatePassword(user.getId(), newPassword);
+    public boolean updatePassword(@AuthenticationPrincipal UserDetailsImpl user,
+                                  @Validated({ExistData.class}) @RequestBody @NotNull String newPassword) {
+        return userService.updatePassword(user.getUser().getId(), newPassword);
     }
 
     @GetMapping("/me")
-    public UserDto getCurrentUser(@AuthenticationPrincipal User user) {
-        return mapper.toDto(user);
+    public UserDto getCurrentUser(@AuthenticationPrincipal UserDetailsImpl user) {
+        return mapper.toDto(user.getUser());
+    }
+
+    @GetMapping("/usernames")
+    public Map<Long, String> getUserNames(@AuthenticationPrincipal UserDetailsImpl user) {
+        return userService.findAllUserNames(user);
     }
 
 }
