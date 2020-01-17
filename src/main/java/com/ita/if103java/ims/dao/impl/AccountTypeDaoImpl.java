@@ -13,7 +13,6 @@ import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.util.List;
-import java.util.Objects;
 
 @Repository
 public class AccountTypeDaoImpl implements AccountTypeDao {
@@ -32,9 +31,9 @@ public class AccountTypeDaoImpl implements AccountTypeDao {
         try {
             return jdbcTemplate.queryForObject(Queries.SQL_SELECT_ACCOUNT_TYPE_BY_ID, accountTypeRowMapper, id);
         } catch (EmptyResultDataAccessException e) {
-            throw new AccountTypeNotFoundException("id = " + id, e);
+            throw new AccountTypeNotFoundException("Account type not found. id = " + id, e);
         } catch (DataAccessException e) {
-            throw new CRUDException("get, id = " + id, e);
+            throw new CRUDException("Searching current type exception, id = " + id, e);
         }
     }
 
@@ -43,16 +42,16 @@ public class AccountTypeDaoImpl implements AccountTypeDao {
         try {
             return jdbcTemplate.query(Queries.SQL_SELECT_ALL_ACCOUNT_TYPES, accountTypeRowMapper);
         } catch (DataAccessException e) {
-            throw new CRUDException("get, *", e);
+            throw new CRUDException("Searching all active type exception, *", e);
         }
     }
 
     @Override
-    public List<AccountType> selectAllPossibleToUpgrade(Long typeId) {
+    public List<AccountType> selectAllPossibleToUpgrade(Integer accountLvl) {
         try {
-            return jdbcTemplate.query(Queries.SQL_FIND_ALL_POSSIBLE_TO_UPGRADE, accountTypeRowMapper, typeId);
+            return jdbcTemplate.query(Queries.SQL_FIND_ALL_POSSIBLE_TO_UPGRADE, accountTypeRowMapper, accountLvl);
         } catch (DataAccessException e) {
-            throw new CRUDException("get, *", e);
+            throw new CRUDException("Searching all possible types exception, *", e);
         }
     }
 
@@ -61,39 +60,39 @@ public class AccountTypeDaoImpl implements AccountTypeDao {
         try {
             return jdbcTemplate.queryForObject(Queries.SQL_FIND_MIN_LVL_TYPE, Long.class);
         } catch (EmptyResultDataAccessException e) {
-            throw new AccountTypeNotFoundException("Find min lvl type", e);
+            throw new AccountTypeNotFoundException("Account not found while min lvl type searching", e);
         } catch (DataAccessException e) {
-            throw new CRUDException("Find min lvl type", e);
+            throw new CRUDException("Find min lvl type exception", e);
         }
     }
 
     class Queries {
 
         static final String SQL_SELECT_ACCOUNT_TYPE_BY_ID = """
-            SELECT *
-            FROM account_types
-            WHERE id = ?
-        """;
+                SELECT *
+                FROM account_types
+                WHERE id = ?
+            """;
 
         static final String SQL_SELECT_ALL_ACCOUNT_TYPES = """
-            SELECT *
-            FROM account_types
-            where active = true
-        """;
+                SELECT *
+                FROM account_types
+                where active = true
+            """;
 
         static final String SQL_FIND_MIN_LVL_TYPE = """
-            SELECT id
-            FROM account_types
-            WHERE level =
-            (SELECT MIN(level)
-            FROM account_types)
-        """;
+                SELECT id
+                FROM account_types
+                WHERE level =
+                (SELECT MIN(level)
+                FROM account_types)
+            """;
 
         static final String SQL_FIND_ALL_POSSIBLE_TO_UPGRADE = """
-            SELECT *
-            FROM account_types
-            WHERE level > ?
-            AND active = true
-        """;
+                SELECT *
+                FROM account_types
+                WHERE level > ?
+                AND active = true
+            """;
     }
 }

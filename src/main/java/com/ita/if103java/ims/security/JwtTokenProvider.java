@@ -14,6 +14,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Base64;
 import java.util.Date;
@@ -26,12 +27,16 @@ public class JwtTokenProvider {
 
     @Value("${security.jwt.token.expiredTime}")
     private long expiredTime;
-
     private UserDetailsService userDetailsService;
 
     @Autowired
     public JwtTokenProvider(@Qualifier("userDetailsServiceImpl") UserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
+    }
+
+    @PostConstruct
+    protected void init() {
+        secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
     }
 
     public String createToken(String username) {
@@ -43,7 +48,6 @@ public class JwtTokenProvider {
         Date now = new Date();
         Date validatedTime = new Date(now.getTime() + expiredTime);
 
-        secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
 
         return Jwts.builder()
             .setClaims(claims)
@@ -72,10 +76,23 @@ public class JwtTokenProvider {
 
     public boolean validateToken(String token) {
         try {
-            Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
+            final Claims claims = extractClaims(token);
+            if (isTokenExpired(claims)) {
+                return false;
+            }
             return true;
         } catch (JwtException | IllegalArgumentException e) {
             throw new InvalidJwtTokenException("Expired or invalid JWT token");
         }
     }
+
+    private boolean isTokenExpired(Claims claims) {
+        return claims.getExpiration().before(new Date());
+    }
+
+    private Claims extractClaims(String token) {
+        return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
+    }
+
+
 }

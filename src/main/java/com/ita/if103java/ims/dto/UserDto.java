@@ -1,17 +1,13 @@
 package com.ita.if103java.ims.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ita.if103java.ims.dto.transfer.ExistData;
 import com.ita.if103java.ims.dto.transfer.NewData;
-import com.ita.if103java.ims.dto.transfer.NewDataAdmin;
-import com.ita.if103java.ims.dto.transfer.NewDataWorker;
 import com.ita.if103java.ims.entity.Role;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
@@ -62,7 +58,7 @@ public class UserDto implements Serializable {
     private Long accountId;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @NotBlank(groups = {NewData.class, ExistData.class},
+    @NotBlank(groups = {NewData.class},
         message = "Please, enter an account name")
     private String accountName;
 

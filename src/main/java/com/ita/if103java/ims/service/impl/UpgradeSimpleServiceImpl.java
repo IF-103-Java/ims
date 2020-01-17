@@ -5,13 +5,13 @@ import com.ita.if103java.ims.dao.AccountTypeDao;
 import com.ita.if103java.ims.dto.AccountTypeDto;
 import com.ita.if103java.ims.entity.Event;
 import com.ita.if103java.ims.entity.EventName;
+import com.ita.if103java.ims.exception.service.UpgradationException;
 import com.ita.if103java.ims.mapper.dto.AccountTypeDtoMapper;
 import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.EventService;
 import com.ita.if103java.ims.service.UpgradeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -41,6 +41,8 @@ public class UpgradeSimpleServiceImpl implements UpgradeService {
                 accountAdmin.getUser().getAccountId(), null,
                 accountAdmin.getUser().getId(), EventName.ACCOUNT_UPGRADED, null);
             eventService.create(event);
+        } else {
+            throw new UpgradationException("The level of new type is lower, than current.");
         }
     }
 
@@ -55,7 +57,7 @@ public class UpgradeSimpleServiceImpl implements UpgradeService {
     }
 
     @Override
-    public List<AccountTypeDto> findAllPossibleToUpgrade(Long typeId) {
-        return accountTypeDtoMapper.toDtoList(accountTypeDao.selectAllPossibleToUpgrade(typeId));
+    public List<AccountTypeDto> findAllPossibleToUpgrade(Integer accountLvl) {
+        return accountTypeDtoMapper.toDtoList(accountTypeDao.selectAllPossibleToUpgrade(accountLvl));
     }
 }

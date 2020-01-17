@@ -73,6 +73,16 @@ public class AssociateDaoImpl implements AssociateDao {
     }
 
     @Override
+    public List<Associate> getAssociates(String sort, int size, long offset, long accountId) {
+        try {
+
+            return jdbcTemplate.query(String.format(Queries.SQL_SELECT_SORTED_ASSOICATES, sort), associateRowMapper, accountId, size, offset);
+        } catch (DataAccessException e) {
+            throw new CRUDException("Error during `select * `", e);
+        }
+    }
+
+    @Override
     public Associate update(Long accountId, Associate associate) {
         int status;
         try {
@@ -129,45 +139,40 @@ public class AssociateDaoImpl implements AssociateDao {
 
     class Queries {
 
+        static final String SQL_SELECT_SORTED_ASSOICATES = """
+                 SELECT *
+                 FROM associates
+                 WHERE account_id= ? order by %s limit ? offset ?
+            """;
+
         static final String SQL_CREATE_ASSOCIATE = """
-            INSERT INTO associates
-            ( account_id, name, email, phone, additional_info, type, active)
-            VALUES(?,?,?,?,?,?,?)
-        """;
+                INSERT INTO associates
+                ( account_id, name, email, phone, additional_info, type, active)
+                VALUES(?,?,?,?,?,?,?)
+            """;
 
         static final String SQL_SELECT_ASSOCIATE_BY_ID = """
-            SELECT *
-            FROM associates
-            WHERE account_id = ? and id = ?
-        """;
-
-        static final String SQL_SELECT_ASSOCIATE_BY_EMAIL = """
-            SELECT *
-            FROM associates
-            WHERE account_id = ? and email = ?
-        """;
-
-        static final String SQL_SELECT_ALL_ASSOCIATES = """
-            SELECT *
-            FROM associates
-        """;
+                SELECT *
+                FROM associates
+                WHERE account_id = ? and id = ?
+            """;
 
         static final String SQL_SELECT_ASSOCIATE_BY_ACCOUNT_ID = """
-            SELECT *
-            FROM associates
-            WHERE account_id = ?
-        """;
+                SELECT *
+                FROM associates
+                WHERE account_id = ?
+            """;
 
         static final String SQL_UPDATE_ASSOCIATE = """
-            UPDATE associates
-            SET name = ?, email = ?, phone = ?, additional_info = ?
-            WHERE account_id = ? and id = ?
-        """;
+                UPDATE associates
+                SET name = ?, email = ?, phone = ?, additional_info = ?
+                WHERE account_id = ? and id = ?
+            """;
 
         static final String SQL_SET_ACTIVE_STATUS_ASSOCIATE = """
-            UPDATE associates
-            SET active = ?
-            WHERE account_id = ? and id = ?
-        """;
+                UPDATE associates
+                SET active = ?
+                WHERE account_id = ? and id = ?
+            """;
     }
 }
