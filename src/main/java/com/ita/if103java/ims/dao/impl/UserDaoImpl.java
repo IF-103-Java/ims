@@ -89,31 +89,34 @@ public class UserDaoImpl implements UserDao {
 
             String sort = pageable.getSort().toString().replaceAll(": ", " ");
             return jdbcTemplate.query(Queries.SQL_SELECT_ALL_USERS,
-                                        userRowMapper,
-                                        sort,
-                                        pageable.getPageSize(),
-                                        pageable.getOffset());
+                userRowMapper,
+                sort,
+                pageable.getPageSize(),
+                pageable.getOffset());
         } catch (DataAccessException e) {
             throw new CRUDException("Error during `select * ` users ", e);
         }
     }
 
     @Override
-    public Map<Long, String> findUserNames(Long accountId) {
-        String where = String.format("account_id = " + accountId);
-        return getNamesMap(where);
+    public Map<Long, String> findAllUserNames(Long accountId) {
+        Map<Long, String> result = new HashMap<>();
+        try {
+            for (Map<String, Object> map : jdbcTemplate.queryForList(Queries.SQL_SELECT_ALL_USERNAMES, accountId)) {
+                result.put(Long.valueOf(map.get("id").toString()), map.get("name").toString());
+            }
+        } catch (DataAccessException e) {
+            throw new CRUDException("Error during `select * ` users ", e);
+        }
+        return result;
     }
 
     @Override
-    public Map<Long, String> findUserNames(List<Long> idList) {
-        String where = String.format("id IN (%s)", idList.toString().substring(1, idList.toString().length() - 1));
-        return getNamesMap(where);
-    }
-
-    private Map<Long, String> getNamesMap(String where) {
+    public Map<Long, String> findUserNamesById(List<Long> idList) {
         Map<Long, String> result = new HashMap<>();
         try {
-            for (Map<String, Object> map : jdbcTemplate.queryForList(String.format(Queries.SQL_SELECT_USERNAMES, where))) {
+            for (Map<String, Object> map : jdbcTemplate.queryForList(String.format(Queries.SQL_SELECT_USERNAMES_BY_ID,
+                idList.toString().substring(1, idList.toString().length() - 1)))) {
                 result.put(Long.valueOf(map.get("id").toString()), map.get("name").toString());
             }
         } catch (DataAccessException e) {
@@ -354,10 +357,16 @@ public class UserDaoImpl implements UserDao {
                 WHERE account_id = ?
             """;
 
-        public static final String SQL_SELECT_USERNAMES = """
-                SELECT id, CONCAT(first_name, \" \", last_name) AS name
+        public static final String SQL_SELECT_ALL_USERNAMES = """
+                SELECT id, CONCAT(first_name, " ", last_name) AS name
                 FROM users
-                WHERE %s
+                WHERE account_id = ?
+            """;
+
+        public static final String SQL_SELECT_USERNAMES_BY_ID = """
+                SELECT id, CONCAT(first_name, " ", last_name) AS name
+                FROM users
+                WHERE id in (%s)
             """;
     }
 }

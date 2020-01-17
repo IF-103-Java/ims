@@ -81,7 +81,7 @@ public class EventServiceImpl implements EventService {
             .map(EventDto::getWarehouseId).filter(x -> x != null).distinct().collect(Collectors.toList());
         Map<Long, String> userNamesMap = new HashMap<>();
         if (!listAuthorsId.isEmpty()) {
-            userNamesMap = userDao.findUserNames(listAuthorsId);
+            userNamesMap = userDao.findUserNamesById(listAuthorsId);
         }
         Map<Long, String> warehouseNamesMap = new HashMap<>();
         if (!listWarehousesId.isEmpty()) {

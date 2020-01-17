@@ -1,22 +1,20 @@
 package com.ita.if103java.ims.service.impl;
 
 
+import com.ita.if103java.ims.dao.AssociateDao;
 import com.ita.if103java.ims.dao.ItemDao;
 import com.ita.if103java.ims.dao.SavedItemDao;
 import com.ita.if103java.ims.dao.TransactionDao;
 import com.ita.if103java.ims.dao.WarehouseDao;
-import com.ita.if103java.ims.dao.AssociateDao;
 import com.ita.if103java.ims.dto.ItemDto;
 import com.ita.if103java.ims.dto.ItemTransactionRequestDto;
 import com.ita.if103java.ims.dto.SavedItemDto;
-
 import com.ita.if103java.ims.entity.Event;
 import com.ita.if103java.ims.entity.EventName;
 import com.ita.if103java.ims.entity.Item;
 import com.ita.if103java.ims.entity.SavedItem;
 import com.ita.if103java.ims.entity.Transaction;
 import com.ita.if103java.ims.entity.TransactionType;
-
 import com.ita.if103java.ims.exception.dao.ItemNotFoundException;
 import com.ita.if103java.ims.exception.dao.SavedItemNotFoundException;
 import com.ita.if103java.ims.exception.service.ItemNotEnoughCapacityInWarehouseException;
@@ -34,18 +32,17 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
 public class ItemServiceImpl implements ItemService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ItemServiceImpl.class);
     @Value("${items.maxWarehouseLoad}")
     private String maxWarehouseLoad;
     @Value("${items.minQuantityItemsInWarehouse}")
     private String minQuantityItemsInWarehouse;
-    private static final Logger LOGGER = LoggerFactory.getLogger(ItemServiceImpl.class);
     private ItemDtoMapper itemDtoMapper;
     private SavedItemDtoMapper savedItemDtoMapper;
     private ItemDao itemDao;
@@ -128,8 +125,8 @@ public class ItemServiceImpl implements ItemService {
             if (isLowSpaceInWarehouse(itemTransaction, user.getUser().getAccountId())) {
                 Event event =
                     new Event("Warehouse is loaded more than " + maxWarehouseLoad + "%! Capacity " +
-                        warehouseDao.findById(itemTransaction.getDestinationWarehouseId(),user.getUser().getAccountId()).getCapacity() +
-                        " in Warehouse " + warehouseDao.findById(itemTransaction.getDestinationWarehouseId(),user.getUser().getAccountId()).getName(),
+                        warehouseDao.findById(itemTransaction.getDestinationWarehouseId(), user.getUser().getAccountId()).getCapacity() +
+                        " in Warehouse " + warehouseDao.findById(itemTransaction.getDestinationWarehouseId(), user.getUser().getAccountId()).getName(),
                         user.getUser().getAccountId(),
                         itemTransaction.getDestinationWarehouseId(), user.getUser().getId(),
                         EventName.LOW_SPACE_IN_WAREHOUSE, null);
@@ -138,8 +135,8 @@ public class ItemServiceImpl implements ItemService {
             }
             return savedItemDto;
         } else {
-            eventService.create(new Event("Not enough capacity! Capacity " + warehouseDao.findById(itemTransaction.getDestinationWarehouseId(),user.getUser().getAccountId()).getCapacity() +
-                " in Warehouse " + warehouseDao.findById(itemTransaction.getDestinationWarehouseId(),user.getUser().getAccountId()).getName(),
+            eventService.create(new Event("Not enough capacity! Capacity " + warehouseDao.findById(itemTransaction.getDestinationWarehouseId(), user.getUser().getAccountId()).getCapacity() +
+                " in Warehouse " + warehouseDao.findById(itemTransaction.getDestinationWarehouseId(), user.getUser().getAccountId()).getName(),
                 user.getUser().getAccountId(),
                 itemTransaction.getDestinationWarehouseId(), user.getUser().getId(), EventName.LOW_SPACE_IN_WAREHOUSE
                 , null));
@@ -237,7 +234,7 @@ public class ItemServiceImpl implements ItemService {
             if (isLowSpaceInWarehouse(itemTransaction, user.getUser().getAccountId())) {
                 Event event = new Event("Warehouse is loaded more than " + maxWarehouseLoad + "%! Capacity " +
                     warehouseDao.findById(itemTransaction.getDestinationWarehouseId(), user.getUser().getAccountId()).getCapacity() +
-                    " in Warehouse " + warehouseDao.findById(itemTransaction.getDestinationWarehouseId(),user.getUser().getAccountId()).getName(),
+                    " in Warehouse " + warehouseDao.findById(itemTransaction.getDestinationWarehouseId(), user.getUser().getAccountId()).getName(),
                     user.getUser().getAccountId(),
                     itemTransaction.getDestinationWarehouseId(), user.getUser().getId(),
                     EventName.LOW_SPACE_IN_WAREHOUSE, null);
@@ -246,8 +243,8 @@ public class ItemServiceImpl implements ItemService {
             }
             return isMove;
         } else {
-            eventService.create(new Event("Not enough capacity! Capacity " + warehouseDao.findById(itemTransaction.getDestinationWarehouseId(),user.getUser().getAccountId()).
-                getCapacity() + " in warehouse " + warehouseDao.findById(itemTransaction.getDestinationWarehouseId(),user.getUser().getAccountId()).getName(),
+            eventService.create(new Event("Not enough capacity! Capacity " + warehouseDao.findById(itemTransaction.getDestinationWarehouseId(), user.getUser().getAccountId()).
+                getCapacity() + " in warehouse " + warehouseDao.findById(itemTransaction.getDestinationWarehouseId(), user.getUser().getAccountId()).getName(),
                 user.getUser().getAccountId(),
                 itemTransaction.getDestinationWarehouseId(), user.getUser().getId(), EventName.LOW_SPACE_IN_WAREHOUSE
                 , null));
@@ -289,7 +286,7 @@ public class ItemServiceImpl implements ItemService {
             return savedItemDto;
         } else {
             eventService.create(new Event("Not enough quantity  " + itemTransaction.getQuantity() + " " + itemTransaction.getItemDto().getName() +
-                " in warehouse " + warehouseDao.findById(itemTransaction.getSourceWarehouseId(),user.getUser().getAccountId()).getName(),
+                " in warehouse " + warehouseDao.findById(itemTransaction.getSourceWarehouseId(), user.getUser().getAccountId()).getName(),
                 user.getUser().getAccountId(),
                 itemTransaction.getSourceWarehouseId(), user.getUser().getId(), EventName.ITEM_ENDED, null));
             throw new ItemNotEnoughQuantityException("Outcome failed. Can't find needed quantity item in warehouse " +

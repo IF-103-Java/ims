@@ -71,7 +71,7 @@ public class TransactionServiceImpl implements TransactionService {
             itemService.findById(transaction.getItemId(), userDetails),
             transaction.getQuantity(),
             associateService.view(userDetails, transaction.getAssociateId()),
-            warehouseService.findById(transaction.getMovedFrom(),userDetails),
+            warehouseService.findById(transaction.getMovedFrom(), userDetails),
             null
         );
     }
@@ -86,8 +86,8 @@ public class TransactionServiceImpl implements TransactionService {
             itemService.findById(transaction.getItemId(), userDetails),
             transaction.getQuantity(),
             null,
-            warehouseService.findById(transaction.getMovedFrom(),userDetails),
-            warehouseService.findById(transaction.getMovedTo(),userDetails)
+            warehouseService.findById(transaction.getMovedFrom(), userDetails),
+            warehouseService.findById(transaction.getMovedTo(), userDetails)
         );
     }
 }
