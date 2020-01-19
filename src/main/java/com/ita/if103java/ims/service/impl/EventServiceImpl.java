@@ -52,7 +52,7 @@ public class EventServiceImpl implements EventService {
         event.setDate(currentDateTime);
         event = eventDao.create(event);
         if (event.getName().isNotification()) {
-            simpMessagingTemplate.convertAndSend("/topic/" + event.getAccountId(), eventDtoMapper.toDto(event));
+            simpMessagingTemplate.convertAndSend("/ims-websocket/events/" + event.getAccountId(), eventDtoMapper.toDto(event));
         }
     }
 
