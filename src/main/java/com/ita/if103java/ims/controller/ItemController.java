@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -51,6 +52,12 @@ public class ItemController {
     @ResponseStatus(HttpStatus.OK)
     public ItemDto findById(@PathVariable("id") Long id, @AuthenticationPrincipal UserDetailsImpl user) {
         return itemService.findById(id, user);
+    }
+
+    @GetMapping("/name")
+    @ResponseStatus(HttpStatus.OK)
+    public List<ItemDto> findByNameQuery(@RequestParam("q") String query, @AuthenticationPrincipal UserDetailsImpl user) {
+        return itemService.findItemsByNameQuery(query, user);
     }
 
     @DeleteMapping("/{itemId}")
