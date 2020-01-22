@@ -127,8 +127,13 @@ public class UserServiceImpl implements UserService {
         return mapper.toDto(user);
     }
 
+    @Transactional
     @Override
     public boolean delete(Long id) {
+        User user = userDao.findById(id);
+        if (user.getRole() == Role.ROLE_ADMIN) {
+            accountDao.delete(user.getAccountId());
+        }
         return userDao.activate(id, false);
     }
 
@@ -166,7 +171,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Map<Long, String> findUserNames(UserDetailsImpl user) {
-        return userDao.findUserNames(user.getUser().getAccountId());
+    public Map<Long, String> findAllUserNames(UserDetailsImpl user) {
+        return userDao.findAllUserNames(user.getUser().getAccountId());
     }
 }

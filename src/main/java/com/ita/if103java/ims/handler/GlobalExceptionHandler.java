@@ -5,6 +5,8 @@ import com.ita.if103java.ims.exception.dao.CRUDException;
 import com.ita.if103java.ims.exception.dao.EntityNotFoundException;
 import com.ita.if103java.ims.exception.service.GoogleAPIException;
 import com.ita.if103java.ims.exception.service.ImpossibleWarehouseAdviceException;
+import com.ita.if103java.ims.exception.service.MaxWarehouseDepthLimitReachedException;
+import com.ita.if103java.ims.exception.service.MaxWarehousesLimitReachedException;
 import com.ita.if103java.ims.exception.service.UserOrPasswordIncorrectException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +44,9 @@ public class GlobalExceptionHandler {
             .body(new ResponseMessageDto(e.getMessage()));
     }
 
-    @ExceptionHandler({ImpossibleWarehouseAdviceException.class})
+    @ExceptionHandler({ImpossibleWarehouseAdviceException.class,
+        MaxWarehouseDepthLimitReachedException.class,
+        MaxWarehousesLimitReachedException.class})
     public ResponseEntity<ResponseMessageDto> handleImpossibleWarehouseAdviceException(Exception e) {
         LOGGER.info(e.getMessage(), e);
         return ResponseEntity
