@@ -10,6 +10,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
@@ -73,10 +76,16 @@ public class AssociateDaoImpl implements AssociateDao {
     }
 
     @Override
-    public List<Associate> getAssociates(String sort, int size, long offset, long accountId) {
+    public Page<Associate> getAssociates(Pageable pageable, long accountId) {
         try {
+            String sort = pageable.getSort().toString().replaceAll(": ", " ");
 
-            return jdbcTemplate.query(String.format(Queries.SQL_SELECT_SORTED_ASSOICATES, sort), associateRowMapper, accountId, size, offset);
+            List<Associate> associates = jdbcTemplate.query(String.format(Queries.SQL_SELECT_SORTED_ASSOICATES, accountId, sort,
+                pageable.getPageSize(), pageable.getOffset()), associateRowMapper);
+
+            Integer rowCount = jdbcTemplate.queryForObject(String.format(Queries.SQL_ROW_COUNT, accountId), Integer.class);
+
+            return new PageImpl<>(associates, pageable, rowCount);
         } catch (DataAccessException e) {
             throw new CRUDException("Error during `select * `", e);
         }
@@ -139,10 +148,17 @@ public class AssociateDaoImpl implements AssociateDao {
 
     class Queries {
 
+        static final String SQL_ROW_COUNT = """
+            SELECT count(id)
+            FROM associates
+            WHERE account_id = %s
+            AND active = true
+        """;
+
         static final String SQL_SELECT_SORTED_ASSOICATES = """
              SELECT *
              FROM associates
-             WHERE account_id= ? order by %s limit ? offset ?
+             WHERE account_id= %s AND active = true order by %s limit %s offset %s
         """;
 
         static final String SQL_CREATE_ASSOCIATE = """
@@ -155,12 +171,14 @@ public class AssociateDaoImpl implements AssociateDao {
             SELECT *
             FROM associates
             WHERE account_id = ? and id = ?
+            AND active = true
         """;
 
         static final String SQL_SELECT_ASSOCIATE_BY_ACCOUNT_ID = """
             SELECT *
             FROM associates
             WHERE account_id = ?
+            AND active = true
         """;
 
         static final String SQL_UPDATE_ASSOCIATE = """
