@@ -18,4 +18,6 @@ public interface ItemDao {
     Item addItem(Item item);
 
     boolean softDeleteItem(Long id, Long accountId);
+
+    List<Item> findItemsByNameQuery(String query, long accountId);
 }
