@@ -32,10 +32,6 @@ public enum EventName {
     SUPPLIER_EDITED("Supplier info edited", EventType.PARTNER, false),
     CLIENT_EDITED("Client info edited", EventType.PARTNER, false);
 
-    private String label;
-    private EventType type;
-    private boolean isNotification;
-
     private static final Map<String, EventName> lookup = new HashMap<String, EventName>();
 
     static {
@@ -43,6 +39,10 @@ public enum EventName {
             lookup.put(d.getLabel(), d);
         }
     }
+
+    private String label;
+    private EventType type;
+    private boolean isNotification;
 
     EventName(String label, EventType type, boolean isNotification) {
         this.label = label;
@@ -60,6 +60,10 @@ public enum EventName {
         return values;
     }
 
+    public static Map<String, EventName> getLookup() {
+        return lookup;
+    }
+
     public EventType getType() {
         return type;
     }
@@ -70,9 +74,5 @@ public enum EventName {
 
     public boolean isNotification() {
         return isNotification;
-    }
-
-    public static Map<String, EventName> getLookup() {
-        return lookup;
     }
 }

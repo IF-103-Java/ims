@@ -150,99 +150,99 @@ public class DashboardDaoImpl implements DashboardDao {
 
     class Queries {
         static final String SQL_FIND_POPULAR_ITEMS = """
-            SELECT it.name_item AS name,
-            sum(ts.quantity) AS quantity
-            FROM transactions ts
-            JOIN items it
-            ON ts.item_id = it.id and ts.account_id = it.account_id
-            WHERE type = 'OUT'
-            AND ts.account_id = ?
-        """;
+                SELECT it.name_item AS name,
+                sum(ts.quantity) AS quantity
+                FROM transactions ts
+                JOIN items it
+                ON ts.item_id = it.id and ts.account_id = it.account_id
+                WHERE type = 'OUT'
+                AND ts.account_id = ?
+            """;
 
         static final String SQL_POP_YEAR = """
-            AND year(?)=year(ts.timestamp)
-        """;
+                AND year(?)=year(ts.timestamp)
+            """;
 
         static final String SQL_POP_MONTH = """
-            AND year(?)=year(ts.timestamp)
-            AND month(?)=month(ts.timestamp)
-        """;
+                AND year(?)=year(ts.timestamp)
+                AND month(?)=month(ts.timestamp)
+            """;
 
         static final String SQL_ATR_POP = """
-            GROUP BY ts.item_id, name
-            ORDER BY sum(ts.quantity) DESC, name DESC
-            LIMIT ?
-        """;
+                GROUP BY ts.item_id, name
+                ORDER BY sum(ts.quantity) DESC, name DESC
+                LIMIT ?
+            """;
 
         static final String SQL_ATR_UNPOP = """
-            GROUP BY ts.item_id, name
-            ORDER BY sum(ts.quantity), name DESC
-            LIMIT ?
-        """;
+                GROUP BY ts.item_id, name
+                ORDER BY sum(ts.quantity), name DESC
+                LIMIT ?
+            """;
 
         static final String SQL_FIND_WAREHOUSE_LOAD_BY_ACCOUNT_ID = """
-            SELECT top_warehouse_id id, cap.name, ifnull(sum(charge),0) charge, ifnull(sum(capacity),0) capacity
-             FROM
-             (SELECT warehouse_id, it.account_id, sum(quantity*volume) charge
-             FROM saved_items si
-             JOIN items it
-             ON si.item_id = it.id
-             JOIN warehouses wh
-             ON si.warehouse_id = wh.id
-             GROUP BY warehouse_id) AS  cha
-             RIGHT JOIN
-             (SELECT w1.id, w2.name, w1.capacity, w1.account_id, w1.top_warehouse_id
-             FROM warehouses w1
-             JOIN warehouses w2
-             WHERE w1.is_bottom=1 AND w1.active=1 and w2.id=w1.top_warehouse_id) AS cap
-             ON  cha.warehouse_id=cap.id AND  cha.account_id=cap.account_id
-             WHERE cap.account_id=?
-             GROUP BY top_warehouse_id
-        """;
+                SELECT top_warehouse_id id, cap.name, ifnull(sum(charge),0) charge, ifnull(sum(capacity),0) capacity
+                 FROM
+                 (SELECT warehouse_id, it.account_id, sum(quantity*volume) charge
+                 FROM saved_items si
+                 JOIN items it
+                 ON si.item_id = it.id
+                 JOIN warehouses wh
+                 ON si.warehouse_id = wh.id
+                 GROUP BY warehouse_id) AS  cha
+                 RIGHT JOIN
+                 (SELECT w1.id, w2.name, w1.capacity, w1.account_id, w1.top_warehouse_id
+                 FROM warehouses w1
+                 JOIN warehouses w2
+                 WHERE w1.is_bottom=1 AND w1.active=1 and w2.id=w1.top_warehouse_id) AS cap
+                 ON  cha.warehouse_id=cap.id AND  cha.account_id=cap.account_id
+                 WHERE cap.account_id=?
+                 GROUP BY top_warehouse_id
+            """;
 
         static final String SQL_FIND_ENDED_ITEMS_BY_ACCOUNT_ID = """
-            SELECT wh.id, wh.name, it.name_item, si.quantity
-            FROM saved_items si
-            JOIN warehouses wh
-            ON si.warehouse_id = wh.id
-            JOIN items it
-            ON si.item_id = it.id
-            WHERE si.quantity <= ?
-            AND wh.account_id = ?
-        """;
+                SELECT wh.id, wh.name, it.name_item, si.quantity
+                FROM saved_items si
+                JOIN warehouses wh
+                ON si.warehouse_id = wh.id
+                JOIN items it
+                ON si.item_id = it.id
+                WHERE si.quantity <= ?
+                AND wh.account_id = ?
+            """;
 
         static final String SQL_WAREHOUSE_STRUCTURE_PRIMARY = """
-            SELECT id, name
-            FROM warehouses
-            WHERE id=?
-            AND account_id=?
-            AND active = 1
-        """;
+                SELECT id, name
+                FROM warehouses
+                WHERE id=?
+                AND account_id=?
+                AND active = 1
+            """;
 
         static final String SQL_WAREHOUSE_STRUCTURE_SUB = """
-            SELECT id, name
-            FROM warehouses
-            WHERE parent_id=?
-            AND account_id=?
-            AND active = 1
-        """;
+                SELECT id, name
+                FROM warehouses
+                WHERE parent_id=?
+                AND account_id=?
+                AND active = 1
+            """;
 
         static final String SQL_FIND_BOT_CAPACITY_CHARGE = """
-            SELECT id, ifnull(sum(charge),0) charge, ifnull(sum(capacity),0) capacity
-            FROM
-            (SELECT warehouse_id, it.account_id, sum(quantity*volume) charge
-            FROM saved_items si
-            JOIN items it
-            ON si.item_id = it.id
-            JOIN warehouses wh
-            ON si.warehouse_id = wh.id
-            GROUP BY warehouse_id) AS cha
-            RIGHT JOIN
-            (SELECT id, capacity, account_id
-            FROM warehouses
-            WHERE is_bottom=1 AND top_warehouse_id = ?) AS cap
-            ON cha.warehouse_id=cap.id AND cha.account_id=cap.account_id
-            WHERE id = ? AND cap.account_id = ?
-        """;
+                SELECT id, ifnull(sum(charge),0) charge, ifnull(sum(capacity),0) capacity
+                FROM
+                (SELECT warehouse_id, it.account_id, sum(quantity*volume) charge
+                FROM saved_items si
+                JOIN items it
+                ON si.item_id = it.id
+                JOIN warehouses wh
+                ON si.warehouse_id = wh.id
+                GROUP BY warehouse_id) AS cha
+                RIGHT JOIN
+                (SELECT id, capacity, account_id
+                FROM warehouses
+                WHERE is_bottom=1 AND top_warehouse_id = ?) AS cap
+                ON cha.warehouse_id=cap.id AND cha.account_id=cap.account_id
+                WHERE id = ? AND cap.account_id = ?
+            """;
     }
 }

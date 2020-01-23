@@ -53,7 +53,7 @@ public class WarehouseController {
         return warehouseService.findAll(pageable, user);
     }
 
-    @GetMapping(value = "/topWarehouseId/{id}")
+    @GetMapping(value = "/topWarehouseId/{topWarehouseId}")
     @ResponseStatus(HttpStatus.OK)
     List<WarehouseDto> findWarehousesByTopLevelId(@PathVariable("topWarehouseId") Long topWarehouseId,
                                                   @AuthenticationPrincipal UserDetailsImpl user) {
