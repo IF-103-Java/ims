@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.List;
 
@@ -44,7 +45,7 @@ public class ItemController {
         @ApiImplicitParam(name = "size", dataType = "integer", paramType = "query"),
         @ApiImplicitParam(name = "sort", dataType = "string", paramType = "query")
     })
-    public List<ItemDto> sort(Pageable pageable, @AuthenticationPrincipal UserDetailsImpl user) {
+    public List<ItemDto> sort(@ApiIgnore Pageable pageable, @AuthenticationPrincipal UserDetailsImpl user) {
         return itemService.findSortedItems(pageable, user);
     }
 

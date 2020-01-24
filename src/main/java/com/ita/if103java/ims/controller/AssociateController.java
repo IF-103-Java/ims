@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.List;
 
@@ -41,7 +42,7 @@ public class AssociateController {
         @ApiImplicitParam(name = "size", dataType = "integer", paramType = "query"),
         @ApiImplicitParam(name = "sort", dataType = "string", paramType = "query")
     })
-    public List<AssociateDto> findAllSortedAssociates(Pageable pageable, @AuthenticationPrincipal UserDetailsImpl user) {
+    public List<AssociateDto> findAllSortedAssociates(@ApiIgnore Pageable pageable, @AuthenticationPrincipal UserDetailsImpl user) {
         return associateService.findSortedAssociates(pageable, user);
     }
 

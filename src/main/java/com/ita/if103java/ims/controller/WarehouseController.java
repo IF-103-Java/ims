@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.List;
 import java.util.Map;
@@ -48,7 +49,7 @@ public class WarehouseController {
     @GetMapping
     @ApiPageable
     @ResponseStatus(HttpStatus.OK)
-    public List<WarehouseDto> findAll(Pageable pageable,
+    public List<WarehouseDto> findAll(@ApiIgnore Pageable pageable,
                                       @AuthenticationPrincipal UserDetailsImpl user) {
         return warehouseService.findAll(pageable, user);
     }
