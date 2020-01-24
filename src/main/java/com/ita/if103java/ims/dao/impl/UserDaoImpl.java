@@ -273,7 +273,7 @@ public class UserDaoImpl implements UserDao {
     class Queries {
 
         public static final String SQL_CREATE_USER = """
-                INSERT INTO users
+                INSERT INTO  users
                 (first_name, last_name, email,  password, role,
                 created_date, updated_date, active, email_uuid, account_id)
                 VALUES(?,?,?,?,?,?,?,?,?,?)
