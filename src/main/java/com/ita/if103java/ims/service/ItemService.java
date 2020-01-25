@@ -28,4 +28,5 @@ public interface ItemService {
 
     SavedItemDto outcomeItem(ItemTransactionRequestDto itemTransaction, UserDetailsImpl user);
 
+    List<ItemDto> findItemsByNameQuery(String query, UserDetailsImpl user);
 }
