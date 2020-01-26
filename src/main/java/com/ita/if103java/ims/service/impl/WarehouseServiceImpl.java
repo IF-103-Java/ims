@@ -16,6 +16,8 @@ import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.EventService;
 import com.ita.if103java.ims.service.WarehouseService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -93,7 +95,7 @@ public class WarehouseServiceImpl implements WarehouseService {
     }
 
     @Override
-    public List<WarehouseDto> findAll(Pageable pageable, UserDetailsImpl user) {
+    public Page<WarehouseDto> findAll(Pageable pageable, UserDetailsImpl user) {
         List<Warehouse> all = warehouseDao.findAll(pageable, user.getUser().getAccountId());
         Map<Long, Warehouse> groupedWarehouses = getGroupedWarehouses(pageable, user, all);
         all.forEach(o -> findPath(o, groupedWarehouses));
@@ -103,10 +105,10 @@ public class WarehouseServiceImpl implements WarehouseService {
                 AddressDto addressDto = addressDtoMapper.toDto(addressDao.findByWarehouseId(warehouse.getId()));
                 warehouseDto.setAddressDto(addressDto);
             }
-
         }
+        List<WarehouseDto> warehouses = warehouseDtoMapper.toDtoList(all);
+        return new PageImpl<>(warehouses, pageable, all.size());
 
-        return warehouseDtoMapper.toDtoList(all);
     }
 
     private Map<Long, Warehouse> getGroupedWarehouses(Pageable pageable, UserDetailsImpl user,
