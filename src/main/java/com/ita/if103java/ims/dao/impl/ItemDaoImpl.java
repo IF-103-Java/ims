@@ -33,8 +33,8 @@ public class ItemDaoImpl implements ItemDao {
     @Override
     public List<Item> getItems(String sort, int size, long offset, long accountId) {
         try {
-            final String query = " select * from items where account_id=? order by " + sort + " limit ? offset ?";
-          return jdbcTemplate.query(query, itemRowMapper, accountId, size, offset);
+          return jdbcTemplate.query(String.format(Queries.SQL_SELECT_PAGINATED_ITEMS, sort), itemRowMapper, accountId,
+              size, offset);
         } catch (DataAccessException e) {
             throw new CRUDException("Error during `select * `", e);
         }
@@ -153,6 +153,11 @@ public class ItemDaoImpl implements ItemDao {
     }
 
     class Queries {
+        static final String SQL_SELECT_PAGINATED_ITEMS = """
+            select *
+             from items
+              where account_id=? order by %s limit ? offset ?
+            """;
         static final String SQL_SELECT_COUNT_ITEM_BY_ACCOUNT_ID = """
             select count(*)
             from items

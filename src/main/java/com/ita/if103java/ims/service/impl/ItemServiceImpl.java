@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -78,9 +79,11 @@ public class ItemServiceImpl implements ItemService {
     public Page<ItemDto> findSortedItems(Pageable pageable, UserDetailsImpl user) {
         List<ItemDto> itemDtos =
             itemDtoMapper.toDtoList(itemDao.getItems(checkSort(pageable.getSort().toString().split(": ")),
-            pageable.getPageSize(),
-            pageable.getOffset(), user.getUser().getAccountId()));
-        Integer countItems = itemDao.countItemsById(user.getUser().getAccountId());
+                pageable.getPageSize(),
+                pageable.getOffset(),
+                user.getUser().getAccountId()));
+              Integer countItems = itemDao.countItemsById(user.getUser().getAccountId());
+
         return new PageImpl<>(itemDtos, pageable, countItems);
     }
 
