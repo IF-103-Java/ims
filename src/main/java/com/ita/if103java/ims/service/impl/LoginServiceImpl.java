@@ -1,6 +1,7 @@
 package com.ita.if103java.ims.service.impl;
 
 import com.ita.if103java.ims.dao.UserDao;
+import com.ita.if103java.ims.dto.ForgotPasswordDto;
 import com.ita.if103java.ims.dto.UserLoginDto;
 import com.ita.if103java.ims.entity.User;
 import com.ita.if103java.ims.exception.service.UserOrPasswordIncorrectException;
@@ -69,8 +70,13 @@ public class LoginServiceImpl implements LoginService {
             User regUser = userDao.findByEmail(user.getUsername());
             eventService.create(createEvent(regUser, LOGIN, "sign in to account."));
             String token = jwtTokenProvider.createToken(user.getUsername());
+            String username = new StringBuilder()
+                .append(regUser.getFirstName())
+                .append(" ")
+                .append(regUser.getLastName()).toString();
             Map<String, String> model = new HashMap<>();
             model.put("token", token);
+            model.put("username", username);
             return ok(model);
         } catch (AuthenticationException e) {
             throw new UserOrPasswordIncorrectException("Credential aren't correct", e);
@@ -80,10 +86,10 @@ public class LoginServiceImpl implements LoginService {
 
 
     @Override
-    public void sendResetPasswordToken(String email) {
+    public void sendResetPasswordToken(ForgotPasswordDto forgotPasswordDto) {
         String newToken = UUID.randomUUID().toString();
 
-        User user = userDao.findByEmail(email);
+        User user = userDao.findByEmail(forgotPasswordDto.getEmail());
         user.setEmailUUID(newToken);
         userDao.update(user);
 
