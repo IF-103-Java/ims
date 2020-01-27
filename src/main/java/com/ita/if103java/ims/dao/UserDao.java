@@ -14,6 +14,8 @@ public interface UserDao {
 
     List<User> findUsersByAccountId(Long accountId);
 
+    List<User> findWorkersByAccountId(Long accountId);
+
     User findAdminByAccountId(Long accountId);
 
     User update(User user);
