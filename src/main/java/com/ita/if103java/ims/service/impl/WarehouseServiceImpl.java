@@ -96,8 +96,11 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Override
     public Page<WarehouseDto> findAll(Pageable pageable, UserDetailsImpl user) {
-        List<Warehouse> all = warehouseDao.findAll(pageable, user.getUser().getAccountId());
+        Long accountId = user.getUser().getAccountId();
+        Integer warehouseQuantity = warehouseDao.findQuantityOfWarehousesByAccountId(accountId);
+        List<Warehouse> all = warehouseDao.findAll(pageable, accountId);
         Map<Long, Warehouse> groupedWarehouses = getGroupedWarehouses(pageable, user, all);
+
         all.forEach(o -> findPath(o, groupedWarehouses));
         for (Warehouse warehouse : all) {
             WarehouseDto warehouseDto = warehouseDtoMapper.toDto(warehouse);
@@ -107,7 +110,7 @@ public class WarehouseServiceImpl implements WarehouseService {
             }
         }
         List<WarehouseDto> warehouses = warehouseDtoMapper.toDtoList(all);
-        return new PageImpl<>(warehouses, pageable, all.size());
+        return new PageImpl<>(warehouses, pageable, warehouseQuantity);
 
     }
 
