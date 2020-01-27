@@ -43,6 +43,9 @@ public class AddressLinkerDaoImpl implements AddressLinkerDao {
 
     public <T extends AddressDto> List<T> findAddressByIds(String query, List<Long> ids, RowMapper<T> mapper) {
         try {
+            if (ids == null || ids.isEmpty()) {
+                throw new IllegalArgumentException("No ids specified to fetch addresses");
+            }
             final MapSqlParameterSource paramSource = new MapSqlParameterSource().addValue("ids", ids);
             return namedParameterJdbcTemplate.query(query, paramSource, mapper);
         } catch (DataAccessException e) {

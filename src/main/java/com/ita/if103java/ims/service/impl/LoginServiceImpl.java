@@ -25,8 +25,8 @@ import java.util.UUID;
 
 import static com.ita.if103java.ims.config.MailMessagesConfig.FOOTER;
 import static com.ita.if103java.ims.config.MailMessagesConfig.RESET_PASSWORD;
-import static com.ita.if103java.ims.entity.EventName.PASSWORD_CHANGED;
 import static com.ita.if103java.ims.entity.EventName.LOGIN;
+import static com.ita.if103java.ims.entity.EventName.PASSWORD_CHANGED;
 import static com.ita.if103java.ims.util.TokenUtil.isValidToken;
 import static com.ita.if103java.ims.util.UserEventUtil.createEvent;
 import static org.springframework.http.ResponseEntity.ok;
@@ -67,7 +67,7 @@ public class LoginServiceImpl implements LoginService {
         try {
             authManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
             User regUser = userDao.findByEmail(user.getUsername());
-            eventService.create(createEvent(regUser, LOGIN , "sign in to account."));
+            eventService.create(createEvent(regUser, LOGIN, "sign in to account."));
             String token = jwtTokenProvider.createToken(user.getUsername());
             Map<String, String> model = new HashMap<>();
             model.put("token", token);
@@ -101,7 +101,7 @@ public class LoginServiceImpl implements LoginService {
             String newEncodedPassword = passwordEncoder.encode(newPassword);
             user.setPassword(newEncodedPassword);
             userDao.updatePassword(user.getId(), newEncodedPassword);
-            eventService.create(createEvent(user, PASSWORD_CHANGED , "reset the password."));
+            eventService.create(createEvent(user, PASSWORD_CHANGED, "reset the password."));
         } else {
             throw new PasswordExpiredException("Expired time of token isn't valid");
         }

@@ -2,7 +2,6 @@ package com.ita.if103java.ims.dao;
 
 import com.ita.if103java.ims.entity.Item;
 
-
 import java.util.List;
 
 public interface ItemDao {
@@ -19,4 +18,6 @@ public interface ItemDao {
     Item addItem(Item item);
 
     boolean softDeleteItem(Long id, Long accountId);
+
+    List<Item> findItemsByNameQuery(String query, long accountId);
 }

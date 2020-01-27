@@ -24,9 +24,9 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.ita.if103java.ims.config.MailMessagesConfig.INVITE_START;
-import static com.ita.if103java.ims.config.MailMessagesConfig.INVITE_MIDDLE;
 import static com.ita.if103java.ims.config.MailMessagesConfig.INVITE_FOOTER;
+import static com.ita.if103java.ims.config.MailMessagesConfig.INVITE_MIDDLE;
+import static com.ita.if103java.ims.config.MailMessagesConfig.INVITE_START;
 
 @Service
 @PropertySource("classpath:application.properties")
@@ -72,7 +72,7 @@ public class InvitationServiceImpl implements InvitationService {
 
     private void sendInvitationMessage(UserDto userDto, Long accountId) {
         Account account = accountDao.findById(accountId);
-        mailService.sendMessage(userDto,  INVITE_START + account.getName() + INVITE_MIDDLE +
+        mailService.sendMessage(userDto, INVITE_START + account.getName() + INVITE_MIDDLE +
             activationURL + userDto.getEmailUUID() + "\n" +
             "Your password: " + userDto.getPassword() + "\n" +
             INVITE_FOOTER, "IMS. Invitation to " + account.getName() + " organization");

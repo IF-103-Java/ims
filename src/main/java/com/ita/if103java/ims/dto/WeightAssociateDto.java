@@ -16,12 +16,12 @@ public class WeightAssociateDto {
         return associateId;
     }
 
-    public Double getWeight() {
-        return weight;
-    }
-
     public void setAssociateId(Long associateId) {
         this.associateId = associateId;
+    }
+
+    public Double getWeight() {
+        return weight;
     }
 
     public void setWeight(Double weight) {

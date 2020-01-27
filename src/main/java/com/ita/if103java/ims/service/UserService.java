@@ -33,6 +33,6 @@ public interface UserService {
 
     boolean activateUser(String emailUUID);
 
-    Map<Long, String> findUserNames(UserDetailsImpl user);
+    Map<Long, String> findAllUserNames(UserDetailsImpl user);
 
 }

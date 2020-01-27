@@ -55,14 +55,23 @@ public class TransactionDaoImpl implements TransactionDao {
                               TransactionType type) {
         final Transaction transaction = new Transaction();
         transaction.setAccountId(user.getAccountId());
-        transaction.setAssociateId(associateId);
         transaction.setItemId(itemTransactionRequestDto.getItemDto().getId());
         transaction.setQuantity(itemTransactionRequestDto.getQuantity());
         transaction.setWorkerId(user.getId());
         transaction.setType(type);
         switch (type) {
-            case OUT -> transaction.setMovedFrom(itemTransactionRequestDto.getSourceWarehouseId());
-            case IN -> transaction.setMovedTo(itemTransactionRequestDto.getDestinationWarehouseId());
+            case OUT -> {
+                transaction.setMovedFrom(itemTransactionRequestDto.getSourceWarehouseId());
+                transaction.setAssociateId(associateId);
+            }
+            case IN -> {
+                transaction.setMovedTo(itemTransactionRequestDto.getDestinationWarehouseId());
+                transaction.setAssociateId(associateId);
+            }
+            case MOVE -> {
+                transaction.setMovedFrom(itemTransactionRequestDto.getSourceWarehouseId());
+                transaction.setMovedTo(itemTransactionRequestDto.getDestinationWarehouseId());
+            }
         }
         return transaction;
     }

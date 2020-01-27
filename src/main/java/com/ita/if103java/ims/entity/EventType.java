@@ -24,11 +24,11 @@ public enum EventType {
         this.label = label;
     }
 
-    public String getLabel() {
-        return label;
-    }
-
     public static Map<String, EventType> getLookup() {
         return lookup;
+    }
+
+    public String getLabel() {
+        return label;
     }
 }

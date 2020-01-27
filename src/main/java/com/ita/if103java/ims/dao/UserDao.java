@@ -22,15 +22,15 @@ public interface UserDao {
 
     boolean updateAccountId(Long userId, Long accountId);
 
-    boolean softDelete(Long id);
+    boolean activate(Long id, boolean state);
 
     boolean hardDelete(Long id);
 
     List<User> findAll(Pageable pageable);
 
-    Map<Long, String> findUserNames(Long accountId);
+    Map<Long, String> findAllUserNames(Long accountId);
 
-    Map<Long, String> findUserNames(List<Long> idList);
+    Map<Long, String> findUserNamesById(List<Long> idList);
 
     User findByEmail(String email);
 
