@@ -302,4 +302,9 @@ public class ItemServiceImpl implements ItemService {
 
     }
 
+    @Override
+    public List<ItemDto> findItemsByNameQuery(String query, UserDetailsImpl user) {
+        return itemDtoMapper.toDtoList(itemDao.findItemsByNameQuery(query, user.getUser().getAccountId()));
+    }
+
 }
