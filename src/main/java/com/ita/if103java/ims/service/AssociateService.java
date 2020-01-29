@@ -2,6 +2,7 @@ package com.ita.if103java.ims.service;
 
 import com.ita.if103java.ims.dto.AssociateDto;
 import com.ita.if103java.ims.security.UserDetailsImpl;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
@@ -11,7 +12,7 @@ public interface AssociateService {
 
     AssociateDto update(UserDetailsImpl user, AssociateDto associateDto);
 
-    List<AssociateDto> findSortedAssociates(Pageable pageable, UserDetailsImpl user);
+    Page<AssociateDto> findSortedAssociates(Pageable pageable, UserDetailsImpl user);
 
     AssociateDto view(UserDetailsImpl user, Long id);
 
