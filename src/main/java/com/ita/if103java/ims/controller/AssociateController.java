@@ -24,7 +24,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/associates")
-@CrossOrigin("http://localhost:4200")
 public class AssociateController {
 
     private AssociateService associateService;
