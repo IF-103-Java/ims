@@ -13,7 +13,7 @@ public interface WarehouseDao {
 
     boolean softDelete(Long id);
 
-    List<Warehouse> findAll(Pageable pageable, Long accountId);
+    List<Warehouse> findAllTopLevel(Pageable pageable, Long accountId);
 
     Map<Long, String> findAllWarehouseNames(Long account_id);
 
