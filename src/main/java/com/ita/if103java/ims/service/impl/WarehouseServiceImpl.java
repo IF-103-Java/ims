@@ -95,10 +95,10 @@ public class WarehouseServiceImpl implements WarehouseService {
     }
 
     @Override
-    public Page<WarehouseDto> findAll(Pageable pageable, UserDetailsImpl user) {
+    public Page<WarehouseDto> findAllTopLevel(Pageable pageable, UserDetailsImpl user) {
         Long accountId = user.getUser().getAccountId();
         Integer warehouseQuantity = warehouseDao.findQuantityOfWarehousesByAccountId(accountId);
-        List<Warehouse> all = warehouseDao.findAll(pageable, accountId);
+        List<Warehouse> all = warehouseDao.findAllTopLevel(pageable, accountId);
         Map<Long, Warehouse> groupedWarehouses = getGroupedWarehouses(pageable, user, all);
 
         all.forEach(o -> findPath(o, groupedWarehouses));
@@ -119,7 +119,7 @@ public class WarehouseServiceImpl implements WarehouseService {
         Map<Long, Warehouse> groupedWarehouses = all.stream()
             .collect(Collectors.toMap(Warehouse::getId, Function.identity()));
         if (pageable.isPaged()) {
-            List<Warehouse> allUnpaged = warehouseDao.findAll(PageRequest.of(0, Integer.MAX_VALUE),
+            List<Warehouse> allUnpaged = warehouseDao.findAllTopLevel(PageRequest.of(0, Integer.MAX_VALUE),
                 user.getUser().getAccountId());
             groupedWarehouses = allUnpaged.stream()
                 .collect(Collectors.toMap(Warehouse::getId, Function.identity()));

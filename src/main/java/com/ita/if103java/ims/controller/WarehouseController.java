@@ -53,7 +53,7 @@ public class WarehouseController {
     @ResponseStatus(HttpStatus.OK)
     public Page<WarehouseDto> findAll(@ApiIgnore Pageable pageable,
                                       @AuthenticationPrincipal UserDetailsImpl user) {
-        return warehouseService.findAll(pageable, user);
+        return warehouseService.findAllTopLevel(pageable, user);
     }
 
     @GetMapping(value = "/topWarehouseId/{topWarehouseId}")
