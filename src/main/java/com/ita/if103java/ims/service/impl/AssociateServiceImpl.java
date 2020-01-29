@@ -16,6 +16,8 @@ import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.AssociateService;
 import com.ita.if103java.ims.service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -96,14 +98,13 @@ public class AssociateServiceImpl implements AssociateService {
     }
 
     @Override
-    public List<AssociateDto> findSortedAssociates(Pageable pageable, UserDetailsImpl user) {
-        List<AssociateDto> associateDtos = associateDtoMapper.toDtoList(associateDao.getAssociates(checkSort(pageable.getSort().toString().split(": ")),
-            pageable.getPageSize(),
-            pageable.getOffset(), user.getUser().getAccountId()));
+    public Page<AssociateDto> findSortedAssociates(Pageable pageable, UserDetailsImpl user) {
+        Page<Associate> page = associateDao.getAssociates(pageable, user.getUser().getAccountId());
+        List<AssociateDto> associateDtos = associateDtoMapper.toDtoList(page.getContent());
 
         associateDtos.stream().forEach(a -> a.setAddressDto(addressDtoMapper.toDto(addressDao.findByAssociateId(a.getId()))));
 
-        return associateDtos;
+        return new PageImpl<>(associateDtos, pageable, page.getTotalElements());
     }
 
     @Override

@@ -28,6 +28,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -73,10 +76,15 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> findSortedItems(Pageable pageable, UserDetailsImpl user) {
-        return itemDtoMapper.toDtoList(itemDao.getItems(checkSort(pageable.getSort().toString().split(": ")),
-            pageable.getPageSize(),
-            pageable.getOffset(), user.getUser().getAccountId()));
+    public Page<ItemDto> findSortedItems(Pageable pageable, UserDetailsImpl user) {
+        List<ItemDto> itemDtos =
+            itemDtoMapper.toDtoList(itemDao.getItems(checkSort(pageable.getSort().toString().split(": ")),
+                pageable.getPageSize(),
+                pageable.getOffset(),
+                user.getUser().getAccountId()));
+              Integer countItems = itemDao.countItemsById(user.getUser().getAccountId());
+
+        return new PageImpl<>(itemDtos, pageable, countItems);
     }
 
     @Override
@@ -295,6 +303,11 @@ public class ItemServiceImpl implements ItemService {
         }
 
 
+    }
+
+    @Override
+    public List<ItemDto> findItemsByNameQuery(String query, UserDetailsImpl user) {
+        return itemDtoMapper.toDtoList(itemDao.findItemsByNameQuery(query, user.getUser().getAccountId()));
     }
 
 }

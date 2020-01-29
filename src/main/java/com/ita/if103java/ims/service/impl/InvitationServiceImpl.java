@@ -20,6 +20,7 @@ import org.passay.EnglishCharacterData;
 import org.passay.PasswordGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +29,7 @@ import static com.ita.if103java.ims.config.MailMessagesConfig.INVITE_MIDDLE;
 import static com.ita.if103java.ims.config.MailMessagesConfig.INVITE_START;
 
 @Service
+@PropertySource("classpath:application.properties")
 public class InvitationServiceImpl implements InvitationService {
 
     @Value("${mail.activationURL}")

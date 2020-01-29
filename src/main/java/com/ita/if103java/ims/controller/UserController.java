@@ -56,14 +56,20 @@ public class UserController {
 
     @GetMapping(value = "/account/users")
     @ResponseStatus(HttpStatus.OK)
-    public List<UserDto> findUsersByAccountId(@RequestParam("accountId") Long accountId) {
-        return userService.findUsersByAccountId(accountId);
+    public List<UserDto> findUsersByAccountId(@AuthenticationPrincipal UserDetailsImpl user) {
+        return userService.findUsersByAccountId(user.getUser().getAccountId());
+    }
+
+    @GetMapping(value = "/account/workers")
+    @ResponseStatus(HttpStatus.OK)
+    public List<UserDto> findWorkersByAccountId(@AuthenticationPrincipal UserDetailsImpl user) {
+        return userService.findWorkersByAccountId(user.getUser().getAccountId());
     }
 
     @GetMapping(value = "/account/admin")
     @ResponseStatus(HttpStatus.OK)
-    public UserDto findAdminByAccountId(@RequestParam("accountId") Long accountId) {
-        return userService.findAdminByAccountId(accountId);
+    public UserDto findAdminByAccountId(@AuthenticationPrincipal UserDetailsImpl user) {
+        return userService.findAdminByAccountId(user.getUser().getAccountId());
     }
 
     @PutMapping(value = "/me",

@@ -4,13 +4,14 @@ import com.ita.if103java.ims.dto.ItemDto;
 import com.ita.if103java.ims.dto.ItemTransactionRequestDto;
 import com.ita.if103java.ims.dto.SavedItemDto;
 import com.ita.if103java.ims.security.UserDetailsImpl;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 public interface ItemService {
 
-    List<ItemDto> findSortedItems(Pageable pageable, UserDetailsImpl user);
+    Page<ItemDto> findSortedItems(Pageable pageable, UserDetailsImpl user);
 
     ItemDto findById(Long id, UserDetailsImpl user);
 
@@ -28,4 +29,5 @@ public interface ItemService {
 
     SavedItemDto outcomeItem(ItemTransactionRequestDto itemTransaction, UserDetailsImpl user);
 
+    List<ItemDto> findItemsByNameQuery(String query, UserDetailsImpl user);
 }

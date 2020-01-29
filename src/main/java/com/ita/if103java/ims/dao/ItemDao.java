@@ -7,6 +7,8 @@ import java.util.List;
 public interface ItemDao {
     List<Item> getItems(String sort, int size, long offset, long accountId);
 
+    Integer countItemsById(long accountId);
+
     Item findItemByName(String name);
 
     List<Item> findItemByAccountId(Long id);
@@ -18,4 +20,6 @@ public interface ItemDao {
     Item addItem(Item item);
 
     boolean softDeleteItem(Long id, Long accountId);
+
+    List<Item> findItemsByNameQuery(String query, long accountId);
 }
