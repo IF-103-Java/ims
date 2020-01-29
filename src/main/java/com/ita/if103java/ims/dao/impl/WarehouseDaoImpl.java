@@ -197,7 +197,7 @@ public class WarehouseDaoImpl implements WarehouseDao {
         static final String SQL_SELECT_ALL_TOP_WAREHOUSES = """
                 SELECT * FROM warehouses
                 WHERE account_id = ?
-                AND top_warehouse_id = 0
+                AND parent_id IS NULL
                 AND active = 1
                 LIMIT ? OFFSET ?
             """;
