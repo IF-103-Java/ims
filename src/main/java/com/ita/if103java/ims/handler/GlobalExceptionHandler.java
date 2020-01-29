@@ -3,6 +3,7 @@ package com.ita.if103java.ims.handler;
 import com.ita.if103java.ims.dto.handler.ResponseMessageDto;
 import com.ita.if103java.ims.exception.dao.CRUDException;
 import com.ita.if103java.ims.exception.dao.EntityNotFoundException;
+import com.ita.if103java.ims.exception.service.AssociateLimitReachedException;
 import com.ita.if103java.ims.exception.service.GoogleAPIException;
 import com.ita.if103java.ims.exception.service.ImpossibleWarehouseAdviceException;
 import com.ita.if103java.ims.exception.service.MaxWarehouseDepthLimitReachedException;
@@ -46,7 +47,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({ImpossibleWarehouseAdviceException.class,
         MaxWarehouseDepthLimitReachedException.class,
-        MaxWarehousesLimitReachedException.class})
+        MaxWarehousesLimitReachedException.class,
+        AssociateLimitReachedException.class})
     public ResponseEntity<ResponseMessageDto> handleImpossibleWarehouseAdviceException(Exception e) {
         LOGGER.info(e.getMessage(), e);
         return ResponseEntity
