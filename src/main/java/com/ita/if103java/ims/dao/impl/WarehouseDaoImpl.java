@@ -51,9 +51,9 @@ public class WarehouseDaoImpl implements WarehouseDao {
     }
 
     @Override
-    public List<Warehouse> findAll(Pageable pageable, Long accountId) {
+    public List<Warehouse> findAllTopLevel(Pageable pageable, Long accountId) {
         try {
-            return jdbcTemplate.query(Queries.SQL_SELECT_ALL_WAREHOUSES, warehouseRowMapper, accountId,
+            return jdbcTemplate.query(Queries.SQL_SELECT_ALL_TOP_WAREHOUSES, warehouseRowMapper, accountId,
                 pageable.getPageSize(), pageable.getOffset());
 
         } catch (DataAccessException e) {
@@ -194,9 +194,11 @@ public class WarehouseDaoImpl implements WarehouseDao {
                 WHERE id = ? AND account_id = ?
             """;
 
-        static final String SQL_SELECT_ALL_WAREHOUSES = """
+        static final String SQL_SELECT_ALL_TOP_WAREHOUSES = """
                 SELECT * FROM warehouses
                 WHERE account_id = ?
+                AND parent_id IS NULL
+                AND active = 1
                 LIMIT ? OFFSET ?
             """;
 
@@ -222,6 +224,7 @@ public class WarehouseDaoImpl implements WarehouseDao {
                 SELECT COUNT(id)
                 FROM warehouses
                 WHERE parent_id IS NULL
+                AND active = 1
                 AND account_id = ?
             """;
 

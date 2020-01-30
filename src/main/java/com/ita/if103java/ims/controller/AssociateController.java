@@ -6,8 +6,10 @@ import com.ita.if103java.ims.service.AssociateService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.List;
 
@@ -41,7 +44,7 @@ public class AssociateController {
         @ApiImplicitParam(name = "size", dataType = "integer", paramType = "query"),
         @ApiImplicitParam(name = "sort", dataType = "string", paramType = "query")
     })
-    public List<AssociateDto> findAllSortedAssociates(Pageable pageable, @AuthenticationPrincipal UserDetailsImpl user) {
+    public Page<AssociateDto> findAllSortedAssociates(@ApiIgnore Pageable pageable, @AuthenticationPrincipal UserDetailsImpl user) {
         return associateService.findSortedAssociates(pageable, user);
     }
 
