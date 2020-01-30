@@ -59,6 +59,7 @@ public class WarehouseServiceImpl implements WarehouseService {
         if (warehouseDto.getParentID() == null) {
             int maxWarehouses = userDetails.getAccountType().getMaxWarehouses();
             int warehouseQuantity = warehouseDao.findQuantityOfWarehousesByAccountId(accountId);
+
             if (warehouseQuantity < maxWarehouses) {
                 return createNewWarehouse(warehouseDto, userDetails);
             } else {
