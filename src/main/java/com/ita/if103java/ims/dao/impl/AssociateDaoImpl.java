@@ -78,12 +78,16 @@ public class AssociateDaoImpl implements AssociateDao {
 
     @Override
     public Page<Associate> getAssociates(Pageable pageable, long accountId) {
+
+        System.out.println(pageable.getSort());
+
         try {
             String sort = pageable.getSort().stream().map(
                 x -> x.getProperty() + " " + x.getDirection().name()).collect(Collectors.joining(", "));
 
-            List<Associate> associates = jdbcTemplate.query(Queries.SQL_SELECT_SORTED_ASSOICATES, associateRowMapper,
-                accountId, sort, pageable.getPageSize(), pageable.getOffset());
+            System.out.println("sort after stream = " + sort);
+            List<Associate> associates = jdbcTemplate.query(String.format(Queries.SQL_SELECT_SORTED_ASSOICATES, sort), associateRowMapper,
+                accountId, pageable.getPageSize(), pageable.getOffset());
 
             Integer rowCount =
                 jdbcTemplate.queryForObject(Queries.SQL_ROW_COUNT, new Object[] {accountId}, Integer.class);
@@ -161,7 +165,7 @@ public class AssociateDaoImpl implements AssociateDao {
         static final String SQL_SELECT_SORTED_ASSOICATES = """
              SELECT *
              FROM associates
-             WHERE account_id= ? AND active = true order by ? limit ? offset ?
+             WHERE account_id= ? AND active = true order by %s limit ? offset ?
         """;
 
         static final String SQL_CREATE_ASSOCIATE = """
