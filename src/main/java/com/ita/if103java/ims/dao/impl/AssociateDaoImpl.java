@@ -85,7 +85,6 @@ public class AssociateDaoImpl implements AssociateDao {
             String sort = pageable.getSort().stream().map(
                 x -> x.getProperty() + " " + x.getDirection().name()).collect(Collectors.joining(", "));
 
-            System.out.println("sort after stream = " + sort);
             List<Associate> associates = jdbcTemplate.query(String.format(Queries.SQL_SELECT_SORTED_ASSOICATES, sort), associateRowMapper,
                 accountId, pageable.getPageSize(), pageable.getOffset());
 
