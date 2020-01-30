@@ -79,8 +79,6 @@ public class AssociateDaoImpl implements AssociateDao {
     @Override
     public Page<Associate> getAssociates(Pageable pageable, long accountId) {
 
-        System.out.println(pageable.getSort());
-
         try {
             String sort = pageable.getSort().stream().map(
                 x -> x.getProperty() + " " + x.getDirection().name()).collect(Collectors.joining(", "));
@@ -89,7 +87,7 @@ public class AssociateDaoImpl implements AssociateDao {
                 accountId, pageable.getPageSize(), pageable.getOffset());
 
             Integer rowCount =
-                jdbcTemplate.queryForObject(Queries.SQL_ROW_COUNT, new Object[] {accountId}, Integer.class);
+                jdbcTemplate.queryForObject(Queries.SQL_ROW_COUNT, new Object[]{accountId}, Integer.class);
 
             return new PageImpl<>(associates, pageable, rowCount);
         } catch (DataAccessException e) {
