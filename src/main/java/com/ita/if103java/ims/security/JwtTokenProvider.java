@@ -43,7 +43,7 @@ public class JwtTokenProvider {
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
         Claims claims = Jwts.claims().setSubject(username);
-        claims.put("role", userDetails.getAuthorities());
+        claims.put("auth", userDetails.getAuthorities());
 
         Date now = new Date();
         Date validatedTime = new Date(now.getTime() + expiredTime);
