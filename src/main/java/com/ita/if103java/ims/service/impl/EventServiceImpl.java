@@ -37,8 +37,7 @@ public class EventServiceImpl implements EventService {
     private UserDao userDao;
     private WarehouseDao warehouseDao;
 
-    @Value("${websocket.topic.events}")
-    private String eventTopic;
+    private final String eventTopic = "/topic/events/";
 
     @Autowired
     public EventServiceImpl(EventDao eventDao, EventDtoMapper eventDtoMapper,
