@@ -77,6 +77,7 @@ public class LoginServiceImpl implements LoginService {
             Map<String, String> model = new HashMap<>();
             model.put("token", token);
             model.put("username", username);
+            model.put("accountId", regUser.getAccountId().toString());
             return ok(model);
         } catch (AuthenticationException e) {
             throw new UserOrPasswordIncorrectException("Credential aren't correct", e);
