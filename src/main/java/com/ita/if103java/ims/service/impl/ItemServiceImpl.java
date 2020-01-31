@@ -28,7 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -36,8 +35,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+
+import static com.ita.if103java.ims.util.JDBCUtils.getOrder;
 
 @Service
 public class ItemServiceImpl implements ItemService {
@@ -69,22 +68,17 @@ public class ItemServiceImpl implements ItemService {
         this.associateDao = associateDao;
     }
 
-    private String checkSort(String... sort) {
-        String direction = sort[1].equalsIgnoreCase("desc") ? "desc" : "asc";
-        return Stream.of("id", "name_item", "unit", "description", "volume").
-            filter(x -> x.equalsIgnoreCase(sort[0])).collect(Collectors.joining()) + " " + direction;
-    }
-
     @Override
     public Page<ItemDto> findSortedItems(Pageable pageable, UserDetailsImpl user) {
-        List<ItemDto> itemDtos =
-            itemDtoMapper.toDtoList(itemDao.getItems(checkSort(pageable.getSort().toString().split(": ")),
-                pageable.getPageSize(),
-                pageable.getOffset(),
-                user.getUser().getAccountId()));
-              Integer countItems = itemDao.countItemsById(user.getUser().getAccountId());
-
-        return new PageImpl<>(itemDtos, pageable, countItems);
+        final Long accountId = user.getUser().getAccountId();
+        final List<Item> items = itemDao.getItems(
+            getOrder(pageable),
+            pageable.getPageSize(),
+            pageable.getOffset(),
+            accountId
+        );
+        Integer count = itemDao.countItemsById(accountId);
+        return new PageImpl<>(itemDtoMapper.toDtoList(items), pageable, count);
     }
 
     @Override
