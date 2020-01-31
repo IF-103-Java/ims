@@ -13,15 +13,19 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @PropertySource("classpath:application.properties")
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
-    private final String websocketEndpoint = "/ims-websocket";
+    @Value("${websocket.endpoint}")
+    private String websocketEndpoint;
 
-    private final String allowedOrigins = "*";
+    @Value("${websocket.allowedOrigins}")
+    private String allowedOrigins;
 
-    private final String simpleBrokerEndpoint = "/topic";
+    @Value("${websocket.simplebroker.endpoint}")
+    private String simpleBrokerEndpoint;
 
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry stompEndpointRegistry) {
+        System.out.println(websocketEndpoint);
         stompEndpointRegistry.addEndpoint(websocketEndpoint).setAllowedOrigins(allowedOrigins).withSockJS();
     }
 
