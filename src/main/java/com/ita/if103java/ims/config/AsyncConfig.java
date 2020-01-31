@@ -15,7 +15,7 @@ import java.util.concurrent.Executor;
 @Configuration
 @EnableAsync
 @PropertySource("classpath:application.properties")
-public class SpringAsyncConfig implements AsyncConfigurer {
+public class AsyncConfig implements AsyncConfigurer {
 
 
     @Value("${executor.corePoolSize}")

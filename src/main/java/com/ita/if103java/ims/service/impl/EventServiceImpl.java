@@ -11,6 +11,8 @@ import com.ita.if103java.ims.mapper.dto.EventDtoMapper;
 import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +28,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
+@PropertySource("classpath:application.properties")
 public class EventServiceImpl implements EventService {
 
     private EventDao eventDao;
@@ -33,6 +36,9 @@ public class EventServiceImpl implements EventService {
     private SimpMessagingTemplate simpMessagingTemplate;
     private UserDao userDao;
     private WarehouseDao warehouseDao;
+
+    @Value("${websocket.topic.events}")
+    private String eventTopic;
 
     @Autowired
     public EventServiceImpl(EventDao eventDao, EventDtoMapper eventDtoMapper,
@@ -52,7 +58,7 @@ public class EventServiceImpl implements EventService {
         event.setDate(currentDateTime);
         event = eventDao.create(event);
         if (event.getName().isNotification()) {
-            simpMessagingTemplate.convertAndSend("/topic/" + event.getAccountId(), eventDtoMapper.toDto(event));
+            simpMessagingTemplate.convertAndSend(eventTopic + event.getAccountId(), eventDtoMapper.toDto(event));
         }
     }
 
