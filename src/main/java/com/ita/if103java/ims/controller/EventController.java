@@ -1,6 +1,5 @@
 package com.ita.if103java.ims.controller;
 
-import com.ita.if103java.ims.annotation.ApiPageable;
 import com.ita.if103java.ims.dto.EventDto;
 import com.ita.if103java.ims.entity.EventName;
 import com.ita.if103java.ims.entity.EventType;
@@ -15,7 +14,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.Map;
 
@@ -30,8 +28,7 @@ public class EventController {
     }
 
     @PostMapping
-    @ApiPageable
-    public Page<EventDto> findAll(@ApiIgnore Pageable pageable, @RequestBody Map<String, ?> params, @AuthenticationPrincipal UserDetailsImpl user) {
+    public Page<EventDto> findAll(Pageable pageable, @RequestBody Map<String, ?> params, @AuthenticationPrincipal UserDetailsImpl user) {
         return eventService.findAll(pageable, params, user);
     }
 
