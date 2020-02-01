@@ -7,8 +7,6 @@ public class SavedItemDto {
     @NotNull
     private Long itemId;
     @NotNull
-    private ItemDto itemDto;
-    @NotNull
     private int quantity;
     @NotNull
     private Long warehouseId;
@@ -37,14 +35,6 @@ public class SavedItemDto {
 
     public void setItemId(Long itemId) {
         this.itemId = itemId;
-    }
-
-    public ItemDto getItemDto() {
-        return itemDto;
-    }
-
-    public void setItemDto(ItemDto itemDto) {
-        this.itemDto = itemDto;
     }
 
     public int getQuantity() {
