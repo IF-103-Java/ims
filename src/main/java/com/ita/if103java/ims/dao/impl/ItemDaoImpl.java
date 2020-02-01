@@ -4,6 +4,7 @@ import com.ita.if103java.ims.dao.ItemDao;
 import com.ita.if103java.ims.entity.Item;
 import com.ita.if103java.ims.exception.dao.CRUDException;
 import com.ita.if103java.ims.exception.dao.ItemNotFoundException;
+import com.ita.if103java.ims.exception.dao.SavedItemNotFoundException;
 import com.ita.if103java.ims.mapper.jdbc.ItemRowMapper;
 import com.ita.if103java.ims.util.JDBCUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -152,11 +153,26 @@ public class ItemDaoImpl implements ItemDao {
         }
     }
 
+    @Override
+    public Item updateItem(Item item) {
+        int status;
+        try {
+            status = jdbcTemplate.update(Queries.SQL_UPDATE_ITEM, item.getName(), item.getUnit(),
+                item.getDescription(), item.getVolume(), item.getAccountId(), item.getId());
+        } catch (DataAccessException e) {
+            throw new CRUDException("Error during `update` {id " + item.getId() + "}", e);
+        }
+        if (status == 0) {
+            throw new SavedItemNotFoundException("Failed to get savedItem during `update` {id" + item.getId() + "}");
+        }
+        return item;
+    }
+
     class Queries {
         static final String SQL_SELECT_PAGINATED_ITEMS = """
             select *
              from items
-              where account_id=? order by %s limit ? offset ?
+              where account_id=? and active=true order by %s limit ? offset ?
             """;
         static final String SQL_SELECT_COUNT_ITEM_BY_ACCOUNT_ID = """
             select count(*)
@@ -196,6 +212,11 @@ public class ItemDaoImpl implements ItemDao {
                 select *
                 from items
                 where lower(name_item) like lower(?) and account_id=?
+            """;
+        static final String SQL_UPDATE_ITEM = """
+                update items
+                set name_item= ?, unit = ?, description = ?, volume = ?
+                where account_id = ? and id = ?
             """;
     }
 }

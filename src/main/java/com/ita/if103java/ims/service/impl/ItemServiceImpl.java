@@ -121,11 +121,8 @@ public class ItemServiceImpl implements ItemService {
             SavedItem savedItem = new SavedItem(itemTransaction.getItemDto().getId(),
                 itemTransaction.getQuantity().intValue(), itemTransaction.getDestinationWarehouseId());
             SavedItemDto savedItemDto = savedItemDtoMapper.toDto(savedItemDao.addSavedItem(savedItem));
-
-
             Transaction transaction = transactionDao.create(transactionDao.create(itemTransaction,
                 user.getUser(), itemTransaction.getAssociateId(), TransactionType.IN));
-
             eventService.create(new Event("Moved " + itemTransaction.getQuantity() + " " + itemTransaction.getItemDto().getName() +
                 " to warehouse " + warehouseDao.findById(itemTransaction.getDestinationWarehouseId(), user.getUser().getAccountId()).getName() + " " +
                 "from supplier " + associateDao.findById(user.getUser().getAccountId(), itemTransaction.getAssociateId()).getName(),
@@ -309,6 +306,12 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemDto> findItemsByNameQuery(String query, UserDetailsImpl user) {
         return itemDtoMapper.toDtoList(itemDao.findItemsByNameQuery(query, user.getUser().getAccountId()));
+    }
+
+    @Override
+    public ItemDto updateItem(ItemDto itemDto, UserDetailsImpl user) {
+        itemDto.setAccountId(user.getUser().getAccountId());
+        return itemDtoMapper.toDto(itemDao.updateItem(itemDtoMapper.toEntity(itemDto)));
     }
 
 }
