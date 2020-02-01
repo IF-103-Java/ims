@@ -1,11 +1,12 @@
 package com.ita.if103java.ims.dao;
 
 import com.ita.if103java.ims.entity.Item;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
 
 public interface ItemDao {
-    List<Item> getItems(String sort, int size, long offset, long accountId);
+    List<Item> getItems(long accountId, int size, long offset, Sort sort);
 
     Integer countItemsById(long accountId);
 

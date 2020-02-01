@@ -36,8 +36,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import static com.ita.if103java.ims.util.JDBCUtils.getOrder;
-
 @Service
 public class ItemServiceImpl implements ItemService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ItemServiceImpl.class);
@@ -71,13 +69,8 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public Page<ItemDto> findSortedItems(Pageable pageable, UserDetailsImpl user) {
         final Long accountId = user.getUser().getAccountId();
-        final List<Item> items = itemDao.getItems(
-            getOrder(pageable),
-            pageable.getPageSize(),
-            pageable.getOffset(),
-            accountId
-        );
-        Integer count = itemDao.countItemsById(accountId);
+        final List<Item> items = itemDao.getItems(accountId, pageable.getPageSize(), pageable.getOffset(), pageable.getSort());
+        final Integer count = itemDao.countItemsById(accountId);
         return new PageImpl<>(itemDtoMapper.toDtoList(items), pageable, count);
     }
 
