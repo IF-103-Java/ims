@@ -1,6 +1,4 @@
-package com.ita.if103java.ims.dto;
-
-import com.ita.if103java.ims.dto.warehouse.advice.TopWarehouseAddressDto;
+package com.ita.if103java.ims.dto.warehouse.advice;
 
 public class WarehouseAdviceDto {
     private TopWarehouseAddressDto warehouse;

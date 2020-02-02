@@ -1,7 +1,5 @@
 package com.ita.if103java.ims.dto.warehouse.advice;
 
-import com.ita.if103java.ims.dto.WarehouseToAssociateDistanceDto;
-
 import java.util.List;
 
 public class WarehouseToAssociateDistancesDto {

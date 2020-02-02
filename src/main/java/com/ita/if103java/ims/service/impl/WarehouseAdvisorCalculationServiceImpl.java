@@ -1,7 +1,7 @@
 package com.ita.if103java.ims.service.impl;
 
-import com.ita.if103java.ims.dto.WarehouseAdviceDto;
-import com.ita.if103java.ims.dto.WarehouseToAssociateDistanceDto;
+import com.ita.if103java.ims.dto.warehouse.advice.WarehouseAdviceDto;
+import com.ita.if103java.ims.dto.warehouse.advice.WarehouseToAssociateDistanceDto;
 import com.ita.if103java.ims.dto.warehouse.advice.WarehouseToAssociateDistancesDto;
 import com.ita.if103java.ims.service.WarehouseAdvisorCalculationService;
 import com.ita.if103java.ims.util.ListUtils;
@@ -32,7 +32,7 @@ public class WarehouseAdvisorCalculationServiceImpl implements WarehouseAdvisorC
     private List<WarehouseAdviceDto> getWeightedAvgDistancesGroupedByWarehouses(List<WarehouseToAssociateDistanceDto> distances) {
         return distances.stream()
             .collect(Collectors.groupingBy(WarehouseToAssociateDistanceDto::getWarehouse,
-                Collectors.averagingDouble(x -> (1 - x.getAssociate().getWeight()) * x.getDistance().inMeters)))
+                Collectors.averagingDouble(x -> x.getAssociate().getReverseWeight() * x.getDistance().inMeters)))
             .entrySet()
             .stream()
             .map(x -> new WarehouseAdviceDto(x.getKey(), x.getValue()))

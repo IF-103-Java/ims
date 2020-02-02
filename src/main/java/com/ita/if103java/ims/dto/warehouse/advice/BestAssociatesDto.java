@@ -40,6 +40,9 @@ public class BestAssociatesDto {
 
     public interface Weighed {
         double getWeight();
+        default double getReverseWeight() {
+            return 1 - getWeight();
+        }
     }
 
     public static class WeightedBestAssociateDto implements Weighed {

@@ -1,9 +1,9 @@
 package com.ita.if103java.ims.service.impl;
 
 import com.google.maps.model.DistanceMatrixElementStatus;
-import com.ita.if103java.ims.dto.WarehouseAdviceDto;
-import com.ita.if103java.ims.dto.WarehouseItemAdviceDto;
-import com.ita.if103java.ims.dto.WarehouseToAssociateDistanceDto;
+import com.ita.if103java.ims.dto.warehouse.advice.WarehouseAdviceDto;
+import com.ita.if103java.ims.dto.warehouse.advice.WarehouseItemAdviceDto;
+import com.ita.if103java.ims.dto.warehouse.advice.WarehouseToAssociateDistanceDto;
 import com.ita.if103java.ims.dto.warehouse.advice.BestAssociatesDto;
 import com.ita.if103java.ims.dto.warehouse.advice.TopWarehouseAddressDto;
 import com.ita.if103java.ims.dto.warehouse.advice.WarehouseToAssociateDistancesDto;

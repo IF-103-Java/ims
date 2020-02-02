@@ -1,6 +1,4 @@
-package com.ita.if103java.ims.dto;
-
-import com.ita.if103java.ims.dto.warehouse.advice.BestAssociatesDto;
+package com.ita.if103java.ims.dto.warehouse.advice;
 
 import java.util.List;
 

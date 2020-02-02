@@ -1,9 +1,8 @@
-package com.ita.if103java.ims.dto;
+package com.ita.if103java.ims.dto.warehouse.advice;
 
 import com.google.maps.model.Distance;
 import com.google.maps.model.DistanceMatrixElementStatus;
 import com.ita.if103java.ims.dto.warehouse.advice.BestAssociatesDto.WeightedBestAssociateDto;
-import com.ita.if103java.ims.dto.warehouse.advice.TopWarehouseAddressDto;
 
 import java.util.Objects;
 

@@ -1,6 +1,6 @@
 package com.ita.if103java.ims.service;
 
-import com.ita.if103java.ims.dto.WarehouseToAssociateDistanceDto;
+import com.ita.if103java.ims.dto.warehouse.advice.WarehouseToAssociateDistanceDto;
 import com.ita.if103java.ims.dto.warehouse.advice.Address;
 import com.ita.if103java.ims.dto.warehouse.advice.Address.Geo;
 import com.ita.if103java.ims.dto.warehouse.advice.BestAssociateDto;

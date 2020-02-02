@@ -1,7 +1,7 @@
 package com.ita.if103java.ims.controller;
 
 
-import com.ita.if103java.ims.dto.WarehouseItemAdviceDto;
+import com.ita.if103java.ims.dto.warehouse.advice.WarehouseItemAdviceDto;
 import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.WarehouseAdvisorService;
 import org.springframework.beans.factory.annotation.Autowired;
