@@ -1,13 +1,12 @@
 package com.ita.if103java.ims.service;
 
-import com.ita.if103java.ims.dto.AssociateAddressDto;
-import com.ita.if103java.ims.dto.WarehouseAddressDto;
-import com.ita.if103java.ims.dto.WarehouseToAssociateDistanceDto;
+import com.ita.if103java.ims.dto.warehouse.advice.BestAssociatesDto.WeightedBestAssociateDto;
+import com.ita.if103java.ims.dto.warehouse.advice.TopWarehouseAddressDto;
+import com.ita.if103java.ims.dto.warehouse.advice.WarehouseToAssociateDistancesDto;
 
 import java.util.List;
 
 public interface WarehouseAssociateDistanceService {
-    List<WarehouseToAssociateDistanceDto> getDistances(List<WarehouseAddressDto> warehouseAddresses,
-                                                       List<AssociateAddressDto> supplierAddresses,
-                                                       List<AssociateAddressDto> clientAddresses);
+    WarehouseToAssociateDistancesDto getDistances(List<TopWarehouseAddressDto> warehouses,
+                                                  List<WeightedBestAssociateDto> associates);
 }

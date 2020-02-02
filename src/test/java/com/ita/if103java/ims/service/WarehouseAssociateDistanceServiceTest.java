@@ -1,8 +1,13 @@
 package com.ita.if103java.ims.service;
 
-import com.ita.if103java.ims.dto.AssociateAddressDto;
-import com.ita.if103java.ims.dto.WarehouseAddressDto;
 import com.ita.if103java.ims.dto.WarehouseToAssociateDistanceDto;
+import com.ita.if103java.ims.dto.warehouse.advice.Address;
+import com.ita.if103java.ims.dto.warehouse.advice.Address.Geo;
+import com.ita.if103java.ims.dto.warehouse.advice.BestAssociateDto;
+import com.ita.if103java.ims.dto.warehouse.advice.BestAssociateDto.Associate;
+import com.ita.if103java.ims.dto.warehouse.advice.BestAssociatesDto.WeightedBestAssociateDto;
+import com.ita.if103java.ims.dto.warehouse.advice.TopWarehouseAddressDto;
+import com.ita.if103java.ims.dto.warehouse.advice.WarehouseToAssociateDistancesDto;
 import com.ita.if103java.ims.entity.AssociateType;
 import org.assertj.core.api.Condition;
 import org.junit.jupiter.api.Test;
@@ -25,78 +30,47 @@ public class WarehouseAssociateDistanceServiceTest {
 
     @Test
     void testApiCallReturnsCorrectDistanceMatrix() {
-        final List<WarehouseAddressDto> warehouseAddresses = Arrays.asList(
-            new WarehouseAddressDto(
-                1L, "USA", "Vancouver", null, null,
-                49.2827291F, -123.1207375F, 1L
-            ),
-            new WarehouseAddressDto(
-                2L, "USA", "Las Vegas", null, null,
-                36.1699412F, -115.1398296F, 2L
-            ),
-            new WarehouseAddressDto(
-                3L, "USA", "New York", null, null,
-                40.7127753F, -74.0059728F, 3L
-            )
+        final List<TopWarehouseAddressDto> topWarehouses = Arrays.asList(
+            new TopWarehouseAddressDto(1L, "W1", new Address("USA", "Vancouver", null, new Geo(49.2827291F, -123.1207375F))),
+            new TopWarehouseAddressDto(2L, "W2", new Address("USA", "Las Vegas", null, new Geo(36.1699412F, -115.1398296F))),
+            new TopWarehouseAddressDto(3L, "W3", new Address("USA", "New York", null, new Geo(40.7127753F, -74.0059728F)))
         );
 
-        final List<AssociateAddressDto> supplierAddresses = Arrays.asList(
-            new AssociateAddressDto(
-                4L, "USA", "Boston", null, null,
-                42.3600825F, -71.0588801F, 1L, AssociateType.SUPPLIER
-            ),
-            new AssociateAddressDto(
-                5L, "USA", "Arizona", null, null,
-                34.0489281F, -111.0937311F, 2L, AssociateType.SUPPLIER
-            ),
-            new AssociateAddressDto(
-                6L, "USA", "San Luis", null, null,
-                32.4869996F, -114.7821796F, 3L, AssociateType.SUPPLIER
-            )
+        final List<WeightedBestAssociateDto> associates = Arrays.asList(
+            new WeightedBestAssociateDto(new BestAssociateDto(new Associate(1L, "S1", new Address("USA", "Boston", null, new Geo(42.3600825F, -71.0588801F)), AssociateType.SUPPLIER), 10L), 0.2),
+            new WeightedBestAssociateDto(new BestAssociateDto(new Associate(2L, "S2", new Address("USA", "Arizona", null, new Geo(34.0489281F, -111.0937311F)), AssociateType.SUPPLIER), 20L), 0.3),
+            new WeightedBestAssociateDto(new BestAssociateDto(new Associate(3L, "S3", new Address("USA", "San Luis", null, new Geo(32.4869996F, -114.7821796F)), AssociateType.SUPPLIER), 30L), 0.1),
+            new WeightedBestAssociateDto(new BestAssociateDto(new Associate(4L, "C1", new Address("USA", "Detroit", null, new Geo(42.331427F, -83.0457538F)), AssociateType.CLIENT), 10L), 0.2),
+            new WeightedBestAssociateDto(new BestAssociateDto(new Associate(5L, "C2", new Address("USA", "San Francisco", null, new Geo(37.7749295F, -122.4194155F)), AssociateType.CLIENT), 50L), 0.1),
+            new WeightedBestAssociateDto(new BestAssociateDto(new Associate(6L, "C3", new Address("USA", "Washington", null, new Geo(47.7510741F, -120.7401385F)), AssociateType.CLIENT), 60L), 0.5)
         );
 
-        final List<AssociateAddressDto> clientAddresses = Arrays.asList(
-            new AssociateAddressDto(
-                7L, "USA", "Detroit", null, null,
-                42.331427F, -83.0457538F, 4L, AssociateType.CLIENT
-            ),
-            new AssociateAddressDto(
-                8L, "USA", "San Francisco", null, null,
-                37.7749295F, -122.4194155F, 5L, AssociateType.CLIENT
-            ),
-            new AssociateAddressDto(
-                9L, "USA", "Washington", null, null,
-                47.7510741F, -120.7401385F, 6L, AssociateType.CLIENT
-            )
-        );
-
-        final List<WarehouseToAssociateDistanceDto> distances = distanceMatrixService.getDistances(
-            warehouseAddresses,
-            supplierAddresses,
-            clientAddresses
-        );
-        assertThat(distances.size()).isEqualTo(18);
+        final WarehouseToAssociateDistancesDto dto = distanceMatrixService.getDistances(topWarehouses, associates);
+        final List<WarehouseToAssociateDistanceDto> clientDistances = dto.getClientWarehouseDistances();
+        final List<WarehouseToAssociateDistanceDto> supplierDistances = dto.getSupplierWarehouseDistances();
+        assertThat(clientDistances.size()).isEqualTo(9);
+        assertThat(supplierDistances.size()).isEqualTo(9);
 //          W1
-        final WarehouseToAssociateDistanceDto vancouverBoston = distances.get(0);
-        final WarehouseToAssociateDistanceDto vancouverArizona = distances.get(1);
-        final WarehouseToAssociateDistanceDto vancouverSanLuis = distances.get(2);
-        final WarehouseToAssociateDistanceDto vancouverDetroit = distances.get(3);
-        final WarehouseToAssociateDistanceDto vancouverSanFrancisco = distances.get(4);
-        final WarehouseToAssociateDistanceDto vancouverWashington = distances.get(5);
+        final WarehouseToAssociateDistanceDto vancouverBoston = supplierDistances.get(0);
+        final WarehouseToAssociateDistanceDto vancouverArizona = supplierDistances.get(1);
+        final WarehouseToAssociateDistanceDto vancouverSanLuis = supplierDistances.get(2);
+        final WarehouseToAssociateDistanceDto vancouverDetroit = clientDistances.get(0);
+        final WarehouseToAssociateDistanceDto vancouverSanFrancisco = clientDistances.get(1);
+        final WarehouseToAssociateDistanceDto vancouverWashington = clientDistances.get(2);
 //          W2
-        final WarehouseToAssociateDistanceDto lasVegasBoston = distances.get(6);
-        final WarehouseToAssociateDistanceDto lasVegasArizona = distances.get(7);
-        final WarehouseToAssociateDistanceDto lasVegasSanLuis = distances.get(8);
-        final WarehouseToAssociateDistanceDto lasVegasDetroit = distances.get(9);
-        final WarehouseToAssociateDistanceDto lasVegasSanFrancisco = distances.get(10);
-        final WarehouseToAssociateDistanceDto lasVegasWashington = distances.get(11);
+        final WarehouseToAssociateDistanceDto lasVegasBoston = supplierDistances.get(3);
+        final WarehouseToAssociateDistanceDto lasVegasArizona = supplierDistances.get(4);
+        final WarehouseToAssociateDistanceDto lasVegasSanLuis = supplierDistances.get(5);
+        final WarehouseToAssociateDistanceDto lasVegasDetroit = clientDistances.get(3);
+        final WarehouseToAssociateDistanceDto lasVegasSanFrancisco = clientDistances.get(4);
+        final WarehouseToAssociateDistanceDto lasVegasWashington = clientDistances.get(5);
 //          W3
-        final WarehouseToAssociateDistanceDto newYorkBoston = distances.get(12);
-        final WarehouseToAssociateDistanceDto newYorkArizona = distances.get(13);
-        final WarehouseToAssociateDistanceDto newYorkSanLuis = distances.get(14);
-        final WarehouseToAssociateDistanceDto newYorkDetroit = distances.get(15);
-        final WarehouseToAssociateDistanceDto newYorkSanFrancisco = distances.get(16);
-        final WarehouseToAssociateDistanceDto newYorkWashington = distances.get(17);
+        final WarehouseToAssociateDistanceDto newYorkBoston = supplierDistances.get(6);
+        final WarehouseToAssociateDistanceDto newYorkArizona = supplierDistances.get(7);
+        final WarehouseToAssociateDistanceDto newYorkSanLuis = supplierDistances.get(8);
+        final WarehouseToAssociateDistanceDto newYorkDetroit = clientDistances.get(6);
+        final WarehouseToAssociateDistanceDto newYorkSanFrancisco = clientDistances.get(7);
+        final WarehouseToAssociateDistanceDto newYorkWashington = clientDistances.get(8);
 
 //        W1
         assertThat(vancouverBoston).has(allOf(
@@ -115,7 +89,7 @@ public class WarehouseAssociateDistanceServiceTest {
             warehouseAddressCity("Vancouver"),
             associateAddressCity("San Luis"),
             associateAddressType(AssociateType.SUPPLIER),
-            distance("2,529 km")
+            distance("2,543 km")
         ));
         assertThat(vancouverDetroit).has(allOf(
             warehouseAddressCity("Vancouver"),
@@ -164,7 +138,7 @@ public class WarehouseAssociateDistanceServiceTest {
             warehouseAddressCity("Las Vegas"),
             associateAddressCity("San Francisco"),
             associateAddressType(AssociateType.CLIENT),
-            distance("917 km")
+            distance("915 km")
         ));
         assertThat(lasVegasWashington).has(allOf(
             warehouseAddressCity("Las Vegas"),
@@ -213,21 +187,21 @@ public class WarehouseAssociateDistanceServiceTest {
 
     private Condition<WarehouseToAssociateDistanceDto> warehouseAddressCity(String city) {
         return new Condition<>(
-            x -> x.getWarehouseAddress().getCity().equals(city),
+            x -> x.getWarehouse().getAddress().getCity().equals(city),
             "warehouse address city"
         );
     }
 
     private Condition<WarehouseToAssociateDistanceDto> associateAddressCity(String city) {
         return new Condition<>(
-            x -> x.getAssociateAddress().getCity().equals(city),
+            x -> x.getAssociate().getReference().getReference().getAddress().getCity().equals(city),
             "associate address city"
         );
     }
 
     private Condition<WarehouseToAssociateDistanceDto> associateAddressType(AssociateType associateType) {
         return new Condition<>(
-            x -> x.getAssociateAddress().getAssociateType().equals(associateType),
+            x -> x.getAssociate().getReference().getReference().getType().equals(associateType),
             "associate address type"
         );
     }

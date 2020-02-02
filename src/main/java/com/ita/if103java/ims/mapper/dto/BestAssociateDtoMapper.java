@@ -1,9 +1,9 @@
 package com.ita.if103java.ims.mapper.dto;
 
-import com.ita.if103java.ims.dto.BestAssociateDto;
-import com.ita.if103java.ims.dto.BestAssociateDto.Associate;
-import com.ita.if103java.ims.dto.BestAssociateDto.Associate.Address;
-import com.ita.if103java.ims.dto.BestAssociateDto.Associate.Address.Geo;
+import com.ita.if103java.ims.dto.warehouse.advice.Address;
+import com.ita.if103java.ims.dto.warehouse.advice.Address.Geo;
+import com.ita.if103java.ims.dto.warehouse.advice.BestAssociateDto;
+import com.ita.if103java.ims.dto.warehouse.advice.BestAssociateDto.Associate;
 import com.ita.if103java.ims.entity.AssociateAddressTotalTransactionQuantity;
 import org.springframework.stereotype.Component;
 
@@ -13,14 +13,14 @@ public class BestAssociateDtoMapper extends AbstractEntityDtoMapper<AssociateAdd
     @Override
     public AssociateAddressTotalTransactionQuantity toEntity(BestAssociateDto dto) {
         return dto == null ? null : new AssociateAddressTotalTransactionQuantity(
-            dto.getAssociate().getId(),
-            dto.getAssociate().getName(),
-            dto.getAssociate().getType(),
-            dto.getAssociate().getAddress().getCountry(),
-            dto.getAssociate().getAddress().getCity(),
-            dto.getAssociate().getAddress().getStreet(),
-            dto.getAssociate().getAddress().getGeo().getLatitude(),
-            dto.getAssociate().getAddress().getGeo().getLongitude(),
+            dto.getReference().getId(),
+            dto.getReference().getName(),
+            dto.getReference().getType(),
+            dto.getReference().getAddress().getCountry(),
+            dto.getReference().getAddress().getCity(),
+            dto.getReference().getAddress().getStreet(),
+            dto.getReference().getAddress().getGeo().getLatitude(),
+            dto.getReference().getAddress().getGeo().getLongitude(),
             dto.getTotalTransactionQuantity()
         );
     }

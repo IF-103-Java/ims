@@ -1,22 +1,24 @@
 package com.ita.if103java.ims.dto;
 
+import com.ita.if103java.ims.dto.warehouse.advice.TopWarehouseAddressDto;
+
 public class WarehouseAdviceDto {
-    private WarehouseDto warehouse;
+    private TopWarehouseAddressDto warehouse;
     private Double totalWeightedAvgDistance;
 
     public WarehouseAdviceDto() {
     }
 
-    public WarehouseAdviceDto(WarehouseDto warehouse, Double totalWeightedAvgDistance) {
+    public WarehouseAdviceDto(TopWarehouseAddressDto warehouse, Double totalWeightedAvgDistance) {
         this.warehouse = warehouse;
         this.totalWeightedAvgDistance = totalWeightedAvgDistance;
     }
 
-    public WarehouseDto getWarehouse() {
+    public TopWarehouseAddressDto getWarehouse() {
         return warehouse;
     }
 
-    public void setWarehouse(WarehouseDto warehouse) {
+    public void setWarehouse(TopWarehouseAddressDto warehouse) {
         this.warehouse = warehouse;
     }
 

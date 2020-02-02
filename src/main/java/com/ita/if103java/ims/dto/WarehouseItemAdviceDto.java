@@ -1,30 +1,29 @@
 package com.ita.if103java.ims.dto;
 
+import com.ita.if103java.ims.dto.warehouse.advice.BestAssociatesDto;
+
 import java.util.List;
 
 public class WarehouseItemAdviceDto {
-    private ItemDto item;
+    private Long itemId;
     private List<WarehouseAdviceDto> warehouseAdvices;
-    private List<AssociateDto> suppliers;
-    private List<AssociateDto> clients;
+    private BestAssociatesDto bestAssociates;
 
     public WarehouseItemAdviceDto() {
     }
 
-    public WarehouseItemAdviceDto(ItemDto item, List<WarehouseAdviceDto> warehouseAdvices,
-                                  List<AssociateDto> suppliers, List<AssociateDto> clients) {
-        this.item = item;
+    public WarehouseItemAdviceDto(Long itemId, List<WarehouseAdviceDto> warehouseAdvices, BestAssociatesDto bestAssociates) {
+        this.itemId = itemId;
         this.warehouseAdvices = warehouseAdvices;
-        this.suppliers = suppliers;
-        this.clients = clients;
+        this.bestAssociates = bestAssociates;
     }
 
-    public ItemDto getItem() {
-        return item;
+    public Long getItemId() {
+        return itemId;
     }
 
-    public void setItem(ItemDto item) {
-        this.item = item;
+    public void setItemId(Long itemId) {
+        this.itemId = itemId;
     }
 
     public List<WarehouseAdviceDto> getWarehouseAdvices() {
@@ -35,29 +34,20 @@ public class WarehouseItemAdviceDto {
         this.warehouseAdvices = warehouseAdvices;
     }
 
-    public List<AssociateDto> getClients() {
-        return clients;
+    public BestAssociatesDto getBestAssociates() {
+        return bestAssociates;
     }
 
-    public void setClients(List<AssociateDto> clients) {
-        this.clients = clients;
-    }
-
-    public List<AssociateDto> getSuppliers() {
-        return suppliers;
-    }
-
-    public void setSuppliers(List<AssociateDto> suppliers) {
-        this.suppliers = suppliers;
+    public void setBestAssociates(BestAssociatesDto bestAssociates) {
+        this.bestAssociates = bestAssociates;
     }
 
     @Override
     public String toString() {
         return "WarehouseItemAdviceDto{" +
-            "item=" + item +
+            "itemId=" + itemId +
             ", warehouseAdvices=" + warehouseAdvices +
-            ", suppliers=" + suppliers +
-            ", clients=" + clients +
+            ", bestAssociates=" + bestAssociates +
             '}';
     }
 }

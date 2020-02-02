@@ -1,9 +1,9 @@
 package com.ita.if103java.ims.service.impl;
 
 import com.ita.if103java.ims.dao.BestAssociatesDao;
-import com.ita.if103java.ims.dto.BestAssociateDto;
-import com.ita.if103java.ims.dto.BestAssociatesDto;
-import com.ita.if103java.ims.dto.BestAssociatesDto.WeightedBestAssociateDto;
+import com.ita.if103java.ims.dto.warehouse.advice.BestAssociateDto;
+import com.ita.if103java.ims.dto.warehouse.advice.BestAssociatesDto;
+import com.ita.if103java.ims.dto.warehouse.advice.BestAssociatesDto.WeightedBestAssociateDto;
 import com.ita.if103java.ims.entity.AssociateType;
 import com.ita.if103java.ims.mapper.dto.BestAssociateDtoMapper;
 import com.ita.if103java.ims.service.BestAssociatesService;
@@ -36,7 +36,7 @@ public class BestAssociatesServiceImpl implements BestAssociatesService {
     }
 
     private Map<AssociateType, List<BestAssociateDto>> getGroupedByType(List<BestAssociateDto> associates) {
-        return associates.stream().collect(Collectors.groupingBy(x -> x.getAssociate().getType()));
+        return associates.stream().collect(Collectors.groupingBy(x -> x.getReference().getType()));
     }
 
     private List<WeightedBestAssociateDto> getWeightedAssociates(List<BestAssociateDto> associates) {

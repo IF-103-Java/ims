@@ -1,4 +1,4 @@
-package com.ita.if103java.ims.dto;
+package com.ita.if103java.ims.dto.warehouse.advice;
 
 import java.util.List;
 
@@ -43,23 +43,23 @@ public class BestAssociatesDto {
     }
 
     public static class WeightedBestAssociateDto implements Weighed {
-        private BestAssociateDto associate;
+        private BestAssociateDto reference;
         private double weight;
 
         public WeightedBestAssociateDto() {
         }
 
-        public WeightedBestAssociateDto(BestAssociateDto associate, double weight) {
-            this.associate = associate;
+        public WeightedBestAssociateDto(BestAssociateDto reference, double weight) {
+            this.reference = reference;
             this.weight = weight;
         }
 
-        public BestAssociateDto getAssociate() {
-            return associate;
+        public BestAssociateDto getReference() {
+            return reference;
         }
 
-        public void setAssociate(BestAssociateDto associate) {
-            this.associate = associate;
+        public void setReference(BestAssociateDto reference) {
+            this.reference = reference;
         }
 
         @Override
@@ -74,7 +74,7 @@ public class BestAssociatesDto {
         @Override
         public String toString() {
             return "WeightedBestAssociateDto{" +
-                "associate=" + associate +
+                "reference=" + reference +
                 ", weight=" + weight +
                 '}';
         }

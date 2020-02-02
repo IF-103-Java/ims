@@ -1,14 +1,14 @@
 package com.ita.if103java.ims.dto.warehouse.advice;
 
-public class TopWarehouseDto {
+public class TopWarehouseAddressDto {
     private Long warehouseId;
     private String warehouseName;
     private Address address;
 
-    public TopWarehouseDto() {
+    public TopWarehouseAddressDto() {
     }
 
-    public TopWarehouseDto(Long warehouseId, String warehouseName, Address address) {
+    public TopWarehouseAddressDto(Long warehouseId, String warehouseName, Address address) {
         this.warehouseId = warehouseId;
         this.warehouseName = warehouseName;
         this.address = address;
@@ -40,7 +40,7 @@ public class TopWarehouseDto {
 
     @Override
     public String toString() {
-        return "TopWarehouseDto{" +
+        return "TopWarehouseAddressDto{" +
             "warehouseId=" + warehouseId +
             ", warehouseName='" + warehouseName + '\'' +
             ", address=" + address +
