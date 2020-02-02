@@ -5,7 +5,9 @@ import com.ita.if103java.ims.dto.BestAssociateDto.Associate;
 import com.ita.if103java.ims.dto.BestAssociateDto.Associate.Address;
 import com.ita.if103java.ims.dto.BestAssociateDto.Associate.Address.Geo;
 import com.ita.if103java.ims.entity.AssociateAddressTotalTransactionQuantity;
+import org.springframework.stereotype.Component;
 
+@Component
 public class BestAssociateDtoMapper extends AbstractEntityDtoMapper<AssociateAddressTotalTransactionQuantity, BestAssociateDto> {
 
     @Override

@@ -1,34 +1,35 @@
 package com.ita.if103java.ims.dao.impl;
 
-import com.ita.if103java.ims.dao.WarehouseAdvisorDao;
+import com.ita.if103java.ims.dao.BestAssociatesDao;
 import com.ita.if103java.ims.entity.AssociateAddressTotalTransactionQuantity;
 import com.ita.if103java.ims.entity.AssociateType;
 import com.ita.if103java.ims.entity.TransactionType;
 import com.ita.if103java.ims.exception.dao.CRUDException;
 import com.ita.if103java.ims.mapper.jdbc.AssociateAddressTotalTransactionQuantityRowMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
 @Repository
-public class WarehouseAdvisorDaoImpl implements WarehouseAdvisorDao {
+public class BestAssociatesDaoImpl implements BestAssociatesDao {
 
     private final JdbcTemplate jdbcTemplate;
     private final AssociateAddressTotalTransactionQuantityRowMapper mapper;
 
-    public WarehouseAdvisorDaoImpl(JdbcTemplate jdbcTemplate, AssociateAddressTotalTransactionQuantityRowMapper mapper) {
+    @Autowired
+    public BestAssociatesDaoImpl(JdbcTemplate jdbcTemplate, AssociateAddressTotalTransactionQuantityRowMapper mapper) {
         this.jdbcTemplate = jdbcTemplate;
         this.mapper = mapper;
     }
 
     @Override
-    public List<AssociateAddressTotalTransactionQuantity> findBestAssociatesByItem(Long accountId, Long itemId, Integer limit) {
+    public List<AssociateAddressTotalTransactionQuantity> findByItem(Long accountId, Long itemId, Integer limit) {
         try {
-            return jdbcTemplate.query(union(), mapper, associateQueryParams(accountId, itemId, limit));
+            return jdbcTemplate.query(union(), mapper, getPreparedStatementArgs(accountId, itemId, limit));
         } catch (DataAccessException e) {
             throw new CRUDException("Error during WarehouseAdvisorDaoImpl.findBestAssociatesByItem", e);
         }
@@ -39,15 +40,15 @@ public class WarehouseAdvisorDaoImpl implements WarehouseAdvisorDao {
         return String.format("(%s) union (%s)", q, q);
     }
 
-    private Object[] associateQueryParams(Long accountId, Long itemId, Integer limit) {
-        return Stream.concat(
-            Arrays.stream(associateQuery(accountId, itemId, limit, TransactionType.IN, AssociateType.SUPPLIER)),
-            Arrays.stream(associateQuery(accountId, itemId, limit, TransactionType.OUT, AssociateType.CLIENT))
+    private Object[] getPreparedStatementArgs(Long accountId, Long itemId, Integer limit) {
+        return Stream.of(
+            buildPartOfArgs(accountId, itemId, limit, TransactionType.IN, AssociateType.SUPPLIER),
+            buildPartOfArgs(accountId, itemId, limit, TransactionType.OUT, AssociateType.CLIENT)
         ).flatMap(Stream::of).toArray();
     }
 
-    private Object[] associateQuery(Long accountId, Long itemId, Integer limit,
-                                    TransactionType transactionType, AssociateType associateType) {
+    private Object[] buildPartOfArgs(Long accountId, Long itemId, Integer limit,
+                                     TransactionType transactionType, AssociateType associateType) {
         return new Object[]{itemId, transactionType.toString(), associateType.toString(), accountId, limit};
     }
 

@@ -3,15 +3,15 @@ package com.ita.if103java.ims.dto;
 import java.util.List;
 
 public class BestAssociatesDto {
-    private List<BestAssociateDto> clients;
     private List<BestAssociateDto> suppliers;
+    private List<BestAssociateDto> clients;
 
     public BestAssociatesDto() {
     }
 
-    public BestAssociatesDto(List<BestAssociateDto> clients, List<BestAssociateDto> suppliers) {
-        this.clients = clients;
+    public BestAssociatesDto(List<BestAssociateDto> suppliers, List<BestAssociateDto> clients) {
         this.suppliers = suppliers;
+        this.clients = clients;
     }
 
     public List<BestAssociateDto> getClients() {
