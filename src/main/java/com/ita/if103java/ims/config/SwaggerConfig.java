@@ -1,5 +1,6 @@
 package com.ita.if103java.ims.config;
 
+import com.google.common.base.Predicates;
 import com.google.common.collect.Lists;
 import com.ita.if103java.ims.security.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Value;
@@ -45,6 +46,7 @@ public class SwaggerConfig {
             .select()
             .apis(RequestHandlerSelectors.any())
             .paths(PathSelectors.any())
+            .paths(Predicates.not(PathSelectors.regex("/error.*")))
             .build()
             .apiInfo(metadata())
             .securitySchemes(Lists.newArrayList(apiKey()))

@@ -5,18 +5,18 @@ import java.util.List;
 public class WarehouseItemAdviceDto {
     private ItemDto item;
     private List<WarehouseAdviceDto> warehouseAdvices;
-    private List<AssociateDto> clients;
     private List<AssociateDto> suppliers;
+    private List<AssociateDto> clients;
 
     public WarehouseItemAdviceDto() {
     }
 
     public WarehouseItemAdviceDto(ItemDto item, List<WarehouseAdviceDto> warehouseAdvices,
-                                  List<AssociateDto> clients, List<AssociateDto> suppliers) {
+                                  List<AssociateDto> suppliers, List<AssociateDto> clients) {
         this.item = item;
         this.warehouseAdvices = warehouseAdvices;
-        this.clients = clients;
         this.suppliers = suppliers;
+        this.clients = clients;
     }
 
     public ItemDto getItem() {
@@ -56,8 +56,8 @@ public class WarehouseItemAdviceDto {
         return "WarehouseItemAdviceDto{" +
             "item=" + item +
             ", warehouseAdvices=" + warehouseAdvices +
-            ", clients=" + clients +
             ", suppliers=" + suppliers +
+            ", clients=" + clients +
             '}';
     }
 }
