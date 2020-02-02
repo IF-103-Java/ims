@@ -3,6 +3,7 @@ package com.ita.if103java.ims.service.impl;
 import com.ita.if103java.ims.dao.BestAssociatesDao;
 import com.ita.if103java.ims.dto.BestAssociateDto;
 import com.ita.if103java.ims.dto.BestAssociatesDto;
+import com.ita.if103java.ims.dto.BestAssociatesDto.WeightedBestAssociateDto;
 import com.ita.if103java.ims.entity.AssociateType;
 import com.ita.if103java.ims.mapper.dto.BestAssociateDtoMapper;
 import com.ita.if103java.ims.service.BestAssociatesService;
@@ -29,12 +30,19 @@ public class BestAssociatesServiceImpl implements BestAssociatesService {
         final List<BestAssociateDto> associates = mapper.toDtoList(bestAssociatesDao.findByItem(accountId, itemId, 3));
         final Map<AssociateType, List<BestAssociateDto>> associatesByType = getGroupedByType(associates);
         return new BestAssociatesDto(
-            associatesByType.get(AssociateType.SUPPLIER),
-            associatesByType.get(AssociateType.CLIENT)
+            getWeightedAssociates(associatesByType.get(AssociateType.SUPPLIER)),
+            getWeightedAssociates(associatesByType.get(AssociateType.CLIENT))
         );
     }
 
     private Map<AssociateType, List<BestAssociateDto>> getGroupedByType(List<BestAssociateDto> associates) {
         return associates.stream().collect(Collectors.groupingBy(x -> x.getAssociate().getType()));
+    }
+
+    private List<WeightedBestAssociateDto> getWeightedAssociates(List<BestAssociateDto> associates) {
+        final double sum = associates.stream().mapToDouble(BestAssociateDto::getTotalTransactionQuantity).sum();
+        return associates.stream()
+            .map(x -> new WeightedBestAssociateDto(x, x.getTotalTransactionQuantity() / sum))
+            .collect(Collectors.toUnmodifiableList());
     }
 }
