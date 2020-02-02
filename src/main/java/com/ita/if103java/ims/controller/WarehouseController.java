@@ -90,4 +90,11 @@ public class WarehouseController {
                                  @AuthenticationPrincipal UserDetailsImpl user) {
         return warehouseService.findChildrenById(id, user);
     }
+
+    @GetMapping(value = "/capacity/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public Integer findTotalCapacity(@PathVariable("id") Long id,
+                                               @AuthenticationPrincipal UserDetailsImpl user) {
+        return warehouseService.findTotalCapacity(id, user);
+    }
 }

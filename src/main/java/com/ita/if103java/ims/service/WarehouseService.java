@@ -27,4 +27,6 @@ public interface WarehouseService {
 
     List<WarehouseDto> findChildrenById(Long id, UserDetailsImpl user);
 
+    Integer findTotalCapacity (Long id, UserDetailsImpl user);
+
 }

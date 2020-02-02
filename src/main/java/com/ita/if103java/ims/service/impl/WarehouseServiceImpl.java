@@ -240,4 +240,8 @@ public class WarehouseServiceImpl implements WarehouseService {
             user.getUser().getAccountId()));
         return children;
     }
+
+    public Integer findTotalCapacity (Long id, UserDetailsImpl user){
+        return warehouseDao.findTotalCapacity(id,user.getUser().getAccountId());
+    }
 }
