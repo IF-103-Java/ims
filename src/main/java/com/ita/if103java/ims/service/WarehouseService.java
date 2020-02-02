@@ -25,4 +25,6 @@ public interface WarehouseService {
 
     Map<Long, String> findAllWarehouseNames(UserDetailsImpl user);
 
+    List<WarehouseDto> findChildrenById(Long id, UserDetailsImpl user);
+
 }

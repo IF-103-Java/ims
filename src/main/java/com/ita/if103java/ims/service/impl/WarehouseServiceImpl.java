@@ -233,4 +233,11 @@ public class WarehouseServiceImpl implements WarehouseService {
     public Map<Long, String> findAllWarehouseNames(UserDetailsImpl user) {
         return warehouseDao.findAllWarehouseNames(user.getUser().getAccountId());
     }
+
+    @Override
+    public List<WarehouseDto> findChildrenById(Long id, UserDetailsImpl user) {
+        List<WarehouseDto> children = warehouseDtoMapper.toDtoList(warehouseDao.findChildrenById(id,
+            user.getUser().getAccountId()));
+        return children;
+    }
 }

@@ -180,6 +180,18 @@ public class WarehouseDaoImpl implements WarehouseDao {
         }
     }
 
+    @Override
+    public List<Warehouse> findChildrenById(Long id, Long accountId) {
+        try {
+            return jdbcTemplate.query(Queries.SQL_SELECT_CHILDREN_BY_ID, warehouseRowMapper, id, accountId);
+
+        } catch (DataAccessException e) {
+            throw new WarehouseNotFoundException("Error during finding all children of warehouse {Id = " + id + "}", e);
+        }
+    }
+
+
+
     class Queries {
 
         static final String SQL_CREATE_WAREHOUSE = """
@@ -252,6 +264,13 @@ public class WarehouseDaoImpl implements WarehouseDao {
                 SELECT id, name
                 FROM warehouses
                 WHERE id IN (%s)
+            """;
+
+        static final String SQL_SELECT_CHILDREN_BY_ID = """
+                SELECT *
+                FROM warehouses
+                WHERE parent_id = ? AND
+                account_id = ?
             """;
     }
 }
