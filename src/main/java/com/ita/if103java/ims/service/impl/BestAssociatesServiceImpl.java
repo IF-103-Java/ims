@@ -2,8 +2,8 @@ package com.ita.if103java.ims.service.impl;
 
 import com.ita.if103java.ims.dao.BestAssociatesDao;
 import com.ita.if103java.ims.dto.warehouse.advice.BestAssociateDto;
-import com.ita.if103java.ims.dto.warehouse.advice.BestAssociatesDto;
-import com.ita.if103java.ims.dto.warehouse.advice.BestAssociatesDto.WeightedBestAssociateDto;
+import com.ita.if103java.ims.dto.warehouse.advice.BestWeightedAssociatesDto;
+import com.ita.if103java.ims.dto.warehouse.advice.BestWeightedAssociatesDto.WeightedBestAssociateDto;
 import com.ita.if103java.ims.entity.AssociateType;
 import com.ita.if103java.ims.mapper.dto.BestAssociateDtoMapper;
 import com.ita.if103java.ims.service.BestAssociatesService;
@@ -26,12 +26,12 @@ public class BestAssociatesServiceImpl implements BestAssociatesService {
     }
 
     @Override
-    public BestAssociatesDto findByItem(Long accountId, Long itemId) {
+    public BestWeightedAssociatesDto findByItem(Long accountId, Long itemId) {
         final List<BestAssociateDto> associates = mapper.toDtoList(bestAssociatesDao.findByItem(accountId, itemId, 3));
         final Map<AssociateType, List<BestAssociateDto>> associatesByType = getGroupedByType(associates);
         final List<BestAssociateDto> suppliers = associatesByType.get(AssociateType.SUPPLIER);
         final List<BestAssociateDto> clients = associatesByType.get(AssociateType.CLIENT);
-        return new BestAssociatesDto(getWeightedAssociates(suppliers), getWeightedAssociates(clients));
+        return new BestWeightedAssociatesDto(getWeightedAssociates(suppliers), getWeightedAssociates(clients));
     }
 
     private Map<AssociateType, List<BestAssociateDto>> getGroupedByType(List<BestAssociateDto> associates) {

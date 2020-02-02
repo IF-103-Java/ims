@@ -1,8 +1,8 @@
 package com.ita.if103java.ims.service.impl;
 
 import com.google.maps.model.DistanceMatrixElementStatus;
-import com.ita.if103java.ims.dto.warehouse.advice.BestAssociatesDto;
-import com.ita.if103java.ims.dto.warehouse.advice.BestAssociatesDto.WeightedBestAssociateDto;
+import com.ita.if103java.ims.dto.warehouse.advice.BestWeightedAssociatesDto;
+import com.ita.if103java.ims.dto.warehouse.advice.BestWeightedAssociatesDto.WeightedBestAssociateDto;
 import com.ita.if103java.ims.dto.warehouse.advice.TopWarehouseAddressDto;
 import com.ita.if103java.ims.dto.warehouse.advice.WarehouseAdviceDto;
 import com.ita.if103java.ims.dto.warehouse.advice.WarehouseItemAdviceDto;
@@ -39,7 +39,7 @@ public class WarehouseAdvisorServiceImpl implements WarehouseAdvisorService {
     @Override
     public WarehouseItemAdviceDto getAdvice(Long accountId, Long itemId) {
         final List<TopWarehouseAddressDto> warehouseAddresses = warehouseAddressService.findAll(accountId);
-        final BestAssociatesDto bestAssociates = bestAssociatesService.findByItem(accountId, itemId);
+        final BestWeightedAssociatesDto bestAssociates = bestAssociatesService.findByItem(accountId, itemId);
         final List<WeightedBestAssociateDto> associates = bestAssociates.getAssociates();
         final WarehouseToAssociateDistancesDto distances = distanceService.getDistances(warehouseAddresses, associates);
         final WarehouseToAssociateDistancesDto onlyAvailableRoutes = filterUnavailableRoute(distances);

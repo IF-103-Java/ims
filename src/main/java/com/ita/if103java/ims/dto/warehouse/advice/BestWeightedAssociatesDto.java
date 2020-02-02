@@ -5,14 +5,14 @@ import com.ita.if103java.ims.util.ListUtils;
 import java.util.List;
 import java.util.Optional;
 
-public class BestAssociatesDto {
+public class BestWeightedAssociatesDto {
     private List<WeightedBestAssociateDto> suppliers;
     private List<WeightedBestAssociateDto> clients;
 
-    public BestAssociatesDto() {
+    public BestWeightedAssociatesDto() {
     }
 
-    public BestAssociatesDto(List<WeightedBestAssociateDto> suppliers, List<WeightedBestAssociateDto> clients) {
+    public BestWeightedAssociatesDto(List<WeightedBestAssociateDto> suppliers, List<WeightedBestAssociateDto> clients) {
         this.suppliers = suppliers;
         this.clients = clients;
     }
@@ -42,7 +42,7 @@ public class BestAssociatesDto {
 
     @Override
     public String toString() {
-        return "BestAssociatesDto{" +
+        return "BestWeightedAssociatesDto{" +
             "clients=" + clients +
             ", suppliers=" + suppliers +
             '}';

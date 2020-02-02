@@ -1,6 +1,6 @@
 package com.ita.if103java.ims.service;
 
-import com.ita.if103java.ims.dto.warehouse.advice.BestAssociatesDto.WeightedBestAssociateDto;
+import com.ita.if103java.ims.dto.warehouse.advice.BestWeightedAssociatesDto.WeightedBestAssociateDto;
 import com.ita.if103java.ims.dto.warehouse.advice.TopWarehouseAddressDto;
 import com.ita.if103java.ims.dto.warehouse.advice.WarehouseToAssociateDistancesDto;
 

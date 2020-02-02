@@ -1,7 +1,7 @@
 package com.ita.if103java.ims.service;
 
-import com.ita.if103java.ims.dto.warehouse.advice.BestAssociatesDto;
+import com.ita.if103java.ims.dto.warehouse.advice.BestWeightedAssociatesDto;
 
 public interface BestAssociatesService {
-    BestAssociatesDto findByItem(Long accountId, Long itemId);
+    BestWeightedAssociatesDto findByItem(Long accountId, Long itemId);
 }

@@ -2,7 +2,7 @@ package com.ita.if103java.ims.dto.warehouse.advice;
 
 import com.google.maps.model.Distance;
 import com.google.maps.model.DistanceMatrixElementStatus;
-import com.ita.if103java.ims.dto.warehouse.advice.BestAssociatesDto.WeightedBestAssociateDto;
+import com.ita.if103java.ims.dto.warehouse.advice.BestWeightedAssociatesDto.WeightedBestAssociateDto;
 
 import java.util.Objects;
 

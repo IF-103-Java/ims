@@ -3,7 +3,7 @@ package com.ita.if103java.ims.mapper.dto;
 import com.google.common.collect.Lists;
 import com.google.maps.model.DistanceMatrix;
 import com.ita.if103java.ims.dto.warehouse.advice.WarehouseToAssociateDistanceDto;
-import com.ita.if103java.ims.dto.warehouse.advice.BestAssociatesDto.WeightedBestAssociateDto;
+import com.ita.if103java.ims.dto.warehouse.advice.BestWeightedAssociatesDto.WeightedBestAssociateDto;
 import com.ita.if103java.ims.dto.warehouse.advice.TopWarehouseAddressDto;
 import com.ita.if103java.ims.dto.warehouse.advice.WarehouseToAssociateDistancesDto;
 import com.ita.if103java.ims.entity.AssociateType;

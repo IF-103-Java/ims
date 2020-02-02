@@ -1,12 +1,13 @@
 package com.ita.if103java.ims.service;
 
-import com.ita.if103java.ims.dto.warehouse.advice.WarehouseToAssociateDistanceDto;
 import com.ita.if103java.ims.dto.warehouse.advice.Address;
 import com.ita.if103java.ims.dto.warehouse.advice.Address.Geo;
 import com.ita.if103java.ims.dto.warehouse.advice.BestAssociateDto;
 import com.ita.if103java.ims.dto.warehouse.advice.BestAssociateDto.Associate;
-import com.ita.if103java.ims.dto.warehouse.advice.BestAssociatesDto.WeightedBestAssociateDto;
+import com.ita.if103java.ims.dto.warehouse.advice.BestWeightedAssociatesDto;
+import com.ita.if103java.ims.dto.warehouse.advice.BestWeightedAssociatesDto.WeightedBestAssociateDto;
 import com.ita.if103java.ims.dto.warehouse.advice.TopWarehouseAddressDto;
+import com.ita.if103java.ims.dto.warehouse.advice.WarehouseToAssociateDistanceDto;
 import com.ita.if103java.ims.dto.warehouse.advice.WarehouseToAssociateDistancesDto;
 import com.ita.if103java.ims.entity.AssociateType;
 import org.assertj.core.api.Condition;
@@ -36,14 +37,18 @@ public class WarehouseBestAssociateDistanceServiceTest {
             new TopWarehouseAddressDto(3L, "W3", new Address("USA", "New York", null, new Geo(40.7127753F, -74.0059728F)))
         );
 
-        final List<WeightedBestAssociateDto> associates = Arrays.asList(
+        final List<WeightedBestAssociateDto> suppliers = Arrays.asList(
             new WeightedBestAssociateDto(new BestAssociateDto(new Associate(1L, "S1", new Address("USA", "Boston", null, new Geo(42.3600825F, -71.0588801F)), AssociateType.SUPPLIER), 10L), 0.2),
             new WeightedBestAssociateDto(new BestAssociateDto(new Associate(2L, "S2", new Address("USA", "Arizona", null, new Geo(34.0489281F, -111.0937311F)), AssociateType.SUPPLIER), 20L), 0.3),
-            new WeightedBestAssociateDto(new BestAssociateDto(new Associate(3L, "S3", new Address("USA", "San Luis", null, new Geo(32.4869996F, -114.7821796F)), AssociateType.SUPPLIER), 30L), 0.1),
+            new WeightedBestAssociateDto(new BestAssociateDto(new Associate(3L, "S3", new Address("USA", "San Luis", null, new Geo(32.4869996F, -114.7821796F)), AssociateType.SUPPLIER), 30L), 0.1)
+        );
+        final List<WeightedBestAssociateDto> clients = Arrays.asList(
             new WeightedBestAssociateDto(new BestAssociateDto(new Associate(4L, "C1", new Address("USA", "Detroit", null, new Geo(42.331427F, -83.0457538F)), AssociateType.CLIENT), 10L), 0.2),
             new WeightedBestAssociateDto(new BestAssociateDto(new Associate(5L, "C2", new Address("USA", "San Francisco", null, new Geo(37.7749295F, -122.4194155F)), AssociateType.CLIENT), 50L), 0.1),
             new WeightedBestAssociateDto(new BestAssociateDto(new Associate(6L, "C3", new Address("USA", "Washington", null, new Geo(47.7510741F, -120.7401385F)), AssociateType.CLIENT), 60L), 0.5)
         );
+        final BestWeightedAssociatesDto bestWeightedAssociatesDto = new BestWeightedAssociatesDto(suppliers, clients);
+        final List<WeightedBestAssociateDto> associates = bestWeightedAssociatesDto.getAssociates();
 
         final WarehouseToAssociateDistancesDto dto = warehouseBestAssociateDistanceService.getDistances(topWarehouses, associates);
         final List<WarehouseToAssociateDistanceDto> clientDistances = dto.getClientWarehouseDistances();

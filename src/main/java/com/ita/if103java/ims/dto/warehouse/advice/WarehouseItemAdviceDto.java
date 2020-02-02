@@ -5,12 +5,12 @@ import java.util.List;
 public class WarehouseItemAdviceDto {
     private Long itemId;
     private List<WarehouseAdviceDto> warehouseAdvices;
-    private BestAssociatesDto bestAssociates;
+    private BestWeightedAssociatesDto bestAssociates;
 
     public WarehouseItemAdviceDto() {
     }
 
-    public WarehouseItemAdviceDto(Long itemId, List<WarehouseAdviceDto> warehouseAdvices, BestAssociatesDto bestAssociates) {
+    public WarehouseItemAdviceDto(Long itemId, List<WarehouseAdviceDto> warehouseAdvices, BestWeightedAssociatesDto bestAssociates) {
         this.itemId = itemId;
         this.warehouseAdvices = warehouseAdvices;
         this.bestAssociates = bestAssociates;
@@ -32,11 +32,11 @@ public class WarehouseItemAdviceDto {
         this.warehouseAdvices = warehouseAdvices;
     }
 
-    public BestAssociatesDto getBestAssociates() {
+    public BestWeightedAssociatesDto getBestAssociates() {
         return bestAssociates;
     }
 
-    public void setBestAssociates(BestAssociatesDto bestAssociates) {
+    public void setBestAssociates(BestWeightedAssociatesDto bestAssociates) {
         this.bestAssociates = bestAssociates;
     }
 
