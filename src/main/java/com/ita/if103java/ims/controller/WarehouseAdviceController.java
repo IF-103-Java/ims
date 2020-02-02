@@ -27,6 +27,6 @@ public class WarehouseAdviceController {
     @PreAuthorize("hasAuthority('ITEM_STORAGE_ADVISOR')")
     public WarehouseItemAdviceDto findByItemId(@PathVariable("id") Long id,
                                                @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return warehouseAdvisorService.getAdvice(id, userDetails);
+        return warehouseAdvisorService.getAdvice(userDetails.getUser().getAccountId(), id);
     }
 }

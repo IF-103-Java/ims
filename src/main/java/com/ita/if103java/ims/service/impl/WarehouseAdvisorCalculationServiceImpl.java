@@ -7,6 +7,7 @@ import com.ita.if103java.ims.service.WarehouseAdvisorCalculationService;
 import com.ita.if103java.ims.util.ListUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,13 +24,15 @@ public class WarehouseAdvisorCalculationServiceImpl implements WarehouseAdvisorC
                 x.getWarehouse(),
                 x.getTotalWeightedAvgDistance() + y.getTotalWeightedAvgDistance()
             )
-        );
+        ).stream()
+            .sorted(Comparator.comparing(WarehouseAdviceDto::getTotalWeightedAvgDistance))
+            .collect(Collectors.toUnmodifiableList());
     }
 
     private List<WarehouseAdviceDto> getWeightedAvgDistancesGroupedByWarehouses(List<WarehouseToAssociateDistanceDto> distances) {
         return distances.stream()
             .collect(Collectors.groupingBy(WarehouseToAssociateDistanceDto::getWarehouse,
-                Collectors.averagingDouble(x -> x.getAssociate().getWeight() * x.getDistance().inMeters)))
+                Collectors.averagingDouble(x -> (1 - x.getAssociate().getWeight()) * x.getDistance().inMeters)))
             .entrySet()
             .stream()
             .map(x -> new WarehouseAdviceDto(x.getKey(), x.getValue()))

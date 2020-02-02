@@ -6,7 +6,7 @@ import com.ita.if103java.ims.dto.warehouse.advice.WarehouseToAssociateDistancesD
 
 import java.util.List;
 
-public interface WarehouseAssociateDistanceService {
+public interface WarehouseBestAssociateDistanceService {
     WarehouseToAssociateDistancesDto getDistances(List<TopWarehouseAddressDto> warehouses,
                                                   List<WeightedBestAssociateDto> associates);
 }

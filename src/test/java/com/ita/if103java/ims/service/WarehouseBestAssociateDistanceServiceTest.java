@@ -23,10 +23,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @DisabledIf(value = "true", reason = "Running only local for debug purposes")
-public class WarehouseAssociateDistanceServiceTest {
+public class WarehouseBestAssociateDistanceServiceTest {
 
     @Autowired
-    WarehouseAssociateDistanceService distanceMatrixService;
+    WarehouseBestAssociateDistanceService warehouseBestAssociateDistanceService;
 
     @Test
     void testApiCallReturnsCorrectDistanceMatrix() {
@@ -45,7 +45,7 @@ public class WarehouseAssociateDistanceServiceTest {
             new WeightedBestAssociateDto(new BestAssociateDto(new Associate(6L, "C3", new Address("USA", "Washington", null, new Geo(47.7510741F, -120.7401385F)), AssociateType.CLIENT), 60L), 0.5)
         );
 
-        final WarehouseToAssociateDistancesDto dto = distanceMatrixService.getDistances(topWarehouses, associates);
+        final WarehouseToAssociateDistancesDto dto = warehouseBestAssociateDistanceService.getDistances(topWarehouses, associates);
         final List<WarehouseToAssociateDistanceDto> clientDistances = dto.getClientWarehouseDistances();
         final List<WarehouseToAssociateDistanceDto> supplierDistances = dto.getSupplierWarehouseDistances();
         assertThat(clientDistances.size()).isEqualTo(9);

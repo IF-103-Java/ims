@@ -7,7 +7,7 @@ import com.ita.if103java.ims.dto.warehouse.advice.TopWarehouseAddressDto;
 import com.ita.if103java.ims.dto.warehouse.advice.WarehouseToAssociateDistancesDto;
 import com.ita.if103java.ims.mapper.dto.WarehouseAdvisorDistanceMatrixDtoMapper;
 import com.ita.if103java.ims.service.DistanceMatrixService;
-import com.ita.if103java.ims.service.WarehouseAssociateDistanceService;
+import com.ita.if103java.ims.service.WarehouseBestAssociateDistanceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,13 +16,13 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
-public class WarehouseAssociateDistanceServiceImpl implements WarehouseAssociateDistanceService {
+public class WarehouseBestAssociateDistanceServiceImpl implements WarehouseBestAssociateDistanceService {
     private final DistanceMatrixService distanceMatrixService;
     private final WarehouseAdvisorDistanceMatrixDtoMapper matrixMapper;
 
     @Autowired
-    public WarehouseAssociateDistanceServiceImpl(DistanceMatrixService distanceMatrixService,
-                                                 WarehouseAdvisorDistanceMatrixDtoMapper matrixMapper) {
+    public WarehouseBestAssociateDistanceServiceImpl(DistanceMatrixService distanceMatrixService,
+                                                     WarehouseAdvisorDistanceMatrixDtoMapper matrixMapper) {
         this.distanceMatrixService = distanceMatrixService;
         this.matrixMapper = matrixMapper;
     }
