@@ -70,6 +70,7 @@ public class BestAssociatesDaoImpl implements BestAssociatesDao {
                    and t.type = ?
                    and a.type = ?
                    and t.account_id = ?
+                   and a.active = TRUE
                  group by t.associate_id
                  order by sum(t.quantity) desc
                  limit ?
