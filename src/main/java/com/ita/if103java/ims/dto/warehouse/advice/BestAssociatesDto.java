@@ -1,6 +1,9 @@
 package com.ita.if103java.ims.dto.warehouse.advice;
 
+import com.ita.if103java.ims.util.ListUtils;
+
 import java.util.List;
+import java.util.Optional;
 
 public class BestAssociatesDto {
     private List<WeightedBestAssociateDto> suppliers;
@@ -12,6 +15,13 @@ public class BestAssociatesDto {
     public BestAssociatesDto(List<WeightedBestAssociateDto> suppliers, List<WeightedBestAssociateDto> clients) {
         this.suppliers = suppliers;
         this.clients = clients;
+    }
+
+    public List<WeightedBestAssociateDto> getAssociates() {
+        if (suppliers != null && clients != null) {
+            return ListUtils.concat(suppliers, clients);
+        }
+        return Optional.ofNullable(suppliers).or(() -> Optional.ofNullable(clients)).orElse(null);
     }
 
     public List<WeightedBestAssociateDto> getClients() {

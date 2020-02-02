@@ -1,18 +1,18 @@
 package com.ita.if103java.ims.service.impl;
 
 import com.google.maps.model.DistanceMatrixElementStatus;
+import com.ita.if103java.ims.dto.warehouse.advice.BestAssociatesDto;
+import com.ita.if103java.ims.dto.warehouse.advice.BestAssociatesDto.WeightedBestAssociateDto;
+import com.ita.if103java.ims.dto.warehouse.advice.TopWarehouseAddressDto;
 import com.ita.if103java.ims.dto.warehouse.advice.WarehouseAdviceDto;
 import com.ita.if103java.ims.dto.warehouse.advice.WarehouseItemAdviceDto;
 import com.ita.if103java.ims.dto.warehouse.advice.WarehouseToAssociateDistanceDto;
-import com.ita.if103java.ims.dto.warehouse.advice.BestAssociatesDto;
-import com.ita.if103java.ims.dto.warehouse.advice.TopWarehouseAddressDto;
 import com.ita.if103java.ims.dto.warehouse.advice.WarehouseToAssociateDistancesDto;
 import com.ita.if103java.ims.service.BestAssociatesService;
 import com.ita.if103java.ims.service.TopWarehouseAddressService;
 import com.ita.if103java.ims.service.WarehouseAdvisorCalculationService;
 import com.ita.if103java.ims.service.WarehouseAdvisorService;
 import com.ita.if103java.ims.service.WarehouseBestAssociateDistanceService;
-import com.ita.if103java.ims.util.ListUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -38,17 +38,12 @@ public class WarehouseAdvisorServiceImpl implements WarehouseAdvisorService {
 
     @Override
     public WarehouseItemAdviceDto getAdvice(Long accountId, Long itemId) {
-        final BestAssociatesDto bestAssociates = bestAssociatesService.findByItem(accountId, itemId);
         final List<TopWarehouseAddressDto> warehouseAddresses = warehouseAddressService.findAll(accountId);
-        final WarehouseToAssociateDistancesDto distances = distanceService.getDistances(
-            warehouseAddresses,
-            ListUtils.concat(bestAssociates.getSuppliers(), bestAssociates.getClients())
-        );
-        final List<WarehouseAdviceDto> advices = calculationService.calculate(filterUnavailableRoute(distances));
-        return toDto(itemId, advices, bestAssociates);
-    }
-
-    private WarehouseItemAdviceDto toDto(Long itemId, List<WarehouseAdviceDto> advices, BestAssociatesDto bestAssociates) {
+        final BestAssociatesDto bestAssociates = bestAssociatesService.findByItem(accountId, itemId);
+        final List<WeightedBestAssociateDto> associates = bestAssociates.getAssociates();
+        final WarehouseToAssociateDistancesDto distances = distanceService.getDistances(warehouseAddresses, associates);
+        final WarehouseToAssociateDistancesDto onlyAvailableRoutes = filterUnavailableRoute(distances);
+        final List<WarehouseAdviceDto> advices = calculationService.calculate(onlyAvailableRoutes);
         return new WarehouseItemAdviceDto(itemId, advices, bestAssociates);
     }
 
@@ -60,7 +55,7 @@ public class WarehouseAdvisorServiceImpl implements WarehouseAdvisorService {
     }
 
     private List<WarehouseToAssociateDistanceDto> keepIfAvailableRoute(List<WarehouseToAssociateDistanceDto> distances) {
-        return distances.stream()
+        return distances == null ? null : distances.stream()
             .filter(x -> x.getStatus() == DistanceMatrixElementStatus.OK)
             .collect(Collectors.toUnmodifiableList());
     }

@@ -29,10 +29,9 @@ public class BestAssociatesServiceImpl implements BestAssociatesService {
     public BestAssociatesDto findByItem(Long accountId, Long itemId) {
         final List<BestAssociateDto> associates = mapper.toDtoList(bestAssociatesDao.findByItem(accountId, itemId, 3));
         final Map<AssociateType, List<BestAssociateDto>> associatesByType = getGroupedByType(associates);
-        return new BestAssociatesDto(
-            getWeightedAssociates(associatesByType.get(AssociateType.SUPPLIER)),
-            getWeightedAssociates(associatesByType.get(AssociateType.CLIENT))
-        );
+        final List<BestAssociateDto> suppliers = associatesByType.get(AssociateType.SUPPLIER);
+        final List<BestAssociateDto> clients = associatesByType.get(AssociateType.CLIENT);
+        return new BestAssociatesDto(getWeightedAssociates(suppliers), getWeightedAssociates(clients));
     }
 
     private Map<AssociateType, List<BestAssociateDto>> getGroupedByType(List<BestAssociateDto> associates) {
@@ -40,6 +39,8 @@ public class BestAssociatesServiceImpl implements BestAssociatesService {
     }
 
     private List<WeightedBestAssociateDto> getWeightedAssociates(List<BestAssociateDto> associates) {
+        if (associates == null)
+            return null;
         final double sum = associates.stream().mapToDouble(BestAssociateDto::getTotalTransactionQuantity).sum();
         return associates.stream()
             .map(x -> new WeightedBestAssociateDto(x, x.getTotalTransactionQuantity() / sum))
