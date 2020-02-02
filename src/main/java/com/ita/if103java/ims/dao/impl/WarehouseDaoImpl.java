@@ -190,7 +190,15 @@ public class WarehouseDaoImpl implements WarehouseDao {
         }
     }
 
+    @Override
+    public Integer findTotalCapacity(Long id, Long accountId) {
+        try {
+            return jdbcTemplate.queryForObject(Queries.SQL_SELECT_SUM_CAPACITY, Integer.class, id, accountId);
 
+        } catch (DataAccessException e) {
+            throw new WarehouseNotFoundException("Error during finding all capacity of top level warehouse {Id = " + id + "}", e);
+        }
+    }
 
     class Queries {
 
@@ -271,6 +279,13 @@ public class WarehouseDaoImpl implements WarehouseDao {
                 FROM warehouses
                 WHERE parent_id = ? AND
                 account_id = ?
+            """;
+
+        static final String SQL_SELECT_SUM_CAPACITY = """
+                SELECT SUM(capacity)
+                FROM warehouses
+                WHERE top_warehouse_id = ? AND
+                account_id = ? AND capacity > 0
             """;
     }
 }
