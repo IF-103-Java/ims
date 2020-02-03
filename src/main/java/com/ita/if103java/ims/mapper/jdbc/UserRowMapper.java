@@ -27,7 +27,6 @@ public class UserRowMapper implements RowMapper<User> {
         user.setActive(resultSet.getBoolean("active"));
         user.setEmailUUID(resultSet.getString("email_uuid"));
         user.setAccountId(resultSet.getLong("account_id"));
-
         return user;
     }
 }
