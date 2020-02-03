@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.ita.if103java.ims.util.ListUtils.isNullOrEmpty;
+import static org.springframework.util.CollectionUtils.isEmpty;
 
 @Service
 public class WarehouseBestAssociateDistanceServiceImpl implements WarehouseBestAssociateDistanceService {
@@ -34,7 +34,7 @@ public class WarehouseBestAssociateDistanceServiceImpl implements WarehouseBestA
     @Override
     public WarehouseToAssociateDistancesDto getDistances(List<TopWarehouseAddressDto> warehouses,
                                                          List<BestWeightedAssociateDto> associates) {
-        if (isNullOrEmpty(warehouses) || isNullOrEmpty(associates)) {
+        if (isEmpty(warehouses) || isEmpty(associates)) {
             throw new ImpossibleWarehouseAdviceException("Your account doesn't have enough valuable info to provide an advice");
         }
         final DistanceMatrix distanceMatrix = distanceMatrixService.getDistanceMatrix(

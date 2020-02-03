@@ -12,7 +12,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.ita.if103java.ims.util.ListUtils.isNullOrEmpty;
+import static org.springframework.util.CollectionUtils.isEmpty;
 
 @Service
 public class WarehouseAdvisorCalculationServiceImpl implements WarehouseAdvisorCalculationService {
@@ -21,13 +21,13 @@ public class WarehouseAdvisorCalculationServiceImpl implements WarehouseAdvisorC
     public List<WarehouseAdviceDto> calculate(WarehouseToAssociateDistancesDto distances) {
         final List<WarehouseToAssociateDistanceDto> supplierWarehouseDistances = distances.getSupplierWarehouseDistances();
         final List<WarehouseToAssociateDistanceDto> clientWarehouseDistances = distances.getClientWarehouseDistances();
-        if (isNullOrEmpty(supplierWarehouseDistances) && isNullOrEmpty(clientWarehouseDistances)) {
+        if (isEmpty(supplierWarehouseDistances) && isEmpty(clientWarehouseDistances)) {
             throw new ImpossibleWarehouseAdviceException("Your account doesn't have enough valuable info to provide an advice");
         }
-        else if (isNullOrEmpty(supplierWarehouseDistances)) {
+        else if (isEmpty(supplierWarehouseDistances)) {
             return calculateBy(clientWarehouseDistances);
         }
-        else if (isNullOrEmpty(clientWarehouseDistances)) {
+        else if (isEmpty(clientWarehouseDistances)) {
             return calculateBy(supplierWarehouseDistances);
         }
         return calculateBy(supplierWarehouseDistances, clientWarehouseDistances);

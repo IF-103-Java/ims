@@ -28,8 +28,4 @@ public class ListUtils {
                 .flatMap(x2 -> predicate.test(x1, x2) ? Stream.of(zipper.apply(x1, x2)) : Stream.empty()))
             .collect(Collectors.toList());
     }
-
-    public static boolean isNullOrEmpty(List<?> list) {
-        return list == null || list.isEmpty();
-    }
 }
