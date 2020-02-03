@@ -190,17 +190,17 @@ public class WarehouseServiceImpl implements WarehouseService {
     private void createEvent(UserDetailsImpl user, Warehouse warehouse, EventName eventName) {
         Event event = new Event();
         int level = 0;
-        String message = eventName.getLabel();
+        StringBuilder message = new StringBuilder(eventName.getLabel());
 
         if (warehouse.getParentID() != null) {
             level = warehouseDao.findLevelByParentID(warehouse.getParentID());
         }
-        message += " Name : " + warehouse.getName() + " level : " + level;
+        message.append(" Name : ").append(warehouse.getName()).append(" level : ").append(level);
 
         if (level != 0) {
-            message += " as a child of warehouse id " + warehouse.getParentID();
+            message.append(" as a child of warehouse id ").append(warehouse.getParentID());
         }
-        event.setMessage(message);
+        event.setMessage(message.toString());
         event.setAccountId(user.getUser().getAccountId());
         event.setAuthorId(user.getUser().getId());
         event.setName(eventName);
