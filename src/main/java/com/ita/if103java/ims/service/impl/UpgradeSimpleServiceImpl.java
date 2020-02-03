@@ -35,7 +35,7 @@ public class UpgradeSimpleServiceImpl implements UpgradeService {
     public void upgradeAccount(UserDetailsImpl accountAdmin, Long accountTypeId) {
         Integer currentLvl = accountAdmin.getAccountType().getLevel();
         Integer newLvl = accountTypeDao.findById(accountTypeId).getLevel();
-        if (currentLvl < newLvl) {
+        if (currentLvl <= newLvl) {
             accountDao.upgradeAccount(accountAdmin.getUser().getAccountId(), accountTypeId);
             Event event = new Event("Account was upgraded to " + accountTypeDao.findById(accountTypeId).getName() + " level.",
                 accountAdmin.getUser().getAccountId(), null,
