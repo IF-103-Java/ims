@@ -51,12 +51,19 @@ public class GlobalExceptionHandler {
         MaxWarehouseDepthLimitReachedException.class,
         MaxWarehousesLimitReachedException.class,
         AssociateLimitReachedException.class,
-        UserLimitReachedException.class,
-        UpgradationException.class})
+        UserLimitReachedException.class})
     public ResponseEntity<ResponseMessageDto> handleImpossibleWarehouseAdviceException(Exception e) {
         LOGGER.info(e.getMessage(), e);
         return ResponseEntity
             .status(HttpStatus.OK)
+            .body(new ResponseMessageDto(e.getMessage()));
+    }
+
+    @ExceptionHandler({UpgradationException.class})
+    public ResponseEntity<ResponseMessageDto> handleUpgradeException(Exception e) {
+        LOGGER.error(e.getMessage(), e);
+        return ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
             .body(new ResponseMessageDto(e.getMessage()));
     }
 }
