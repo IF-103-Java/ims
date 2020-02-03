@@ -43,7 +43,7 @@ public class JwtTokenProvider {
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
         Claims claims = Jwts.claims().setSubject(username);
-        claims.put("auth", userDetails.getAuthorities());
+        claims.put("role", userDetails.getAuthorities());
 
         Date now = new Date();
         Date validatedTime = new Date(now.getTime() + expiredTime);
@@ -71,7 +71,7 @@ public class JwtTokenProvider {
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
         }
-        throw new InvalidJwtTokenException("Expired or invalid JWT token");
+        return null;
     }
 
     public boolean validateToken(String token) {
