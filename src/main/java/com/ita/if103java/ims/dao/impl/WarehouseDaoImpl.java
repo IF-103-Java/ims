@@ -180,6 +180,15 @@ public class WarehouseDaoImpl implements WarehouseDao {
         }
     }
 
+    @Override
+    public List<Warehouse> findUsefulWarehouses(Long capacity, Long accountId) {
+        try {
+            return jdbcTemplate.query(Queries.SQL_SELECT_USEFUL_WAREHOUSES, warehouseRowMapper, accountId, capacity);
+
+        } catch (DataAccessException e) {
+            throw new WarehouseNotFoundException("Error during finding useful warehouses {capacity = " + capacity + "}", e);
+        }
+    }
     class Queries {
 
         static final String SQL_CREATE_WAREHOUSE = """
@@ -249,6 +258,11 @@ public class WarehouseDaoImpl implements WarehouseDao {
                 SELECT id, name
                 FROM warehouses
                 WHERE id IN (%s)
+            """;
+        static final String SQL_SELECT_USEFUL_WAREHOUSES = """
+                SELECT *
+                FROM warehouses
+                WHERE account_id = ? AND is_bottom=true AND capacity >= ?
             """;
     }
 }

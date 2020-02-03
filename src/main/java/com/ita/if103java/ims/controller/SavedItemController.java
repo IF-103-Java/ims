@@ -2,6 +2,7 @@ package com.ita.if103java.ims.controller;
 
 import com.ita.if103java.ims.dto.ItemTransactionRequestDto;
 import com.ita.if103java.ims.dto.SavedItemDto;
+import com.ita.if103java.ims.dto.UsefulWarehouseDto;
 import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.ItemService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,7 @@ public class SavedItemController {
     @ResponseStatus(HttpStatus.OK)
     public SavedItemDto addSavedItem(@RequestBody ItemTransactionRequestDto itemTransaction,
                                      @AuthenticationPrincipal UserDetailsImpl user) {
+        System.out.println("add"+itemTransaction.getSourceWarehouseId());
         return itemService.addSavedItem(itemTransaction, user);
     }
 
@@ -39,6 +41,7 @@ public class SavedItemController {
     @ResponseStatus(HttpStatus.OK)
     public List<SavedItemDto> findByItemId(@PathVariable("itemId") Long id,
                                            @AuthenticationPrincipal UserDetailsImpl user) {
+        System.out.println("/itemId/{itemId}");
         return itemService.findByItemId(id, user);
     }
 
@@ -63,6 +66,13 @@ public class SavedItemController {
     public SavedItemDto outcomeItem(@RequestBody ItemTransactionRequestDto itemTransaction,
                                     @AuthenticationPrincipal UserDetailsImpl user) {
         return itemService.outcomeItem(itemTransaction, user);
+    }
+    @GetMapping(path = "/usefulWarehouses/{capacity}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    public List<UsefulWarehouseDto> findUsefulWarehouses(@PathVariable("capacity") Long capacity,
+                                                         @AuthenticationPrincipal UserDetailsImpl user) {
+        System.out.println("controller");
+        return itemService.findUsefulWarehouses(capacity, user);
     }
 
 }

@@ -1,6 +1,7 @@
 package com.ita.if103java.ims.dao;
 
 import com.ita.if103java.ims.entity.Associate;
+import com.ita.if103java.ims.entity.AssociateType;
 
 import java.util.List;
 
@@ -17,4 +18,6 @@ public interface AssociateDao {
     Associate update(Long accountId, Associate associate);
 
     boolean delete(Long accountId, Long id);
+
+    List<Associate> getAssociatesByNameAndType(Long accountId, String name, AssociateType type);
 }

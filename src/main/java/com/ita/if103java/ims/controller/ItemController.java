@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/items")
+@CrossOrigin("http://localhost:4200")
 public class ItemController {
     private ItemService itemService;
 
@@ -51,11 +52,12 @@ public class ItemController {
     public boolean softDelete(@PathVariable("itemId") Long id, @AuthenticationPrincipal UserDetailsImpl user) {
         return itemService.softDelete(id, user);
     }
-    @PutMapping(value = "/update", produces = MediaType.APPLICATION_JSON_VALUE,
+    @PutMapping(produces = MediaType.APPLICATION_JSON_VALUE,
         consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public ItemDto updateItem(@RequestBody ItemDto itemDto,
                                  @AuthenticationPrincipal UserDetailsImpl user) {
+        System.out.println("up");
         return itemService.updateItem(itemDto, user);
     }
 

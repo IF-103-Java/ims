@@ -9,12 +9,8 @@ import com.ita.if103java.ims.dao.WarehouseDao;
 import com.ita.if103java.ims.dto.ItemDto;
 import com.ita.if103java.ims.dto.ItemTransactionRequestDto;
 import com.ita.if103java.ims.dto.SavedItemDto;
-import com.ita.if103java.ims.entity.Event;
-import com.ita.if103java.ims.entity.EventName;
-import com.ita.if103java.ims.entity.Item;
-import com.ita.if103java.ims.entity.SavedItem;
-import com.ita.if103java.ims.entity.Transaction;
-import com.ita.if103java.ims.entity.TransactionType;
+import com.ita.if103java.ims.dto.UsefulWarehouseDto;
+import com.ita.if103java.ims.entity.*;
 import com.ita.if103java.ims.exception.dao.ItemNotFoundException;
 import com.ita.if103java.ims.exception.dao.SavedItemNotFoundException;
 import com.ita.if103java.ims.exception.service.ItemNotEnoughCapacityInWarehouseException;
@@ -174,6 +170,18 @@ public class ItemServiceImpl implements ItemService {
         }
         return volumePassSavedItems;
     }
+    private float toVolumeOfPassSavedItems(Long warehouseId, Long accountId) {
+        float volumePassSavedItems = 0;
+
+        if (savedItemDao.existSavedItemByWarehouseId(warehouseId)) {
+            for (SavedItem savedItem : savedItemDao.findSavedItemByWarehouseId(warehouseId)) {
+                Item item = itemDao.findItemById(savedItem.getItemId(), accountId);
+                volumePassSavedItems += savedItem.getQuantity() * item.getVolume();
+            }
+        }
+        System.out.println("warehouseId "+warehouseId+"volume "+ volumePassSavedItems);
+        return volumePassSavedItems;
+    }
 
 
     private boolean isLowSpaceInWarehouse(ItemTransactionRequestDto itemTransaction, Long accountId) {
@@ -312,6 +320,15 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto updateItem(ItemDto itemDto, UserDetailsImpl user) {
         itemDto.setAccountId(user.getUser().getAccountId());
         return itemDtoMapper.toDto(itemDao.updateItem(itemDtoMapper.toEntity(itemDto)));
+    }
+
+    @Override
+    public List<UsefulWarehouseDto> findUsefulWarehouses(Long capacity, UserDetailsImpl user) {
+        Long userId = user.getUser().getAccountId();
+        return warehouseDao.findUsefulWarehouses(capacity, userId).stream()
+            .filter(x -> (x.getCapacity()-toVolumeOfPassSavedItems(x.getId(), userId))>=capacity).
+                map(x -> new UsefulWarehouseDto(x.getId(), x.getName())).collect(Collectors.toList());
+
     }
 
 }
