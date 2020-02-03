@@ -1,8 +1,8 @@
 package com.ita.if103java.ims.service.impl;
 
-import com.ita.if103java.ims.dto.warehouse.advice.WarehouseAdviceDto;
-import com.ita.if103java.ims.dto.warehouse.advice.WarehouseToAssociateDistanceDto;
-import com.ita.if103java.ims.dto.warehouse.advice.WarehouseToAssociateDistancesDto;
+import com.ita.if103java.ims.dto.warehouse.advice.advice.WarehouseAdviceDto;
+import com.ita.if103java.ims.dto.warehouse.advice.distance.WarehouseToAssociateDistanceDto;
+import com.ita.if103java.ims.dto.warehouse.advice.distance.WarehouseToAssociateDistancesDto;
 import com.ita.if103java.ims.exception.service.ImpossibleWarehouseAdviceException;
 import com.ita.if103java.ims.service.WarehouseAdvisorCalculationService;
 import com.ita.if103java.ims.util.ListUtils;

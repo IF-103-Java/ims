@@ -1,13 +1,13 @@
 package com.ita.if103java.ims.service.impl;
 
 import com.google.maps.model.DistanceMatrixElementStatus;
-import com.ita.if103java.ims.dto.warehouse.advice.BestWeightedAssociatesDto;
-import com.ita.if103java.ims.dto.warehouse.advice.BestWeightedAssociatesDto.WeightedBestAssociateDto;
+import com.ita.if103java.ims.dto.warehouse.advice.associate.BestWeightedAssociateDto;
+import com.ita.if103java.ims.dto.warehouse.advice.associate.BestWeightedAssociatesDto;
 import com.ita.if103java.ims.dto.warehouse.advice.TopWarehouseAddressDto;
-import com.ita.if103java.ims.dto.warehouse.advice.WarehouseAdviceDto;
-import com.ita.if103java.ims.dto.warehouse.advice.WarehouseItemAdviceDto;
-import com.ita.if103java.ims.dto.warehouse.advice.WarehouseToAssociateDistanceDto;
-import com.ita.if103java.ims.dto.warehouse.advice.WarehouseToAssociateDistancesDto;
+import com.ita.if103java.ims.dto.warehouse.advice.advice.WarehouseAdviceDto;
+import com.ita.if103java.ims.dto.warehouse.advice.advice.WarehouseItemAdviceDto;
+import com.ita.if103java.ims.dto.warehouse.advice.distance.WarehouseToAssociateDistanceDto;
+import com.ita.if103java.ims.dto.warehouse.advice.distance.WarehouseToAssociateDistancesDto;
 import com.ita.if103java.ims.service.BestAssociatesService;
 import com.ita.if103java.ims.service.TopWarehouseAddressService;
 import com.ita.if103java.ims.service.WarehouseAdvisorCalculationService;
@@ -40,7 +40,7 @@ public class WarehouseAdvisorServiceImpl implements WarehouseAdvisorService {
     public WarehouseItemAdviceDto getAdvice(Long accountId, Long itemId) {
         final List<TopWarehouseAddressDto> warehouseAddresses = warehouseAddressService.findAll(accountId);
         final BestWeightedAssociatesDto bestAssociates = bestAssociatesService.findByItem(accountId, itemId);
-        final List<WeightedBestAssociateDto> associates = bestAssociates.getAssociates();
+        final List<BestWeightedAssociateDto> associates = bestAssociates.getAssociates();
         final WarehouseToAssociateDistancesDto distances = distanceService.getDistances(warehouseAddresses, associates);
         final WarehouseToAssociateDistancesDto onlyAvailableRoutes = filterUnavailableRoute(distances);
         final List<WarehouseAdviceDto> advices = calculationService.calculate(onlyAvailableRoutes);

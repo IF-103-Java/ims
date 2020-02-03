@@ -1,4 +1,4 @@
-package com.ita.if103java.ims.dto.warehouse.advice;
+package com.ita.if103java.ims.dto.warehouse.advice.distance;
 
 import java.util.List;
 

@@ -1,44 +1,9 @@
-package com.ita.if103java.ims.dto.warehouse.advice;
+package com.ita.if103java.ims.dto.warehouse.advice.associate;
 
+import com.ita.if103java.ims.dto.warehouse.advice.Address;
 import com.ita.if103java.ims.entity.AssociateType;
 
-public class BestAssociateDto {
-    private Associate reference;
-    private Long totalTransactionQuantity;
-
-    public BestAssociateDto() {
-    }
-
-    public BestAssociateDto(Associate reference, Long totalTransactionQuantity) {
-        this.reference = reference;
-        this.totalTransactionQuantity = totalTransactionQuantity;
-    }
-
-    public Associate getReference() {
-        return reference;
-    }
-
-    public void setReference(Associate reference) {
-        this.reference = reference;
-    }
-
-    public Long getTotalTransactionQuantity() {
-        return totalTransactionQuantity;
-    }
-
-    public void setTotalTransactionQuantity(Long totalTransactionQuantity) {
-        this.totalTransactionQuantity = totalTransactionQuantity;
-    }
-
-    @Override
-    public String toString() {
-        return "BestAssociateDto{" +
-            "reference=" + reference +
-            ", totalTransactionQuantity=" + totalTransactionQuantity +
-            '}';
-    }
-
-    public static class Associate {
+public class Associate {
         private Long id;
         private String name;
         private Address address;
@@ -96,4 +61,3 @@ public class BestAssociateDto {
                 '}';
         }
     }
-}

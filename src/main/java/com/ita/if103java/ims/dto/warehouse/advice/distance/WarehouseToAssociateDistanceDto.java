@@ -1,21 +1,22 @@
-package com.ita.if103java.ims.dto.warehouse.advice;
+package com.ita.if103java.ims.dto.warehouse.advice.distance;
 
 import com.google.maps.model.Distance;
 import com.google.maps.model.DistanceMatrixElementStatus;
-import com.ita.if103java.ims.dto.warehouse.advice.BestWeightedAssociatesDto.WeightedBestAssociateDto;
+import com.ita.if103java.ims.dto.warehouse.advice.TopWarehouseAddressDto;
+import com.ita.if103java.ims.dto.warehouse.advice.associate.BestWeightedAssociateDto;
 
 import java.util.Objects;
 
 public class WarehouseToAssociateDistanceDto {
     private TopWarehouseAddressDto warehouse;
-    private WeightedBestAssociateDto associate;
+    private BestWeightedAssociateDto associate;
     private Distance distance;
     private DistanceMatrixElementStatus status;
 
     public WarehouseToAssociateDistanceDto() {
     }
 
-    public WarehouseToAssociateDistanceDto(TopWarehouseAddressDto warehouse, WeightedBestAssociateDto associate,
+    public WarehouseToAssociateDistanceDto(TopWarehouseAddressDto warehouse, BestWeightedAssociateDto associate,
                                            Distance distance, DistanceMatrixElementStatus status) {
         this.warehouse = warehouse;
         this.associate = associate;
@@ -31,11 +32,11 @@ public class WarehouseToAssociateDistanceDto {
         this.warehouse = warehouse;
     }
 
-    public WeightedBestAssociateDto getAssociate() {
+    public BestWeightedAssociateDto getAssociate() {
         return associate;
     }
 
-    public void setAssociate(WeightedBestAssociateDto associate) {
+    public void setAssociate(BestWeightedAssociateDto associate) {
         this.associate = associate;
     }
 

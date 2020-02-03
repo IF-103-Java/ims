@@ -1,9 +1,10 @@
 package com.ita.if103java.ims.service.impl;
 
 import com.ita.if103java.ims.dao.BestAssociatesDao;
-import com.ita.if103java.ims.dto.warehouse.advice.BestAssociateDto;
-import com.ita.if103java.ims.dto.warehouse.advice.BestWeightedAssociatesDto;
-import com.ita.if103java.ims.dto.warehouse.advice.BestWeightedAssociatesDto.WeightedBestAssociateDto;
+import com.ita.if103java.ims.dto.warehouse.advice.associate.Associate;
+import com.ita.if103java.ims.dto.warehouse.advice.associate.BestAssociateDto;
+import com.ita.if103java.ims.dto.warehouse.advice.associate.BestWeightedAssociateDto;
+import com.ita.if103java.ims.dto.warehouse.advice.associate.BestWeightedAssociatesDto;
 import com.ita.if103java.ims.entity.AssociateType;
 import com.ita.if103java.ims.mapper.dto.BestAssociateDtoMapper;
 import com.ita.if103java.ims.service.BestAssociatesService;
@@ -35,15 +36,15 @@ public class BestAssociatesServiceImpl implements BestAssociatesService {
     }
 
     private Map<AssociateType, List<BestAssociateDto>> getGroupedByType(List<BestAssociateDto> associates) {
-        return associates.stream().collect(Collectors.groupingBy(x -> x.getReference().getType()));
+        return associates.stream().collect(Collectors.groupingBy(Associate::getType));
     }
 
-    private List<WeightedBestAssociateDto> getWeightedAssociates(List<BestAssociateDto> associates) {
+    private List<BestWeightedAssociateDto> getWeightedAssociates(List<BestAssociateDto> associates) {
         if (associates == null)
             return null;
         final double sum = associates.stream().mapToDouble(BestAssociateDto::getTotalTransactionQuantity).sum();
         return associates.stream()
-            .map(x -> new WeightedBestAssociateDto(x, x.getTotalTransactionQuantity() / sum))
+            .map(x -> new BestWeightedAssociateDto(x, x.getTotalTransactionQuantity() / sum))
             .collect(Collectors.toUnmodifiableList());
     }
 }

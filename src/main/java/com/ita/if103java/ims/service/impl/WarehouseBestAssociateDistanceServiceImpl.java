@@ -2,9 +2,10 @@ package com.ita.if103java.ims.service.impl;
 
 import com.google.maps.model.DistanceMatrix;
 import com.ita.if103java.ims.dto.warehouse.advice.Address;
-import com.ita.if103java.ims.dto.warehouse.advice.BestWeightedAssociatesDto.WeightedBestAssociateDto;
 import com.ita.if103java.ims.dto.warehouse.advice.TopWarehouseAddressDto;
-import com.ita.if103java.ims.dto.warehouse.advice.WarehouseToAssociateDistancesDto;
+import com.ita.if103java.ims.dto.warehouse.advice.associate.Associate;
+import com.ita.if103java.ims.dto.warehouse.advice.associate.BestWeightedAssociateDto;
+import com.ita.if103java.ims.dto.warehouse.advice.distance.WarehouseToAssociateDistancesDto;
 import com.ita.if103java.ims.exception.service.ImpossibleWarehouseAdviceException;
 import com.ita.if103java.ims.mapper.dto.WarehouseAdvisorDistanceMatrixDtoMapper;
 import com.ita.if103java.ims.service.DistanceMatrixService;
@@ -32,13 +33,13 @@ public class WarehouseBestAssociateDistanceServiceImpl implements WarehouseBestA
 
     @Override
     public WarehouseToAssociateDistancesDto getDistances(List<TopWarehouseAddressDto> warehouses,
-                                                         List<WeightedBestAssociateDto> associates) {
+                                                         List<BestWeightedAssociateDto> associates) {
         if (isNullOrEmpty(warehouses) || isNullOrEmpty(associates)) {
             throw new ImpossibleWarehouseAdviceException("Your account doesn't have enough valuable info to provide an advice");
         }
         final DistanceMatrix distanceMatrix = distanceMatrixService.getDistanceMatrix(
             buildRequestParams(warehouses, TopWarehouseAddressDto::getAddress),
-            buildRequestParams(associates, x -> x.getReference().getReference().getAddress())
+            buildRequestParams(associates, Associate::getAddress)
         );
         return matrixMapper.toDtoList(distanceMatrix, warehouses, associates);
     }
