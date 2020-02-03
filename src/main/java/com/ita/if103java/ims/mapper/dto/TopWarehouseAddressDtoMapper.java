@@ -12,8 +12,8 @@ public class TopWarehouseAddressDtoMapper extends AbstractEntityDtoMapper<TopWar
     @Override
     public TopWarehouseAddress toEntity(TopWarehouseAddressDto dto) {
         return dto == null ? null : new TopWarehouseAddress(
-            dto.getWarehouseId(),
-            dto.getWarehouseName(),
+            dto.getId(),
+            dto.getName(),
             dto.getAddress().getCountry(),
             dto.getAddress().getCity(),
             dto.getAddress().getStreet(),

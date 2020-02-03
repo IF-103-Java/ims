@@ -42,7 +42,7 @@ public class WarehouseAdvisorCalculationServiceImpl implements WarehouseAdvisorC
         final List<WarehouseAdviceDto> advices = ListUtils.zipBy(
             getWeightedAvgDistancesGroupedByWarehouses(suppliers),
             getWeightedAvgDistancesGroupedByWarehouses(clients),
-            (x, y) -> x.getWarehouse().getWarehouseId().equals(y.getWarehouse().getWarehouseId()),
+            (x, y) -> x.getWarehouse().getId().equals(y.getWarehouse().getId()),
             (x, y) -> new WarehouseAdviceDto(
                 x.getWarehouse(),
                 x.getTotalWeightedAvgDistance() + y.getTotalWeightedAvgDistance()
