@@ -85,7 +85,8 @@ public class AccountTypeDaoImpl implements AccountTypeDao {
                 FROM account_types
                 WHERE level =
                 (SELECT MIN(level)
-                FROM account_types)
+                FROM account_types
+                WHERE active = true)
             """;
 
         static final String SQL_FIND_ALL_POSSIBLE_TO_UPGRADE = """
