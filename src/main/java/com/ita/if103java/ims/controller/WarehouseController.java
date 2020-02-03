@@ -63,7 +63,7 @@ public class WarehouseController {
         return warehouseService.findWarehousesByTopLevelId(topWarehouseId, user);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/update/{id}")
     @ResponseStatus(HttpStatus.OK)
     public WarehouseDto update(@RequestBody WarehouseDto warehouseDto,
                                @PathVariable("id") Long id,

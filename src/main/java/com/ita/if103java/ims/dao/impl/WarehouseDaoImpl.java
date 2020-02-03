@@ -279,6 +279,7 @@ public class WarehouseDaoImpl implements WarehouseDao {
                 FROM warehouses
                 WHERE parent_id = ? AND
                 account_id = ?
+                AND active = 1
             """;
 
         static final String SQL_SELECT_SUM_CAPACITY = """
@@ -286,6 +287,7 @@ public class WarehouseDaoImpl implements WarehouseDao {
                 FROM warehouses
                 WHERE top_warehouse_id = ? AND
                 account_id = ? AND capacity > 0
+                AND active = 1
             """;
     }
 }
