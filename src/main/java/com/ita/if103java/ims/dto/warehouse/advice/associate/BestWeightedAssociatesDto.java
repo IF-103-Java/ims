@@ -1,5 +1,6 @@
 package com.ita.if103java.ims.dto.warehouse.advice.associate;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ita.if103java.ims.util.ListUtils;
 
 import java.util.List;
@@ -17,6 +18,7 @@ public class BestWeightedAssociatesDto {
         this.clients = clients;
     }
 
+    @JsonIgnore
     public List<BestWeightedAssociateDto> getAssociates() {
         if (suppliers != null && clients != null) {
             return ListUtils.concat(suppliers, clients);
