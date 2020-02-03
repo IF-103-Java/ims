@@ -61,18 +61,6 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public List<User> findUsersByAccountId(Long accountId) {
-        try {
-            return jdbcTemplate.query(Queries.SQL_SELECT_USERS_BY_ACCOUNT_ID, userRowMapper, accountId);
-        } catch (EmptyResultDataAccessException e) {
-            throw new UserNotFoundException("Failed to obtain users during `select` {accountId = " + accountId + "}", e);
-        } catch (DataAccessException e) {
-            throw new CRUDException("Error during `select` users {accountId = " + accountId + "}", e);
-        }
-
-    }
-
-    @Override
     public List<User> findWorkersByAccountId(Long accountId) {
         try {
             return jdbcTemplate.query(Queries.SQL_SELECT_WORKERS_BY_ACCOUNT_ID, userRowMapper, accountId);
@@ -95,7 +83,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public List<User> findAll(Pageable pageable) {
+    public List<User> findAll(Pageable pageable, Long accountId) {
         try {
 
             String sort = pageable.getSort().toString().replaceAll(": ", " ");
@@ -103,7 +91,9 @@ public class UserDaoImpl implements UserDao {
                 userRowMapper,
                 sort,
                 pageable.getPageSize(),
-                pageable.getOffset());
+                pageable.getOffset(),
+                accountId);
+
         } catch (DataAccessException e) {
             throw new CRUDException("Error during `select * ` users ", e);
         }
@@ -196,10 +186,10 @@ public class UserDaoImpl implements UserDao {
         try {
             status = jdbcTemplate.update(Queries.SQL_SET_ACTIVE_STATUS_USER, state, id);
         } catch (DataAccessException e) {
-            throw new CRUDException("Error during soft `delete` user {id = " + id + "}", e);
+            throw new CRUDException("Error during set status:" + state + " to user {id = " + id + "}", e);
         }
         if (status == 0) {
-            throw new UserNotFoundException("Failed to obtain user during soft `delete` {id = " + id + "}");
+            throw new UserNotFoundException("Failed to obtain user during set status:" + state + "to user {id = " + id + "}");
         }
 
         return true;
@@ -294,26 +284,24 @@ public class UserDaoImpl implements UserDao {
                 SELECT *
                 FROM users
                 WHERE id = ?
+                AND active = 1
             """;
 
         public static final String SQL_SELECT_USER_BY_EMAIL = """
                 SELECT *
                 FROM users
                 WHERE email = ?
+                AND active = 1
             """;
 
         public static final String SQL_SELECT_ALL_USERS = """
                 SELECT *
                 FROM users
+                WHERE account_id = ?
+                AND active = 1
                 ORDER BY ?
                 Limit ?
                 Offset ?
-            """;
-
-        public static final String SQL_SELECT_USERS_BY_ACCOUNT_ID = """
-                SELECT *
-                FROM users
-                WHERE account_id = ?
             """;
 
         public static final String SQL_SELECT_WORKERS_BY_ACCOUNT_ID = """
@@ -321,6 +309,7 @@ public class UserDaoImpl implements UserDao {
                 FROM users
                 WHERE role = 'ROLE_WORKER'
                 AND account_id = ?
+                AND active = 1
             """;
 
         public static final String SQL_SELECT_ADMIN_BY_ACCOUNT_ID = """
@@ -328,6 +317,7 @@ public class UserDaoImpl implements UserDao {
                 FROM users
                 WHERE role = 'ROLE_ADMIN'
                 AND account_id = ?
+                AND active = 1
             """;
 
         public static final String SQL_UPDATE_USER = """

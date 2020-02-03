@@ -14,6 +14,8 @@ import com.ita.if103java.ims.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -104,11 +106,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDto> findUsersByAccountId(Long accountID) {
-        return mapper.toDtoList(userDao.findUsersByAccountId(accountID));
-    }
-
-    @Override
     public List<UserDto> findWorkersByAccountId(Long accountID) {
         return mapper.toDtoList(userDao.findWorkersByAccountId(accountID));
     }
@@ -123,7 +120,6 @@ public class UserServiceImpl implements UserService {
         User user = userDao.findById(userDto.getId());
         user.setFirstName(userDto.getFirstName());
         user.setLastName(userDto.getLastName());
-        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
 
         User updatedUser = userDao.update(user);
         user.setUpdatedDate(updatedUser.getUpdatedDate());
@@ -138,13 +134,16 @@ public class UserServiceImpl implements UserService {
         User user = userDao.findById(id);
         if (user.getRole() == Role.ROLE_ADMIN) {
             accountDao.delete(user.getAccountId());
+            return userDao.hardDelete(id);
         }
         return userDao.activate(id, false);
     }
 
     @Override
-    public List<UserDto> findAll(Pageable pageable) {
-        return mapper.toDtoList(userDao.findAll(pageable));
+    public Page<UserDto> findAll(Pageable pageable, Long accountId) {
+        List<User> users = userDao.findAll(pageable, accountId);
+        Integer rowCount = userDao.countOfUsers(accountId);
+        return new PageImpl<>(mapper.toDtoList(users), pageable, rowCount);
     }
 
     @Override

@@ -8,9 +8,9 @@ import com.ita.if103java.ims.mapper.dto.UserDtoMapper;
 import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -37,51 +38,38 @@ public class UserController {
     private UserDtoMapper mapper;
 
     @Autowired
-    public UserController(UserService userService, UserDtoMapper mapper) {
+    public UserController(UserService userService,
+                          UserDtoMapper mapper) {
         this.userService = userService;
         this.mapper = mapper;
     }
 
-    @GetMapping(value = "/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public UserDto findById(@PathVariable("id") Long id) {
-        return userService.findById(id);
-    }
-
-    @GetMapping(value = "/")
+    @GetMapping("/")
     @ResponseStatus(HttpStatus.OK)
     public UserDto findByEmail(@RequestParam("email") String email) {
         return userService.findByEmail(email);
     }
 
-    @GetMapping(value = "/account/users")
-    @ResponseStatus(HttpStatus.OK)
-    public List<UserDto> findUsersByAccountId(@AuthenticationPrincipal UserDetailsImpl user) {
-        return userService.findUsersByAccountId(user.getUser().getAccountId());
-    }
-
-    @GetMapping(value = "/account/workers")
+    @GetMapping("/account/workers")
     @ResponseStatus(HttpStatus.OK)
     public List<UserDto> findWorkersByAccountId(@AuthenticationPrincipal UserDetailsImpl user) {
         return userService.findWorkersByAccountId(user.getUser().getAccountId());
     }
 
-    @GetMapping(value = "/account/admin")
+    @GetMapping("/account/admin")
     @ResponseStatus(HttpStatus.OK)
     public UserDto findAdminByAccountId(@AuthenticationPrincipal UserDetailsImpl user) {
         return userService.findAdminByAccountId(user.getUser().getAccountId());
     }
 
-    @PutMapping(value = "/me",
-        produces = MediaType.APPLICATION_JSON_VALUE,
-        consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping("/me")
     @ResponseStatus(HttpStatus.OK)
-    public UserDto update(@AuthenticationPrincipal UserDetailsImpl user, @Validated({ExistData.class}) @RequestBody UserDto userDto) {
+    public UserDto update(@AuthenticationPrincipal UserDetailsImpl user,
+                          @Validated({ExistData.class}) @RequestBody UserDto userDto) {
         userDto.setId(user.getUser().getId());
         return userService.update(userDto);
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public boolean delete(@PathVariable("id") Long id) {
@@ -91,12 +79,13 @@ public class UserController {
     @ApiPageable
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping(value = "")
-    public List<UserDto> findAll(Pageable pageable) {
-        return userService.findAll(pageable);
+    @GetMapping("/account/users")
+    public Page<UserDto> findAll(@ApiIgnore Pageable pageable,
+                                 @AuthenticationPrincipal UserDetailsImpl user) {
+        return userService.findAll(pageable, user.getUser().getAccountId());
     }
 
-    @GetMapping(value = "/confirmation")
+    @GetMapping("/confirmation")
     @ResponseStatus(HttpStatus.OK)
     public boolean activateUser(@RequestParam("emailUUID") String emailUUID) {
         return userService.activateUser(emailUUID);

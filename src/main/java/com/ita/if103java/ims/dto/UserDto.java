@@ -27,14 +27,14 @@ public class UserDto implements Serializable {
         message = "Please, enter these data")
     private String lastName;
 
-    @NotBlank(groups = {NewData.class, ExistData.class},
+    @NotBlank(groups = {NewData.class},
         message = "Please, enter an email")
     @Email(groups = {NewData.class, ExistData.class},
         message = "Please, enter a valid email")
     private String email;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @NotBlank(groups = {NewData.class, ExistData.class},
+    @NotBlank(groups = {NewData.class},
         message = "Please, enter these data")
     @Size(min = 8, max = 32)
     private String password;
