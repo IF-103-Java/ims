@@ -1,7 +1,6 @@
 package com.ita.if103java.ims.controller;
 
 
-import com.ita.if103java.ims.annotation.ApiPageable;
 import com.ita.if103java.ims.dto.UserDto;
 import com.ita.if103java.ims.dto.transfer.ExistData;
 import com.ita.if103java.ims.mapper.dto.UserDtoMapper;
@@ -11,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -42,6 +41,14 @@ public class UserController {
                           UserDtoMapper mapper) {
         this.userService = userService;
         this.mapper = mapper;
+    }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PostAuthorize("returnObject.accountId == authentication.principal.getUser().accountId")
+    @GetMapping(value = "/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public UserDto findById(@PathVariable("id") Long id) {
+        return userService.findById(id);
     }
 
     @GetMapping("/")
@@ -70,17 +77,17 @@ public class UserController {
         return userService.update(userDto);
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')  and @userController.findById(#id).accountId == authentication.principal.getUser().accountId")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public boolean delete(@PathVariable("id") Long id) {
         return userService.delete(id);
     }
 
-    @ApiPageable
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/account/users")
-    public Page<UserDto> findAll(@ApiIgnore Pageable pageable,
+    public Page<UserDto> findAll(Pageable pageable,
                                  @AuthenticationPrincipal UserDetailsImpl user) {
         return userService.findAll(pageable, user.getUser().getAccountId());
     }
