@@ -15,10 +15,14 @@ import com.ita.if103java.ims.mapper.jdbc.WarehouseLoadRowMapper;
 import com.ita.if103java.ims.mapper.jdbc.WarehousePremiumStructRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.ita.if103java.ims.entity.PopType.TOP;
 
@@ -83,10 +87,20 @@ public class DashboardDaoImpl implements DashboardDao {
     }
 
     @Override
-    public List<EndingItemsDto> findEndedItemsByAccountId(int minQuantity, Long accountId) {
+    public Page<EndingItemsDto> findEndedItemsByAccountId(Pageable pageable, int minQuantity, Long accountId) {
         try {
-            return jdbcTemplate.query(Queries.SQL_FIND_ENDED_ITEMS_BY_ACCOUNT_ID, endingItemsRowMapper,
-                minQuantity, accountId);
+            String sort = pageable.getSort().stream().map(
+                x -> x.getProperty() + " " + x.getDirection().name()).collect(Collectors.joining(", "));
+
+            List<EndingItemsDto> endingItems = jdbcTemplate.query(
+                String.format(Queries.SQL_FIND_ENDED_ITEMS_BY_ACCOUNT_ID, sort), endingItemsRowMapper,
+                minQuantity, accountId, pageable.getPageSize(), pageable.getOffset());
+
+            Integer rowCount =
+                jdbcTemplate.queryForObject(Queries.SQL_ROW_COUNT,
+                    new Object[]{minQuantity, accountId}, Integer.class);
+
+            return new PageImpl<>(endingItems, pageable, rowCount);
         } catch (DataAccessException e) {
             throw crudException(e, "findEndedItem", "accountId = " + accountId);
         }
@@ -202,6 +216,20 @@ public class DashboardDaoImpl implements DashboardDao {
 
         static final String SQL_FIND_ENDED_ITEMS_BY_ACCOUNT_ID = """
                 SELECT wh.id, wh.name, it.name_item, si.quantity
+                FROM saved_items si
+                JOIN warehouses wh
+                ON si.warehouse_id = wh.id
+                JOIN items it
+                ON si.item_id = it.id
+                WHERE si.quantity <= ?
+                AND wh.account_id = ?
+                ORDER BY %s
+                LIMIT ?
+                OFFSET ?
+            """;
+
+        static final String SQL_ROW_COUNT = """
+                SELECT COUNT(wh.id)
                 FROM saved_items si
                 JOIN warehouses wh
                 ON si.warehouse_id = wh.id

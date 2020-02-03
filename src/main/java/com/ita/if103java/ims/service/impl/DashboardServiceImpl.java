@@ -8,6 +8,8 @@ import com.ita.if103java.ims.dto.WarehouseLoadDto;
 import com.ita.if103java.ims.dto.WarehousePremiumStructDto;
 import com.ita.if103java.ims.service.DashboardService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -38,7 +40,7 @@ public class DashboardServiceImpl implements DashboardService {
 
 
     @Override
-    public List<EndingItemsDto> getEndingItems(int minQuantity, Long accountId) {
-        return dashboardDao.findEndedItemsByAccountId(minQuantity, accountId);
+    public Page<EndingItemsDto> getEndingItems(Pageable pageable, int minQuantity, Long accountId) {
+        return dashboardDao.findEndedItemsByAccountId(pageable, minQuantity, accountId);
     }
 }
