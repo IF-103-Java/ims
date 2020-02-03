@@ -1,28 +1,28 @@
 package com.ita.if103java.ims.service.impl;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.maps.GeoApiContext;
 import com.google.maps.GeocodingApi;
 import com.google.maps.errors.ApiException;
 import com.google.maps.model.GeocodingResult;
-import com.ita.if103java.ims.service.GeoContextService;
+import com.google.maps.model.LatLng;
+import com.ita.if103java.ims.dto.warehouse.advice.Address;
+import com.ita.if103java.ims.service.LocationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 
 @Service
-public class GeoContextServiceImpl implements GeoContextService {
+public class LocationServiceImpl implements LocationService {
     private final GeoApiContext apiContext;
 
     @Autowired
-    public GeoContextServiceImpl(GeoApiContext apiContext) {
+    public LocationServiceImpl(GeoApiContext apiContext) {
         this.apiContext = apiContext;
     }
 
     @Override
-    public String getGeoFromAddress(String address) {
+    public Address.Geo getLocationByAddress(String address) {
 
         GeocodingResult[] results = new GeocodingResult[0];
 
@@ -34,8 +34,8 @@ public class GeoContextServiceImpl implements GeoContextService {
             e.printStackTrace();
         }
 
-        String result = results[0].geometry.location.toString();
+        LatLng location = results[0].geometry.location;
+        return new Address.Geo((float) location.lat, (float) location.lng);
 
-        return result;
     }
 }
