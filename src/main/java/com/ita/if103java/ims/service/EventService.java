@@ -20,4 +20,6 @@ public interface EventService {
 
     Map<String, EventName> getEventNames();
 
+    void deleteByAccountId(Long accountId);
+
 }
