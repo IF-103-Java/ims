@@ -93,7 +93,7 @@ public class UserController {
         return userService.findAll(pageable, user.getUser().getAccountId());
     }
 
-    @GetMapping("/confirmation")
+    @PostMapping("/confirmation")
     @ResponseStatus(HttpStatus.OK)
     public boolean activateUser(@RequestParam("emailUUID") String emailUUID) {
         return userService.activateUser(emailUUID);
