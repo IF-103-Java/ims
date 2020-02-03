@@ -1,5 +1,7 @@
 package com.ita.if103java.ims.dto.warehouse.advice;
 
+import java.util.Objects;
+
 public class TopWarehouseAddressDto {
     private Long id;
     private String name;
@@ -45,5 +47,20 @@ public class TopWarehouseAddressDto {
             ", name='" + name + '\'' +
             ", address=" + address +
             '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TopWarehouseAddressDto that = (TopWarehouseAddressDto) o;
+        return id.equals(that.id) &&
+            Objects.equals(name, that.name) &&
+            Objects.equals(address, that.address);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, address);
     }
 }
