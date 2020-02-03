@@ -22,7 +22,7 @@ public interface UserService {
 
     UserDto update(UserDto userDto);
 
-    boolean delete(Long id);
+    boolean delete(Long id, Long accountId);
 
     Page<UserDto> findAll(Pageable pageable, Long accountId);
 

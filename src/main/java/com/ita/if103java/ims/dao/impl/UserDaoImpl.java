@@ -146,8 +146,6 @@ public class UserDaoImpl implements UserDao {
                 Queries.SQL_UPDATE_USER,
                 user.getFirstName(),
                 user.getLastName(),
-                user.getEmail(),
-                user.getPassword(),
                 Timestamp.from(updatedDateTime.toInstant()),
                 user.getEmailUUID(),
                 user.getId());
@@ -181,10 +179,10 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public boolean activate(Long id, boolean state) {
+    public boolean activate(Long id, Long accountId, boolean state) {
         int status;
         try {
-            status = jdbcTemplate.update(Queries.SQL_SET_ACTIVE_STATUS_USER, state, id);
+            status = jdbcTemplate.update(Queries.SQL_SET_ACTIVE_STATUS_USER, state, id, accountId);
         } catch (DataAccessException e) {
             throw new CRUDException("Error during set status:" + state + " to user {id = " + id + "}", e);
         }
@@ -196,10 +194,10 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public boolean hardDelete(Long id) {
+    public boolean hardDelete(Long id, Long accountId) {
         int status;
         try {
-            status = jdbcTemplate.update(Queries.SQL_DELETE_USER_BY_ID, id);
+            status = jdbcTemplate.update(Queries.SQL_DELETE_USER_BY_ID, id, accountId);
         } catch (DataAccessException e) {
             throw new CRUDException("Error during hard `delete` user {id = " + id + "}", e);
         }
@@ -324,7 +322,6 @@ public class UserDaoImpl implements UserDao {
                 UPDATE users
                 SET
                 first_name= ?, last_name = ?,
-                email = ?, password = ?,
                 updated_date = ?, email_uuid = ?
                 WHERE id = ?
             """;
@@ -339,6 +336,7 @@ public class UserDaoImpl implements UserDao {
                 UPDATE users
                 SET active = ?
                 WHERE id = ?
+                AND account_id = ?
             """;
 
         public static final String SQL_UPDATE_PASSWORD = """
@@ -357,6 +355,7 @@ public class UserDaoImpl implements UserDao {
                 DELETE
                 FROM users
                 WHERE id = ?
+                AND account_id = ?
             """;
 
         public static final String SQL_COUNT_OF_USERS = """

@@ -1,5 +1,6 @@
 package com.ita.if103java.ims.security;
 
+import io.jsonwebtoken.JwtException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.config.annotation.SecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -16,7 +17,7 @@ public class JwtTokenFilterConfigurer extends SecurityConfigurerAdapter<DefaultS
     }
 
     @Override
-    public void configure(HttpSecurity builder) throws Exception {
+    public void configure(HttpSecurity builder) throws JwtException {
         JwtTokenFilter jwtTokenFilter = new JwtTokenFilter(jwtTokenProvider);
         builder.addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
     }

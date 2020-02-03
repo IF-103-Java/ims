@@ -21,9 +21,9 @@ public interface UserDao {
 
     boolean updateAccountId(Long userId, Long accountId);
 
-    boolean activate(Long id, boolean state);
+    boolean activate(Long id, Long accountId, boolean state);
 
-    boolean hardDelete(Long id);
+    boolean hardDelete(Long id, Long accountId);
 
     List<User> findAll(Pageable pageable, Long accountId);
 

@@ -77,11 +77,12 @@ public class UserController {
         return userService.update(userDto);
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')  and @userController.findById(#id).accountId == authentication.principal.getUser().accountId")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public boolean delete(@PathVariable("id") Long id) {
-        return userService.delete(id);
+    public boolean delete(@PathVariable("id") Long id,
+                          @AuthenticationPrincipal UserDetailsImpl user) {
+        return userService.delete(id, user.getUser().getAccountId());
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")

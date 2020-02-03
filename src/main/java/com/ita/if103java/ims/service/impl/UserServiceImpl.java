@@ -131,13 +131,13 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public boolean delete(Long id) {
+    public boolean delete(Long id, Long accountId) {
         User user = userDao.findById(id);
         if (user.getRole() == Role.ROLE_ADMIN) {
-            accountDao.delete(user.getAccountId());
-            return userDao.hardDelete(id);
+            accountDao.delete(accountId);
+            return userDao.hardDelete(id, accountId);
         }
-        return userDao.activate(id, false);
+        return userDao.activate(id, accountId, false);
     }
 
     @Override
@@ -165,12 +165,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean activateUser(String emailUUID) {
         User activatedUser = userDao.findByEmailUUID(emailUUID);
+        Long accountId = activatedUser.getAccountId();
+        Long userId = activatedUser.getId();
+
         if (isValidToken(activatedUser)) {
-            userDao.activate(activatedUser.getId(), true);
+            userDao.activate(userId, accountId, true);
             accountDao.activate(activatedUser.getAccountId());
             return true;
         } else {
-            userDao.hardDelete(activatedUser.getId());
+            userDao.hardDelete(userId, accountId);
             return false;
         }
     }
