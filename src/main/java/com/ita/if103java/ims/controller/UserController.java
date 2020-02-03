@@ -1,7 +1,6 @@
 package com.ita.if103java.ims.controller;
 
 
-import com.ita.if103java.ims.annotation.ApiPageable;
 import com.ita.if103java.ims.dto.UserDto;
 import com.ita.if103java.ims.dto.transfer.ExistData;
 import com.ita.if103java.ims.mapper.dto.UserDtoMapper;
@@ -88,7 +87,6 @@ public class UserController {
         return userService.delete(id);
     }
 
-    @ApiPageable
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(value = "")
