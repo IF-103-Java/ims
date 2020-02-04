@@ -2,6 +2,7 @@ package com.ita.if103java.ims.dao.impl;
 
 import com.ita.if103java.ims.dao.AssociateDao;
 import com.ita.if103java.ims.entity.Associate;
+import com.ita.if103java.ims.entity.AssociateType;
 import com.ita.if103java.ims.exception.dao.AssociateEntityNotFoundException;
 import com.ita.if103java.ims.exception.dao.CRUDException;
 import com.ita.if103java.ims.mapper.jdbc.AssociateRowMapper;
@@ -150,6 +151,14 @@ public class AssociateDaoImpl implements AssociateDao {
         return preparedStatement;
     }
 
+    @Override
+    public List<Associate> getAssociatesByType(Long accountId, AssociateType type) {
+        try {
+            return jdbcTemplate.query(Queries.SQL_SELECT_ASSOCIATES_BY_TYPE, associateRowMapper, accountId, type.name());
+        } catch (DataAccessException e) {
+            throw new CRUDException("Error during `select * `", e);
+        }
+    }
     class Queries {
 
         static final String SQL_ROW_COUNT = """
@@ -196,5 +205,10 @@ public class AssociateDaoImpl implements AssociateDao {
             SET active = ?
             WHERE account_id = ? and id = ?
         """;
+        static final String SQL_SELECT_ASSOCIATES_BY_TYPE = """
+                SELECT *
+                FROM associates
+                 WHERE account_id = ?  AND type = ? AND active = true
+            """;
     }
 }

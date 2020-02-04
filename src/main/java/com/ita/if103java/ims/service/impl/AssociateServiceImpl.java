@@ -4,6 +4,7 @@ import com.ita.if103java.ims.dao.AddressDao;
 import com.ita.if103java.ims.dao.AssociateDao;
 import com.ita.if103java.ims.dto.AddressDto;
 import com.ita.if103java.ims.dto.AssociateDto;
+import com.ita.if103java.ims.dto.SavedItemAssociateDto;
 import com.ita.if103java.ims.entity.Address;
 import com.ita.if103java.ims.entity.Associate;
 import com.ita.if103java.ims.entity.AssociateType;
@@ -162,5 +163,12 @@ public class AssociateServiceImpl implements AssociateService {
         String direction = sort[1].equalsIgnoreCase("desc") ? "desc" : "asc";
         return Stream.of("id", "name", "type").
             filter(x -> x.equalsIgnoreCase(sort[0])).collect(Collectors.joining()) + " " + direction;
+    }
+
+    @Override
+    public List<SavedItemAssociateDto> getAssociatesByType(UserDetailsImpl user, AssociateType type) {
+        return associateDao.getAssociatesByType(user.getUser().getAccountId(), type).stream().
+            map(x -> new SavedItemAssociateDto(x.getId(), x.getName(), x.getEmail(), x.getPhone())).
+            collect(Collectors.toList());
     }
 }

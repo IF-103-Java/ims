@@ -2,6 +2,7 @@ package com.ita.if103java.ims.controller;
 
 import com.ita.if103java.ims.dto.ItemTransactionRequestDto;
 import com.ita.if103java.ims.dto.SavedItemDto;
+import com.ita.if103java.ims.dto.UsefulWarehouseDto;
 import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.ItemService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,4 +66,10 @@ public class SavedItemController {
         return itemService.outcomeItem(itemTransaction, user);
     }
 
+    @GetMapping(path = "/usefulWarehouses/{capacity}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    public List<UsefulWarehouseDto> findUsefulWarehouses(@PathVariable("capacity") Long capacity,
+                                                         @AuthenticationPrincipal UserDetailsImpl user) {
+        return itemService.findUsefulWarehouses(capacity, user);
+    }
 }
