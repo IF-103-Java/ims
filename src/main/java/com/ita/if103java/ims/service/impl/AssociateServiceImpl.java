@@ -154,8 +154,8 @@ public class AssociateServiceImpl implements AssociateService {
     }
 
     @Override
-    public List<SavedItemAssociateDto> getAssociatesByNameAndType(UserDetailsImpl user, String name, AssociateType type) {
-        return associateDao.getAssociatesByNameAndType(user.getUser().getAccountId(), name, type).stream().
+    public List<SavedItemAssociateDto> getAssociatesByType(UserDetailsImpl user, AssociateType type) {
+        return associateDao.getAssociatesByType(user.getUser().getAccountId(), type).stream().
             map(x -> new SavedItemAssociateDto(x.getId(), x.getName(), x.getEmail(), x.getPhone())).
             collect(Collectors.toList());
     }

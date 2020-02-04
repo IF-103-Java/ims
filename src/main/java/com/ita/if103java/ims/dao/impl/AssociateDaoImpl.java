@@ -139,9 +139,9 @@ public class AssociateDaoImpl implements AssociateDao {
     }
 
     @Override
-    public List<Associate> getAssociatesByNameAndType(Long accountId, String name, AssociateType type) {
+    public List<Associate> getAssociatesByType(Long accountId, AssociateType type) {
         try {
-            return jdbcTemplate.query(String.format(Queries.SQL_SELECT_ASSOCIATES_BY_NAME_AND_TYPE, "'%"+name+"%'"), associateRowMapper, accountId, type.name());
+            return jdbcTemplate.query(Queries.SQL_SELECT_ASSOCIATES_BY_NAME_AND_TYPE, associateRowMapper, accountId, type.name());
         } catch (DataAccessException e) {
             throw new CRUDException("Error during `select * `", e);
         }
@@ -186,7 +186,7 @@ public class AssociateDaoImpl implements AssociateDao {
         static final String SQL_SELECT_ASSOCIATES_BY_NAME_AND_TYPE = """
                 SELECT *
                 FROM associates
-                 WHERE account_id = ? AND name LIKE %s AND type = ?
+                 WHERE account_id = ?  AND type = ?
             """;
     }
 }

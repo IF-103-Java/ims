@@ -19,5 +19,5 @@ public interface AssociateDao {
 
     boolean delete(Long accountId, Long id);
 
-    List<Associate> getAssociatesByNameAndType(Long accountId, String name, AssociateType type);
+    List<Associate> getAssociatesByType(Long accountId,  AssociateType type);
 }

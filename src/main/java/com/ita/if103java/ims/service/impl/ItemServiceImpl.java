@@ -179,7 +179,6 @@ public class ItemServiceImpl implements ItemService {
                 volumePassSavedItems += savedItem.getQuantity() * item.getVolume();
             }
         }
-        System.out.println("warehouseId "+warehouseId+"volume "+ volumePassSavedItems);
         return volumePassSavedItems;
     }
 

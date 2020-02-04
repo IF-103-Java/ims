@@ -19,5 +19,5 @@ public interface AssociateService {
 
     boolean delete(UserDetailsImpl user, Long id);
 
-    List<SavedItemAssociateDto> getAssociatesByNameAndType(UserDetailsImpl user, String name, AssociateType type);
+    List<SavedItemAssociateDto> getAssociatesByType(UserDetailsImpl user, AssociateType type);
 }
