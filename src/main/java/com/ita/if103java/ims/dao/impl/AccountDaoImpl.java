@@ -126,6 +126,20 @@ public class AccountDaoImpl implements AccountDao {
         return true;
     }
 
+    @Override
+    public boolean hardDelete(Long accountId) {
+        int status;
+        try {
+            status = jdbcTemplate.update(Queries.SQL_HARD_DELETE, accountId);
+        } catch (DataAccessException e) {
+            throw new CRUDException("Error during hard `delete` account {id = " + accountId + "}", e);
+        }
+        if (status == 0) {
+            throw new AccountNotFoundException("Failed to obtain account during hard `delete` {id = " + accountId + "}");
+        }
+        return true;
+    }
+
     private PreparedStatement getPreparedStatement(Account account, Connection connection) throws SQLException {
         PreparedStatement preparedStatement = connection.prepareStatement(Queries.SQL_CREATE_ACCOUNT, Statement.RETURN_GENERATED_KEYS);
 
@@ -168,6 +182,12 @@ public class AccountDaoImpl implements AccountDao {
         static final String SQL_SET_ACTIVE_STATUS_ACCOUNT = """
                 UPDATE accounts
                 SET active = ?
+                WHERE id = ?
+            """;
+
+        static final String SQL_HARD_DELETE = """
+                DELETE
+                FROM accounts
                 WHERE id = ?
             """;
     }

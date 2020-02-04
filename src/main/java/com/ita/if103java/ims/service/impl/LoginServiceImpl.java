@@ -1,8 +1,12 @@
 package com.ita.if103java.ims.service.impl;
 
+import com.ita.if103java.ims.dao.AccountDao;
+import com.ita.if103java.ims.dao.AccountTypeDao;
 import com.ita.if103java.ims.dao.UserDao;
+import com.ita.if103java.ims.dto.AccountTypeDto;
 import com.ita.if103java.ims.dto.ForgotPasswordDto;
 import com.ita.if103java.ims.dto.UserLoginDto;
+import com.ita.if103java.ims.entity.AccountType;
 import com.ita.if103java.ims.entity.User;
 import com.ita.if103java.ims.exception.service.UserOrPasswordIncorrectException;
 import com.ita.if103java.ims.mapper.dto.UserDtoMapper;
@@ -45,6 +49,8 @@ public class LoginServiceImpl implements LoginService {
     private UserDtoMapper mapper;
     private EventService eventService;
     private AuthenticationManager authManager;
+    private AccountDao accountDao;
+    private AccountTypeDao accountTypeDao;
 
     @Autowired
     public LoginServiceImpl(UserDao userDao,
@@ -53,7 +59,9 @@ public class LoginServiceImpl implements LoginService {
                             MailService mailService,
                             UserDtoMapper mapper,
                             EventService eventService,
-                            AuthenticationManager authManager) {
+                            AuthenticationManager authManager,
+                            AccountDao accountDao,
+                            AccountTypeDao accountTypeDao) {
         this.userDao = userDao;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
@@ -61,6 +69,8 @@ public class LoginServiceImpl implements LoginService {
         this.mapper = mapper;
         this.eventService = eventService;
         this.authManager = authManager;
+        this.accountDao = accountDao;
+        this.accountTypeDao = accountTypeDao;
     }
 
     @Override
@@ -70,6 +80,8 @@ public class LoginServiceImpl implements LoginService {
             User regUser = userDao.findByEmail(user.getUsername());
             eventService.create(createEvent(regUser, LOGIN, "sign in to account."));
             String token = jwtTokenProvider.createToken(user.getUsername());
+            AccountType type = accountTypeDao.findById(accountDao.findById(regUser.getAccountId()).getTypeId());
+
             String username = new StringBuilder()
                 .append(regUser.getFirstName())
                 .append(" ")
@@ -77,6 +89,9 @@ public class LoginServiceImpl implements LoginService {
             Map<String, String> model = new HashMap<>();
             model.put("token", token);
             model.put("username", username);
+            model.put("accountId", regUser.getAccountId().toString());
+            model.put("accountType", type.getId().toString());
+            model.put("role", regUser.getRole().toString());
             return ok(model);
         } catch (AuthenticationException e) {
             throw new UserOrPasswordIncorrectException("Credential aren't correct", e);

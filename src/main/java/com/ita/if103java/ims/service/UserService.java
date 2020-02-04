@@ -2,6 +2,7 @@ package com.ita.if103java.ims.service;
 
 import com.ita.if103java.ims.dto.UserDto;
 import com.ita.if103java.ims.security.UserDetailsImpl;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
@@ -15,17 +16,13 @@ public interface UserService {
 
     UserDto findById(Long id);
 
-    List<UserDto> findUsersByAccountId(Long accountID);
-
-    List<UserDto> findWorkersByAccountId(Long accountID);
-
     UserDto findAdminByAccountId(Long accountID);
 
     UserDto update(UserDto userDto);
 
-    boolean delete(Long id);
+    boolean delete(Long id, Long accountId);
 
-    List<UserDto> findAll(Pageable pageable);
+    Page<UserDto> findAll(Pageable pageable, Long accountId);
 
     UserDto findByEmail(String email);
 

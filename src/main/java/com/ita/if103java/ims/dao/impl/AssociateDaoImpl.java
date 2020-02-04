@@ -2,6 +2,7 @@ package com.ita.if103java.ims.dao.impl;
 
 import com.ita.if103java.ims.dao.AssociateDao;
 import com.ita.if103java.ims.entity.Associate;
+import com.ita.if103java.ims.entity.AssociateType;
 import com.ita.if103java.ims.exception.dao.AssociateEntityNotFoundException;
 import com.ita.if103java.ims.exception.dao.CRUDException;
 import com.ita.if103java.ims.mapper.jdbc.AssociateRowMapper;
@@ -78,15 +79,16 @@ public class AssociateDaoImpl implements AssociateDao {
 
     @Override
     public Page<Associate> getAssociates(Pageable pageable, long accountId) {
+
         try {
             String sort = pageable.getSort().stream().map(
                 x -> x.getProperty() + " " + x.getDirection().name()).collect(Collectors.joining(", "));
 
-            List<Associate> associates = jdbcTemplate.query(Queries.SQL_SELECT_SORTED_ASSOICATES, associateRowMapper,
-                accountId, sort, pageable.getPageSize(), pageable.getOffset());
+            List<Associate> associates = jdbcTemplate.query(String.format(Queries.SQL_SELECT_SORTED_ASSOICATES, sort), associateRowMapper,
+                accountId, pageable.getPageSize(), pageable.getOffset());
 
             Integer rowCount =
-                jdbcTemplate.queryForObject(Queries.SQL_ROW_COUNT, new Object[] {accountId}, Integer.class);
+                jdbcTemplate.queryForObject(Queries.SQL_ROW_COUNT, new Object[]{accountId}, Integer.class);
 
             return new PageImpl<>(associates, pageable, rowCount);
         } catch (DataAccessException e) {
@@ -149,6 +151,14 @@ public class AssociateDaoImpl implements AssociateDao {
         return preparedStatement;
     }
 
+    @Override
+    public List<Associate> getAssociatesByType(Long accountId, AssociateType type) {
+        try {
+            return jdbcTemplate.query(Queries.SQL_SELECT_ASSOCIATES_BY_TYPE, associateRowMapper, accountId, type.name());
+        } catch (DataAccessException e) {
+            throw new CRUDException("Error during `select * `", e);
+        }
+    }
     class Queries {
 
         static final String SQL_ROW_COUNT = """
@@ -161,7 +171,7 @@ public class AssociateDaoImpl implements AssociateDao {
         static final String SQL_SELECT_SORTED_ASSOICATES = """
              SELECT *
              FROM associates
-             WHERE account_id= ? AND active = true order by ? limit ? offset ?
+             WHERE account_id= ? AND active = true order by %s limit ? offset ?
         """;
 
         static final String SQL_CREATE_ASSOCIATE = """
@@ -195,5 +205,10 @@ public class AssociateDaoImpl implements AssociateDao {
             SET active = ?
             WHERE account_id = ? and id = ?
         """;
+        static final String SQL_SELECT_ASSOCIATES_BY_TYPE = """
+                SELECT *
+                FROM associates
+                 WHERE account_id = ?  AND type = ? AND active = true
+            """;
     }
 }

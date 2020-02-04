@@ -21,8 +21,12 @@ public interface WarehouseService {
 
     boolean softDelete(Long id, UserDetailsImpl user);
 
-    Page<WarehouseDto> findAll(Pageable pageable, UserDetailsImpl user);
+    Page<WarehouseDto> findAllTopLevel(Pageable pageable, UserDetailsImpl user);
 
     Map<Long, String> findAllWarehouseNames(UserDetailsImpl user);
+
+    List<WarehouseDto> findChildrenById(Long id, UserDetailsImpl user);
+
+    Integer findTotalCapacity (Long id, UserDetailsImpl user);
 
 }

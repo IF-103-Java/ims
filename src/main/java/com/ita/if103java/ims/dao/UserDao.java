@@ -1,6 +1,7 @@
 package com.ita.if103java.ims.dao;
 
 import com.ita.if103java.ims.entity.User;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
@@ -12,21 +13,17 @@ public interface UserDao {
 
     User findById(Long id);
 
-    List<User> findUsersByAccountId(Long accountId);
-
-    List<User> findWorkersByAccountId(Long accountId);
-
     User findAdminByAccountId(Long accountId);
 
     User update(User user);
 
     boolean updateAccountId(Long userId, Long accountId);
 
-    boolean activate(Long id, boolean state);
+    boolean activate(Long id, Long accountId, boolean state);
 
-    boolean hardDelete(Long id);
+    boolean hardDelete(Long id, Long accountId);
 
-    List<User> findAll(Pageable pageable);
+    List<User> findAll(Pageable pageable, Long accountId);
 
     Map<Long, String> findAllUserNames(Long accountId);
 

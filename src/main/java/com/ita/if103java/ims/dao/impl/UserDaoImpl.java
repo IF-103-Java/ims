@@ -61,29 +61,6 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public List<User> findUsersByAccountId(Long accountId) {
-        try {
-            return jdbcTemplate.query(Queries.SQL_SELECT_USERS_BY_ACCOUNT_ID, userRowMapper, accountId);
-        } catch (EmptyResultDataAccessException e) {
-            throw new UserNotFoundException("Failed to obtain users during `select` {accountId = " + accountId + "}", e);
-        } catch (DataAccessException e) {
-            throw new CRUDException("Error during `select` users {accountId = " + accountId + "}", e);
-        }
-
-    }
-
-    @Override
-    public List<User> findWorkersByAccountId(Long accountId) {
-        try {
-            return jdbcTemplate.query(Queries.SQL_SELECT_WORKERS_BY_ACCOUNT_ID, userRowMapper, accountId);
-        } catch (EmptyResultDataAccessException e) {
-            throw new UserNotFoundException("Failed to obtain user during `select` {accountId = " + accountId + "}", e);
-        } catch (DataAccessException e) {
-            throw new CRUDException("Error during `select` admin {accountId = " + accountId + "}", e);
-        }
-    }
-
-    @Override
     public User findAdminByAccountId(Long accountId) {
         try {
             return jdbcTemplate.queryForObject(Queries.SQL_SELECT_ADMIN_BY_ACCOUNT_ID, userRowMapper, accountId);
@@ -95,15 +72,18 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public List<User> findAll(Pageable pageable) {
+    public List<User> findAll(Pageable pageable, Long accountId) {
         try {
 
             String sort = pageable.getSort().toString().replaceAll(": ", " ");
-            return jdbcTemplate.query(Queries.SQL_SELECT_ALL_USERS,
+            final String query = String.format(Queries.SQL_SELECT_ALL_USERS, sort);
+
+            return jdbcTemplate.query(query,
                 userRowMapper,
-                sort,
+                accountId,
                 pageable.getPageSize(),
                 pageable.getOffset());
+
         } catch (DataAccessException e) {
             throw new CRUDException("Error during `select * ` users ", e);
         }
@@ -156,8 +136,6 @@ public class UserDaoImpl implements UserDao {
                 Queries.SQL_UPDATE_USER,
                 user.getFirstName(),
                 user.getLastName(),
-                user.getEmail(),
-                user.getPassword(),
                 Timestamp.from(updatedDateTime.toInstant()),
                 user.getEmailUUID(),
                 user.getId());
@@ -191,25 +169,25 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public boolean activate(Long id, boolean state) {
+    public boolean activate(Long id, Long accountId, boolean state) {
         int status;
         try {
-            status = jdbcTemplate.update(Queries.SQL_SET_ACTIVE_STATUS_USER, state, id);
+            status = jdbcTemplate.update(Queries.SQL_SET_ACTIVE_STATUS_USER, state, id, accountId);
         } catch (DataAccessException e) {
-            throw new CRUDException("Error during soft `delete` user {id = " + id + "}", e);
+            throw new CRUDException("Error during set status:" + state + " to user {id = " + id + "}", e);
         }
         if (status == 0) {
-            throw new UserNotFoundException("Failed to obtain user during soft `delete` {id = " + id + "}");
+            throw new UserNotFoundException("Failed to obtain user during set status:" + state + "to user {id = " + id + "}");
         }
 
         return true;
     }
 
     @Override
-    public boolean hardDelete(Long id) {
+    public boolean hardDelete(Long id, Long accountId) {
         int status;
         try {
-            status = jdbcTemplate.update(Queries.SQL_DELETE_USER_BY_ID, id);
+            status = jdbcTemplate.update(Queries.SQL_DELETE_USER_BY_ID, id, accountId);
         } catch (DataAccessException e) {
             throw new CRUDException("Error during hard `delete` user {id = " + id + "}", e);
         }
@@ -294,33 +272,25 @@ public class UserDaoImpl implements UserDao {
                 SELECT *
                 FROM users
                 WHERE id = ?
+                AND active = 1
             """;
 
         public static final String SQL_SELECT_USER_BY_EMAIL = """
                 SELECT *
                 FROM users
                 WHERE email = ?
+                AND active = 1
             """;
 
         public static final String SQL_SELECT_ALL_USERS = """
                 SELECT *
                 FROM users
-                ORDER BY ?
+                WHERE account_id = ?
+                AND role = 'ROLE_WORKER'
+                AND active = 1
+                ORDER BY %s
                 Limit ?
                 Offset ?
-            """;
-
-        public static final String SQL_SELECT_USERS_BY_ACCOUNT_ID = """
-                SELECT *
-                FROM users
-                WHERE account_id = ?
-            """;
-
-        public static final String SQL_SELECT_WORKERS_BY_ACCOUNT_ID = """
-                SELECT *
-                FROM users
-                WHERE role = 'ROLE_WORKER'
-                AND account_id = ?
             """;
 
         public static final String SQL_SELECT_ADMIN_BY_ACCOUNT_ID = """
@@ -328,13 +298,13 @@ public class UserDaoImpl implements UserDao {
                 FROM users
                 WHERE role = 'ROLE_ADMIN'
                 AND account_id = ?
+                AND active = 1
             """;
 
         public static final String SQL_UPDATE_USER = """
                 UPDATE users
                 SET
                 first_name= ?, last_name = ?,
-                email = ?, password = ?,
                 updated_date = ?, email_uuid = ?
                 WHERE id = ?
             """;
@@ -349,6 +319,7 @@ public class UserDaoImpl implements UserDao {
                 UPDATE users
                 SET active = ?
                 WHERE id = ?
+                AND account_id = ?
             """;
 
         public static final String SQL_UPDATE_PASSWORD = """
@@ -367,12 +338,14 @@ public class UserDaoImpl implements UserDao {
                 DELETE
                 FROM users
                 WHERE id = ?
+                AND account_id = ?
             """;
 
         public static final String SQL_COUNT_OF_USERS = """
                 SELECT COUNT(*)
                 FROM users
                 WHERE account_id = ?
+                AND active = true
             """;
 
         public static final String SQL_SELECT_ALL_USERNAMES = """

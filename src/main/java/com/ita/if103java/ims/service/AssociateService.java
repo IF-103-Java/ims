@@ -1,6 +1,8 @@
 package com.ita.if103java.ims.service;
 
 import com.ita.if103java.ims.dto.AssociateDto;
+import com.ita.if103java.ims.dto.SavedItemAssociateDto;
+import com.ita.if103java.ims.entity.AssociateType;
 import com.ita.if103java.ims.security.UserDetailsImpl;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,4 +19,6 @@ public interface AssociateService {
     AssociateDto view(UserDetailsImpl user, Long id);
 
     boolean delete(UserDetailsImpl user, Long id);
+
+    List<SavedItemAssociateDto> getAssociatesByType(UserDetailsImpl user, AssociateType type);
 }
