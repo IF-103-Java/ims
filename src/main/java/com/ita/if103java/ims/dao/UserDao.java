@@ -13,8 +13,6 @@ public interface UserDao {
 
     User findById(Long id);
 
-    List<User> findWorkersByAccountId(Long accountId);
-
     User findAdminByAccountId(Long accountId);
 
     User update(User user);

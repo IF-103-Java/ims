@@ -106,11 +106,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDto> findWorkersByAccountId(Long accountID) {
-        return mapper.toDtoList(userDao.findWorkersByAccountId(accountID));
-    }
-
-    @Override
     public UserDto findAdminByAccountId(Long accountID) {
         return mapper.toDto(userDao.findAdminByAccountId(accountID));
     }

@@ -8,6 +8,9 @@ import com.ita.if103java.ims.dto.WarehousePremiumStructDto;
 import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.DashboardService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -17,7 +20,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.List;
 
@@ -55,8 +60,8 @@ public class DashboardController {
 
     @GetMapping(value = "/endingItems",
         produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<EndingItemsDto> getEndingItems(@AuthenticationPrincipal UserDetailsImpl userDetails,
-                                               @RequestParam int minQuantity) {
-        return dashboardService.getEndingItems(minQuantity, userDetails.getUser().getAccountId());
+    public Page<EndingItemsDto> getEndingItems(Pageable pageable, @RequestParam int minQuantity,
+                                               @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return dashboardService.getEndingItems(pageable, minQuantity, userDetails.getUser().getAccountId());
     }
 }
