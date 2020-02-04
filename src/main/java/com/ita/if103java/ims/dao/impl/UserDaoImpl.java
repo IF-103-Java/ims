@@ -295,7 +295,8 @@ public class UserDaoImpl implements UserDao {
         public static final String SQL_SELECT_ALL_USERS = """
                 SELECT *
                 FROM users
-                WHERE account_id = ?
+                WHERE role = 'ROLE_WORKER'
+                AND account_id = ?
                 AND active = 1
                 ORDER BY ?
                 Limit ?
