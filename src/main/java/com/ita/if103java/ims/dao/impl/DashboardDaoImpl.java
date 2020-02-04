@@ -8,6 +8,7 @@ import com.ita.if103java.ims.dto.WarehouseLoadDto;
 import com.ita.if103java.ims.dto.WarehousePremiumStructDto;
 import com.ita.if103java.ims.entity.ChargeCapacity;
 import com.ita.if103java.ims.exception.dao.CRUDException;
+import com.ita.if103java.ims.exception.dao.DashboardDataNotFoundException;
 import com.ita.if103java.ims.mapper.jdbc.ChargeCapacityRowMapper;
 import com.ita.if103java.ims.mapper.jdbc.EndingItemsRowMapper;
 import com.ita.if103java.ims.mapper.jdbc.PopularItemsRowMapper;
@@ -15,12 +16,17 @@ import com.ita.if103java.ims.mapper.jdbc.WarehouseLoadRowMapper;
 import com.ita.if103java.ims.mapper.jdbc.WarehousePremiumStructRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 import static com.ita.if103java.ims.entity.PopType.TOP;
+import static com.ita.if103java.ims.util.JDBCUtils.getOrder;
 
 @Repository
 public class DashboardDaoImpl implements DashboardDao {
@@ -51,6 +57,9 @@ public class DashboardDaoImpl implements DashboardDao {
     public List<WarehouseLoadDto> findWarehouseLoadByAccountId(Long accountId) {
         try {
             return jdbcTemplate.query(Queries.SQL_FIND_WAREHOUSE_LOAD_BY_ACCOUNT_ID, warehouseLoadRowMapper, accountId);
+        } catch (EmptyResultDataAccessException e) {
+            throw new DashboardDataNotFoundException(
+                "Failed to obtain warehouse load during `select`, accountId = " + accountId, e);
         } catch (DataAccessException e) {
             throw crudException(e, "findWarehouseLoad", "accountId = " + accountId);
         }
@@ -76,17 +85,30 @@ public class DashboardDaoImpl implements DashboardDao {
                         popularItemsRowMapper,
                         accountId, popularItems.getQuantity());
             }
-
+        } catch (EmptyResultDataAccessException e) {
+            throw new DashboardDataNotFoundException(
+                "Failed to obtain popular items during `select`, accountId = " + accountId, e);
         } catch (DataAccessException e) {
             throw crudException(e, "findPopularItems", "*");
         }
     }
 
     @Override
-    public List<EndingItemsDto> findEndedItemsByAccountId(int minQuantity, Long accountId) {
+    public Page<EndingItemsDto> findEndedItemsByAccountId(Pageable pageable, int minQuantity, Long accountId) {
         try {
-            return jdbcTemplate.query(Queries.SQL_FIND_ENDED_ITEMS_BY_ACCOUNT_ID, endingItemsRowMapper,
-                minQuantity, accountId);
+
+            List<EndingItemsDto> endingItems = jdbcTemplate.query(
+                String.format(Queries.SQL_FIND_ENDED_ITEMS_BY_ACCOUNT_ID, getOrder(pageable.getSort())),
+                endingItemsRowMapper, minQuantity, accountId, pageable.getPageSize(), pageable.getOffset());
+
+            Integer rowCount =
+                jdbcTemplate.queryForObject(Queries.SQL_ROW_COUNT,
+                    new Object[]{minQuantity, accountId}, Integer.class);
+
+            return new PageImpl<>(endingItems, pageable, rowCount);
+        } catch (EmptyResultDataAccessException e) {
+            throw new DashboardDataNotFoundException(
+                "Failed to obtain ended items during `select`, accountId = " + accountId, e);
         } catch (DataAccessException e) {
             throw crudException(e, "findEndedItem", "accountId = " + accountId);
         }
@@ -104,6 +126,9 @@ public class DashboardDaoImpl implements DashboardDao {
             recursiceWarehouseDataFiller(wpld);
 
             return wpld;
+        } catch (EmptyResultDataAccessException e) {
+            throw new DashboardDataNotFoundException(
+                "Failed to obtain root warehouse during `select`, id = " + id);
         } catch (DataAccessException e) {
             throw crudException(e, "getPreLoad", "accountId=" + accountId);
         }
@@ -126,6 +151,9 @@ public class DashboardDaoImpl implements DashboardDao {
                 }
             }
             return wpld;
+        } catch (EmptyResultDataAccessException e) {
+            throw new DashboardDataNotFoundException(
+                "Failed to obtain structure and load of warehouses during `select`, id = " + id);
         } catch (DataAccessException e) {
             throw crudException(e, "findWarehouseStructure", "*");
         }
@@ -194,7 +222,7 @@ public class DashboardDaoImpl implements DashboardDao {
                  (SELECT w1.id, w2.name, w1.capacity, w1.account_id, w1.top_warehouse_id
                  FROM warehouses w1
                  JOIN warehouses w2
-                 WHERE w1.is_bottom=1 AND w1.active=1 and w2.id=w1.top_warehouse_id) AS cap
+                 WHERE w1.is_bottom=1 AND w2.active=1 and w2.id=w1.top_warehouse_id) AS cap
                  ON  cha.warehouse_id=cap.id AND  cha.account_id=cap.account_id
                  WHERE cap.account_id=?
                  GROUP BY top_warehouse_id
@@ -202,6 +230,19 @@ public class DashboardDaoImpl implements DashboardDao {
 
         static final String SQL_FIND_ENDED_ITEMS_BY_ACCOUNT_ID = """
                 SELECT wh.id, wh.name, it.name_item, si.quantity
+                FROM saved_items si
+                JOIN warehouses wh
+                ON si.warehouse_id = wh.id
+                JOIN items it
+                ON si.item_id = it.id
+                WHERE si.quantity <= ?
+                AND wh.account_id = ?
+                ORDER BY %s
+                LIMIT ?
+                OFFSET ?
+            """;
+        static final String SQL_ROW_COUNT = """
+                SELECT COUNT(wh.id)
                 FROM saved_items si
                 JOIN warehouses wh
                 ON si.warehouse_id = wh.id
