@@ -123,7 +123,7 @@ public class ItemServiceImpl implements ItemService {
                         accountId,
                         itemTransaction.getDestinationWarehouseId(), id,
                         EventName.LOW_SPACE_IN_WAREHOUSE, null);
-                LOGGER.error("Warehouse is loaded more than " + maxWarehouseLoad + " %!", event);
+                LOGGER.info("Warehouse is loaded more than " + maxWarehouseLoad + " %!", event);
                 eventService.create(event);
             }
             return savedItemDto;
@@ -198,7 +198,7 @@ public class ItemServiceImpl implements ItemService {
                     accountId,
                     itemTransaction.getDestinationWarehouseId(), id,
                     EventName.LOW_SPACE_IN_WAREHOUSE, null);
-                LOGGER.error("Warehouse is loaded more than " + maxWarehouseLoad + "% Capacity", event);
+                LOGGER.info("Warehouse is loaded more than " + maxWarehouseLoad + "% Capacity", event);
                 eventService.create(event);
             }
             return isMove;
@@ -246,7 +246,7 @@ public class ItemServiceImpl implements ItemService {
                         " in warehouse " + warehouseDao.findById(itemTransaction.getSourceWarehouseId(), accountId).getName(),
                         accountId,
                         itemTransaction.getSourceWarehouseId(), id, EventName.ITEM_ENDED, null);
-                LOGGER.error("Left less than " + minQuantityItemsInWarehouse + " items!", event);
+                LOGGER.info("Left less than " + minQuantityItemsInWarehouse + " items!", event);
                 eventService.create(event);
             }
             return savedItemDto;

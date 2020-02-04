@@ -32,15 +32,15 @@ public class SavedItemServiceImpl implements SavedItemService {
     }
     @Override
     public void validateInputsAdd(ItemTransactionRequestDto itemTransaction, Long accountId) {
-        if (associateDao.findById(accountId, itemTransaction.getAssociateId()).getType().equals(AssociateType.CLIENT) &&
-            !(existInAccount(itemTransaction, accountId) &&
+        if (itemTransaction.getItemDto().getVolume()<=0 && associateDao.findById(accountId, itemTransaction.getAssociateId()).getType().equals(AssociateType.CLIENT) &&
+             !(existInAccount(itemTransaction, accountId) &&
             associateDao.findById(accountId, itemTransaction.getAssociateId()).getAccountId().equals(accountId))) {
             throw new SavedItemNotFoundException("Failed to get savedItem during `create` {account_id = " + itemTransaction.getItemDto().getAccountId() + "}");
         }
     }
     @Override
     public void validateInputsMove(ItemTransactionRequestDto itemTransaction, Long accountId) {
-        if (!(existInAccount(itemTransaction, accountId))) {
+        if (!warehouseDao.findById(itemTransaction.getDestinationWarehouseId(), accountId).isBottom() && !(existInAccount(itemTransaction, accountId))) {
             throw new SavedItemNotFoundException("Failed to get savedItem during `move` {account_id = " + itemTransaction.getItemDto().getAccountId() + "}");
         }
     }
