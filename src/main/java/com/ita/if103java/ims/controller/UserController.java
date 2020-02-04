@@ -57,12 +57,6 @@ public class UserController {
         return userService.findByEmail(email);
     }
 
-    @GetMapping("/account/workers")
-    @ResponseStatus(HttpStatus.OK)
-    public List<UserDto> findWorkersByAccountId(@AuthenticationPrincipal UserDetailsImpl user) {
-        return userService.findWorkersByAccountId(user.getUser().getAccountId());
-    }
-
     @GetMapping("/account/admin")
     @ResponseStatus(HttpStatus.OK)
     public UserDto findAdminByAccountId(@AuthenticationPrincipal UserDetailsImpl user) {
