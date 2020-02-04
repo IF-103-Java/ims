@@ -76,10 +76,11 @@ public class UserDaoImpl implements UserDao {
         try {
 
             String sort = pageable.getSort().toString().replaceAll(": ", " ");
-            return jdbcTemplate.query(Queries.SQL_SELECT_ALL_USERS,
+            final String query = String.format(Queries.SQL_SELECT_ALL_USERS, sort);
+
+            return jdbcTemplate.query(query,
                 userRowMapper,
                 accountId,
-                sort,
                 pageable.getPageSize(),
                 pageable.getOffset());
 
@@ -285,8 +286,9 @@ public class UserDaoImpl implements UserDao {
                 SELECT *
                 FROM users
                 WHERE account_id = ?
+                AND role = 'ROLE_WORKER'
                 AND active = 1
-                ORDER BY ?
+                ORDER BY %s
                 Limit ?
                 Offset ?
             """;
