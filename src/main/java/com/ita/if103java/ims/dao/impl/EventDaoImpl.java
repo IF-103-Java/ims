@@ -233,7 +233,7 @@ public class EventDaoImpl implements EventDao {
             jdbcTemplate.update(Queries.SQL_DELETE_BY_ACCOUNT_ID, accountId);
         } catch (DataAccessException e) {
             throw new CRUDException("Error during  " + Queries.SQL_DELETE_BY_ACCOUNT_ID + accountId +
-                ", EventDao.findAll", e);
+                ", EventDao.deleteByAccountId", e);
         }
     }
 
