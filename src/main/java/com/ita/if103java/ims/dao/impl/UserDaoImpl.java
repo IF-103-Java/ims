@@ -61,17 +61,6 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public List<User> findWorkersByAccountId(Long accountId) {
-        try {
-            return jdbcTemplate.query(Queries.SQL_SELECT_WORKERS_BY_ACCOUNT_ID, userRowMapper, accountId);
-        } catch (EmptyResultDataAccessException e) {
-            throw new UserNotFoundException("Failed to obtain user during `select` {accountId = " + accountId + "}", e);
-        } catch (DataAccessException e) {
-            throw new CRUDException("Error during `select` admin {accountId = " + accountId + "}", e);
-        }
-    }
-
-    @Override
     public User findAdminByAccountId(Long accountId) {
         try {
             return jdbcTemplate.queryForObject(Queries.SQL_SELECT_ADMIN_BY_ACCOUNT_ID, userRowMapper, accountId);
@@ -87,10 +76,11 @@ public class UserDaoImpl implements UserDao {
         try {
 
             String sort = pageable.getSort().toString().replaceAll(": ", " ");
-            return jdbcTemplate.query(Queries.SQL_SELECT_ALL_USERS,
+            final String query = String.format(Queries.SQL_SELECT_ALL_USERS, sort);
+
+            return jdbcTemplate.query(query,
                 userRowMapper,
                 accountId,
-                sort,
                 pageable.getPageSize(),
                 pageable.getOffset());
 
@@ -296,18 +286,11 @@ public class UserDaoImpl implements UserDao {
                 SELECT *
                 FROM users
                 WHERE account_id = ?
+                AND role = 'ROLE_WORKER'
                 AND active = 1
-                ORDER BY ?
+                ORDER BY %s
                 Limit ?
                 Offset ?
-            """;
-
-        public static final String SQL_SELECT_WORKERS_BY_ACCOUNT_ID = """
-                SELECT *
-                FROM users
-                WHERE role = 'ROLE_WORKER'
-                AND account_id = ?
-                AND active = 1
             """;
 
         public static final String SQL_SELECT_ADMIN_BY_ACCOUNT_ID = """
