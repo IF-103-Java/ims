@@ -59,6 +59,7 @@ public class WarehouseServiceImpl implements WarehouseService {
         if (warehouseDto.getParentID() == null) {
             int maxWarehouses = userDetails.getAccountType().getMaxWarehouses();
             int warehouseQuantity = warehouseDao.findQuantityOfWarehousesByAccountId(accountId);
+
             if (warehouseQuantity < maxWarehouses) {
                 return createNewWarehouse(warehouseDto, userDetails);
             } else {
@@ -231,5 +232,16 @@ public class WarehouseServiceImpl implements WarehouseService {
     @Override
     public Map<Long, String> findAllWarehouseNames(UserDetailsImpl user) {
         return warehouseDao.findAllWarehouseNames(user.getUser().getAccountId());
+    }
+
+    @Override
+    public List<WarehouseDto> findChildrenById(Long id, UserDetailsImpl user) {
+        List<WarehouseDto> children = warehouseDtoMapper.toDtoList(warehouseDao.findChildrenById(id,
+            user.getUser().getAccountId()));
+        return children;
+    }
+
+    public Integer findTotalCapacity (Long id, UserDetailsImpl user){
+        return warehouseDao.findTotalCapacity(id,user.getUser().getAccountId());
     }
 }

@@ -26,4 +26,8 @@ public interface WarehouseDao {
     List<Warehouse> findByTopWarehouseID(Long id, Long accountId);
 
     Integer findLevelByParentID(Long id);
+
+    List<Warehouse> findChildrenById(Long id, Long accountId);
+
+    Integer findTotalCapacity(Long id, Long accountId);
 }

@@ -180,6 +180,26 @@ public class WarehouseDaoImpl implements WarehouseDao {
         }
     }
 
+    @Override
+    public List<Warehouse> findChildrenById(Long id, Long accountId) {
+        try {
+            return jdbcTemplate.query(Queries.SQL_SELECT_CHILDREN_BY_ID, warehouseRowMapper, id, accountId);
+
+        } catch (DataAccessException e) {
+            throw new WarehouseNotFoundException("Error during finding all children of warehouse {Id = " + id + "}", e);
+        }
+    }
+
+    @Override
+    public Integer findTotalCapacity(Long id, Long accountId) {
+        try {
+            return jdbcTemplate.queryForObject(Queries.SQL_SELECT_SUM_CAPACITY, Integer.class, id, accountId);
+
+        } catch (DataAccessException e) {
+            throw new WarehouseNotFoundException("Error during finding all capacity of top level warehouse {Id = " + id + "}", e);
+        }
+    }
+
     class Queries {
 
         static final String SQL_CREATE_WAREHOUSE = """
@@ -252,6 +272,22 @@ public class WarehouseDaoImpl implements WarehouseDao {
                 SELECT id, name
                 FROM warehouses
                 WHERE id IN (%s)
+            """;
+
+        static final String SQL_SELECT_CHILDREN_BY_ID = """
+                SELECT *
+                FROM warehouses
+                WHERE parent_id = ? AND
+                account_id = ?
+                AND active = 1
+            """;
+
+        static final String SQL_SELECT_SUM_CAPACITY = """
+                SELECT SUM(capacity)
+                FROM warehouses
+                WHERE top_warehouse_id = ? AND
+                account_id = ? AND capacity > 0
+                AND active = 1
             """;
     }
 }
