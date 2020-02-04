@@ -38,7 +38,6 @@ public class DashboardController {
 
     @GetMapping(value = "/warehouseLoad",
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseStatus(HttpStatus.OK)
     public List<WarehouseLoadDto> getWarehouseLoad(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         return dashboardService.getWarehouseLoad(userDetails.getUser().getAccountId());
     }
@@ -46,7 +45,6 @@ public class DashboardController {
     @PreAuthorize("hasAuthority('DEEP_WAREHOUSE_ANALYTICS')")
     @GetMapping(value = "/premiumLoad/{id}",
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseStatus(HttpStatus.OK)
     public WarehousePremiumStructDto getPreLoad(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                 @PathVariable Long id) {
         return dashboardService.getPreLoad(id, userDetails.getUser().getAccountId());
@@ -55,7 +53,6 @@ public class DashboardController {
     @PostMapping(value = "/popularityItems",
         consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseStatus(HttpStatus.OK)
     public List<PopularItemsDto> getPopularItems(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                  @RequestBody PopularItemsRequestDto popularItems) {
         return dashboardService.getPopularItems(popularItems, userDetails.getUser().getAccountId());
@@ -63,8 +60,7 @@ public class DashboardController {
 
     @GetMapping(value = "/endingItems",
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseStatus(HttpStatus.OK)
-    public Page<EndingItemsDto> getEndingItems(@ApiIgnore Pageable pageable, @RequestParam int minQuantity,
+    public Page<EndingItemsDto> getEndingItems(Pageable pageable, @RequestParam int minQuantity,
                                                @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return dashboardService.getEndingItems(pageable, minQuantity, userDetails.getUser().getAccountId());
     }
