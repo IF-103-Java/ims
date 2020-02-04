@@ -163,19 +163,39 @@ public class ItemServiceImpl implements ItemService {
         return warehouseDao.findById(itemTransaction.getDestinationWarehouseId(), accountId).getCapacity() >= volume;
     }
 
+//    private float toVolumeOfPassSavedItems(ItemTransactionRequestDto itemTransaction, Long accountId) {
+//        float volumePassSavedItems = 0;
+//        Long warehouseId = itemTransaction.getDestinationWarehouseId();
+//
+//        if (savedItemDao.existSavedItemByWarehouseId(warehouseId)) {
+//            for (SavedItem savedItem : savedItemDao.findSavedItemByWarehouseId(warehouseId)) {
+//                Item item = itemDao.findItemById(savedItem.getItemId(), accountId);
+//                volumePassSavedItems += savedItem.getQuantity() * item.getVolume();
+//            }
+//        }
+//        return volumePassSavedItems;
+//    }
+
     private float toVolumeOfPassSavedItems(ItemTransactionRequestDto itemTransaction, Long accountId) {
         float volumePassSavedItems = 0;
         Long warehouseId = itemTransaction.getDestinationWarehouseId();
 
         if (savedItemDao.existSavedItemByWarehouseId(warehouseId)) {
-            for (SavedItem savedItem : savedItemDao.findSavedItemByWarehouseId(warehouseId)) {
-                Item item = itemDao.findItemById(savedItem.getItemId(), accountId);
-                volumePassSavedItems += savedItem.getQuantity() * item.getVolume();
+            StringBuilder itemsId = new StringBuilder();
+            List<SavedItem> savedItem =  savedItemDao.findSavedItemByWarehouseId(warehouseId);
+            savedItem.forEach(x->{
+                itemsId.append(" id = ");
+                itemsId.append(x.getItemId());
+                itemsId.append(" or");
+            });
+            itemsId.delete(itemsId.length()-2, itemsId.length());
+            List<Item> item = itemDao.findItemsById(itemsId, accountId);
+            for (int i = 0; i < savedItem.size(); i++) {
+                   volumePassSavedItems += savedItem.get(i).getQuantity() * item.get(i).getVolume();
             }
         }
         return volumePassSavedItems;
     }
-
     private float toVolumeOfPassSavedItems(Long warehouseId, Long accountId) {
         float volumePassSavedItems = 0;
 
