@@ -1,3 +1,5 @@
+package com.ita.if103java.ims.service.impl;
+
 import com.ita.if103java.ims.dao.AssociateDao;
 import com.ita.if103java.ims.dao.ItemDao;
 import com.ita.if103java.ims.dao.SavedItemDao;
@@ -107,7 +109,6 @@ public class ItemServiceImpl implements ItemService {
             SavedItem savedItem = new SavedItem(itemTransaction.getItemDto().getId(),
                 itemTransaction.getQuantity().intValue(), itemTransaction.getDestinationWarehouseId());
             SavedItemDto savedItemDto = savedItemDtoMapper.toDto(savedItemDao.addSavedItem(savedItem));
-            savedItemDto.setItemDto(itemTransaction.getItemDto());
             Transaction transaction = transactionDao.create(transactionDao.create(itemTransaction,
                 user.getUser(), itemTransaction.getAssociateId(), TransactionType.IN));
             eventService.create(new Event("Moved " + itemTransaction.getQuantity() + " " + itemTransaction.getItemDto().getName() +
@@ -265,8 +266,7 @@ public class ItemServiceImpl implements ItemService {
         validateInputsOut(itemTransaction, user);
         SavedItemDto savedItemDto =
             savedItemDtoMapper.toDto(savedItemDao.findSavedItemById(itemTransaction.getSavedItemId()));
-        savedItemDto.setItemDto(itemTransaction.getItemDto());
-        if (savedItemDto.getQuantity() >= itemTransaction.getQuantity()) {
+          if (savedItemDto.getQuantity() >= itemTransaction.getQuantity()) {
             long difference = savedItemDto.getQuantity() - itemTransaction.getQuantity();
             savedItemDao.outComeSavedItem(savedItemDtoMapper.toEntity(savedItemDto),
                 Long.valueOf(difference).intValue());

@@ -10,8 +10,6 @@ public interface ItemDao {
 
     Integer countItemsById(long accountId);
 
-    Integer countItemsById(long accountId);
-
     Item findItemByName(String name);
 
     List<Item> findItemByAccountId(Long id);
