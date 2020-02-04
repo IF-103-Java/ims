@@ -17,6 +17,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 
 @Repository
@@ -169,12 +170,12 @@ public class SavedItemDaoImpl implements SavedItemDao {
     }
 
     @Override
-    public SavedItem findSavedItemByItemIdAndWarehouseId(Long itemId, Long warehouseId) {
+    public Optional<SavedItem> findSavedItemByItemIdAndWarehouseId(Long itemId, Long warehouseId) {
         try {
-            return jdbcTemplate.queryForObject(Queries.SQL_SELECT_SAVED_ITEM_BY_ITEM_ID_AND_WAREHOUSE_ID,
-                savedItemRowMapper, itemId, warehouseId);
+            return Optional.of(jdbcTemplate.queryForObject(Queries.SQL_SELECT_SAVED_ITEM_BY_ITEM_ID_AND_WAREHOUSE_ID,
+                savedItemRowMapper, itemId, warehouseId));
         } catch (EmptyResultDataAccessException e) {
-            throw new SavedItemNotFoundException("Failed during `select` {itemId = " + itemId + " warehouse_id = " + warehouseId + "}", e);
+            return Optional.empty();
         } catch (DataAccessException e) {
             throw new CRUDException("Failed during `select` {itemId = " + itemId + " warehouse_id = " + warehouseId + "}", e);
         }

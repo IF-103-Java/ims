@@ -35,6 +35,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -106,13 +107,14 @@ public class ItemServiceImpl implements ItemService {
     public SavedItemDto addSavedItem(ItemTransactionRequestDto itemTransaction, UserDetailsImpl user) {
         validateInputsAdd(itemTransaction, user.getUser().getAccountId());
         if (isEnoughCapacityInWarehouse(itemTransaction, user.getUser().getAccountId())) {
-            SavedItem item = savedItemDao.findSavedItemByItemIdAndWarehouseId(itemTransaction.getItemDto().getId(),
+            Optional<SavedItem> item = savedItemDao.findSavedItemByItemIdAndWarehouseId(itemTransaction.getItemDto().getId(),
                 itemTransaction.getDestinationWarehouseId());
-            if (item != null){
-                int quantity = Long.valueOf(item.getQuantity()+itemTransaction.getQuantity()).intValue();
-                item.setQuantity(quantity);
-                savedItemDao.outComeSavedItem(item, quantity);
-                return savedItemDtoMapper.toDto(item);
+            if (item.isPresent()){
+               SavedItem savedItem = item.get();
+                int quantity = Long.valueOf(savedItem.getQuantity()+itemTransaction.getQuantity()).intValue();
+                savedItem.setQuantity(quantity);
+                savedItemDao.outComeSavedItem(savedItem, quantity);
+                return savedItemDtoMapper.toDto(savedItem);
             }
                 SavedItem savedItem = new SavedItem(itemTransaction.getItemDto().getId(),
                 itemTransaction.getQuantity().intValue(), itemTransaction.getDestinationWarehouseId());

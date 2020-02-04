@@ -3,6 +3,7 @@ package com.ita.if103java.ims.dao;
 import com.ita.if103java.ims.entity.SavedItem;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface SavedItemDao {
     List<SavedItem> getSavedItems();
@@ -23,7 +24,7 @@ public interface SavedItemDao {
 
     boolean deleteSavedItem(Long savedItemId);
 
-    SavedItem findSavedItemByItemIdAndWarehouseId(Long itemId, Long warehouseId);
+    Optional<SavedItem> findSavedItemByItemIdAndWarehouseId(Long itemId, Long warehouseId);
 
     boolean deleteSavedItemById(Long savedItem);
 }
