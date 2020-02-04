@@ -5,6 +5,7 @@ import com.ita.if103java.ims.dao.ItemDao;
 import com.ita.if103java.ims.dao.SavedItemDao;
 import com.ita.if103java.ims.dao.WarehouseDao;
 import com.ita.if103java.ims.dto.ItemTransactionRequestDto;
+import com.ita.if103java.ims.entity.AssociateType;
 import com.ita.if103java.ims.entity.Item;
 import com.ita.if103java.ims.entity.SavedItem;
 import com.ita.if103java.ims.exception.dao.SavedItemNotFoundException;
@@ -31,7 +32,8 @@ public class SavedItemServiceImpl implements SavedItemService {
     }
     @Override
     public void validateInputsAdd(ItemTransactionRequestDto itemTransaction, Long accountId) {
-        if (!(existInAccount(itemTransaction, accountId) &&
+        if (associateDao.findById(accountId, itemTransaction.getAssociateId()).getType().equals(AssociateType.CLIENT) &&
+            !(existInAccount(itemTransaction, accountId) &&
             associateDao.findById(accountId, itemTransaction.getAssociateId()).getAccountId().equals(accountId))) {
             throw new SavedItemNotFoundException("Failed to get savedItem during `create` {account_id = " + itemTransaction.getItemDto().getAccountId() + "}");
         }
@@ -44,9 +46,10 @@ public class SavedItemServiceImpl implements SavedItemService {
     }
     @Override
     public void validateInputsOut(ItemTransactionRequestDto itemTransaction, UserDetailsImpl user) {
-        if (!(itemDao.isExistItemById(itemTransaction.getItemDto().getId(), user.getUser().getAccountId())
-            && associateDao.findById(user.getUser().getAccountId(), itemTransaction.getAssociateId()).getAccountId().equals(user.getUser().getAccountId()))) {
-            throw new SavedItemNotFoundException("Failed to get savedItem during `outcomeItem` {account_id = " + user.getUser().getAccountId() +
+        Long accountId = user.getUser().getAccountId();
+        if (associateDao.findById(accountId, itemTransaction.getAssociateId()).getType().equals(AssociateType.SUPPLIER) && !(itemDao.isExistItemById(itemTransaction.getItemDto().getId(), user.getUser().getAccountId())
+            && associateDao.findById(accountId, itemTransaction.getAssociateId()).getAccountId().equals(accountId))) {
+            throw new SavedItemNotFoundException("Failed to get savedItem during `outcomeItem` {account_id = " + accountId +
                 " associateId = " + itemTransaction.getAssociateId() + "}");
         }
     }
