@@ -61,7 +61,7 @@ public class WarehouseServiceImpl implements WarehouseService {
 
                 if (warehouseDto.getParentID() == null) {
 
-            Warehouse parent = warehouseDao.findById(warehouseDto.getId(), accountId);
+//
             int maxWarehouses = userDetails.getAccountType().getMaxWarehouses();
             int warehouseQuantity = warehouseDao.findQuantityOfWarehousesByAccountId(accountId);
 
@@ -89,6 +89,7 @@ public class WarehouseServiceImpl implements WarehouseService {
 
 
     private WarehouseDto createNewWarehouse(WarehouseDto warehouseDto, UserDetailsImpl user) {
+        warehouseDto.setAccountID(user.getUser().getAccountId());
         Warehouse warehouse = warehouseDao.create(warehouseDtoMapper.toEntity(warehouseDto));
         warehouse.setActive(true);
         Address address = addressDtoMapper.toEntity(warehouseDto.getAddressDto());
