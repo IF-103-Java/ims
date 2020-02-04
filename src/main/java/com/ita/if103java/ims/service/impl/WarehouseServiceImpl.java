@@ -59,9 +59,8 @@ public class WarehouseServiceImpl implements WarehouseService {
     public WarehouseDto add(WarehouseDto warehouseDto, UserDetailsImpl userDetails) {
         Long accountId = userDetails.getUser().getAccountId();
 
-                if (warehouseDto.getParentID() == null) {
+        if (warehouseDto.getParentID() == null) {
 
-//
             int maxWarehouses = userDetails.getAccountType().getMaxWarehouses();
             int warehouseQuantity = warehouseDao.findQuantityOfWarehousesByAccountId(accountId);
 
@@ -255,7 +254,7 @@ public class WarehouseServiceImpl implements WarehouseService {
         return children;
     }
 
-    public Integer findTotalCapacity (Long id, UserDetailsImpl user){
-        return warehouseDao.findTotalCapacity(id,user.getUser().getAccountId());
+    public Integer findTotalCapacity(Long id, UserDetailsImpl user) {
+        return warehouseDao.findTotalCapacity(id, user.getUser().getAccountId());
     }
 }
