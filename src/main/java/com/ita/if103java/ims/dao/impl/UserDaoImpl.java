@@ -345,6 +345,7 @@ public class UserDaoImpl implements UserDao {
                 SELECT COUNT(*)
                 FROM users
                 WHERE account_id = ?
+                AND active = true
             """;
 
         public static final String SQL_SELECT_ALL_USERNAMES = """
