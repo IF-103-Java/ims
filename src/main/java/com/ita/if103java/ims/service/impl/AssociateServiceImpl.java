@@ -16,6 +16,7 @@ import com.ita.if103java.ims.mapper.dto.AssociateDtoMapper;
 import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.AssociateService;
 import com.ita.if103java.ims.service.EventService;
+import com.ita.if103java.ims.service.LocationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -27,6 +28,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.ita.if103java.ims.dto.warehouse.advice.Address.Geo;
+
 @Service
 public class AssociateServiceImpl implements AssociateService {
 
@@ -35,16 +38,18 @@ public class AssociateServiceImpl implements AssociateService {
     private AssociateDtoMapper associateDtoMapper;
     private AddressDtoMapper addressDtoMapper;
     private EventService eventService;
+    private LocationService locationService;
 
     @Autowired
     public AssociateServiceImpl(AssociateDao associateDao, AddressDao addressDao,
                                 AssociateDtoMapper associateDtoMapper, AddressDtoMapper addressDtoMapper,
-                                EventService eventService) {
+                                EventService eventService, LocationService locationService) {
         this.associateDao = associateDao;
         this.addressDao = addressDao;
         this.associateDtoMapper = associateDtoMapper;
         this.addressDtoMapper = addressDtoMapper;
         this.eventService = eventService;
+        this.locationService = locationService;
     }
 
     @Override
@@ -57,6 +62,12 @@ public class AssociateServiceImpl implements AssociateService {
 
             Address address = addressDtoMapper.toEntity(associateDto.getAddressDto());
             address.setAssociateId(associate.getId());
+
+            Geo geo = locationService.getLocationByAddress(address.getAddress() + " " + address.getCity() + " " +
+                address.getCountry() + " " + address.getZip());
+
+            address.setLatitude(geo.getLatitude());
+            address.setLongitude(geo.getLongitude());
 
             address = addressDao.createAssociateAddress(associate.getId(), address);
 
