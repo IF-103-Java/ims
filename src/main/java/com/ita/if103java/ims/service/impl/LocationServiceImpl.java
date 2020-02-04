@@ -7,6 +7,8 @@ import com.google.maps.model.GeocodingResult;
 import com.google.maps.model.LatLng;
 import com.ita.if103java.ims.dto.warehouse.advice.Address;
 import com.ita.if103java.ims.service.LocationService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +16,8 @@ import java.io.IOException;
 
 @Service
 public class LocationServiceImpl implements LocationService {
+
+    private static final Logger LOGGER = LogManager.getLogger(LocationService.class);
     private final GeoApiContext apiContext;
 
     @Autowired
@@ -31,7 +35,7 @@ public class LocationServiceImpl implements LocationService {
                 .address(address)
                 .await();
         } catch (ApiException | InterruptedException | IOException e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage(), e);
         }
 
         if (results.length > 0) {

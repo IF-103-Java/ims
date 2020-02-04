@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.ita.if103java.ims.dto.warehouse.advice.Address.*;
+import static com.ita.if103java.ims.dto.warehouse.advice.Address.Geo;
 
 @Service
 public class AssociateServiceImpl implements AssociateService {
@@ -62,8 +62,8 @@ public class AssociateServiceImpl implements AssociateService {
             Address address = addressDtoMapper.toEntity(associateDto.getAddressDto());
             address.setAssociateId(associate.getId());
 
-            Geo geo = locationService.getLocationByAddress(String.format("%s %s %s %s", address.getAddress(),
-                address.getCity(), address.getCountry(), address.getZip()));
+            Geo geo = locationService.getLocationByAddress(address.getAddress() + " " + address.getCity() + " " +
+                address.getCountry() + " " + address.getZip());
 
             address.setLatitude(geo.getLatitude());
             address.setLongitude(geo.getLongitude());
