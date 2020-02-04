@@ -125,6 +125,12 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     }
 
+    @Override
+    public List<WarehouseDto> findAllTopLevelList( UserDetailsImpl user) {
+        List<Warehouse> all = warehouseDao.findAllTopLevelList(user.getUser().getAccountId());
+        return warehouseDtoMapper.toDtoList(all);
+    }
+
     private Map<Long, Warehouse> getGroupedWarehouses(Pageable pageable, UserDetailsImpl user,
                                                       List<Warehouse> all) {
         Map<Long, Warehouse> groupedWarehouses = all.stream()
@@ -190,14 +196,14 @@ public class WarehouseServiceImpl implements WarehouseService {
     @Override
     public boolean softDelete(Long id, UserDetailsImpl user) {
         Warehouse warehouse = warehouseDao.findById(id, user.getUser().getAccountId());
-        if (warehouse.getChildren().isEmpty()) {
+//        if (warehouse.getChildren().isEmpty()) {
             boolean isDelete = warehouseDao.softDelete(id);
             if (isDelete) {
                 createEvent(user, warehouse, EventName.WAREHOUSE_REMOVED);
             }
             return isDelete;
-        } else
-            throw new WarehouseDeleteException("Delete Denied!, Warehouse: " + warehouse.getName() + " has subwarehouses");
+//        } else
+//            throw new WarehouseDeleteException("Delete Denied!, Warehouse: " + warehouse.getName() + " has subwarehouses");
     }
 
     private void createEvent(UserDetailsImpl user, Warehouse warehouse, EventName eventName) {
