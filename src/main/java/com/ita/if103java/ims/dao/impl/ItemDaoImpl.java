@@ -226,7 +226,7 @@ public class ItemDaoImpl implements ItemDao {
         static final String SQL_SELECT_ITEMS_BY_ID_AND_ACCOUNT_ID = """
                 select *
                 from items
-                where account_id=? and %s
+                where account_id=? and active = true and %s
             """;
         static final String SQL_INSERT_INTO_ITEM = """
                 insert into items(name_item, unit, description, volume, active, account_id)
