@@ -151,7 +151,7 @@ public class ItemDaoImpl implements ItemDao {
     public List<Item> findItemsByNameQuery(String query, long accountId) {
         try {
             return jdbcTemplate.query(Queries.SQL_SELECT_ITEM_BY_QUERY_AND_ACCOUNT_ID, itemRowMapper,
-                "%" + query + "%", accountId);
+                "%" + query.toLowerCase() + "%", accountId);
         } catch (DataAccessException e) {
             throw new CRUDException("Error during `select * `", e);
         }
@@ -208,7 +208,7 @@ public class ItemDaoImpl implements ItemDao {
         static final String SQL_SELECT_ITEM_BY_QUERY_AND_ACCOUNT_ID = """
                 select *
                 from items
-                where lower(name_item) like lower(?) and account_id=?
+                where lower(name_item) like ? and account_id=?
             """;
     }
 }

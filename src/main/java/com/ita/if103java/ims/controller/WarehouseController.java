@@ -1,6 +1,5 @@
 package com.ita.if103java.ims.controller;
 
-import com.ita.if103java.ims.annotation.ApiPageable;
 import com.ita.if103java.ims.dto.WarehouseDto;
 import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.WarehouseService;
@@ -9,7 +8,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.List;
 import java.util.Map;
@@ -49,9 +46,8 @@ public class WarehouseController {
     }
 
     @GetMapping
-    @ApiPageable
     @ResponseStatus(HttpStatus.OK)
-    public Page<WarehouseDto> findAll(@ApiIgnore Pageable pageable,
+    public Page<WarehouseDto> findAll(Pageable pageable,
                                       @AuthenticationPrincipal UserDetailsImpl user) {
         return warehouseService.findAllTopLevel(pageable, user);
     }
@@ -63,7 +59,7 @@ public class WarehouseController {
         return warehouseService.findWarehousesByTopLevelId(topWarehouseId, user);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/update/{id}")
     @ResponseStatus(HttpStatus.OK)
     public WarehouseDto update(@RequestBody WarehouseDto warehouseDto,
                                @PathVariable("id") Long id,
@@ -84,4 +80,17 @@ public class WarehouseController {
         return warehouseService.findAllWarehouseNames(user);
     }
 
+    @GetMapping(value = "/children/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public List<WarehouseDto> findChildrenById(@PathVariable("id") Long id,
+                                 @AuthenticationPrincipal UserDetailsImpl user) {
+        return warehouseService.findChildrenById(id, user);
+    }
+
+    @GetMapping(value = "/capacity/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public Integer findTotalCapacity(@PathVariable("id") Long id,
+                                               @AuthenticationPrincipal UserDetailsImpl user) {
+        return warehouseService.findTotalCapacity(id, user);
+    }
 }

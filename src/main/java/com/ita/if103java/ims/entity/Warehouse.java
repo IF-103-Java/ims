@@ -9,7 +9,7 @@ public class Warehouse {
     private Long id;
     private String name;
     private String info;
-    private int capacity;
+    private Integer capacity;
     private boolean isBottom;
     private Long parentID;
     private Long accountID;
@@ -21,7 +21,7 @@ public class Warehouse {
     public Warehouse() {
     }
 
-    public Warehouse(Long id, String name, String info, int capacity, boolean isBottom,
+    public Warehouse(Long id, String name, String info, Integer capacity, boolean isBottom,
                      Long parentID, Long accountID, Long topWarehouseID, boolean active) {
         this.id = id;
         this.name = name;
@@ -63,11 +63,11 @@ public class Warehouse {
         this.info = info;
     }
 
-    public int getCapacity() {
+    public Integer getCapacity() {
         return capacity;
     }
 
-    public void setCapacity(int capacity) {
+    public void setCapacity(Integer capacity) {
         this.capacity = capacity;
     }
 
