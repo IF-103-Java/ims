@@ -59,7 +59,6 @@ public class ItemController {
     @ResponseStatus(HttpStatus.OK)
     public ItemDto updateItem(@RequestBody ItemDto itemDto,
                               @AuthenticationPrincipal UserDetailsImpl user) {
-        System.out.println("up");
         return itemService.updateItem(itemDto, user);
     }
 }
