@@ -34,8 +34,10 @@ public class LocationServiceImpl implements LocationService {
             e.printStackTrace();
         }
 
-        LatLng location = results[0].geometry.location;
-        return new Address.Geo((float) location.lat, (float) location.lng);
-
+        if(results.length > 0) {
+            LatLng location = results[0].geometry.location;
+            return new Address.Geo((float) location.lat, (float) location.lng);
+        }
+        return new Address.Geo(null, null);
     }
 }
