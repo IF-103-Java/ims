@@ -29,6 +29,7 @@ public class AccountController {
         return accountService.update(user.getUser(), name);
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping(value = "/")
     public AccountDto view(@AuthenticationPrincipal UserDetailsImpl user) {
         return accountService.view(user.getUser().getAccountId());

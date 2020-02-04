@@ -1,6 +1,3 @@
-package com.ita.if103java.ims.service.impl;
-
-
 import com.ita.if103java.ims.dao.AssociateDao;
 import com.ita.if103java.ims.dao.ItemDao;
 import com.ita.if103java.ims.dao.SavedItemDao;
@@ -10,7 +7,12 @@ import com.ita.if103java.ims.dto.ItemDto;
 import com.ita.if103java.ims.dto.ItemTransactionRequestDto;
 import com.ita.if103java.ims.dto.SavedItemDto;
 import com.ita.if103java.ims.dto.UsefulWarehouseDto;
-import com.ita.if103java.ims.entity.*;
+import com.ita.if103java.ims.entity.Event;
+import com.ita.if103java.ims.entity.EventName;
+import com.ita.if103java.ims.entity.Item;
+import com.ita.if103java.ims.entity.SavedItem;
+import com.ita.if103java.ims.entity.Transaction;
+import com.ita.if103java.ims.entity.TransactionType;
 import com.ita.if103java.ims.exception.dao.ItemNotFoundException;
 import com.ita.if103java.ims.exception.dao.SavedItemNotFoundException;
 import com.ita.if103java.ims.exception.service.ItemNotEnoughCapacityInWarehouseException;
@@ -24,7 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -33,7 +34,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class ItemServiceImpl implements ItemService {
@@ -65,22 +65,12 @@ public class ItemServiceImpl implements ItemService {
         this.associateDao = associateDao;
     }
 
-    private String checkSort(String... sort) {
-        String direction = sort[1].equalsIgnoreCase("desc") ? "desc" : "asc";
-        return Stream.of("id", "name_item", "unit", "description", "volume").
-            filter(x -> x.equalsIgnoreCase(sort[0])).collect(Collectors.joining()) + " " + direction;
-    }
-
     @Override
     public Page<ItemDto> findSortedItems(Pageable pageable, UserDetailsImpl user) {
-        List<ItemDto> itemDtos =
-            itemDtoMapper.toDtoList(itemDao.getItems(checkSort(pageable.getSort().toString().split(": ")),
-                pageable.getPageSize(),
-                pageable.getOffset(),
-                user.getUser().getAccountId()));
-              Integer countItems = itemDao.countItemsById(user.getUser().getAccountId());
-
-        return new PageImpl<>(itemDtos, pageable, countItems);
+        final Long accountId = user.getUser().getAccountId();
+        final List<Item> items = itemDao.getItems(accountId, pageable.getPageSize(), pageable.getOffset(), pageable.getSort());
+        final Integer count = itemDao.countItemsById(accountId);
+        return new PageImpl<>(itemDtoMapper.toDtoList(items), pageable, count);
     }
 
     @Override
@@ -117,6 +107,7 @@ public class ItemServiceImpl implements ItemService {
             SavedItem savedItem = new SavedItem(itemTransaction.getItemDto().getId(),
                 itemTransaction.getQuantity().intValue(), itemTransaction.getDestinationWarehouseId());
             SavedItemDto savedItemDto = savedItemDtoMapper.toDto(savedItemDao.addSavedItem(savedItem));
+            savedItemDto.setItemDto(itemTransaction.getItemDto());
             Transaction transaction = transactionDao.create(transactionDao.create(itemTransaction,
                 user.getUser(), itemTransaction.getAssociateId(), TransactionType.IN));
             eventService.create(new Event("Moved " + itemTransaction.getQuantity() + " " + itemTransaction.getItemDto().getName() +
@@ -170,6 +161,7 @@ public class ItemServiceImpl implements ItemService {
         }
         return volumePassSavedItems;
     }
+
     private float toVolumeOfPassSavedItems(Long warehouseId, Long accountId) {
         float volumePassSavedItems = 0;
 
@@ -181,7 +173,6 @@ public class ItemServiceImpl implements ItemService {
         }
         return volumePassSavedItems;
     }
-
 
     private boolean isLowSpaceInWarehouse(ItemTransactionRequestDto itemTransaction, Long accountId) {
         float volume = toVolumeOfPassSavedItems(itemTransaction, accountId);
@@ -274,6 +265,7 @@ public class ItemServiceImpl implements ItemService {
         validateInputsOut(itemTransaction, user);
         SavedItemDto savedItemDto =
             savedItemDtoMapper.toDto(savedItemDao.findSavedItemById(itemTransaction.getSavedItemId()));
+        savedItemDto.setItemDto(itemTransaction.getItemDto());
         if (savedItemDto.getQuantity() >= itemTransaction.getQuantity()) {
             long difference = savedItemDto.getQuantity() - itemTransaction.getQuantity();
             savedItemDao.outComeSavedItem(savedItemDtoMapper.toEntity(savedItemDto),
@@ -329,5 +321,4 @@ public class ItemServiceImpl implements ItemService {
                 map(x -> new UsefulWarehouseDto(x.getId(), x.getName())).collect(Collectors.toList());
 
     }
-
 }

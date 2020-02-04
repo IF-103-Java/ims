@@ -1,10 +1,10 @@
 package com.ita.if103java.ims.controller;
 
-import com.ita.if103java.ims.annotation.ApiPageable;
 import com.ita.if103java.ims.dto.WarehouseDto;
 import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.WarehouseService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -46,11 +46,10 @@ public class WarehouseController {
     }
 
     @GetMapping
-    @ApiPageable
     @ResponseStatus(HttpStatus.OK)
-    public List<WarehouseDto> findAll(Pageable pageable,
+    public Page<WarehouseDto> findAll(Pageable pageable,
                                       @AuthenticationPrincipal UserDetailsImpl user) {
-        return warehouseService.findAll(pageable, user);
+        return warehouseService.findAllTopLevel(pageable, user);
     }
 
     @GetMapping(value = "/topWarehouseId/{topWarehouseId}")
@@ -60,7 +59,7 @@ public class WarehouseController {
         return warehouseService.findWarehousesByTopLevelId(topWarehouseId, user);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/update/{id}")
     @ResponseStatus(HttpStatus.OK)
     public WarehouseDto update(@RequestBody WarehouseDto warehouseDto,
                                @PathVariable("id") Long id,
@@ -81,4 +80,17 @@ public class WarehouseController {
         return warehouseService.findAllWarehouseNames(user);
     }
 
+    @GetMapping(value = "/children/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public List<WarehouseDto> findChildrenById(@PathVariable("id") Long id,
+                                 @AuthenticationPrincipal UserDetailsImpl user) {
+        return warehouseService.findChildrenById(id, user);
+    }
+
+    @GetMapping(value = "/capacity/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public Integer findTotalCapacity(@PathVariable("id") Long id,
+                                               @AuthenticationPrincipal UserDetailsImpl user) {
+        return warehouseService.findTotalCapacity(id, user);
+    }
 }

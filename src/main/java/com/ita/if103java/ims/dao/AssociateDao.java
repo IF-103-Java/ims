@@ -1,6 +1,8 @@
 package com.ita.if103java.ims.dao;
 
 import com.ita.if103java.ims.entity.Associate;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import com.ita.if103java.ims.entity.AssociateType;
 
 import java.util.List;
@@ -13,7 +15,7 @@ public interface AssociateDao {
 
     List<Associate> findByAccountId(Long accountId);
 
-    List<Associate> getAssociates(String sort, int size, long offset, long accountId);
+    Page<Associate> getAssociates(Pageable pageable, long accountId);
 
     Associate update(Long accountId, Associate associate);
 

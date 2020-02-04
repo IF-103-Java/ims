@@ -27,7 +27,7 @@ public class LoginController {
         this.loginService = loginService;
     }
 
-    @PostMapping(value = "/signin", produces = "application/json")
+    @PostMapping("/signin")
     public ResponseEntity singIn(@RequestBody UserLoginDto userLoginDto) {
         return loginService.signIn(userLoginDto);
     }

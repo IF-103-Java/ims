@@ -3,8 +3,6 @@ package com.ita.if103java.ims.controller;
 import com.ita.if103java.ims.dto.ItemDto;
 import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.ItemService;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,9 +11,10 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/items")
-@CrossOrigin("http://localhost:4200")
 public class ItemController {
     private ItemService itemService;
 
@@ -32,11 +31,6 @@ public class ItemController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    @ApiImplicitParams({
-        @ApiImplicitParam(name = "page", dataType = "integer", paramType = "query"),
-        @ApiImplicitParam(name = "size", dataType = "integer", paramType = "query"),
-        @ApiImplicitParam(name = "sort", dataType = "string", paramType = "query")
-    })
     public Page<ItemDto> sort(Pageable pageable, @AuthenticationPrincipal UserDetailsImpl user) {
         return itemService.findSortedItems(pageable, user);
     }
@@ -52,13 +46,21 @@ public class ItemController {
     public boolean softDelete(@PathVariable("itemId") Long id, @AuthenticationPrincipal UserDetailsImpl user) {
         return itemService.softDelete(id, user);
     }
+
+    @GetMapping("/name")
+    @ResponseStatus(HttpStatus.OK)
+    public List<ItemDto> findItemsByNameQuery(@RequestParam("q") String query,
+                                              @AuthenticationPrincipal UserDetailsImpl user) {
+        return itemService.findItemsByNameQuery(query, user);
+    }
+
     @PutMapping(produces = MediaType.APPLICATION_JSON_VALUE,
         consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public ItemDto updateItem(@RequestBody ItemDto itemDto,
-                                 @AuthenticationPrincipal UserDetailsImpl user) {
+                              @AuthenticationPrincipal UserDetailsImpl user) {
         System.out.println("up");
         return itemService.updateItem(itemDto, user);
     }
-
 }
+

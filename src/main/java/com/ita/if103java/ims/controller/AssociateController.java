@@ -5,14 +5,11 @@ import com.ita.if103java.ims.dto.SavedItemAssociateDto;
 import com.ita.if103java.ims.entity.AssociateType;
 import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.AssociateService;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/associates")
@@ -31,12 +28,7 @@ public class AssociateController {
     }
 
     @GetMapping(value = "/")
-    @ApiImplicitParams({
-        @ApiImplicitParam(name = "page", dataType = "integer", paramType = "query"),
-        @ApiImplicitParam(name = "size", dataType = "integer", paramType = "query"),
-        @ApiImplicitParam(name = "sort", dataType = "string", paramType = "query")
-    })
-    public List<AssociateDto> findAllSortedAssociates(Pageable pageable, @AuthenticationPrincipal UserDetailsImpl user) {
+    public Page<AssociateDto> findAllSortedAssociates(Pageable pageable, @AuthenticationPrincipal UserDetailsImpl user) {
         return associateService.findSortedAssociates(pageable, user);
     }
 

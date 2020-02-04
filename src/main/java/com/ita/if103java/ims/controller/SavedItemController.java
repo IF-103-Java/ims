@@ -9,13 +9,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
 import java.util.List;
 
 @RestController
 @RequestMapping("/savedItems")
-@CrossOrigin("http://localhost:4200")
 public class SavedItemController {
     private ItemService itemService;
 
@@ -28,7 +33,6 @@ public class SavedItemController {
     @ResponseStatus(HttpStatus.OK)
     public SavedItemDto addSavedItem(@RequestBody ItemTransactionRequestDto itemTransaction,
                                      @AuthenticationPrincipal UserDetailsImpl user) {
-        System.out.println("add"+itemTransaction.getSourceWarehouseId());
         return itemService.addSavedItem(itemTransaction, user);
     }
 
@@ -61,11 +65,11 @@ public class SavedItemController {
                                     @AuthenticationPrincipal UserDetailsImpl user) {
         return itemService.outcomeItem(itemTransaction, user);
     }
+
     @GetMapping(path = "/usefulWarehouses/{capacity}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public List<UsefulWarehouseDto> findUsefulWarehouses(@PathVariable("capacity") Long capacity,
                                                          @AuthenticationPrincipal UserDetailsImpl user) {
         return itemService.findUsefulWarehouses(capacity, user);
     }
-
 }

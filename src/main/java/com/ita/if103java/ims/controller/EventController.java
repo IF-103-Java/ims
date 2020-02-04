@@ -1,6 +1,5 @@
 package com.ita.if103java.ims.controller;
 
-import com.ita.if103java.ims.annotation.ApiPageable;
 import com.ita.if103java.ims.dto.EventDto;
 import com.ita.if103java.ims.entity.EventName;
 import com.ita.if103java.ims.entity.EventType;
@@ -29,7 +28,6 @@ public class EventController {
     }
 
     @PostMapping
-    @ApiPageable
     public Page<EventDto> findAll(Pageable pageable, @RequestBody Map<String, ?> params, @AuthenticationPrincipal UserDetailsImpl user) {
         return eventService.findAll(pageable, params, user);
     }
