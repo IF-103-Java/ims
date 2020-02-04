@@ -22,4 +22,8 @@ public interface SavedItemDao {
     boolean updateSavedItem(Long warehouseId, Long savedItemId);
 
     boolean deleteSavedItem(Long savedItemId);
+
+    SavedItem findSavedItemByItemIdAndWarehouseId(Long itemId, Long warehouseId);
+
+    boolean deleteSavedItemById(Long savedItem);
 }

@@ -106,9 +106,20 @@ public class ItemServiceImpl implements ItemService {
     public SavedItemDto addSavedItem(ItemTransactionRequestDto itemTransaction, UserDetailsImpl user) {
         validateInputsAdd(itemTransaction, user.getUser().getAccountId());
         if (isEnoughCapacityInWarehouse(itemTransaction, user.getUser().getAccountId())) {
-            SavedItem savedItem = new SavedItem(itemTransaction.getItemDto().getId(),
+            SavedItem item = savedItemDao.findSavedItemByItemIdAndWarehouseId(itemTransaction.getItemDto().getId(),
+                itemTransaction.getDestinationWarehouseId());
+            if (item != null){
+                int quantity = Long.valueOf(item.getQuantity()+itemTransaction.getQuantity()).intValue();
+                item.setQuantity(quantity);
+                savedItemDao.outComeSavedItem(item, quantity);
+                return savedItemDtoMapper.toDto(item);
+            }
+                SavedItem savedItem = new SavedItem(itemTransaction.getItemDto().getId(),
                 itemTransaction.getQuantity().intValue(), itemTransaction.getDestinationWarehouseId());
             SavedItemDto savedItemDto = savedItemDtoMapper.toDto(savedItemDao.addSavedItem(savedItem));
+
+
+
             Transaction transaction = transactionDao.create(transactionDao.create(itemTransaction,
                 user.getUser(), itemTransaction.getAssociateId(), TransactionType.IN));
             eventService.create(new Event("Moved " + itemTransaction.getQuantity() + " " + itemTransaction.getItemDto().getName() +
@@ -268,6 +279,11 @@ public class ItemServiceImpl implements ItemService {
             savedItemDtoMapper.toDto(savedItemDao.findSavedItemById(itemTransaction.getSavedItemId()));
           if (savedItemDto.getQuantity() >= itemTransaction.getQuantity()) {
             long difference = savedItemDto.getQuantity() - itemTransaction.getQuantity();
+              if (savedItemDto.getQuantity() == itemTransaction.getQuantity()){
+                  savedItemDao.deleteSavedItem(itemTransaction.getSavedItemId());
+                  savedItemDto.setQuantity(Long.valueOf(difference).intValue());
+                  return savedItemDto;
+              }
             savedItemDao.outComeSavedItem(savedItemDtoMapper.toEntity(savedItemDto),
                 Long.valueOf(difference).intValue());
             Transaction transaction = transactionDao.create(transactionDao.create(itemTransaction,

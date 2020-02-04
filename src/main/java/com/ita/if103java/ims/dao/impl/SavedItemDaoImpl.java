@@ -131,6 +131,7 @@ public class SavedItemDaoImpl implements SavedItemDao {
     }
 
 
+
     @Override
     public boolean updateSavedItem(Long warehouseId, Long savedItemId) {
         int status;
@@ -167,6 +168,32 @@ public class SavedItemDaoImpl implements SavedItemDao {
 
     }
 
+    @Override
+    public SavedItem findSavedItemByItemIdAndWarehouseId(Long itemId, Long warehouseId) {
+        try {
+            return jdbcTemplate.queryForObject(Queries.SQL_SELECT_SAVED_ITEM_BY_ITEM_ID_AND_WAREHOUSE_ID,
+                savedItemRowMapper, itemId, warehouseId);
+        } catch (EmptyResultDataAccessException e) {
+            throw new SavedItemNotFoundException("Failed during `select` {itemId = " + itemId + " warehouse_id = " + warehouseId + "}", e);
+        } catch (DataAccessException e) {
+            throw new CRUDException("Failed during `select` {itemId = " + itemId + " warehouse_id = " + warehouseId + "}", e);
+        }
+
+    }
+
+    @Override
+    public boolean deleteSavedItemById(Long savedItem) {
+        int status;
+        try {
+            status = jdbcTemplate.update(Queries.SQL_DELETE_SAVED_ITEM_BY_ID, savedItem);
+        } catch (DataAccessException e) {
+            throw new CRUDException("Failed during `delete` {savedItemId = " + savedItem, e);
+        }
+        if (status == 0) {
+            throw new SavedItemNotFoundException("Failed during `delete` {savedItemId = " + savedItem);
+        }
+        return true;
+    }
     class Queries {
         static final String SQL_SELECT_SAVED_ITEMS = """
                 select *
@@ -204,6 +231,16 @@ public class SavedItemDaoImpl implements SavedItemDao {
                 update saved_items
                 set quantity=?
                 where id=?
+            """;
+        static final String SQL_SELECT_SAVED_ITEM_BY_ITEM_ID_AND_WAREHOUSE_ID = """
+                select *
+                from saved_items
+                where item_id = ? and warehouse_id = ?
+            """;
+        static final String SQL_DELETE_SAVED_ITEM_BY_ID = """
+                delete
+                from saved_items
+                where id =?
             """;
     }
 }

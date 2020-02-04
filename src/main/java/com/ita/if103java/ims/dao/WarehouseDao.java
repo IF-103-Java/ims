@@ -32,5 +32,7 @@ public interface WarehouseDao {
     Integer findTotalCapacity(Long id, Long accountId);
 
     List<Warehouse> findUsefulWarehouses(Long capacity, Long accountId);
+
+
 }
 
