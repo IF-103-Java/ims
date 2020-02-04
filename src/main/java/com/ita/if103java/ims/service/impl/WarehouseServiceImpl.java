@@ -252,7 +252,7 @@ public class WarehouseServiceImpl implements WarehouseService {
         return children;
     }
 
-    public Integer findTotalCapacity(Long id, UserDetailsImpl user) {
-        return warehouseDao.findTotalCapacity(id, user.getUser().getAccountId());
+    public Integer findTotalCapacity (Long id, UserDetailsImpl user){
+        return warehouseDao.findTotalCapacity(id,user.getUser().getAccountId());
     }
 }

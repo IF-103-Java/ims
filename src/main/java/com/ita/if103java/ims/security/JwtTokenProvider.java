@@ -71,7 +71,7 @@ public class JwtTokenProvider {
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
         }
-        throw new InvalidJwtTokenException("Expired or invalid JWT token");
+        return null;
     }
 
     public boolean validateToken(String token) {
