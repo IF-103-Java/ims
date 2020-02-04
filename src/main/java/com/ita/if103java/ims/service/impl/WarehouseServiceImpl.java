@@ -58,8 +58,10 @@ public class WarehouseServiceImpl implements WarehouseService {
     @Transactional
     public WarehouseDto add(WarehouseDto warehouseDto, UserDetailsImpl userDetails) {
         Long accountId = userDetails.getUser().getAccountId();
-        Warehouse parent = warehouseDao.findById(warehouseDto.getParentID(), accountId);
-        if (warehouseDto.getParentID() == null) {
+
+                if (warehouseDto.getParentID() == null) {
+
+            Warehouse parent = warehouseDao.findById(warehouseDto.getId(), accountId);
             int maxWarehouses = userDetails.getAccountType().getMaxWarehouses();
             int warehouseQuantity = warehouseDao.findQuantityOfWarehousesByAccountId(accountId);
 
@@ -69,7 +71,7 @@ public class WarehouseServiceImpl implements WarehouseService {
                 throw new MaxWarehousesLimitReachedException("The maximum number of warehouses has been reached for this" +
                     "{accountId = " + accountId + "}");
             }
-        } else if (parent.isBottom()) {
+        } else if (warehouseDao.findById(warehouseDto.getParentID(), accountId).isBottom()) {
             throw new WarehouseCreateException("The parent warehouse is bottom level");
         } else if (warehouseDto.isBottom() && warehouseDto.getCapacity() == 0) {
             throw new WarehouseCreateException("The capacity of bottom warehouse should be > 0");
