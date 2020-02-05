@@ -16,6 +16,8 @@ public interface ItemDao {
 
     Item findItemById(Long id, Long accountId);
 
+    List<Item> findItemsById(StringBuilder id, Long accountId);
+
     boolean isExistItemById(Long id, Long accountId);
 
     Item addItem(Item item);
@@ -23,4 +25,6 @@ public interface ItemDao {
     boolean softDeleteItem(Long id, Long accountId);
 
     List<Item> findItemsByNameQuery(String query, long accountId);
+
+    Item updateItem(Item item);
 }
