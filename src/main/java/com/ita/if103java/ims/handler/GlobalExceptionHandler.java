@@ -11,6 +11,8 @@ import com.ita.if103java.ims.exception.service.MaxWarehousesLimitReachedExceptio
 import com.ita.if103java.ims.exception.service.UpgradationException;
 import com.ita.if103java.ims.exception.service.UserLimitReachedException;
 import com.ita.if103java.ims.exception.service.UserOrPasswordIncorrectException;
+import com.ita.if103java.ims.exception.service.WarehouseCreateException;
+import com.ita.if103java.ims.exception.service.WarehouseDeleteException;
 import com.ita.if103java.ims.exception.service.ItemNotEnoughCapacityInWarehouseException;
 import com.ita.if103java.ims.exception.service.ItemNotEnoughQuantityException;
 import org.slf4j.Logger;
@@ -53,7 +55,12 @@ public class GlobalExceptionHandler {
         MaxWarehouseDepthLimitReachedException.class,
         MaxWarehousesLimitReachedException.class,
         AssociateLimitReachedException.class,
-        UserLimitReachedException.class})
+        UserLimitReachedException.class,
+        WarehouseCreateException.class,
+        WarehouseDeleteException.class
+    }
+
+    )
     public ResponseEntity<ResponseMessageDto> handleImpossibleWarehouseAdviceException(Exception e) {
         LOGGER.info(e.getMessage(), e);
         return ResponseEntity

@@ -10,6 +10,7 @@ import com.ita.if103java.ims.entity.EventName;
 import com.ita.if103java.ims.entity.Warehouse;
 import com.ita.if103java.ims.exception.service.MaxWarehouseDepthLimitReachedException;
 import com.ita.if103java.ims.exception.service.MaxWarehousesLimitReachedException;
+import com.ita.if103java.ims.exception.service.WarehouseCreateException;
 import com.ita.if103java.ims.mapper.dto.AddressDtoMapper;
 import com.ita.if103java.ims.mapper.dto.WarehouseDtoMapper;
 import com.ita.if103java.ims.security.UserDetailsImpl;
@@ -56,7 +57,9 @@ public class WarehouseServiceImpl implements WarehouseService {
     @Transactional
     public WarehouseDto add(WarehouseDto warehouseDto, UserDetailsImpl userDetails) {
         Long accountId = userDetails.getUser().getAccountId();
+
         if (warehouseDto.getParentID() == null) {
+
             int maxWarehouses = userDetails.getAccountType().getMaxWarehouses();
             int warehouseQuantity = warehouseDao.findQuantityOfWarehousesByAccountId(accountId);
 
@@ -66,6 +69,10 @@ public class WarehouseServiceImpl implements WarehouseService {
                 throw new MaxWarehousesLimitReachedException("The maximum number of warehouses has been reached for this" +
                     "{accountId = " + accountId + "}");
             }
+        } else if (warehouseDao.findById(warehouseDto.getParentID(), accountId).isBottom()) {
+            throw new WarehouseCreateException("The parent warehouse is bottom level");
+        } else if (warehouseDto.isBottom() && warehouseDto.getCapacity() == 0) {
+            throw new WarehouseCreateException("The capacity of bottom warehouse should be > 0");
         }
 
         Integer maxWarehouseDepth = userDetails.getAccountType().getMaxWarehouseDepth();
@@ -80,7 +87,9 @@ public class WarehouseServiceImpl implements WarehouseService {
 
 
     private WarehouseDto createNewWarehouse(WarehouseDto warehouseDto, UserDetailsImpl user) {
+        warehouseDto.setAccountID(user.getUser().getAccountId());
         Warehouse warehouse = warehouseDao.create(warehouseDtoMapper.toEntity(warehouseDto));
+        warehouse.setActive(true);
         Address address = addressDtoMapper.toEntity(warehouseDto.getAddressDto());
         AddressDto addressDto = null;
         if (warehouse.isTopLevel()) {
@@ -113,6 +122,12 @@ public class WarehouseServiceImpl implements WarehouseService {
         List<WarehouseDto> warehouses = warehouseDtoMapper.toDtoList(all);
         return new PageImpl<>(warehouses, pageable, warehouseQuantity);
 
+    }
+
+    @Override
+    public List<WarehouseDto> findAllTopLevelList(UserDetailsImpl user) {
+        List<Warehouse> all = warehouseDao.findAllTopLevelList(user.getUser().getAccountId());
+        return warehouseDtoMapper.toDtoList(all);
     }
 
     private Map<Long, Warehouse> getGroupedWarehouses(Pageable pageable, UserDetailsImpl user,
@@ -179,9 +194,10 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Override
     public boolean softDelete(Long id, UserDetailsImpl user) {
+        Warehouse warehouse = warehouseDao.findById(id, user.getUser().getAccountId());
+
         boolean isDelete = warehouseDao.softDelete(id);
         if (isDelete) {
-            Warehouse warehouse = warehouseDao.findById(id, user.getUser().getAccountId());
             createEvent(user, warehouse, EventName.WAREHOUSE_REMOVED);
         }
         return isDelete;
@@ -190,17 +206,17 @@ public class WarehouseServiceImpl implements WarehouseService {
     private void createEvent(UserDetailsImpl user, Warehouse warehouse, EventName eventName) {
         Event event = new Event();
         int level = 0;
-        String message = eventName.getLabel();
+        StringBuilder message = new StringBuilder(eventName.getLabel());
 
         if (warehouse.getParentID() != null) {
             level = warehouseDao.findLevelByParentID(warehouse.getParentID());
         }
-        message += " Name : " + warehouse.getName() + " level : " + level;
+        message.append(" Name : ").append(warehouse.getName()).append(" level : ").append(level);
 
         if (level != 0) {
-            message += " as a child of warehouse id " + warehouse.getParentID();
+            message.append(" as a child of warehouse id ").append(warehouse.getParentID());
         }
-        event.setMessage(message);
+        event.setMessage(message.toString());
         event.setAccountId(user.getUser().getAccountId());
         event.setAuthorId(user.getUser().getId());
         event.setName(eventName);
@@ -241,7 +257,7 @@ public class WarehouseServiceImpl implements WarehouseService {
         return children;
     }
 
-    public Integer findTotalCapacity (Long id, UserDetailsImpl user){
-        return warehouseDao.findTotalCapacity(id,user.getUser().getAccountId());
+    public Integer findTotalCapacity(Long id, UserDetailsImpl user) {
+        return warehouseDao.findTotalCapacity(id, user.getUser().getAccountId());
     }
 }

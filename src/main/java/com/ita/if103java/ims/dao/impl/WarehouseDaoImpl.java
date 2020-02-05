@@ -62,6 +62,16 @@ public class WarehouseDaoImpl implements WarehouseDao {
     }
 
     @Override
+    public List<Warehouse> findAllTopLevelList(Long accountId) {
+        try {
+            return jdbcTemplate.query(Queries.SQL_SELECT_ALL_TOP_WAREHOUSES_LIST, warehouseRowMapper, accountId);
+
+        } catch (DataAccessException e) {
+            throw new WarehouseNotFoundException("Error during finding all warehouses", e);
+        }
+    }
+
+    @Override
     public Map<Long, String> findAllWarehouseNames(Long accountId) {
         Map<Long, String> result = new HashMap<>();
         try {
@@ -229,6 +239,13 @@ public class WarehouseDaoImpl implements WarehouseDao {
                 AND parent_id IS NULL
                 AND active = 1
                 LIMIT ? OFFSET ?
+            """;
+
+        static final String SQL_SELECT_ALL_TOP_WAREHOUSES_LIST = """
+                SELECT * FROM warehouses
+                WHERE account_id = ?
+                AND parent_id IS NULL
+                AND active = 1
             """;
 
         static final String SQL_UPDATE_WAREHOUSE = """
