@@ -39,7 +39,8 @@ public class AssociateController {
     }
 
     @PutMapping("/{id}")
-    public AssociateDto update(@AuthenticationPrincipal UserDetailsImpl user, @RequestBody AssociateDto associateDto, @PathVariable("id") long id) {
+    public AssociateDto update(@AuthenticationPrincipal UserDetailsImpl user, @RequestBody AssociateDto associateDto,
+                               @PathVariable("id") long id) {
         associateDto.setId(id);
         return associateService.update(user, associateDto);
     }
