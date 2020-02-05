@@ -70,7 +70,8 @@ public class AssociateDaoImpl implements AssociateDao {
         try {
             return jdbcTemplate.query(Queries.SQL_SELECT_ASSOCIATE_BY_ACCOUNT_ID, associateRowMapper, accountId);
         } catch (EmptyResultDataAccessException e) {
-            throw new AssociateEntityNotFoundException("Failed to obtain associate during `select`, id = " + accountId, e);
+            throw new AssociateEntityNotFoundException("Failed to obtain associate during `select`, id = " +
+                accountId, e);
         } catch (DataAccessException e) {
             throw new CRUDException("Error during `select` associate, id = " + accountId, e);
         }
@@ -83,8 +84,8 @@ public class AssociateDaoImpl implements AssociateDao {
             String sort = pageable.getSort().stream().map(
                 x -> x.getProperty() + " " + x.getDirection().name()).collect(Collectors.joining(", "));
 
-            List<Associate> associates = jdbcTemplate.query(String.format(Queries.SQL_SELECT_SORTED_ASSOICATES, sort), associateRowMapper,
-                accountId, pageable.getPageSize(), pageable.getOffset());
+            List<Associate> associates = jdbcTemplate.query(String.format(Queries.SQL_SELECT_SORTED_ASSOICATES, sort),
+                associateRowMapper, accountId, pageable.getPageSize(), pageable.getOffset());
 
             Integer rowCount =
                 jdbcTemplate.queryForObject(Queries.SQL_ROW_COUNT, new Object[]{accountId}, Integer.class);
@@ -112,7 +113,8 @@ public class AssociateDaoImpl implements AssociateDao {
             throw new CRUDException("Error during `update` associate, id = " + associate.getId(), e);
         }
         if (status == 0) {
-            throw new AssociateEntityNotFoundException("Failed to obtain associate during `update`, id = " + associate.getId());
+            throw new AssociateEntityNotFoundException("Failed to obtain associate during `update`, id = " +
+                associate.getId());
         }
 
         return associate;
