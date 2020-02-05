@@ -75,25 +75,31 @@ public class AssociateServiceImpl implements AssociateService {
             associateDto.setAddressDto(addressDtoMapper.toDto(address));
             associateDto.setAccountId(user.getUser().getAccountId());
 
-            EventName eventName = associate.getType() == AssociateType.SUPPLIER ? EventName.NEW_SUPPLIER : EventName.NEW_CLIENT;
+            EventName eventName =
+                associate.getType() == AssociateType.SUPPLIER ? EventName.NEW_SUPPLIER : EventName.NEW_CLIENT;
             createEvent(user, associate, eventName);
 
             return associateDto;
         } else
-            throw new AssociateLimitReachedException("The maximum of " + associateDto.getType() + "s for account has been reached.");
+            throw new AssociateLimitReachedException("The maximum of " +
+                associateDto.getType() + "s for account has been reached.");
     }
 
     @Override
     @Transactional
     public AssociateDto update(UserDetailsImpl user, AssociateDto associateDto) {
-        Associate associate = associateDao.update(user.getUser().getAccountId(), associateDtoMapper.toEntity(associateDto));
+        Associate associate =
+            associateDao.update(user.getUser().getAccountId(), associateDtoMapper.toEntity(associateDto));
 
-        Address address = addressDao.updateAssociateAddress(associate.getId(), addressDtoMapper.toEntity(associateDto.getAddressDto()));
+        Address address = addressDao.updateAssociateAddress(associate.getId(),
+            addressDtoMapper.toEntity(associateDto.getAddressDto()));
+
         associateDto = associateDtoMapper.toDto(associate);
         associateDto.setAddressDto(addressDtoMapper.toDto(address));
         associateDto.setAccountId(user.getUser().getAccountId());
 
-        EventName eventName = associate.getType() == AssociateType.SUPPLIER ? EventName.SUPPLIER_EDITED : EventName.CLIENT_EDITED;
+        EventName eventName =
+            associate.getType() == AssociateType.SUPPLIER ? EventName.SUPPLIER_EDITED : EventName.CLIENT_EDITED;
         createEvent(user, associate, eventName);
 
         return associateDto;
@@ -114,7 +120,8 @@ public class AssociateServiceImpl implements AssociateService {
         Page<Associate> page = associateDao.getAssociates(pageable, user.getUser().getAccountId());
         List<AssociateDto> associateDtos = associateDtoMapper.toDtoList(page.getContent());
 
-        associateDtos.stream().forEach(a -> a.setAddressDto(addressDtoMapper.toDto(addressDao.findByAssociateId(a.getId()))));
+        associateDtos.stream()
+            .forEach(a -> a.setAddressDto(addressDtoMapper.toDto(addressDao.findByAssociateId(a.getId()))));
 
         return new PageImpl<>(associateDtos, pageable, page.getTotalElements());
     }
@@ -125,7 +132,9 @@ public class AssociateServiceImpl implements AssociateService {
         Associate associate = associateDao.findById(user.getUser().getAccountId(), id);
 
         if (associateDao.delete(user.getUser().getAccountId(), id)) {
-            EventName eventName = associate.getType() == AssociateType.SUPPLIER ? EventName.SUPPLIER_REMOVED : EventName.CLIENT_REMOVED;
+            EventName eventName =
+                associate.getType() == AssociateType.SUPPLIER ? EventName.SUPPLIER_REMOVED : EventName.CLIENT_REMOVED;
+
             createEvent(user, associate, eventName);
 
             return true;

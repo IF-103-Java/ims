@@ -23,6 +23,8 @@ public interface WarehouseService {
 
     Page<WarehouseDto> findAllTopLevel(Pageable pageable, UserDetailsImpl user);
 
+    List<WarehouseDto> findAllTopLevelList( UserDetailsImpl user);
+
     Map<Long, String> findAllWarehouseNames(UserDetailsImpl user);
 
     List<WarehouseDto> findChildrenById(Long id, UserDetailsImpl user);
