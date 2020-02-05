@@ -11,7 +11,6 @@ import com.ita.if103java.ims.entity.Warehouse;
 import com.ita.if103java.ims.exception.service.MaxWarehouseDepthLimitReachedException;
 import com.ita.if103java.ims.exception.service.MaxWarehousesLimitReachedException;
 import com.ita.if103java.ims.exception.service.WarehouseCreateException;
-import com.ita.if103java.ims.exception.service.WarehouseDeleteException;
 import com.ita.if103java.ims.mapper.dto.AddressDtoMapper;
 import com.ita.if103java.ims.mapper.dto.WarehouseDtoMapper;
 import com.ita.if103java.ims.security.UserDetailsImpl;
@@ -126,7 +125,7 @@ public class WarehouseServiceImpl implements WarehouseService {
     }
 
     @Override
-    public List<WarehouseDto> findAllTopLevelList( UserDetailsImpl user) {
+    public List<WarehouseDto> findAllTopLevelList(UserDetailsImpl user) {
         List<Warehouse> all = warehouseDao.findAllTopLevelList(user.getUser().getAccountId());
         return warehouseDtoMapper.toDtoList(all);
     }
@@ -196,14 +195,12 @@ public class WarehouseServiceImpl implements WarehouseService {
     @Override
     public boolean softDelete(Long id, UserDetailsImpl user) {
         Warehouse warehouse = warehouseDao.findById(id, user.getUser().getAccountId());
-//        if (warehouse.getChildren().isEmpty()) {
-            boolean isDelete = warehouseDao.softDelete(id);
-            if (isDelete) {
-                createEvent(user, warehouse, EventName.WAREHOUSE_REMOVED);
-            }
-            return isDelete;
-//        } else
-//            throw new WarehouseDeleteException("Delete Denied!, Warehouse: " + warehouse.getName() + " has subwarehouses");
+
+        boolean isDelete = warehouseDao.softDelete(id);
+        if (isDelete) {
+            createEvent(user, warehouse, EventName.WAREHOUSE_REMOVED);
+        }
+        return isDelete;
     }
 
     private void createEvent(UserDetailsImpl user, Warehouse warehouse, EventName eventName) {
