@@ -14,4 +14,6 @@ public interface AccountDao {
     boolean delete(Long id);
 
     boolean upgradeAccount(Long id, Long typeId);
+
+    boolean hardDelete(Long accountId);
 }

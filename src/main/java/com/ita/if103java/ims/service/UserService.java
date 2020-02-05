@@ -16,8 +16,6 @@ public interface UserService {
 
     UserDto findById(Long id);
 
-    List<UserDto> findWorkersByAccountId(Long accountID);
-
     UserDto findAdminByAccountId(Long accountID);
 
     UserDto update(UserDto userDto);

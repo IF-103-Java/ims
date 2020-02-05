@@ -62,6 +62,16 @@ public class WarehouseDaoImpl implements WarehouseDao {
     }
 
     @Override
+    public List<Warehouse> findAllTopLevelList(Long accountId) {
+        try {
+            return jdbcTemplate.query(Queries.SQL_SELECT_ALL_TOP_WAREHOUSES_LIST, warehouseRowMapper, accountId);
+
+        } catch (DataAccessException e) {
+            throw new WarehouseNotFoundException("Error during finding all warehouses", e);
+        }
+    }
+
+    @Override
     public Map<Long, String> findAllWarehouseNames(Long accountId) {
         Map<Long, String> result = new HashMap<>();
         try {
@@ -180,6 +190,35 @@ public class WarehouseDaoImpl implements WarehouseDao {
         }
     }
 
+    @Override
+    public List<Warehouse> findChildrenById(Long id, Long accountId) {
+        try {
+            return jdbcTemplate.query(Queries.SQL_SELECT_CHILDREN_BY_ID, warehouseRowMapper, id, accountId);
+
+        } catch (DataAccessException e) {
+            throw new WarehouseNotFoundException("Error during finding all children of warehouse {Id = " + id + "}", e);
+        }
+    }
+
+    @Override
+    public Integer findTotalCapacity(Long id, Long accountId) {
+        try {
+            return jdbcTemplate.queryForObject(Queries.SQL_SELECT_SUM_CAPACITY, Integer.class, id, accountId);
+
+        } catch (DataAccessException e) {
+            throw new WarehouseNotFoundException("Error during finding all capacity of top level warehouse {Id = " + id + "}", e);
+        }
+    }
+
+    @Override
+    public List<Warehouse> findUsefulWarehouses(Long capacity, Long accountId) {
+        try {
+            return jdbcTemplate.query(Queries.SQL_SELECT_USEFUL_WAREHOUSES, warehouseRowMapper, accountId, capacity);
+
+        } catch (DataAccessException e) {
+            throw new WarehouseNotFoundException("Error during finding useful warehouses {capacity = " + capacity + "}", e);
+        }
+    }
     class Queries {
 
         static final String SQL_CREATE_WAREHOUSE = """
@@ -200,6 +239,13 @@ public class WarehouseDaoImpl implements WarehouseDao {
                 AND parent_id IS NULL
                 AND active = 1
                 LIMIT ? OFFSET ?
+            """;
+
+        static final String SQL_SELECT_ALL_TOP_WAREHOUSES_LIST = """
+                SELECT * FROM warehouses
+                WHERE account_id = ?
+                AND parent_id IS NULL
+                AND active = 1
             """;
 
         static final String SQL_UPDATE_WAREHOUSE = """
@@ -252,6 +298,27 @@ public class WarehouseDaoImpl implements WarehouseDao {
                 SELECT id, name
                 FROM warehouses
                 WHERE id IN (%s)
+            """;
+
+        static final String SQL_SELECT_CHILDREN_BY_ID = """
+                SELECT *
+                FROM warehouses
+                WHERE parent_id = ? AND
+                account_id = ?
+                AND active = 1
+            """;
+
+        static final String SQL_SELECT_SUM_CAPACITY = """
+                SELECT SUM(capacity)
+                FROM warehouses
+                WHERE top_warehouse_id = ? AND
+                account_id = ? AND capacity > 0
+                AND active = 1
+            """;
+        static final String SQL_SELECT_USEFUL_WAREHOUSES = """
+                SELECT *
+                FROM warehouses
+                WHERE account_id = ? AND is_bottom=true AND capacity >= ?
             """;
     }
 }

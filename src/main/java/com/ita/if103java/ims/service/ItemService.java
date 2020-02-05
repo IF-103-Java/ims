@@ -3,6 +3,8 @@ package com.ita.if103java.ims.service;
 import com.ita.if103java.ims.dto.ItemDto;
 import com.ita.if103java.ims.dto.ItemTransactionRequestDto;
 import com.ita.if103java.ims.dto.SavedItemDto;
+import com.ita.if103java.ims.dto.UsefulWarehouseDto;
+import com.ita.if103java.ims.entity.Warehouse;
 import com.ita.if103java.ims.security.UserDetailsImpl;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,4 +32,8 @@ public interface ItemService {
     SavedItemDto outcomeItem(ItemTransactionRequestDto itemTransaction, UserDetailsImpl user);
 
     List<ItemDto> findItemsByNameQuery(String query, UserDetailsImpl user);
+
+    ItemDto updateItem(ItemDto itemDto, UserDetailsImpl user);
+
+    List<UsefulWarehouseDto> findUsefulWarehouses(Long capacity, UserDetailsImpl user);
 }

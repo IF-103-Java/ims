@@ -1,20 +1,16 @@
 package com.ita.if103java.ims.controller;
 
 import com.ita.if103java.ims.dto.AssociateDto;
+import com.ita.if103java.ims.dto.SavedItemAssociateDto;
+import com.ita.if103java.ims.entity.AssociateType;
 import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.AssociateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 @RestController
 @RequestMapping("/associates")
@@ -52,6 +48,10 @@ public class AssociateController {
     @DeleteMapping("/{id}")
     public void delete(@AuthenticationPrincipal UserDetailsImpl user, @PathVariable("id") Long id) {
         associateService.delete(user, id);
+    }
+    @GetMapping
+    public List<SavedItemAssociateDto> getAssociatesByType(@AuthenticationPrincipal UserDetailsImpl user, @RequestParam("type")AssociateType type) {
+        return associateService.getAssociatesByType(user, type);
     }
 
 }

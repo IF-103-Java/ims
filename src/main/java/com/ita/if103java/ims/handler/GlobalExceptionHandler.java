@@ -11,6 +11,10 @@ import com.ita.if103java.ims.exception.service.MaxWarehousesLimitReachedExceptio
 import com.ita.if103java.ims.exception.service.UpgradationException;
 import com.ita.if103java.ims.exception.service.UserLimitReachedException;
 import com.ita.if103java.ims.exception.service.UserOrPasswordIncorrectException;
+import com.ita.if103java.ims.exception.service.WarehouseCreateException;
+import com.ita.if103java.ims.exception.service.WarehouseDeleteException;
+import com.ita.if103java.ims.exception.service.ItemNotEnoughCapacityInWarehouseException;
+import com.ita.if103java.ims.exception.service.ItemNotEnoughQuantityException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -51,7 +55,12 @@ public class GlobalExceptionHandler {
         MaxWarehouseDepthLimitReachedException.class,
         MaxWarehousesLimitReachedException.class,
         AssociateLimitReachedException.class,
-        UserLimitReachedException.class})
+        UserLimitReachedException.class,
+        WarehouseCreateException.class,
+        WarehouseDeleteException.class
+    }
+
+    )
     public ResponseEntity<ResponseMessageDto> handleImpossibleWarehouseAdviceException(Exception e) {
         LOGGER.info(e.getMessage(), e);
         return ResponseEntity
@@ -64,6 +73,15 @@ public class GlobalExceptionHandler {
         LOGGER.error(e.getMessage(), e);
         return ResponseEntity
             .status(HttpStatus.BAD_REQUEST)
+            .body(new ResponseMessageDto(e.getMessage()));
+    }
+
+    @ExceptionHandler({ItemNotEnoughCapacityInWarehouseException.class,
+        ItemNotEnoughQuantityException.class})
+    public ResponseEntity<ResponseMessageDto> handleItemAdviceException(Exception e) {
+        LOGGER.info(e.getMessage(), e);
+        return ResponseEntity
+            .status(HttpStatus.OK)
             .body(new ResponseMessageDto(e.getMessage()));
     }
 }

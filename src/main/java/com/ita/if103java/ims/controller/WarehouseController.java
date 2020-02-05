@@ -59,7 +59,7 @@ public class WarehouseController {
         return warehouseService.findWarehousesByTopLevelId(topWarehouseId, user);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/update/{id}")
     @ResponseStatus(HttpStatus.OK)
     public WarehouseDto update(@RequestBody WarehouseDto warehouseDto,
                                @PathVariable("id") Long id,
@@ -80,4 +80,23 @@ public class WarehouseController {
         return warehouseService.findAllWarehouseNames(user);
     }
 
+    @GetMapping(value = "/children/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public List<WarehouseDto> findChildrenById(@PathVariable("id") Long id,
+                                               @AuthenticationPrincipal UserDetailsImpl user) {
+        return warehouseService.findChildrenById(id, user);
+    }
+
+    @GetMapping(value = "/capacity/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public Integer findTotalCapacity(@PathVariable("id") Long id,
+                                     @AuthenticationPrincipal UserDetailsImpl user) {
+        return warehouseService.findTotalCapacity(id, user);
+    }
+
+    @GetMapping("/topwarehouses")
+    public List<WarehouseDto> getAllTopLevelList(@AuthenticationPrincipal UserDetailsImpl user) {
+        return warehouseService.findAllTopLevelList(user);
+
+    }
 }
