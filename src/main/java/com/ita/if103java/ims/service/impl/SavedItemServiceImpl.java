@@ -1,4 +1,4 @@
-package com.ita.if103java.ims.service;
+package com.ita.if103java.ims.service.impl;
 
 import com.ita.if103java.ims.dao.AssociateDao;
 import com.ita.if103java.ims.dao.ItemDao;
@@ -10,11 +10,14 @@ import com.ita.if103java.ims.entity.Item;
 import com.ita.if103java.ims.entity.SavedItem;
 import com.ita.if103java.ims.exception.dao.SavedItemNotFoundException;
 import com.ita.if103java.ims.security.UserDetailsImpl;
+import com.ita.if103java.ims.service.SavedItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class SavedItemServiceImpl implements SavedItemService {
     @Value("${items.maxWarehouseLoad}")
@@ -66,15 +69,9 @@ public class SavedItemServiceImpl implements SavedItemService {
         Long warehouseId = itemTransaction.getDestinationWarehouseId();
 
         if (savedItemDao.existSavedItemByWarehouseId(warehouseId)) {
-            StringBuilder itemsId = new StringBuilder();
             List<SavedItem> savedItem =  savedItemDao.findSavedItemByWarehouseId(warehouseId);
-            savedItem.forEach(x->{
-                itemsId.append(" id = ");
-                itemsId.append(x.getItemId());
-                itemsId.append(" or");
-            });
-            itemsId.delete(itemsId.length()-2, itemsId.length());
-            List<Item> item = itemDao.findItemsById(itemsId, accountId);
+            String itemIds = savedItem.stream().map(x->x.getItemId().toString()).collect(Collectors.joining(","));
+            List<Item> item = itemDao.findItemsById(itemIds, accountId);
             for (int i = 0; i < savedItem.size(); i++) {
                 volumePassSavedItems += savedItem.get(i).getQuantity() * item.get(i).getVolume();
             }
