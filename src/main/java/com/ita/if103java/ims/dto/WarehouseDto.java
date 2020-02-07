@@ -2,6 +2,7 @@ package com.ita.if103java.ims.dto;
 
 import com.ita.if103java.ims.dto.transfer.ExistData;
 import com.ita.if103java.ims.dto.transfer.NewData;
+import com.ita.if103java.ims.entity.Warehouse;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -47,11 +48,13 @@ public class WarehouseDto implements Serializable {
 
     private List<String> path;
 
+    private List<Warehouse> children;
+
     public WarehouseDto() {
     }
 
     public WarehouseDto(Long id, String name, String info, Integer capacity, boolean isBottom, Long parentID, Long accountID,
-                        Long topWarehouseID, boolean active, AddressDto addressDto) {
+                        Long topWarehouseID, boolean active, AddressDto addressDto, List<Warehouse> children) {
         this.id = id;
         this.name = name;
         this.info = info;
@@ -63,6 +66,7 @@ public class WarehouseDto implements Serializable {
         this.active = active;
         this.addressDto = addressDto;
         this.path = new ArrayList<>();
+        this.children = new ArrayList<>();
 
     }
 
@@ -154,6 +158,14 @@ public class WarehouseDto implements Serializable {
         this.path = path;
     }
 
+    public List<Warehouse> getChildren() {
+        return children;
+    }
+
+    public void setChildren(List<Warehouse> children) {
+        this.children = children;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -168,12 +180,13 @@ public class WarehouseDto implements Serializable {
             Objects.equals(name, that.name) &&
             Objects.equals(info, that.info) &&
             Objects.equals(path, that.path) &&
+            Objects.equals(children, that.children) &&
             Objects.equals(addressDto, that.addressDto);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, info, capacity, isBottom, parentID, accountID, topWarehouseID, active, addressDto, path);
+        return Objects.hash(name, info, capacity, isBottom, parentID, accountID, topWarehouseID, active, addressDto, path, children);
     }
 
     @Override
@@ -190,6 +203,7 @@ public class WarehouseDto implements Serializable {
             ", active=" + active +
             ", addressDto=" + addressDto +
             ", path=" + path +
+            ", children=" + children +
             '}';
     }
 }

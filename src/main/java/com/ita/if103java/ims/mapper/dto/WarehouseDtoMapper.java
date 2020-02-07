@@ -22,6 +22,7 @@ public class WarehouseDtoMapper extends AbstractEntityDtoMapper<Warehouse, Wareh
             warehouse.setParentID(dto.getParentID());
             warehouse.setActive(dto.isActive());
             warehouse.setTopWarehouseID(dto.getTopWarehouseID());
+            warehouse.setChildren();
             return warehouse;
         }
     }
@@ -42,6 +43,7 @@ public class WarehouseDtoMapper extends AbstractEntityDtoMapper<Warehouse, Wareh
             warehouseDto.setActive(entity.isActive());
             warehouseDto.setTopWarehouseID(entity.getTopWarehouseID());
             warehouseDto.setPath(entity.getPath());
+            warehouseDto.setChildren(entity.getChildren());
             return warehouseDto;
         }
     }

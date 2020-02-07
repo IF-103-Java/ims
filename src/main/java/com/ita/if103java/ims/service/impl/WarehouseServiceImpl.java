@@ -93,12 +93,20 @@ public class WarehouseServiceImpl implements WarehouseService {
 
 
     private WarehouseDto createNewWarehouse(WarehouseDto warehouseDto, UserDetailsImpl user) {
-        Warehouse parent = warehouseDao.findById(warehouseDto.getParentID(), user.getUser().getAccountId());
+        Warehouse parent = null;
+        if (warehouseDto.getParentID() != null) {
+            parent = warehouseDao.findById(warehouseDto.getParentID(), user.getUser().getAccountId());
+            warehouseDto.setTopWarehouseID(parent.getTopWarehouseID());
+        }
         warehouseDto.setAccountID(user.getUser().getAccountId());
-        warehouseDto.setTopWarehouseID(parent.getTopWarehouseID());
+
         warehouseDto.setActive(true);
 
         Warehouse warehouse = warehouseDao.create(warehouseDtoMapper.toEntity(warehouseDto));
+
+        if(parent != null) {
+            parent.addChild(warehouse);
+        }
 
         Address address = addressDtoMapper.toEntity(warehouseDto.getAddressDto());
         AddressDto addressDto = null;
@@ -108,7 +116,7 @@ public class WarehouseServiceImpl implements WarehouseService {
         }
         createEvent(user, warehouse, EventName.WAREHOUSE_CREATED);
 
-        parent.addChild(warehouse);
+
 
         populatePath(warehouse, user);
         WarehouseDto createdWarehouseDto = warehouseDtoMapper.toDto(warehouse);
@@ -228,10 +236,9 @@ public class WarehouseServiceImpl implements WarehouseService {
         Warehouse warehouse = warehouseDao.findById(id, user.getUser().getAccountId());
         boolean isDelete = warehouseDao.softDelete(id);
 
-        if(!savedItemDao.findSavedItemByWarehouseId(warehouse.getId()).isEmpty()){
+        if (!savedItemDao.findSavedItemByWarehouseId(warehouse.getId()).isEmpty()) {
             throw new WarehouseDeleteException("Warehouse is not empty! Firstly you should remove or transfer all items from that warehouse to another");
-        }else
-        if (isDelete) {
+        } else if (isDelete) {
             createEvent(user, warehouse, EventName.WAREHOUSE_REMOVED);
         }
 
