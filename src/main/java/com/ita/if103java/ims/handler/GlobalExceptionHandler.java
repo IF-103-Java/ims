@@ -8,6 +8,9 @@ import com.ita.if103java.ims.exception.service.GoogleAPIException;
 import com.ita.if103java.ims.exception.service.ImpossibleWarehouseAdviceException;
 import com.ita.if103java.ims.exception.service.MaxWarehouseDepthLimitReachedException;
 import com.ita.if103java.ims.exception.service.MaxWarehousesLimitReachedException;
+import com.ita.if103java.ims.exception.service.SavedItemAddException;
+import com.ita.if103java.ims.exception.service.SavedItemMoveException;
+import com.ita.if103java.ims.exception.service.SavedItemOutException;
 import com.ita.if103java.ims.exception.service.UpgradationException;
 import com.ita.if103java.ims.exception.service.UserLimitReachedException;
 import com.ita.if103java.ims.exception.service.UserOrPasswordIncorrectException;
@@ -77,7 +80,10 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler({ItemNotEnoughCapacityInWarehouseException.class,
-        ItemNotEnoughQuantityException.class})
+        ItemNotEnoughQuantityException.class,
+        SavedItemAddException.class,
+        SavedItemMoveException.class,
+        SavedItemOutException.class})
     public ResponseEntity<ResponseMessageDto> handleItemAdviceException(Exception e) {
         LOGGER.info(e.getMessage(), e);
         return ResponseEntity

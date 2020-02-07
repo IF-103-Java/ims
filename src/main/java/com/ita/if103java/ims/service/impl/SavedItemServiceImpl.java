@@ -9,6 +9,9 @@ import com.ita.if103java.ims.entity.AssociateType;
 import com.ita.if103java.ims.entity.Item;
 import com.ita.if103java.ims.entity.SavedItem;
 import com.ita.if103java.ims.exception.dao.SavedItemNotFoundException;
+import com.ita.if103java.ims.exception.service.SavedItemAddException;
+import com.ita.if103java.ims.exception.service.SavedItemMoveException;
+import com.ita.if103java.ims.exception.service.SavedItemOutException;
 import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.SavedItemService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,24 +38,24 @@ public class SavedItemServiceImpl implements SavedItemService {
     }
     @Override
     public void validateInputsAdd(ItemTransactionRequestDto itemTransaction, Long accountId) {
-        if (itemTransaction.getItemDto().getVolume()<=0 && associateDao.findById(accountId, itemTransaction.getAssociateId()).getType().equals(AssociateType.CLIENT) &&
-             !(existInAccount(itemTransaction, accountId) &&
+        if (itemTransaction.getItemDto().getVolume()<=0 || associateDao.findById(accountId, itemTransaction.getAssociateId()).getType().equals(AssociateType.CLIENT) ||
+             !(existInAccount(itemTransaction, accountId) ||
             associateDao.findById(accountId, itemTransaction.getAssociateId()).getAccountId().equals(accountId))) {
-            throw new SavedItemNotFoundException("Failed to get savedItem during `create` {account_id = " + itemTransaction.getItemDto().getAccountId() + "}");
+            throw new SavedItemAddException("Failed to get savedItem during `add` {account_id = " + accountId + "}");
         }
     }
     @Override
     public void validateInputsMove(ItemTransactionRequestDto itemTransaction, Long accountId) {
-        if (!warehouseDao.findById(itemTransaction.getDestinationWarehouseId(), accountId).isBottom() && !(existInAccount(itemTransaction, accountId))) {
-            throw new SavedItemNotFoundException("Failed to get savedItem during `move` {account_id = " + itemTransaction.getItemDto().getAccountId() + "}");
+        if (!warehouseDao.findById(itemTransaction.getDestinationWarehouseId(), accountId).isBottom() || !(existInAccount(itemTransaction, accountId))) {
+            throw new SavedItemMoveException("Failed to get savedItem during `move` {account_id = " + accountId + "}");
         }
     }
     @Override
     public void validateInputsOut(ItemTransactionRequestDto itemTransaction, UserDetailsImpl user) {
         Long accountId = user.getUser().getAccountId();
-        if (associateDao.findById(accountId, itemTransaction.getAssociateId()).getType().equals(AssociateType.SUPPLIER) && !(itemDao.isExistItemById(itemTransaction.getItemDto().getId(), user.getUser().getAccountId())
-            && associateDao.findById(accountId, itemTransaction.getAssociateId()).getAccountId().equals(accountId))) {
-            throw new SavedItemNotFoundException("Failed to get savedItem during `outcomeItem` {account_id = " + accountId +
+        if (associateDao.findById(accountId, itemTransaction.getAssociateId()).getType().equals(AssociateType.SUPPLIER) || !(itemDao.isExistItemById(itemTransaction.getItemDto().getId(), accountId)
+            || associateDao.findById(accountId, itemTransaction.getAssociateId()).getAccountId().equals(accountId))) {
+            throw new SavedItemOutException("Failed to get savedItem during `outcomeItem` {account_id = " + accountId +
                 " associateId = " + itemTransaction.getAssociateId() + "}");
         }
     }
