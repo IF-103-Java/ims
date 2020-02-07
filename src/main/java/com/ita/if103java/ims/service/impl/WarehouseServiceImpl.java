@@ -93,9 +93,13 @@ public class WarehouseServiceImpl implements WarehouseService {
 
 
     private WarehouseDto createNewWarehouse(WarehouseDto warehouseDto, UserDetailsImpl user) {
+        Warehouse parent = warehouseDao.findById(warehouseDto.getParentID(), user.getUser().getAccountId());
         warehouseDto.setAccountID(user.getUser().getAccountId());
+        warehouseDto.setTopWarehouseID(parent.getTopWarehouseID());
+        warehouseDto.setActive(true);
+
         Warehouse warehouse = warehouseDao.create(warehouseDtoMapper.toEntity(warehouseDto));
-        warehouse.setActive(true);
+
         Address address = addressDtoMapper.toEntity(warehouseDto.getAddressDto());
         AddressDto addressDto = null;
         if (warehouse.isTopLevel()) {
@@ -103,6 +107,8 @@ public class WarehouseServiceImpl implements WarehouseService {
             addressDto = addressDtoMapper.toDto(warehouseAddress);
         }
         createEvent(user, warehouse, EventName.WAREHOUSE_CREATED);
+
+        parent.addChild(warehouse);
 
         populatePath(warehouse, user);
         WarehouseDto createdWarehouseDto = warehouseDtoMapper.toDto(warehouse);
