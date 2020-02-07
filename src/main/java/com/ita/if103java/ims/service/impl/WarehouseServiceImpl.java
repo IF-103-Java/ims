@@ -12,6 +12,7 @@ import com.ita.if103java.ims.entity.Warehouse;
 import com.ita.if103java.ims.exception.service.MaxWarehouseDepthLimitReachedException;
 import com.ita.if103java.ims.exception.service.MaxWarehousesLimitReachedException;
 import com.ita.if103java.ims.exception.service.WarehouseCreateException;
+import com.ita.if103java.ims.exception.service.WarehouseDeleteException;
 import com.ita.if103java.ims.exception.service.WarehouseUpdateException;
 import com.ita.if103java.ims.mapper.dto.AddressDtoMapper;
 import com.ita.if103java.ims.mapper.dto.WarehouseDtoMapper;
@@ -225,11 +226,15 @@ public class WarehouseServiceImpl implements WarehouseService {
     @Override
     public boolean softDelete(Long id, UserDetailsImpl user) {
         Warehouse warehouse = warehouseDao.findById(id, user.getUser().getAccountId());
-
         boolean isDelete = warehouseDao.softDelete(id);
+
+        if(!savedItemDao.findSavedItemByWarehouseId(warehouse.getId()).isEmpty()){
+            throw new WarehouseDeleteException("Warehouse is not empty! Firstly you should remove or transfer all items from that warehouse to another");
+        }else
         if (isDelete) {
             createEvent(user, warehouse, EventName.WAREHOUSE_REMOVED);
         }
+
         return isDelete;
     }
 
