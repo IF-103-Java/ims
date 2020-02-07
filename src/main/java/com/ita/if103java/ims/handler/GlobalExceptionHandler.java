@@ -15,6 +15,7 @@ import com.ita.if103java.ims.exception.service.WarehouseCreateException;
 import com.ita.if103java.ims.exception.service.WarehouseDeleteException;
 import com.ita.if103java.ims.exception.service.ItemNotEnoughCapacityInWarehouseException;
 import com.ita.if103java.ims.exception.service.ItemNotEnoughQuantityException;
+import com.ita.if103java.ims.exception.service.WarehouseUpdateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -57,7 +58,8 @@ public class GlobalExceptionHandler {
         AssociateLimitReachedException.class,
         UserLimitReachedException.class,
         WarehouseCreateException.class,
-        WarehouseDeleteException.class
+        WarehouseDeleteException.class,
+        WarehouseUpdateException.class
     }
 
     )
