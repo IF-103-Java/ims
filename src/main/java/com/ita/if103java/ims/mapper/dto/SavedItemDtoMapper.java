@@ -6,32 +6,30 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class SavedItemDtoMapper extends AbstractEntityDtoMapper<SavedItem, SavedItemDto> {
-    public SavedItem convertSavedItemDtoToSavedItem(SavedItemDto savedItemDto) {
-        SavedItem savedItem = new SavedItem();
-        savedItem.setId(savedItemDto.getId());
-        savedItem.setWarehouseId(savedItemDto.getWarehouseId());
-        savedItem.setQuantity(savedItemDto.getQuantity());
-        savedItem.setItemId(savedItemDto.getItemId());
-        return savedItem;
-    }
-
-    public SavedItemDto convertSavedItemToSavedItemDto(SavedItem savedItem) {
-        SavedItemDto savedItemDto = new SavedItemDto();
-        savedItemDto.setId(savedItem.getId());
-        savedItemDto.setWarehouseId(savedItem.getWarehouseId());
-        savedItemDto.setItemId(savedItem.getItemId());
-        savedItemDto.setQuantity(savedItem.getQuantity());
-        return savedItemDto;
-    }
-
 
     @Override
     public SavedItem toEntity(SavedItemDto dto) {
-        return convertSavedItemDtoToSavedItem(dto);
+        if (dto == null){
+            return null;
+        }
+        SavedItem savedItem = new SavedItem();
+        savedItem.setId(dto.getId());
+        savedItem.setWarehouseId(dto.getWarehouseId());
+        savedItem.setQuantity(dto.getQuantity());
+        savedItem.setItemId(dto.getItemId());
+        return savedItem;
     }
 
     @Override
     public SavedItemDto toDto(SavedItem entity) {
-        return convertSavedItemToSavedItemDto(entity);
+        if (entity == null){
+            return null;
+        }
+        SavedItemDto savedItemDto = new SavedItemDto();
+        savedItemDto.setId(entity.getId());
+        savedItemDto.setWarehouseId(entity.getWarehouseId());
+        savedItemDto.setItemId(entity.getItemId());
+        savedItemDto.setQuantity(entity.getQuantity());
+        return savedItemDto;
     }
 }
