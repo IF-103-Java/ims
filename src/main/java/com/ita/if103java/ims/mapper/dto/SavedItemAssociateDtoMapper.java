@@ -21,15 +21,15 @@ public class SavedItemAssociateDtoMapper extends AbstractEntityDtoMapper<Associa
     }
 
     @Override
-    public SavedItemAssociateDto toDto(Associate associate) {
-        if (associate == null) {
+    public SavedItemAssociateDto toDto(Associate entity) {
+        if (entity == null) {
             return null;
         }
         SavedItemAssociateDto savedItemAssociateDto = new SavedItemAssociateDto();
-        savedItemAssociateDto.setId(associate.getId());
-        savedItemAssociateDto.setName(associate.getName());
-        savedItemAssociateDto.setEmail(associate.getEmail());
-        savedItemAssociateDto.setPhone(associate.getPhone());
+        savedItemAssociateDto.setId(entity.getId());
+        savedItemAssociateDto.setName(entity.getName());
+        savedItemAssociateDto.setEmail(entity.getEmail());
+        savedItemAssociateDto.setPhone(entity.getPhone());
         return savedItemAssociateDto;
     }
 }
