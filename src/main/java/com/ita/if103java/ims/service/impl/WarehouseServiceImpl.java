@@ -99,12 +99,10 @@ public class WarehouseServiceImpl implements WarehouseService {
             warehouseDto.setTopWarehouseID(parent.getTopWarehouseID());
         }
         warehouseDto.setAccountID(user.getUser().getAccountId());
-
         warehouseDto.setActive(true);
-
         Warehouse warehouse = warehouseDao.create(warehouseDtoMapper.toEntity(warehouseDto));
 
-        if(parent != null) {
+        if (parent != null) {
             parent.addChild(warehouse);
         }
 
@@ -115,8 +113,6 @@ public class WarehouseServiceImpl implements WarehouseService {
             addressDto = addressDtoMapper.toDto(warehouseAddress);
         }
         createEvent(user, warehouse, EventName.WAREHOUSE_CREATED);
-
-
 
         populatePath(warehouse, user);
         WarehouseDto createdWarehouseDto = warehouseDtoMapper.toDto(warehouse);
