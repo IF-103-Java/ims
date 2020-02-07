@@ -100,4 +100,9 @@ public class EventServiceImpl implements EventService {
             }
         }
     }
+
+    @Override
+    public void deleteByAccountId(Long accountId) {
+        eventDao.deleteByAccountId(accountId);
+    }
 }

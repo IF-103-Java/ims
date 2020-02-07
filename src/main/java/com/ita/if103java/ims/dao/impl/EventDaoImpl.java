@@ -227,6 +227,16 @@ public class EventDaoImpl implements EventDao {
         return String.format("%s %s '%s'", columnName, "=", columnValue);
     }
 
+    @Override
+    public void deleteByAccountId(Long accountId) {
+        try {
+            jdbcTemplate.update(Queries.SQL_DELETE_BY_ACCOUNT_ID, accountId);
+        } catch (DataAccessException e) {
+            throw new CRUDException("Error during  " + Queries.SQL_DELETE_BY_ACCOUNT_ID + accountId +
+                ", EventDao.deleteByAccountId", e);
+        }
+    }
+
     private PreparedStatement getPreparedStatement(Connection connection, Event event) throws SQLException {
         PreparedStatement preparedStatement = connection.prepareStatement(Queries.SQL_CREATE_EVENT, Statement.RETURN_GENERATED_KEYS);
         int i = 0;
@@ -246,6 +256,11 @@ public class EventDaoImpl implements EventDao {
                 INSERT INTO events
                 (message, date, account_id, author_id, warehouse_id, name, transaction_id)
                 VALUES(?,?,?,?,?,?,?)
+            """;
+
+        static final String SQL_DELETE_BY_ACCOUNT_ID = """
+                DELETE FROM events
+                WHERE account_id = ?
             """;
     }
 }
