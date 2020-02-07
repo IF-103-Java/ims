@@ -196,16 +196,10 @@ public class WarehouseServiceImpl implements WarehouseService {
 
         if (updatedWarehouse.getParentID().equals(dBWarehouse.getParentID())) {
             updatedWarehouse.setParentID(dBWarehouse.getId());
+            updatedWarehouse.setTopWarehouseID(dBWarehouse.getTopWarehouseID());
         } else {
             throw new WarehouseUpdateException("You can't change parent warehouse!");
         }
-
-        if (updatedWarehouse.getParentID().equals(dBWarehouse.getParentID())) {
-            updatedWarehouse.setTopWarehouseID(dBWarehouse.getTopWarehouseID());
-        } else {
-            throw new WarehouseUpdateException("You can't change top level warehouse to this one!");
-        }
-
 
         if (!savedItemDao.findSavedItemByWarehouseId(dBWarehouse.getId()).isEmpty() &&
             (dBWarehouse.isBottom() && !updatedWarehouse.isBottom())) {
