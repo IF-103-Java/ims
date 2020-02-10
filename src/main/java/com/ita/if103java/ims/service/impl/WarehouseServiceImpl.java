@@ -103,7 +103,7 @@ public class WarehouseServiceImpl implements WarehouseService {
         Warehouse warehouse = warehouseDao.create(warehouseDtoMapper.toEntity(warehouseDto));
 
         if (parent != null) {
-            parent.addChild(warehouse);
+            parent.setChildren();
         }
 
         Address address = addressDtoMapper.toEntity(warehouseDto.getAddressDto());

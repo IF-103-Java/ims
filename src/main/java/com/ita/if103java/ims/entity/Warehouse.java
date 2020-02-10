@@ -116,10 +116,10 @@ public class Warehouse {
     }
 
     public void setChildren() {
-        this.children = new ArrayList<>();
+        this.children = children;
     }
 
-    public void addChild(Warehouse warehouse){children.add(warehouse);}
+//    public void addChild(Warehouse warehouse){children.add(warehouse);}
 
     public List<String> getPath() {
         return path;
