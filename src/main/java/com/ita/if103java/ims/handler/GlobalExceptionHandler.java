@@ -6,6 +6,8 @@ import com.ita.if103java.ims.exception.dao.EntityNotFoundException;
 import com.ita.if103java.ims.exception.service.AssociateLimitReachedException;
 import com.ita.if103java.ims.exception.service.GoogleAPIException;
 import com.ita.if103java.ims.exception.service.ImpossibleWarehouseAdviceException;
+import com.ita.if103java.ims.exception.service.ItemNotEnoughCapacityInWarehouseException;
+import com.ita.if103java.ims.exception.service.ItemNotEnoughQuantityException;
 import com.ita.if103java.ims.exception.service.MaxWarehouseDepthLimitReachedException;
 import com.ita.if103java.ims.exception.service.MaxWarehousesLimitReachedException;
 import com.ita.if103java.ims.exception.service.UpgradationException;
@@ -13,8 +15,6 @@ import com.ita.if103java.ims.exception.service.UserLimitReachedException;
 import com.ita.if103java.ims.exception.service.UserOrPasswordIncorrectException;
 import com.ita.if103java.ims.exception.service.WarehouseCreateException;
 import com.ita.if103java.ims.exception.service.WarehouseDeleteException;
-import com.ita.if103java.ims.exception.service.ItemNotEnoughCapacityInWarehouseException;
-import com.ita.if103java.ims.exception.service.ItemNotEnoughQuantityException;
 import com.ita.if103java.ims.exception.service.WarehouseUpdateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,6 +72,17 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({UpgradationException.class})
     public ResponseEntity<ResponseMessageDto> handleUpgradeException(Exception e) {
+        LOGGER.error(e.getMessage(), e);
+        return ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
+            .body(new ResponseMessageDto(e.getMessage()));
+    }
+
+    @ExceptionHandler({
+        WarehouseCreateException.class,
+        WarehouseDeleteException.class,
+        WarehouseUpdateException.class})
+    public ResponseEntity<ResponseMessageDto> handleWarehouseException(Exception e) {
         LOGGER.error(e.getMessage(), e);
         return ResponseEntity
             .status(HttpStatus.BAD_REQUEST)
