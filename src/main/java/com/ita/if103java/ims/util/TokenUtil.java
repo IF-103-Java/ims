@@ -10,9 +10,9 @@ public class TokenUtil {
 
     public static boolean isValidToken(User user) {
         ZonedDateTime updatedDateTime = user.getUpdatedDate();
-        ZonedDateTime currrentDateTime = ZonedDateTime.now(ZoneId.systemDefault());
+        ZonedDateTime currentDateTime = ZonedDateTime.now(ZoneId.systemDefault());
 
-        Duration duration = Duration.between(updatedDateTime, currrentDateTime);
+        Duration duration = Duration.between(updatedDateTime, currentDateTime);
         long diffHours = Math.abs(duration.toHours());
         return diffHours <= 24;
     }

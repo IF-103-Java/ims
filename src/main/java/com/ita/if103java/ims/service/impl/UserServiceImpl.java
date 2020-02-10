@@ -1,6 +1,7 @@
 package com.ita.if103java.ims.service.impl;
 
 import com.ita.if103java.ims.dao.AccountDao;
+import com.ita.if103java.ims.dao.AccountTypeDao;
 import com.ita.if103java.ims.dao.UserDao;
 import com.ita.if103java.ims.dto.AccountDto;
 import com.ita.if103java.ims.dto.UserDto;
@@ -48,6 +49,7 @@ public class UserServiceImpl implements UserService {
     private AccountService accountService;
     private MailServiceImpl mailService;
     private AccountDao accountDao;
+    private AccountTypeDao accountTypeDao;
 
 
     @Autowired
@@ -57,7 +59,8 @@ public class UserServiceImpl implements UserService {
                            EventService eventService,
                            AccountService accountService,
                            MailServiceImpl mailService,
-                           AccountDao accountDao) {
+                           AccountDao accountDao,
+                           AccountTypeDao accountTypeDao) {
         this.userDao = userDao;
         this.mapper = mapper;
         this.passwordEncoder = passwordEncoder;
@@ -65,6 +68,7 @@ public class UserServiceImpl implements UserService {
         this.accountService = accountService;
         this.mailService = mailService;
         this.accountDao = accountDao;
+        this.accountTypeDao = accountTypeDao;
     }
 
     @Override
@@ -163,7 +167,7 @@ public class UserServiceImpl implements UserService {
         Long accountId = activatedUser.getAccountId();
         Long userId = activatedUser.getId();
 
-        if (isValidToken(activatedUser)) {
+        if (isValidToken(activatedUser) && isAllowedToInvite(accountId)) {
             userDao.activate(userId, accountId, true);
             accountDao.activate(activatedUser.getAccountId());
             return true;
@@ -176,5 +180,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public Map<Long, String> findAllUserNames(UserDetailsImpl user) {
         return userDao.findAllUserNames(user.getUser().getAccountId());
+    }
+
+    @Override
+    public boolean isAllowedToInvite(Long accountId) {
+        Integer usersCount = userDao.countOfUsers(accountId);
+        Integer usersAllowed = accountTypeDao.findById(accountDao.findById(accountId).getTypeId()).getMaxUsers();
+        return usersCount < usersAllowed;
     }
 }
