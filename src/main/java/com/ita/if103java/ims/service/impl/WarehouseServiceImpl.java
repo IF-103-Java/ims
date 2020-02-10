@@ -290,9 +290,7 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Override
     public List<WarehouseDto> findChildrenById(Long id, UserDetailsImpl user) {
-        List<WarehouseDto> children = warehouseDtoMapper.toDtoList(warehouseDao.findChildrenById(id,
-            user.getUser().getAccountId()));
-        return children;
+        return warehouseDtoMapper.toDtoList(warehouseDao.findChildrenById(id, user.getUser().getAccountId()));
     }
 
     public Integer findTotalCapacity(Long id, UserDetailsImpl user) {
