@@ -56,10 +56,7 @@ public class GlobalExceptionHandler {
         MaxWarehouseDepthLimitReachedException.class,
         MaxWarehousesLimitReachedException.class,
         AssociateLimitReachedException.class,
-        UserLimitReachedException.class,
-        WarehouseCreateException.class,
-        WarehouseDeleteException.class,
-        WarehouseUpdateException.class
+        UserLimitReachedException.class
     }
 
     )
@@ -78,8 +75,7 @@ public class GlobalExceptionHandler {
             .body(new ResponseMessageDto(e.getMessage()));
     }
 
-    @ExceptionHandler({
-        WarehouseCreateException.class,
+    @ExceptionHandler({WarehouseCreateException.class,
         WarehouseDeleteException.class,
         WarehouseUpdateException.class})
     public ResponseEntity<ResponseMessageDto> handleWarehouseException(Exception e) {

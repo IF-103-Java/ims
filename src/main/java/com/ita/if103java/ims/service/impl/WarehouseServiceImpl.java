@@ -103,10 +103,6 @@ public class WarehouseServiceImpl implements WarehouseService {
         warehouseDto.setActive(true);
         Warehouse warehouse = warehouseDao.create(warehouseDtoMapper.toEntity(warehouseDto));
 
-        if (parent != null) {
-            parent.setChildren();
-        }
-
         Address address = addressDtoMapper.toEntity(warehouseDto.getAddressDto());
         AddressDto addressDto = null;
         if (warehouse.isTopLevel()) {
@@ -230,15 +226,15 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Override
     public boolean softDelete(Long id, UserDetailsImpl user) {
-        boolean isDelete;
         Warehouse warehouse = warehouseDao.findById(id, user.getUser().getAccountId());
-        if (CollectionUtils.isEmpty(warehouseDao.findChildrenById(warehouse.getParentID(), user.getUser().getAccountId()))) {
-            isDelete = warehouseDao.softDelete(id);
-        } else throw new WarehouseDeleteException("Warehouse have sub warehouses! Firstly you should delete them!");
-
+        if (!CollectionUtils.isEmpty(warehouseDao.findChildrenById(warehouse.getParentID(), user.getUser().getAccountId()))) {
+            throw new WarehouseDeleteException("Warehouse has sub warehouses! Firstly you should delete them!");
+        }
         if (!savedItemDao.findSavedItemByWarehouseId(warehouse.getId()).isEmpty()) {
             throw new WarehouseDeleteException("Warehouse is not empty! Firstly you should remove or transfer all items from that warehouse to another");
-        } else if (isDelete) {
+        }
+        boolean isDelete = warehouseDao.softDelete(id);
+        if (isDelete) {
             createEvent(user, warehouse, EventName.WAREHOUSE_REMOVED);
         }
 

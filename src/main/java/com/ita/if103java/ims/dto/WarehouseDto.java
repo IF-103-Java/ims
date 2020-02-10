@@ -48,8 +48,6 @@ public class WarehouseDto implements Serializable {
 
     private List<String> path;
 
-    private List<Warehouse> children;
-
     public WarehouseDto() {
     }
 
@@ -66,8 +64,6 @@ public class WarehouseDto implements Serializable {
         this.active = active;
         this.addressDto = addressDto;
         this.path = new ArrayList<>();
-        this.children = new ArrayList<>();
-
     }
 
     public Long getId() {
@@ -158,14 +154,6 @@ public class WarehouseDto implements Serializable {
         this.path = path;
     }
 
-    public List<Warehouse> getChildren() {
-        return children;
-    }
-
-    public void setChildren(List<Warehouse> children) {
-        this.children = children;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -180,13 +168,12 @@ public class WarehouseDto implements Serializable {
             Objects.equals(name, that.name) &&
             Objects.equals(info, that.info) &&
             Objects.equals(path, that.path) &&
-            Objects.equals(children, that.children) &&
             Objects.equals(addressDto, that.addressDto);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, info, capacity, isBottom, parentID, accountID, topWarehouseID, active, addressDto, path, children);
+        return Objects.hash(name, info, capacity, isBottom, parentID, accountID, topWarehouseID, active, addressDto, path);
     }
 
     @Override
@@ -203,7 +190,6 @@ public class WarehouseDto implements Serializable {
             ", active=" + active +
             ", addressDto=" + addressDto +
             ", path=" + path +
-            ", children=" + children +
             '}';
     }
 }

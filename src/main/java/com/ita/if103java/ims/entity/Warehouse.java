@@ -115,12 +115,6 @@ public class Warehouse {
         return children;
     }
 
-    public void setChildren() {
-        this.children = children;
-    }
-
-//    public void addChild(Warehouse warehouse){children.add(warehouse);}
-
     public List<String> getPath() {
         return path;
     }
