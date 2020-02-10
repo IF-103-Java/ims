@@ -234,7 +234,7 @@ public class WarehouseServiceImpl implements WarehouseService {
         Warehouse warehouse = warehouseDao.findById(id, user.getUser().getAccountId());
         if (CollectionUtils.isEmpty(warehouseDao.findChildrenById(warehouse.getParentID(), user.getUser().getAccountId()))) {
             isDelete = warehouseDao.softDelete(id);
-        }else throw new WarehouseDeleteException("Warehouse have sub warehouses! Firstly you should delete them!");
+        } else throw new WarehouseDeleteException("Warehouse have sub warehouses! Firstly you should delete them!");
 
         if (!savedItemDao.findSavedItemByWarehouseId(warehouse.getId()).isEmpty()) {
             throw new WarehouseDeleteException("Warehouse is not empty! Firstly you should remove or transfer all items from that warehouse to another");
