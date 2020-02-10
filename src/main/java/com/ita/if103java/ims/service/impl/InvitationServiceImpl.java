@@ -54,7 +54,7 @@ public class InvitationServiceImpl implements InvitationService {
     @Override
     @Transactional
     public void inviteUser(User accountAdmin, UserDto userDto) {
-        if (allowToInvite(accountAdmin.getAccountId())) {
+        if (userService.isAllowedToInvite(accountAdmin.getAccountId())) {
             userDto.setPassword(generatePassword());
             userDto.setRole(Role.ROLE_WORKER);
             userDto.setAccountId(accountAdmin.getAccountId());
@@ -76,12 +76,6 @@ public class InvitationServiceImpl implements InvitationService {
             activationURL + userDto.getEmailUUID() + "\n" +
             "Your password: " + userDto.getPassword() + "\n" +
             INVITE_FOOTER, "IMS. Invitation to " + account.getName() + " organization");
-    }
-
-    private boolean allowToInvite(Long accountId) {
-        Integer usersCount = userDao.countOfUsers(accountId);
-        Integer usersAllowed = accountTypeDao.findById(accountDao.findById(accountId).getTypeId()).getMaxUsers();
-        return usersCount < usersAllowed;
     }
 
     private String generatePassword() {

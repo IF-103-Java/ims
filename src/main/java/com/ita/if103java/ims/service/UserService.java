@@ -5,7 +5,6 @@ import com.ita.if103java.ims.security.UserDetailsImpl;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
 import java.util.Map;
 
 public interface UserService {
@@ -32,4 +31,5 @@ public interface UserService {
 
     Map<Long, String> findAllUserNames(UserDetailsImpl user);
 
+    boolean isAllowedToInvite(Long accountId);
 }
