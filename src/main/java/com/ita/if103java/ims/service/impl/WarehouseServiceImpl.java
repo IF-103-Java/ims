@@ -26,6 +26,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -229,8 +230,11 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Override
     public boolean softDelete(Long id, UserDetailsImpl user) {
+        boolean isDelete;
         Warehouse warehouse = warehouseDao.findById(id, user.getUser().getAccountId());
-        boolean isDelete = warehouseDao.softDelete(id);
+        if (CollectionUtils.isEmpty(warehouseDao.findChildrenById(warehouse.getParentID(), user.getUser().getAccountId()))) {
+            isDelete = warehouseDao.softDelete(id);
+        }else throw new WarehouseDeleteException("Warehouse have sub warehouses! Firstly you should delete them!");
 
         if (!savedItemDao.findSavedItemByWarehouseId(warehouse.getId()).isEmpty()) {
             throw new WarehouseDeleteException("Warehouse is not empty! Firstly you should remove or transfer all items from that warehouse to another");
