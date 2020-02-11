@@ -59,8 +59,6 @@ public class SavedItemDaoImpl implements SavedItemDao {
     public List<SavedItem> findSavedItemByItemId(Long id) {
         try {
             return jdbcTemplate.query(Queries.SQL_SELECT_SAVED_ITEMS_BY_ITEM_ID, savedItemRowMapper, id);
-        } catch (EmptyResultDataAccessException e) {
-            throw new SavedItemNotFoundException("Failed to get savedItem during `select` {item_id = " + id + "}", e);
         } catch (DataAccessException e) {
             throw new CRUDException("Failed during `select` {item_id = " + id + "}", e);
 
@@ -72,9 +70,6 @@ public class SavedItemDaoImpl implements SavedItemDao {
     public List<SavedItem> findSavedItemByWarehouseId(Long id) {
         try {
             return jdbcTemplate.query(Queries.SQL_SELECT_SAVED_ITEMS_BY_WAREHOUSE_ID, savedItemRowMapper, id);
-        } catch (EmptyResultDataAccessException e) {
-            throw new SavedItemNotFoundException("Failed to get savedItem during `select` {warehouse_id = " + id +
-                "}", e);
         } catch (DataAccessException e) {
             throw new CRUDException("Failed during `select` {warehouse_id = " + id + "}", e);
         }
@@ -100,7 +95,8 @@ public class SavedItemDaoImpl implements SavedItemDao {
                 jdbcTemplate.update(connection -> createSavedItemStatement(savedItem, connection), keyHolder)));
             return savedItem;
         } catch (DataAccessException e) {
-            throw new CRUDException("Error during `insert` {item_id = " + savedItem.getItemId() + "warehouse_id" + savedItem.getWarehouseId() + "}", e);
+            throw new CRUDException("Error during `insert` {item_id = " + savedItem.getItemId() + "warehouse_id" +
+                savedItem.getWarehouseId() + "}", e);
         }
 
     }
@@ -122,15 +118,17 @@ public class SavedItemDaoImpl implements SavedItemDao {
             status = jdbcTemplate.update(Queries.SQL_SET_QUANTITY_SAVED_ITEMS, quantity, savedItem.getId());
 
         } catch (DataAccessException e) {
-            throw new CRUDException("Error during `update` {quantity = " + savedItem.getQuantity() + "warehouse_id" + "}", e);
+            throw new CRUDException(
+                "Error during `update` {quantity = " + savedItem.getQuantity() + "warehouse_id" + "}", e);
 
         }
         if (status == 0) {
-            throw new SavedItemNotFoundException("Failed to get savedItem during `update` {quantity = " + savedItem.getQuantity() + "warehouse_id" + "}");
+            throw new SavedItemNotFoundException(
+                "Failed to get savedItem during `update` {quantity = " + savedItem.getQuantity() + "warehouse_id" +
+                    "}");
         }
         return true;
     }
-
 
 
     @Override
@@ -140,12 +138,13 @@ public class SavedItemDaoImpl implements SavedItemDao {
             status = jdbcTemplate.update(Queries.SQL_SET_WAREHOUSE_ID_SAVED_ITEMS, warehouseId, savedItemId);
 
         } catch (DataAccessException e) {
-            throw new CRUDException("Error during `update` {warehouse_id = " + warehouseId + "id " + savedItemId + "}"
+            throw new CRUDException("Error during `update` {warehouse_id = " + warehouseId + " id " + savedItemId + "}"
                 , e);
 
         }
         if (status == 0) {
-            throw new SavedItemNotFoundException("Failed to get savedItem during `update` {warehouse_id = " + warehouseId + "id" + savedItemId + "}");
+            throw new SavedItemNotFoundException(
+                "Failed to get savedItem during `update` {warehouse_id = " + warehouseId + "id" + savedItemId + "}");
         }
         return true;
 
@@ -162,7 +161,8 @@ public class SavedItemDaoImpl implements SavedItemDao {
 
         }
         if (status == 0) {
-            throw new SavedItemNotFoundException("Failed to get soft delete savedItem during `delete` {id = " + savedItemId + "}");
+            throw new SavedItemNotFoundException(
+                "Failed to get soft delete savedItem during `delete` {id = " + savedItemId + "}");
         }
         return true;
 
@@ -177,7 +177,8 @@ public class SavedItemDaoImpl implements SavedItemDao {
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
         } catch (DataAccessException e) {
-            throw new CRUDException("Failed during `select` {itemId = " + itemId + " warehouse_id = " + warehouseId + "}", e);
+            throw new CRUDException(
+                "Failed during `select` {itemId = " + itemId + " warehouse_id = " + warehouseId + "}", e);
         }
 
     }
@@ -195,6 +196,7 @@ public class SavedItemDaoImpl implements SavedItemDao {
         }
         return true;
     }
+
     class Queries {
         static final String SQL_SELECT_SAVED_ITEMS = """
                 select *

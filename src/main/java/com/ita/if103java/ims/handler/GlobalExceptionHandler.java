@@ -4,13 +4,16 @@ import com.ita.if103java.ims.dto.handler.ResponseMessageDto;
 import com.ita.if103java.ims.exception.dao.CRUDException;
 import com.ita.if103java.ims.exception.dao.EntityNotFoundException;
 import com.ita.if103java.ims.exception.service.AssociateLimitReachedException;
+import com.ita.if103java.ims.exception.service.BottomLevelWarehouseException;
 import com.ita.if103java.ims.exception.service.GoogleAPIException;
 import com.ita.if103java.ims.exception.service.ImpossibleWarehouseAdviceException;
+import com.ita.if103java.ims.exception.service.ItemDuplicateException;
 import com.ita.if103java.ims.exception.service.MaxWarehouseDepthLimitReachedException;
 import com.ita.if103java.ims.exception.service.MaxWarehousesLimitReachedException;
 import com.ita.if103java.ims.exception.service.SavedItemAddException;
 import com.ita.if103java.ims.exception.service.SavedItemMoveException;
 import com.ita.if103java.ims.exception.service.SavedItemOutException;
+import com.ita.if103java.ims.exception.service.SavedItemValidateInputException;
 import com.ita.if103java.ims.exception.service.UpgradationException;
 import com.ita.if103java.ims.exception.service.UserLimitReachedException;
 import com.ita.if103java.ims.exception.service.UserOrPasswordIncorrectException;
@@ -60,7 +63,8 @@ public class GlobalExceptionHandler {
         AssociateLimitReachedException.class,
         UserLimitReachedException.class,
         WarehouseCreateException.class,
-        WarehouseDeleteException.class
+        WarehouseDeleteException.class,
+        BottomLevelWarehouseException.class
     }
 
     )
@@ -83,7 +87,9 @@ public class GlobalExceptionHandler {
         ItemNotEnoughQuantityException.class,
         SavedItemAddException.class,
         SavedItemMoveException.class,
-        SavedItemOutException.class})
+        SavedItemOutException.class,
+        ItemDuplicateException.class,
+        SavedItemValidateInputException.class})
     public ResponseEntity<ResponseMessageDto> handleItemAdviceException(Exception e) {
         LOGGER.info(e.getMessage(), e);
         return ResponseEntity
