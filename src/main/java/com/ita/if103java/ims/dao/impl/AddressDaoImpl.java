@@ -103,6 +103,15 @@ public class AddressDaoImpl implements AddressDao {
         );
     }
 
+    @Override
+    public void hardDelete(Long accountId) {
+        try {
+            jdbcTemplate.update(Queries.SQL_DELETE_ADDRESS_BY_ID, accountId);
+        } catch (DataAccessException e) {
+            throw new CRUDException("Error during `hard delete` address, accountId  = " + accountId, e);
+        }
+    }
+
     private Long createAddress(String query, MapSqlParameterSource sqlParameterSource,
                                String crudErrorMessage) {
         try {
@@ -195,6 +204,15 @@ public class AddressDaoImpl implements AddressDao {
                 select *
                 from addresses
                 where associate_id = ?
+            """;
+
+        public static final String SQL_DELETE_ADDRESS_BY_ID = """
+                delete
+                from addresses
+                where associate_id IN
+                (select id
+                from associates
+                where account_id = ?);
             """;
     }
 }

@@ -259,7 +259,8 @@ public class EventDaoImpl implements EventDao {
             """;
 
         static final String SQL_DELETE_BY_ACCOUNT_ID = """
-                DELETE FROM events
+                DELETE
+                FROM events
                 WHERE account_id = ?
             """;
     }

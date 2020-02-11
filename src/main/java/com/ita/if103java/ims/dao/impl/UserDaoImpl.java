@@ -2,6 +2,7 @@ package com.ita.if103java.ims.dao.impl;
 
 import com.ita.if103java.ims.dao.UserDao;
 import com.ita.if103java.ims.entity.User;
+import com.ita.if103java.ims.exception.dao.AccountNotFoundException;
 import com.ita.if103java.ims.exception.dao.CRUDException;
 import com.ita.if103java.ims.exception.dao.UserNotFoundException;
 import com.ita.if103java.ims.mapper.jdbc.UserRowMapper;
@@ -129,93 +130,84 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public User update(User user) {
-        int status;
         try {
             ZonedDateTime updatedDateTime = ZonedDateTime.now(ZoneId.systemDefault());
-            status = jdbcTemplate.update(
+            final int rowsAffected = jdbcTemplate.update(
                 Queries.SQL_UPDATE_USER,
                 user.getFirstName(),
                 user.getLastName(),
                 Timestamp.from(updatedDateTime.toInstant()),
                 user.getEmailUUID(),
                 user.getId());
-
             user.setUpdatedDate(updatedDateTime);
+            if (rowsAffected == 0) {
+                throw new UserNotFoundException("Failed to obtain user during `update` {id = " + user.getId() + "}");
+            }
         } catch (DataAccessException e) {
             throw new CRUDException("Error during `update` user {id = " + user.getId() + "}", e);
         }
-        if (status == 0) {
-            throw new UserNotFoundException("Failed to obtain user during `update` {id = " + user.getId() + "}");
-        }
+
 
         return user;
     }
 
     @Override
     public boolean updateAccountId(Long userId, Long accountId) {
-        int status;
         try {
-            status = jdbcTemplate.update(
+            final int rowsAffected = jdbcTemplate.update(
                 Queries.SQL_UPDATE_ACCOUNT_ID,
                 accountId,
                 userId);
+            if (rowsAffected == 0) {
+                throw new UserNotFoundException("Failed to obtain user during `update` accountId {userId = " + userId + "}");
+            }
         } catch (DataAccessException e) {
             throw new CRUDException("Error during `update` accountId {userId = " + userId + "}", e);
-        }
-        if (status == 0) {
-            throw new UserNotFoundException("Failed to obtain user during `update` accountId {userId = " + userId + "}");
         }
         return true;
     }
 
     @Override
     public boolean activate(Long id, Long accountId, boolean state) {
-        int status;
         try {
-            status = jdbcTemplate.update(Queries.SQL_SET_ACTIVE_STATUS_USER, state, id, accountId);
+            final int rowsAffected = jdbcTemplate.update(Queries.SQL_SET_ACTIVE_STATUS_USER, state, id, accountId);
+            if (rowsAffected == 0) {
+                throw new UserNotFoundException("Failed to obtain user during set status:" + state + "to user {id = " + id + "}");
+            }
         } catch (DataAccessException e) {
             throw new CRUDException("Error during set status:" + state + " to user {id = " + id + "}", e);
         }
-        if (status == 0) {
-            throw new UserNotFoundException("Failed to obtain user during set status:" + state + "to user {id = " + id + "}");
-        }
-
         return true;
     }
 
     @Override
-    public boolean hardDelete(Long id, Long accountId) {
-        int status;
+    public boolean hardDelete(Long accountId) {
         try {
-            status = jdbcTemplate.update(Queries.SQL_DELETE_USER_BY_ID, id, accountId);
+            final int rowsAffected = jdbcTemplate.update(Queries.SQL_DELETE_USERS_BY_ID, accountId);
+            if (rowsAffected == 0) {
+                throw new UserNotFoundException("Failed to obtain user during hard `delete` {id = " + accountId + "}");
+            }
         } catch (DataAccessException e) {
-            throw new CRUDException("Error during hard `delete` user {id = " + id + "}", e);
+            throw new CRUDException("Error during hard `delete` user {accountId = " + accountId + "}", e);
         }
-        if (status == 0) {
-            throw new UserNotFoundException("Failed to obtain user during hard `delete` {id = " + id + "}");
-        }
-
         return true;
     }
 
 
     @Override
     public boolean updatePassword(Long id, String newPassword) {
-        int status;
         try {
             ZonedDateTime updatedDateTime = ZonedDateTime.now(ZoneId.systemDefault());
-            status = jdbcTemplate.update(Queries.SQL_UPDATE_PASSWORD,
+            final int rowsAffected = jdbcTemplate.update(Queries.SQL_UPDATE_PASSWORD,
                 newPassword,
                 Timestamp.from(updatedDateTime.toInstant()),
                 id);
+            if (rowsAffected == 0) {
+                throw new UserNotFoundException("Failed to obtain user during `update` password {id = " + id + "}");
+            }
         } catch (DataAccessException e) {
             throw new CRUDException("Error during `update` password {id = " + id + "}", e);
         }
-        if (status == 0) {
-            throw new UserNotFoundException("Failed to obtain user during `update` password {id = " + id + "}");
-        }
-
-
         return true;
     }
 
@@ -334,11 +326,10 @@ public class UserDaoImpl implements UserDao {
                 WHERE email_uuid = ?
             """;
 
-        public static final String SQL_DELETE_USER_BY_ID = """
+        public static final String SQL_DELETE_USERS_BY_ID = """
                 DELETE
                 FROM users
-                WHERE id = ?
-                AND account_id = ?
+                WHERE account_id = ?
             """;
 
         public static final String SQL_COUNT_OF_USERS = """
