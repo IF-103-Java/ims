@@ -52,7 +52,7 @@ public class WarehouseDto implements Serializable {
     }
 
     public WarehouseDto(Long id, String name, String info, Integer capacity, boolean isBottom, Long parentID, Long accountID,
-                        Long topWarehouseID, boolean active, AddressDto addressDto, List<Warehouse> children) {
+                        Long topWarehouseID, boolean active, AddressDto addressDto) {
         this.id = id;
         this.name = name;
         this.info = info;
