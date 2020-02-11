@@ -125,14 +125,15 @@ public class WarehouseServiceImpl implements WarehouseService {
         Map<Long, Warehouse> groupedWarehouses = getGroupedWarehouses(pageable, user, all);
 
         all.forEach(o -> findPath(o, groupedWarehouses));
+        List<WarehouseDto> warehouses = new ArrayList<>();
         for (Warehouse warehouse : all) {
             WarehouseDto warehouseDto = warehouseDtoMapper.toDto(warehouse);
             if (warehouse.isTopLevel()) {
                 AddressDto addressDto = addressDtoMapper.toDto(addressDao.findByWarehouseId(warehouse.getId()));
                 warehouseDto.setAddressDto(addressDto);
             }
+            warehouses.add(warehouseDto);
         }
-        List<WarehouseDto> warehouses = warehouseDtoMapper.toDtoList(all);
         return new PageImpl<>(warehouses, pageable, warehouseQuantity);
 
     }
