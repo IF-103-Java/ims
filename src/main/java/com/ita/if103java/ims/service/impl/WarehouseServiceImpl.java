@@ -1,6 +1,7 @@
 package com.ita.if103java.ims.service.impl;
 
 import com.ita.if103java.ims.dao.AddressDao;
+import com.ita.if103java.ims.dao.SavedItemDao;
 import com.ita.if103java.ims.dao.WarehouseDao;
 import com.ita.if103java.ims.dto.AddressDto;
 import com.ita.if103java.ims.dto.WarehouseDto;
@@ -11,6 +12,8 @@ import com.ita.if103java.ims.entity.Warehouse;
 import com.ita.if103java.ims.exception.service.MaxWarehouseDepthLimitReachedException;
 import com.ita.if103java.ims.exception.service.MaxWarehousesLimitReachedException;
 import com.ita.if103java.ims.exception.service.WarehouseCreateException;
+import com.ita.if103java.ims.exception.service.WarehouseDeleteException;
+import com.ita.if103java.ims.exception.service.WarehouseUpdateException;
 import com.ita.if103java.ims.mapper.dto.AddressDtoMapper;
 import com.ita.if103java.ims.mapper.dto.WarehouseDtoMapper;
 import com.ita.if103java.ims.security.UserDetailsImpl;
@@ -23,6 +26,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,18 +43,21 @@ public class WarehouseServiceImpl implements WarehouseService {
     private AddressDao addressDao;
     private AddressDtoMapper addressDtoMapper;
     private EventService eventService;
+    private SavedItemDao savedItemDao;
 
     @Autowired
     public WarehouseServiceImpl(WarehouseDao warehouseDao,
                                 WarehouseDtoMapper warehouseDtoMapper,
                                 AddressDao addressDao,
                                 AddressDtoMapper addressDtoMapper,
-                                EventService eventService) {
+                                EventService eventService,
+                                SavedItemDao savedItemDao) {
         this.warehouseDao = warehouseDao;
         this.warehouseDtoMapper = warehouseDtoMapper;
         this.addressDao = addressDao;
         this.addressDtoMapper = addressDtoMapper;
         this.eventService = eventService;
+        this.savedItemDao = savedItemDao;
     }
 
     @Override
@@ -87,9 +94,15 @@ public class WarehouseServiceImpl implements WarehouseService {
 
 
     private WarehouseDto createNewWarehouse(WarehouseDto warehouseDto, UserDetailsImpl user) {
+        Warehouse parent = null;
+        if (warehouseDto.getParentID() != null) {
+            parent = warehouseDao.findById(warehouseDto.getParentID(), user.getUser().getAccountId());
+            warehouseDto.setTopWarehouseID(parent.getTopWarehouseID());
+        }
         warehouseDto.setAccountID(user.getUser().getAccountId());
+        warehouseDto.setActive(true);
         Warehouse warehouse = warehouseDao.create(warehouseDtoMapper.toEntity(warehouseDto));
-        warehouse.setActive(true);
+
         Address address = addressDtoMapper.toEntity(warehouseDto.getAddressDto());
         AddressDto addressDto = null;
         if (warehouse.isTopLevel()) {
@@ -181,7 +194,26 @@ public class WarehouseServiceImpl implements WarehouseService {
     public WarehouseDto update(WarehouseDto warehouseDto, UserDetailsImpl user) {
         Warehouse updatedWarehouse = warehouseDtoMapper.toEntity(warehouseDto);
         Warehouse dBWarehouse = warehouseDao.findById(updatedWarehouse.getId(), user.getUser().getAccountId());
-        updatedWarehouse.setActive(dBWarehouse.isActive());
+
+        if (!updatedWarehouse.isActive()) {
+            throw new WarehouseUpdateException("You can't make warehouse inactive!");
+        } else {
+            updatedWarehouse.setActive(dBWarehouse.isActive());
+        }
+
+        if (updatedWarehouse.getParentID().equals(dBWarehouse.getParentID())) {
+            updatedWarehouse.setParentID(dBWarehouse.getId());
+            updatedWarehouse.setTopWarehouseID(dBWarehouse.getTopWarehouseID());
+        } else {
+            throw new WarehouseUpdateException("You can't change parent warehouse!");
+        }
+
+        if (!savedItemDao.findSavedItemByWarehouseId(dBWarehouse.getId()).isEmpty() &&
+            (dBWarehouse.isBottom() && !updatedWarehouse.isBottom())) {
+            throw new WarehouseUpdateException("You can't change the type of this warehouse from bottom to common! " +
+                "Firstly you should remove or transfer all items from that warehouse to another");
+        }
+
         Address address = addressDtoMapper.toEntity(warehouseDto.getAddressDto());
         if (dBWarehouse.isTopLevel()) {
             addressDao.updateWarehouseAddress(updatedWarehouse.getId(), address);
@@ -195,11 +227,17 @@ public class WarehouseServiceImpl implements WarehouseService {
     @Override
     public boolean softDelete(Long id, UserDetailsImpl user) {
         Warehouse warehouse = warehouseDao.findById(id, user.getUser().getAccountId());
-
+        if (!CollectionUtils.isEmpty(warehouseDao.findChildrenById(warehouse.getParentID(), user.getUser().getAccountId()))) {
+            throw new WarehouseDeleteException("Warehouse has sub warehouses! Firstly you should delete them!");
+        }
+        if (!savedItemDao.findSavedItemByWarehouseId(warehouse.getId()).isEmpty()) {
+            throw new WarehouseDeleteException("Warehouse is not empty! Firstly you should remove or transfer all items from that warehouse to another");
+        }
         boolean isDelete = warehouseDao.softDelete(id);
         if (isDelete) {
             createEvent(user, warehouse, EventName.WAREHOUSE_REMOVED);
         }
+
         return isDelete;
     }
 
@@ -252,9 +290,7 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Override
     public List<WarehouseDto> findChildrenById(Long id, UserDetailsImpl user) {
-        List<WarehouseDto> children = warehouseDtoMapper.toDtoList(warehouseDao.findChildrenById(id,
-            user.getUser().getAccountId()));
-        return children;
+        return warehouseDtoMapper.toDtoList(warehouseDao.findChildrenById(id, user.getUser().getAccountId()));
     }
 
     public Integer findTotalCapacity(Long id, UserDetailsImpl user) {
