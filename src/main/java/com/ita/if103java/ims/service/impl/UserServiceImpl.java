@@ -11,6 +11,7 @@ import com.ita.if103java.ims.dao.TransactionDao;
 import com.ita.if103java.ims.dao.UserDao;
 import com.ita.if103java.ims.dao.WarehouseDao;
 import com.ita.if103java.ims.dto.AccountDto;
+import com.ita.if103java.ims.dto.ResetPasswordDto;
 import com.ita.if103java.ims.dto.UserDto;
 import com.ita.if103java.ims.entity.Role;
 import com.ita.if103java.ims.entity.User;
@@ -190,13 +191,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean updatePassword(Long id, String newPassword) {
-        if (userDao.updatePassword(id, passwordEncoder.encode(newPassword))) {
-            User user = userDao.findById(id);
-            eventService.create(createEvent(user, PASSWORD_CHANGED, "changed the password."));
-            return true;
+    public boolean updatePassword(UserDto userDto, ResetPasswordDto resetPasswordDto) {
+        if (!passwordEncoder.matches(resetPasswordDto.getCurrentPassword(), userDto.getPassword())) {
+            throw new IllegalArgumentException("Incorrect current password provided");
         }
-        return false;
+
+        userDao.updatePassword(userDto.getId(), passwordEncoder.encode(resetPasswordDto.getNewPassword()));
+        eventService.create(
+            createEvent(mapper.toEntity(userDto), PASSWORD_CHANGED, "changed the password.")
+        );
+        return true;
     }
 
     @Override

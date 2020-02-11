@@ -52,7 +52,8 @@ public class GlobalExceptionHandler {
             .body(new ResponseMessageDto(e.getMessage()));
     }
 
-    @ExceptionHandler({ImpossibleWarehouseAdviceException.class,
+    @ExceptionHandler({
+        ImpossibleWarehouseAdviceException.class,
         MaxWarehouseDepthLimitReachedException.class,
         MaxWarehousesLimitReachedException.class,
         AssociateLimitReachedException.class,
@@ -67,7 +68,8 @@ public class GlobalExceptionHandler {
             .body(new ResponseMessageDto(e.getMessage()));
     }
 
-    @ExceptionHandler({UpgradationException.class})
+    @ExceptionHandler({UpgradationException.class,
+                       IllegalArgumentException.class})
     public ResponseEntity<ResponseMessageDto> handleUpgradeException(Exception e) {
         LOGGER.error(e.getMessage(), e);
         return ResponseEntity

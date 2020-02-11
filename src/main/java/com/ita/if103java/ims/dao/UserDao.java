@@ -30,7 +30,7 @@ public interface UserDao {
 
     User findByEmail(String email);
 
-    boolean updatePassword(Long id, String newPassword);
+    void updatePassword(Long id, String newPassword);
 
     User findByEmailUUID(String emailUUID);
 
