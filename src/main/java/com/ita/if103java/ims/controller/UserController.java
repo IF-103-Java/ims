@@ -1,6 +1,7 @@
 package com.ita.if103java.ims.controller;
 
 
+import com.ita.if103java.ims.dto.ResetPasswordDto;
 import com.ita.if103java.ims.dto.UserDto;
 import com.ita.if103java.ims.dto.transfer.ExistData;
 import com.ita.if103java.ims.mapper.dto.UserDtoMapper;
@@ -95,8 +96,8 @@ public class UserController {
     @PostMapping("/update-password")
     @ResponseStatus(HttpStatus.OK)
     public boolean updatePassword(@AuthenticationPrincipal UserDetailsImpl user,
-                                  @Validated({ExistData.class}) @RequestBody @NotNull String newPassword) {
-        return userService.updatePassword(user.getUser().getId(), newPassword);
+                                  @Validated({ExistData.class})  @RequestBody ResetPasswordDto resetPasswordDto) {
+        return userService.updatePassword(mapper.toDto(user.getUser()), resetPasswordDto);
     }
 
     @GetMapping("/me")

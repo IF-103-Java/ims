@@ -1,5 +1,6 @@
 package com.ita.if103java.ims.service;
 
+import com.ita.if103java.ims.dto.ResetPasswordDto;
 import com.ita.if103java.ims.dto.UserDto;
 import com.ita.if103java.ims.security.UserDetailsImpl;
 import org.springframework.data.domain.Page;
@@ -25,7 +26,7 @@ public interface UserService {
 
     UserDto findByEmail(String email);
 
-    boolean updatePassword(Long id, String newPassword);
+    boolean updatePassword(UserDto userDao, ResetPasswordDto resetPasswordDto);
 
     boolean activateUser(String emailUUID);
 

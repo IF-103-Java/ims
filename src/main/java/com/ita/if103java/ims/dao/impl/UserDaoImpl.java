@@ -195,7 +195,7 @@ public class UserDaoImpl implements UserDao {
 
 
     @Override
-    public boolean updatePassword(Long id, String newPassword) {
+    public void updatePassword(Long id, String newPassword) {
         try {
             ZonedDateTime updatedDateTime = ZonedDateTime.now(ZoneId.systemDefault());
             final int rowsAffected = jdbcTemplate.update(Queries.SQL_UPDATE_PASSWORD,
@@ -208,7 +208,7 @@ public class UserDaoImpl implements UserDao {
         } catch (DataAccessException e) {
             throw new CRUDException("Error during `update` password {id = " + id + "}", e);
         }
-        return true;
+
     }
 
     @Override
