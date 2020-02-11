@@ -1,11 +1,11 @@
 package com.ita.if103java.ims.service;
 
+import com.ita.if103java.ims.dto.ResetPasswordDto;
 import com.ita.if103java.ims.dto.UserDto;
 import com.ita.if103java.ims.security.UserDetailsImpl;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
 import java.util.Map;
 
 public interface UserService {
@@ -26,10 +26,11 @@ public interface UserService {
 
     UserDto findByEmail(String email);
 
-    boolean updatePassword(Long id, String newPassword);
+    boolean updatePassword(UserDto userDao, ResetPasswordDto resetPasswordDto);
 
     boolean activateUser(String emailUUID);
 
     Map<Long, String> findAllUserNames(UserDetailsImpl user);
 
+    boolean isAllowedToInvite(Long accountId);
 }

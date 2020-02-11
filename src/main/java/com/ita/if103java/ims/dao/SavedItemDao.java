@@ -26,5 +26,5 @@ public interface SavedItemDao {
 
     Optional<SavedItem> findSavedItemByItemIdAndWarehouseId(Long itemId, Long warehouseId);
 
-    boolean deleteSavedItemById(Long savedItem);
+    void hardDelete(Long accountId);
 }
