@@ -100,6 +100,15 @@ public class TransactionDaoImpl implements TransactionDao {
         }
     }
 
+    @Override
+    public void hardDelete(Long accountId) {
+        try {
+            jdbcTemplate.update(Queries.SQL_DELETE_TRANSACTION_BY_ID, accountId);
+        } catch (DataAccessException e) {
+            throw new CRUDException("Error during hard `delete` transaction {accountId = " + accountId + "}", e);
+        }
+    }
+
     private MapSqlParameterSource getSqlParameterSource(Transaction transaction) {
         final MapSqlParameterSource parameterSource = new MapSqlParameterSource()
             .addValue("account_id", transaction.getAccountId())
@@ -130,6 +139,12 @@ public class TransactionDaoImpl implements TransactionDao {
                 select *
                 from transactions
                 where id = ? and account_id = ?
+            """;
+
+        public static final String SQL_DELETE_TRANSACTION_BY_ID = """
+                DELETE
+                FROM transactions
+                WHERE account_id = ?
             """;
     }
 }

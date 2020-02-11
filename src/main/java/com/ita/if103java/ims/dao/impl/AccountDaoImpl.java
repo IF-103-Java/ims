@@ -128,15 +128,15 @@ public class AccountDaoImpl implements AccountDao {
 
     @Override
     public boolean hardDelete(Long accountId) {
-        int status;
         try {
-            status = jdbcTemplate.update(Queries.SQL_HARD_DELETE, accountId);
+            final int rowsAffected = jdbcTemplate.update(Queries.SQL_HARD_DELETE, accountId);
+            if (rowsAffected == 0) {
+                throw new AccountNotFoundException("Failed to obtain account during hard `delete` {id = " + accountId + "}");
+            }
         } catch (DataAccessException e) {
             throw new CRUDException("Error during hard `delete` account {id = " + accountId + "}", e);
         }
-        if (status == 0) {
-            throw new AccountNotFoundException("Failed to obtain account during hard `delete` {id = " + accountId + "}");
-        }
+
         return true;
     }
 

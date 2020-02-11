@@ -184,17 +184,12 @@ public class SavedItemDaoImpl implements SavedItemDao {
     }
 
     @Override
-    public boolean deleteSavedItemById(Long savedItem) {
-        int status;
+    public void hardDelete(Long accountId) {
         try {
-            status = jdbcTemplate.update(Queries.SQL_DELETE_SAVED_ITEM_BY_ID, savedItem);
+            jdbcTemplate.update(Queries.SQL_DELETE_SAVED_ITEM_BY_ID, accountId);
         } catch (DataAccessException e) {
-            throw new CRUDException("Failed during `delete` {savedItemId = " + savedItem, e);
+            throw new CRUDException("Error during hard `delete` saved item {accountId = " + accountId + "}", e);
         }
-        if (status == 0) {
-            throw new SavedItemNotFoundException("Failed during `delete` {savedItemId = " + savedItem);
-        }
-        return true;
     }
 
     class Queries {
@@ -241,9 +236,12 @@ public class SavedItemDaoImpl implements SavedItemDao {
                 where item_id = ? and warehouse_id = ?
             """;
         static final String SQL_DELETE_SAVED_ITEM_BY_ID = """
-                delete
-                from saved_items
-                where id =?
+               DELETE
+               FROM saved_items
+               WHERE item_id IN
+               (SELECT id
+               FROM items
+               WHERE account_id = ?);
             """;
     }
 }

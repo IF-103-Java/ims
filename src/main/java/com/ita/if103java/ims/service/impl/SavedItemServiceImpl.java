@@ -33,7 +33,7 @@ public class SavedItemServiceImpl implements SavedItemService {
 
     @Autowired
     public SavedItemServiceImpl(ItemDao itemDao, SavedItemDao savedItemDao, WarehouseDao warehouseDao,
-                                AssociateDao associateDao) {
+        AssociateDao associateDao) {
         this.itemDao = itemDao;
         this.savedItemDao = savedItemDao;
         this.warehouseDao = warehouseDao;

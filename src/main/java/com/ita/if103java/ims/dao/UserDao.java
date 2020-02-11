@@ -1,7 +1,6 @@
 package com.ita.if103java.ims.dao;
 
 import com.ita.if103java.ims.entity.User;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
@@ -21,7 +20,7 @@ public interface UserDao {
 
     boolean activate(Long id, Long accountId, boolean state);
 
-    boolean hardDelete(Long id, Long accountId);
+    boolean hardDelete(Long accountId);
 
     List<User> findAll(Pageable pageable, Long accountId);
 
@@ -31,7 +30,7 @@ public interface UserDao {
 
     User findByEmail(String email);
 
-    boolean updatePassword(Long id, String newPassword);
+    void updatePassword(Long id, String newPassword);
 
     User findByEmailUUID(String emailUUID);
 

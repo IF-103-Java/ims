@@ -16,4 +16,6 @@ public interface TransactionDao {
     Transaction findById(Long id);
 
     Transaction findByIdAndAccountId(Long id, Long accountId);
+
+    void hardDelete(Long accountId);
 }
