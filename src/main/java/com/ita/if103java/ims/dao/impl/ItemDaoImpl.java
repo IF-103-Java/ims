@@ -160,6 +160,16 @@ public class ItemDaoImpl implements ItemDao {
     }
 
     @Override
+    public boolean hardDelete(Long accountId) {
+        try {
+            jdbcTemplate.update(Queries.SQL_DELETE_ITEM_BY_ACCOUNT_ID, accountId);
+        } catch (DataAccessException e) {
+            throw new CRUDException("Error during hard `delete` item {accountId = " + accountId + "}", e);
+        }
+        return true;
+    }
+
+    @Override
     public List<Item> findItemsByNameQuery(String query, long accountId) {
         try {
             return jdbcTemplate.query(Queries.SQL_SELECT_ITEM_BY_QUERY_AND_ACCOUNT_ID, itemRowMapper,
@@ -246,6 +256,12 @@ public class ItemDaoImpl implements ItemDao {
                 update items
                 set name_item= ?, unit = ?, description = ?, volume = ?
                 where account_id = ? and id = ?
+            """;
+
+        static final String SQL_DELETE_ITEM_BY_ACCOUNT_ID = """
+                DELETE
+                FROM items
+                WHERE account_id = ?
             """;
     }
 }

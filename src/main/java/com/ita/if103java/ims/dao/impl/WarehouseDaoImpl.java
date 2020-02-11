@@ -34,22 +34,6 @@ public class WarehouseDaoImpl implements WarehouseDao {
         this.warehouseRowMapper = warehouseRowMapper;
     }
 
-    private PreparedStatement createWarehouseStatement(Warehouse warehouse, Connection connection) throws SQLException {
-        int i = 0;
-        PreparedStatement statement = connection.prepareStatement(Queries.SQL_CREATE_WAREHOUSE,
-            PreparedStatement.RETURN_GENERATED_KEYS);
-        statement.setString(++i, warehouse.getName());
-        statement.setString(++i, warehouse.getInfo());
-        statement.setInt(++i, warehouse.getCapacity());
-        statement.setBoolean(++i, warehouse.isBottom());
-        statement.setObject(++i, warehouse.getParentID());
-        statement.setLong(++i, warehouse.getAccountID());
-        statement.setObject(++i, warehouse.getTopWarehouseID());
-        statement.setBoolean(++i, warehouse.isActive());
-
-        return statement;
-    }
-
     @Override
     public List<Warehouse> findAllTopLevel(Pageable pageable, Long accountId) {
         try {
@@ -219,6 +203,33 @@ public class WarehouseDaoImpl implements WarehouseDao {
             throw new WarehouseNotFoundException("Error during finding useful warehouses {capacity = " + capacity + "}", e);
         }
     }
+
+    @Override
+    public void hardDelete(Long accountId) {
+        try {
+            jdbcTemplate.update(Queries.SQL_DELETE_WAREHOUSE_BY_ID, accountId);
+        } catch (DataAccessException e) {
+            throw new CRUDException("Error during hard `delete` warehouse {accountId = " + accountId + "}", e);
+        }
+    }
+
+
+    private PreparedStatement createWarehouseStatement(Warehouse warehouse, Connection connection) throws SQLException {
+        int i = 0;
+        PreparedStatement statement = connection.prepareStatement(Queries.SQL_CREATE_WAREHOUSE,
+            PreparedStatement.RETURN_GENERATED_KEYS);
+        statement.setString(++i, warehouse.getName());
+        statement.setString(++i, warehouse.getInfo());
+        statement.setInt(++i, warehouse.getCapacity());
+        statement.setBoolean(++i, warehouse.isBottom());
+        statement.setObject(++i, warehouse.getParentID());
+        statement.setLong(++i, warehouse.getAccountID());
+        statement.setObject(++i, warehouse.getTopWarehouseID());
+        statement.setBoolean(++i, warehouse.isActive());
+
+        return statement;
+    }
+
     class Queries {
 
         static final String SQL_CREATE_WAREHOUSE = """
@@ -315,10 +326,17 @@ public class WarehouseDaoImpl implements WarehouseDao {
                 account_id = ? AND capacity > 0
                 AND active = 1
             """;
+
         static final String SQL_SELECT_USEFUL_WAREHOUSES = """
                 SELECT *
                 FROM warehouses
                 WHERE account_id = ? AND is_bottom=true AND capacity >= ?
+            """;
+
+        public static final String SQL_DELETE_WAREHOUSE_BY_ID = """
+                DELETE
+                FROM warehouses
+                WHERE account_id = ?
             """;
     }
 }

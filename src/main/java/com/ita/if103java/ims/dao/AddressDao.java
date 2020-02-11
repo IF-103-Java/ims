@@ -16,4 +16,6 @@ public interface AddressDao {
     Address findByWarehouseId(Long warehouseId);
 
     Address findByAssociateId(Long associateId);
+
+    void hardDelete(Long account_id);
 }

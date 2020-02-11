@@ -2,7 +2,14 @@ package com.ita.if103java.ims.service.impl;
 
 import com.ita.if103java.ims.dao.AccountDao;
 import com.ita.if103java.ims.dao.AccountTypeDao;
+import com.ita.if103java.ims.dao.AddressDao;
+import com.ita.if103java.ims.dao.AssociateDao;
+import com.ita.if103java.ims.dao.EventDao;
+import com.ita.if103java.ims.dao.ItemDao;
+import com.ita.if103java.ims.dao.SavedItemDao;
+import com.ita.if103java.ims.dao.TransactionDao;
 import com.ita.if103java.ims.dao.UserDao;
+import com.ita.if103java.ims.dao.WarehouseDao;
 import com.ita.if103java.ims.dto.AccountDto;
 import com.ita.if103java.ims.dto.UserDto;
 import com.ita.if103java.ims.entity.Role;
@@ -51,6 +58,14 @@ public class UserServiceImpl implements UserService {
     private AccountDao accountDao;
     private AccountTypeDao accountTypeDao;
 
+    private EventDao eventDao;
+    private TransactionDao transactionDao;
+    private AddressDao addressDao;
+    private AssociateDao associateDao;
+    private SavedItemDao savedItemDao;
+    private ItemDao itemDao;
+    private WarehouseDao warehouseDao;
+
 
     @Autowired
     public UserServiceImpl(UserDao userDao,
@@ -60,7 +75,15 @@ public class UserServiceImpl implements UserService {
                            AccountService accountService,
                            MailServiceImpl mailService,
                            AccountDao accountDao,
-                           AccountTypeDao accountTypeDao) {
+                           AccountTypeDao accountTypeDao,
+                           EventDao eventDao,
+                           TransactionDao transactionDao,
+                           AddressDao addressDao,
+                           AssociateDao associateDao,
+                           SavedItemDao savedItemDao,
+                           ItemDao itemDao,
+                           WarehouseDao warehouseDao) {
+
         this.userDao = userDao;
         this.mapper = mapper;
         this.passwordEncoder = passwordEncoder;
@@ -69,6 +92,14 @@ public class UserServiceImpl implements UserService {
         this.mailService = mailService;
         this.accountDao = accountDao;
         this.accountTypeDao = accountTypeDao;
+
+        this.eventDao = eventDao;
+        this.transactionDao = transactionDao;
+        this.addressDao = addressDao;
+        this.associateDao = associateDao;
+        this.savedItemDao = savedItemDao;
+        this.itemDao = itemDao;
+        this.warehouseDao = warehouseDao;
     }
 
     @Override
@@ -133,8 +164,15 @@ public class UserServiceImpl implements UserService {
     public boolean delete(Long id, Long accountId) {
         User user = userDao.findById(id);
         if (user.getRole() == Role.ROLE_ADMIN) {
-            accountDao.delete(accountId);
-            return userDao.hardDelete(id, accountId);
+            eventDao.deleteByAccountId(accountId);
+            transactionDao.hardDelete(accountId);
+            addressDao.hardDelete(accountId);
+            associateDao.hardDelete(accountId);
+            savedItemDao.hardDelete(accountId);
+            itemDao.hardDelete(accountId);
+            warehouseDao.hardDelete(accountId);
+            accountDao.hardDelete(accountId);
+            return userDao.hardDelete(accountId);
         }
         return userDao.activate(id, accountId, false);
     }
@@ -172,7 +210,7 @@ public class UserServiceImpl implements UserService {
             accountDao.activate(activatedUser.getAccountId());
             return true;
         } else {
-            userDao.hardDelete(userId, accountId);
+            userDao.hardDelete(accountId);
             return false;
         }
     }
