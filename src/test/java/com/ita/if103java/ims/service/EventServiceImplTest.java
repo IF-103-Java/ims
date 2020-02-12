@@ -15,6 +15,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -89,13 +90,20 @@ public class EventServiceImplTest {
         Map<String, Object> params = new HashMap<>();
         UserDetailsImpl userDetails = new UserDetailsImpl(new User());
 
-        doReturn(new PageImpl<Event>(eventListFromDao, pageable, 3)).when(eventDao).findAll(pageable, params, userDetails.getUser());
-        doReturn(usernames).when(userDao).findUserNamesById(Arrays.asList(4l, 5l));
-        doReturn(warehouses).when(warehouseDao).findWarehouseNamesById(Arrays.asList(26l));
+        Mockito.when(eventDao.findAll(pageable, params, userDetails.getUser())).thenReturn(new PageImpl<Event>(eventListFromDao, pageable, 3));
+        Mockito.when(userDao.findUserNamesById(Arrays.asList(4l, 5l))).thenReturn(usernames);
+        Mockito.when(warehouseDao.findWarehouseNamesById(Arrays.asList(26l))).thenReturn(warehouses);
 
         assertTrue(eventService.findAll(pageable, params, userDetails) instanceof Page);
         verify(eventDao, times(1)).findAll(pageable, params, userDetails.getUser());
         verify(userDao, atMostOnce()).findUserNamesById(Arrays.asList(4l, 5l));
         verify(warehouseDao, atMostOnce()).findWarehouseNamesById(Arrays.asList(26l));
+    }
+
+    @Test
+    public void testDeleteByAccountId() {
+        long accountId = 2;
+        eventService.deleteByAccountId(accountId);
+        verify(eventDao, times(1)).deleteByAccountId(accountId);
     }
 }
