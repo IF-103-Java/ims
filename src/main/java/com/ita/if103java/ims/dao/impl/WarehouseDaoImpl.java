@@ -34,27 +34,21 @@ public class WarehouseDaoImpl implements WarehouseDao {
         this.warehouseRowMapper = warehouseRowMapper;
     }
 
-    private PreparedStatement createWarehouseStatement(Warehouse warehouse, Connection connection) throws SQLException {
-        int i = 0;
-        PreparedStatement statement = connection.prepareStatement(Queries.SQL_CREATE_WAREHOUSE,
-            PreparedStatement.RETURN_GENERATED_KEYS);
-        statement.setString(++i, warehouse.getName());
-        statement.setString(++i, warehouse.getInfo());
-        statement.setInt(++i, warehouse.getCapacity());
-        statement.setBoolean(++i, warehouse.isBottom());
-        statement.setObject(++i, warehouse.getParentID());
-        statement.setLong(++i, warehouse.getAccountID());
-        statement.setObject(++i, warehouse.getTopWarehouseID());
-        statement.setBoolean(++i, warehouse.isActive());
-
-        return statement;
-    }
-
     @Override
     public List<Warehouse> findAllTopLevel(Pageable pageable, Long accountId) {
         try {
             return jdbcTemplate.query(Queries.SQL_SELECT_ALL_TOP_WAREHOUSES, warehouseRowMapper, accountId,
                 pageable.getPageSize(), pageable.getOffset());
+
+        } catch (DataAccessException e) {
+            throw new WarehouseNotFoundException("Error during finding all warehouses", e);
+        }
+    }
+
+    @Override
+    public List<Warehouse> findAllTopLevelList(Long accountId) {
+        try {
+            return jdbcTemplate.query(Queries.SQL_SELECT_ALL_TOP_WAREHOUSES_LIST, warehouseRowMapper, accountId);
 
         } catch (DataAccessException e) {
             throw new WarehouseNotFoundException("Error during finding all warehouses", e);
@@ -200,6 +194,42 @@ public class WarehouseDaoImpl implements WarehouseDao {
         }
     }
 
+    @Override
+    public List<Warehouse> findUsefulWarehouses(Long capacity, Long accountId) {
+        try {
+            return jdbcTemplate.query(Queries.SQL_SELECT_USEFUL_WAREHOUSES, warehouseRowMapper, accountId, capacity);
+
+        } catch (DataAccessException e) {
+            throw new WarehouseNotFoundException("Error during finding useful warehouses {capacity = " + capacity + "}", e);
+        }
+    }
+
+    @Override
+    public void hardDelete(Long accountId) {
+        try {
+            jdbcTemplate.update(Queries.SQL_DELETE_WAREHOUSE_BY_ID, accountId);
+        } catch (DataAccessException e) {
+            throw new CRUDException("Error during hard `delete` warehouse {accountId = " + accountId + "}", e);
+        }
+    }
+
+
+    private PreparedStatement createWarehouseStatement(Warehouse warehouse, Connection connection) throws SQLException {
+        int i = 0;
+        PreparedStatement statement = connection.prepareStatement(Queries.SQL_CREATE_WAREHOUSE,
+            PreparedStatement.RETURN_GENERATED_KEYS);
+        statement.setString(++i, warehouse.getName());
+        statement.setString(++i, warehouse.getInfo());
+        statement.setInt(++i, warehouse.getCapacity());
+        statement.setBoolean(++i, warehouse.isBottom());
+        statement.setObject(++i, warehouse.getParentID());
+        statement.setLong(++i, warehouse.getAccountID());
+        statement.setObject(++i, warehouse.getTopWarehouseID());
+        statement.setBoolean(++i, warehouse.isActive());
+
+        return statement;
+    }
+
     class Queries {
 
         static final String SQL_CREATE_WAREHOUSE = """
@@ -220,6 +250,13 @@ public class WarehouseDaoImpl implements WarehouseDao {
                 AND parent_id IS NULL
                 AND active = 1
                 LIMIT ? OFFSET ?
+            """;
+
+        static final String SQL_SELECT_ALL_TOP_WAREHOUSES_LIST = """
+                SELECT * FROM warehouses
+                WHERE account_id = ?
+                AND parent_id IS NULL
+                AND active = 1
             """;
 
         static final String SQL_UPDATE_WAREHOUSE = """
@@ -288,6 +325,18 @@ public class WarehouseDaoImpl implements WarehouseDao {
                 WHERE top_warehouse_id = ? AND
                 account_id = ? AND capacity > 0
                 AND active = 1
+            """;
+
+        static final String SQL_SELECT_USEFUL_WAREHOUSES = """
+                SELECT *
+                FROM warehouses
+                WHERE account_id = ? AND is_bottom=true AND capacity >= ?
+            """;
+
+        public static final String SQL_DELETE_WAREHOUSE_BY_ID = """
+                DELETE
+                FROM warehouses
+                WHERE account_id = ?
             """;
     }
 }

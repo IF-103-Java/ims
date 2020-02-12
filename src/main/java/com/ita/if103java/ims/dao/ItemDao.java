@@ -16,11 +16,17 @@ public interface ItemDao {
 
     Item findItemById(Long id, Long accountId);
 
+    List<Item> findItemsById(String id, Long accountId);
+
     boolean isExistItemById(Long id, Long accountId);
 
     Item addItem(Item item);
 
     boolean softDeleteItem(Long id, Long accountId);
 
+    boolean hardDelete(Long accountId);
+
     List<Item> findItemsByNameQuery(String query, long accountId);
+
+    Item updateItem(Item item);
 }

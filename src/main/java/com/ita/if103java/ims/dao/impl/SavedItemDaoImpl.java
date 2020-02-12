@@ -17,6 +17,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 
 @Repository
@@ -138,8 +139,7 @@ public class SavedItemDaoImpl implements SavedItemDao {
             status = jdbcTemplate.update(Queries.SQL_SET_WAREHOUSE_ID_SAVED_ITEMS, warehouseId, savedItemId);
 
         } catch (DataAccessException e) {
-            throw new CRUDException("Error during `update` {warehouse_id = " + warehouseId + "id " + savedItemId + "}"
-                , e);
+            throw new CRUDException("Error during `update` {warehouse_id = " + warehouseId + "id " + savedItemId + "}", e);
 
         }
         if (status == 0) {
@@ -165,6 +165,28 @@ public class SavedItemDaoImpl implements SavedItemDao {
         return true;
 
 
+    }
+
+    @Override
+    public Optional<SavedItem> findSavedItemByItemIdAndWarehouseId(Long itemId, Long warehouseId) {
+        try {
+            return Optional.of(jdbcTemplate.queryForObject(Queries.SQL_SELECT_SAVED_ITEM_BY_ITEM_ID_AND_WAREHOUSE_ID,
+                savedItemRowMapper, itemId, warehouseId));
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        } catch (DataAccessException e) {
+            throw new CRUDException("Failed during `select` {itemId = " + itemId + " warehouse_id = " + warehouseId + "}", e);
+        }
+
+    }
+
+    @Override
+    public void hardDelete(Long accountId) {
+        try {
+            jdbcTemplate.update(Queries.SQL_DELETE_SAVED_ITEM_BY_ID, accountId);
+        } catch (DataAccessException e) {
+            throw new CRUDException("Error during hard `delete` saved item {accountId = " + accountId + "}", e);
+        }
     }
 
     class Queries {
@@ -204,6 +226,19 @@ public class SavedItemDaoImpl implements SavedItemDao {
                 update saved_items
                 set quantity=?
                 where id=?
+            """;
+        static final String SQL_SELECT_SAVED_ITEM_BY_ITEM_ID_AND_WAREHOUSE_ID = """
+                select *
+                from saved_items
+                where item_id = ? and warehouse_id = ?
+            """;
+        static final String SQL_DELETE_SAVED_ITEM_BY_ID = """
+               DELETE
+               FROM saved_items
+               WHERE item_id IN
+               (SELECT id
+               FROM items
+               WHERE account_id = ?);
             """;
     }
 }

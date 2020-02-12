@@ -4,6 +4,7 @@ import com.ita.if103java.ims.dao.AddressDao;
 import com.ita.if103java.ims.dao.AssociateDao;
 import com.ita.if103java.ims.dto.AddressDto;
 import com.ita.if103java.ims.dto.AssociateDto;
+import com.ita.if103java.ims.dto.SavedItemAssociateDto;
 import com.ita.if103java.ims.entity.Address;
 import com.ita.if103java.ims.entity.Associate;
 import com.ita.if103java.ims.entity.AssociateType;
@@ -12,9 +13,11 @@ import com.ita.if103java.ims.entity.EventName;
 import com.ita.if103java.ims.exception.service.AssociateLimitReachedException;
 import com.ita.if103java.ims.mapper.dto.AddressDtoMapper;
 import com.ita.if103java.ims.mapper.dto.AssociateDtoMapper;
+import com.ita.if103java.ims.mapper.dto.SavedItemAssociateDtoMapper;
 import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.AssociateService;
 import com.ita.if103java.ims.service.EventService;
+import com.ita.if103java.ims.service.LocationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -26,6 +29,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.ita.if103java.ims.dto.warehouse.advice.Address.Geo;
+
 @Service
 public class AssociateServiceImpl implements AssociateService {
 
@@ -34,16 +39,21 @@ public class AssociateServiceImpl implements AssociateService {
     private AssociateDtoMapper associateDtoMapper;
     private AddressDtoMapper addressDtoMapper;
     private EventService eventService;
+    private LocationService locationService;
+    private SavedItemAssociateDtoMapper savedItemAssociateDtoMapper;
 
     @Autowired
     public AssociateServiceImpl(AssociateDao associateDao, AddressDao addressDao,
                                 AssociateDtoMapper associateDtoMapper, AddressDtoMapper addressDtoMapper,
-                                EventService eventService) {
+                                EventService eventService, LocationService locationService,
+                                SavedItemAssociateDtoMapper savedItemAssociateDtoMapper) {
         this.associateDao = associateDao;
         this.addressDao = addressDao;
         this.associateDtoMapper = associateDtoMapper;
         this.addressDtoMapper = addressDtoMapper;
         this.eventService = eventService;
+        this.locationService = locationService;
+        this.savedItemAssociateDtoMapper = savedItemAssociateDtoMapper;
     }
 
     @Override
@@ -57,31 +67,43 @@ public class AssociateServiceImpl implements AssociateService {
             Address address = addressDtoMapper.toEntity(associateDto.getAddressDto());
             address.setAssociateId(associate.getId());
 
+            Geo geo = locationService.getLocationByAddress(address.getAddress() + " " + address.getCity() + " " +
+                address.getCountry() + " " + address.getZip());
+
+            address.setLatitude(geo.getLatitude());
+            address.setLongitude(geo.getLongitude());
+
             address = addressDao.createAssociateAddress(associate.getId(), address);
 
             associateDto = associateDtoMapper.toDto(associate);
             associateDto.setAddressDto(addressDtoMapper.toDto(address));
             associateDto.setAccountId(user.getUser().getAccountId());
 
-            EventName eventName = associate.getType() == AssociateType.SUPPLIER ? EventName.NEW_SUPPLIER : EventName.NEW_CLIENT;
+            EventName eventName =
+                associate.getType() == AssociateType.SUPPLIER ? EventName.NEW_SUPPLIER : EventName.NEW_CLIENT;
             createEvent(user, associate, eventName);
 
             return associateDto;
         } else
-            throw new AssociateLimitReachedException("The maximum of " + associateDto.getType() + "s for account has been reached.");
+            throw new AssociateLimitReachedException("The maximum of " +
+                associateDto.getType() + "s for account has been reached.");
     }
 
     @Override
     @Transactional
     public AssociateDto update(UserDetailsImpl user, AssociateDto associateDto) {
-        Associate associate = associateDao.update(user.getUser().getAccountId(), associateDtoMapper.toEntity(associateDto));
+        Associate associate =
+            associateDao.update(user.getUser().getAccountId(), associateDtoMapper.toEntity(associateDto));
 
-        Address address = addressDao.updateAssociateAddress(associate.getId(), addressDtoMapper.toEntity(associateDto.getAddressDto()));
+        Address address = addressDao.updateAssociateAddress(associate.getId(),
+            addressDtoMapper.toEntity(associateDto.getAddressDto()));
+
         associateDto = associateDtoMapper.toDto(associate);
         associateDto.setAddressDto(addressDtoMapper.toDto(address));
         associateDto.setAccountId(user.getUser().getAccountId());
 
-        EventName eventName = associate.getType() == AssociateType.SUPPLIER ? EventName.SUPPLIER_EDITED : EventName.CLIENT_EDITED;
+        EventName eventName =
+            associate.getType() == AssociateType.SUPPLIER ? EventName.SUPPLIER_EDITED : EventName.CLIENT_EDITED;
         createEvent(user, associate, eventName);
 
         return associateDto;
@@ -102,7 +124,8 @@ public class AssociateServiceImpl implements AssociateService {
         Page<Associate> page = associateDao.getAssociates(pageable, user.getUser().getAccountId());
         List<AssociateDto> associateDtos = associateDtoMapper.toDtoList(page.getContent());
 
-        associateDtos.stream().forEach(a -> a.setAddressDto(addressDtoMapper.toDto(addressDao.findByAssociateId(a.getId()))));
+        associateDtos.stream()
+            .forEach(a -> a.setAddressDto(addressDtoMapper.toDto(addressDao.findByAssociateId(a.getId()))));
 
         return new PageImpl<>(associateDtos, pageable, page.getTotalElements());
     }
@@ -113,7 +136,9 @@ public class AssociateServiceImpl implements AssociateService {
         Associate associate = associateDao.findById(user.getUser().getAccountId(), id);
 
         if (associateDao.delete(user.getUser().getAccountId(), id)) {
-            EventName eventName = associate.getType() == AssociateType.SUPPLIER ? EventName.SUPPLIER_REMOVED : EventName.CLIENT_REMOVED;
+            EventName eventName =
+                associate.getType() == AssociateType.SUPPLIER ? EventName.SUPPLIER_REMOVED : EventName.CLIENT_REMOVED;
+
             createEvent(user, associate, eventName);
 
             return true;
@@ -151,5 +176,11 @@ public class AssociateServiceImpl implements AssociateService {
         String direction = sort[1].equalsIgnoreCase("desc") ? "desc" : "asc";
         return Stream.of("id", "name", "type").
             filter(x -> x.equalsIgnoreCase(sort[0])).collect(Collectors.joining()) + " " + direction;
+    }
+
+    @Override
+    public List<SavedItemAssociateDto> getAssociatesByType(UserDetailsImpl user, AssociateType type) {
+        return associateDao.getAssociatesByType(user.getUser().getAccountId(), type).stream().
+            map(x -> savedItemAssociateDtoMapper.toDto(x)).collect(Collectors.toList());
     }
 }

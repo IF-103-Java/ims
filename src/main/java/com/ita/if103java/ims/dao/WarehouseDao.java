@@ -15,6 +15,8 @@ public interface WarehouseDao {
 
     List<Warehouse> findAllTopLevel(Pageable pageable, Long accountId);
 
+    List<Warehouse> findAllTopLevelList(Long accountId);
+
     Map<Long, String> findAllWarehouseNames(Long account_id);
 
     Map<Long, String> findWarehouseNamesById(List<Long> idList);
@@ -30,4 +32,10 @@ public interface WarehouseDao {
     List<Warehouse> findChildrenById(Long id, Long accountId);
 
     Integer findTotalCapacity(Long id, Long accountId);
+
+    List<Warehouse> findUsefulWarehouses(Long capacity, Long accountId);
+
+    void hardDelete(Long accountId);
+
 }
+

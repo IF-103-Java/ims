@@ -2,6 +2,7 @@ package com.ita.if103java.ims.dao.impl;
 
 import com.ita.if103java.ims.dao.AssociateDao;
 import com.ita.if103java.ims.entity.Associate;
+import com.ita.if103java.ims.entity.AssociateType;
 import com.ita.if103java.ims.exception.dao.AssociateEntityNotFoundException;
 import com.ita.if103java.ims.exception.dao.CRUDException;
 import com.ita.if103java.ims.mapper.jdbc.AssociateRowMapper;
@@ -70,7 +71,8 @@ public class AssociateDaoImpl implements AssociateDao {
         try {
             return jdbcTemplate.query(Queries.SQL_SELECT_ASSOCIATE_BY_ACCOUNT_ID, associateRowMapper, accountId);
         } catch (EmptyResultDataAccessException e) {
-            throw new AssociateEntityNotFoundException("Failed to obtain associate during `select`, id = " + accountId, e);
+            throw new AssociateEntityNotFoundException("Failed to obtain associate during `select`, id = " +
+                accountId, e);
         } catch (DataAccessException e) {
             throw new CRUDException("Error during `select` associate, id = " + accountId, e);
         }
@@ -83,8 +85,8 @@ public class AssociateDaoImpl implements AssociateDao {
             String sort = pageable.getSort().stream().map(
                 x -> x.getProperty() + " " + x.getDirection().name()).collect(Collectors.joining(", "));
 
-            List<Associate> associates = jdbcTemplate.query(String.format(Queries.SQL_SELECT_SORTED_ASSOICATES, sort), associateRowMapper,
-                accountId, pageable.getPageSize(), pageable.getOffset());
+            List<Associate> associates = jdbcTemplate.query(String.format(Queries.SQL_SELECT_SORTED_ASSOICATES, sort),
+                associateRowMapper, accountId, pageable.getPageSize(), pageable.getOffset());
 
             Integer rowCount =
                 jdbcTemplate.queryForObject(Queries.SQL_ROW_COUNT, new Object[]{accountId}, Integer.class);
@@ -112,7 +114,8 @@ public class AssociateDaoImpl implements AssociateDao {
             throw new CRUDException("Error during `update` associate, id = " + associate.getId(), e);
         }
         if (status == 0) {
-            throw new AssociateEntityNotFoundException("Failed to obtain associate during `update`, id = " + associate.getId());
+            throw new AssociateEntityNotFoundException("Failed to obtain associate during `update`, id = " +
+                associate.getId());
         }
 
         return associate;
@@ -134,6 +137,25 @@ public class AssociateDaoImpl implements AssociateDao {
         return true;
     }
 
+    @Override
+    public void hardDelete(Long accountId) {
+        try {
+            jdbcTemplate.update(Queries.SQL_DELETE_ASSOCIATES_BY_ID, accountId);
+        } catch (DataAccessException e) {
+            throw new CRUDException("Error during `hard delete` associate, accountId  = " + accountId, e);
+        }
+
+    }
+
+    @Override
+    public List<Associate> getAssociatesByType(Long accountId, AssociateType type) {
+        try {
+            return jdbcTemplate.query(Queries.SQL_SELECT_ASSOCIATES_BY_TYPE, associateRowMapper, accountId, type.name());
+        } catch (DataAccessException e) {
+            throw new CRUDException("Error during `select * `", e);
+        }
+    }
+
     private PreparedStatement createStatement(Long accountId, Associate associate, Connection connection) throws SQLException {
         PreparedStatement preparedStatement = connection.prepareStatement(AssociateDaoImpl.Queries.SQL_CREATE_ASSOCIATE,
             Statement.RETURN_GENERATED_KEYS);
@@ -153,48 +175,59 @@ public class AssociateDaoImpl implements AssociateDao {
     class Queries {
 
         static final String SQL_ROW_COUNT = """
-            SELECT count(id)
-            FROM associates
-            WHERE account_id = ?
-            AND active = true
-        """;
+                SELECT count(id)
+                FROM associates
+                WHERE account_id = ?
+                AND active = true
+            """;
 
         static final String SQL_SELECT_SORTED_ASSOICATES = """
-             SELECT *
-             FROM associates
-             WHERE account_id= ? AND active = true order by %s limit ? offset ?
-        """;
+                 SELECT *
+                 FROM associates
+                 WHERE account_id= ? AND active = true order by %s limit ? offset ?
+            """;
 
         static final String SQL_CREATE_ASSOCIATE = """
-            INSERT INTO associates
-            ( account_id, name, email, phone, additional_info, type, active)
-            VALUES(?,?,?,?,?,?,?)
-        """;
+                INSERT INTO associates
+                ( account_id, name, email, phone, additional_info, type, active)
+                VALUES(?,?,?,?,?,?,?)
+            """;
 
         static final String SQL_SELECT_ASSOCIATE_BY_ID = """
-            SELECT *
-            FROM associates
-            WHERE account_id = ? and id = ?
-            AND active = true
-        """;
+                SELECT *
+                FROM associates
+                WHERE account_id = ? and id = ?
+                AND active = true
+            """;
 
         static final String SQL_SELECT_ASSOCIATE_BY_ACCOUNT_ID = """
-            SELECT *
-            FROM associates
-            WHERE account_id = ?
-            AND active = true
-        """;
+                SELECT *
+                FROM associates
+                WHERE account_id = ?
+                AND active = true
+            """;
 
         static final String SQL_UPDATE_ASSOCIATE = """
-            UPDATE associates
-            SET name = ?, email = ?, phone = ?, additional_info = ?
-            WHERE account_id = ? and id = ?
-        """;
+                UPDATE associates
+                SET name = ?, email = ?, phone = ?, additional_info = ?
+                WHERE account_id = ? and id = ?
+            """;
 
         static final String SQL_SET_ACTIVE_STATUS_ASSOCIATE = """
-            UPDATE associates
-            SET active = ?
-            WHERE account_id = ? and id = ?
-        """;
+                UPDATE associates
+                SET active = ?
+                WHERE account_id = ? and id = ?
+            """;
+        static final String SQL_SELECT_ASSOCIATES_BY_TYPE = """
+                SELECT *
+                FROM associates
+                 WHERE account_id = ?  AND type = ? AND active = true
+            """;
+
+        static final String SQL_DELETE_ASSOCIATES_BY_ID = """
+                DELETE
+                FROM associates
+                WHERE account_id = ?
+            """;
     }
 }

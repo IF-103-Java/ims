@@ -3,7 +3,6 @@ package com.ita.if103java.ims.service.impl;
 import com.ita.if103java.ims.dao.AccountDao;
 import com.ita.if103java.ims.dao.AccountTypeDao;
 import com.ita.if103java.ims.dao.UserDao;
-import com.ita.if103java.ims.dto.AccountTypeDto;
 import com.ita.if103java.ims.dto.ForgotPasswordDto;
 import com.ita.if103java.ims.dto.UserLoginDto;
 import com.ita.if103java.ims.entity.AccountType;
@@ -74,7 +73,7 @@ public class LoginServiceImpl implements LoginService {
     }
 
     @Override
-    public ResponseEntity signIn(UserLoginDto user) {
+    public ResponseEntity<Map<String, String>> signIn(UserLoginDto user) {
         try {
             authManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
             User regUser = userDao.findByEmail(user.getUsername());
