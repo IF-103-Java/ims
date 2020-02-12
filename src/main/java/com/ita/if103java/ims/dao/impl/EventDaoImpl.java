@@ -24,11 +24,13 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -144,6 +146,7 @@ public class EventDaoImpl implements EventDao {
             if (((Collection) params.get("name")).isEmpty()) {
                 params.remove("name");
             }
+            Collections.sort(names);
             if (!names.isEmpty()) {
                 condition = "("
                     .concat(buildSqlCondition("name", names))
@@ -204,13 +207,18 @@ public class EventDaoImpl implements EventDao {
         }
 
         if (columnName.equals("type")) {
-            Set<EventName> names = new HashSet<>();
+            Set<EventName> names = new TreeSet<>(new Comparator<EventName>() {
+                @Override
+                public int compare(EventName o1, EventName o2) {
+                    return o1.getLabel().compareTo(o2.getLabel());
+                }
+            });
             if (columnValue instanceof Collection) {
                 for (Object type : (Collection) columnValue) {
                     names.addAll(EventName.getValuesByType(EventType.valueOf(type.toString())));
                 }
             } else {
-                names = EventName.getValuesByType(EventType.valueOf(columnValue.toString()));
+                names.addAll(EventName.getValuesByType(EventType.valueOf(columnValue.toString())));
             }
 
             return buildSqlCondition("name", names);

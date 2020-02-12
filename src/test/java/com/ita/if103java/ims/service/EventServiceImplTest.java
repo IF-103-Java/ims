@@ -15,7 +15,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -32,9 +31,9 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.atMostOnce;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
 public class EventServiceImplTest {
@@ -66,7 +65,7 @@ public class EventServiceImplTest {
     @Test
     public void testCreateEvent() {
         Event event = new Event("Test message", 2l, null, 4l, EventName.NEW_CLIENT, null);
-        doReturn(event).when(eventDao).create(event);
+        when(eventDao.create(event)).thenReturn(event);
         eventService.create(event);
         verify(eventDao, times(1)).create(event);
         verify(simpMessagingTemplate, atMostOnce()).convertAndSend("/topic/events/" + event.getAccountId(), eventDtoMapper.toDto(event));
@@ -90,9 +89,9 @@ public class EventServiceImplTest {
         Map<String, Object> params = new HashMap<>();
         UserDetailsImpl userDetails = new UserDetailsImpl(new User());
 
-        Mockito.when(eventDao.findAll(pageable, params, userDetails.getUser())).thenReturn(new PageImpl<Event>(eventListFromDao, pageable, 3));
-        Mockito.when(userDao.findUserNamesById(Arrays.asList(4l, 5l))).thenReturn(usernames);
-        Mockito.when(warehouseDao.findWarehouseNamesById(Arrays.asList(26l))).thenReturn(warehouses);
+        when(eventDao.findAll(pageable, params, userDetails.getUser())).thenReturn(new PageImpl<Event>(eventListFromDao, pageable, 3));
+        when(userDao.findUserNamesById(Arrays.asList(4l, 5l))).thenReturn(usernames);
+        when(warehouseDao.findWarehouseNamesById(Arrays.asList(26l))).thenReturn(warehouses);
 
         assertTrue(eventService.findAll(pageable, params, userDetails) instanceof Page);
         verify(eventDao, times(1)).findAll(pageable, params, userDetails.getUser());
