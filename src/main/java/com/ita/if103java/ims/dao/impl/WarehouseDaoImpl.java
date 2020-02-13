@@ -195,10 +195,10 @@ public class WarehouseDaoImpl implements WarehouseDao {
     }
 
     @Override
-    public List<Long> findUsefulWarehouseTopWarehouseIds(Long capacity, Long accountId) {
+    public List<Warehouse> findUsefulTopWarehouse(Long capacity, Long accountId) {
         try {
             return jdbcTemplate
-                .query(Queries.SQL_SELECT_USEFUL_WAREHOUSES, (x, y) -> x.getLong("top_warehouse_id"), accountId,
+                .query(Queries.SQL_SELECT_USEFUL_WAREHOUSES, warehouseRowMapper, accountId,
                     capacity);
 
         } catch (DataAccessException e) {
@@ -348,7 +348,7 @@ public class WarehouseDaoImpl implements WarehouseDao {
             """;
 
         static final String SQL_SELECT_USEFUL_WAREHOUSES = """
-                SELECT distinct top_warehouse_id
+                SELECT *
                 FROM warehouses
                 WHERE account_id = ? AND is_bottom=true AND capacity >= ?
             """;

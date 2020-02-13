@@ -4,6 +4,7 @@ import com.ita.if103java.ims.dao.AssociateDao;
 import com.ita.if103java.ims.dao.ItemDao;
 import com.ita.if103java.ims.dao.SavedItemDao;
 import com.ita.if103java.ims.dao.WarehouseDao;
+import com.ita.if103java.ims.dto.ItemDto;
 import com.ita.if103java.ims.dto.ItemTransactionRequestDto;
 import com.ita.if103java.ims.entity.AssociateType;
 import com.ita.if103java.ims.entity.Item;
@@ -40,8 +41,9 @@ public class SavedItemServiceImpl implements SavedItemService {
         this.associateDao = associateDao;
     }
 
-    private void validateInputsAdd(ItemTransactionRequestDto itemTransaction, Long accountId) {
-        if (itemTransaction.getItemDto().getVolume() <= 0 ||
+
+    private void validateInputsAdd(ItemTransactionRequestDto itemTransaction, ItemDto itemDto, Long accountId) {
+        if (isNotValidateVolume(itemDto) ||
             warehouseDao.findById(itemTransaction.getDestinationWarehouseId(), accountId) == null ||
             associateDao.findById(accountId, itemTransaction.getAssociateId()).getType().equals(AssociateType.CLIENT) ||
             !(existInAccount(itemTransaction, accountId))) {
@@ -49,8 +51,8 @@ public class SavedItemServiceImpl implements SavedItemService {
         }
     }
 
-    private void validateInputsMove(ItemTransactionRequestDto itemTransaction, Long accountId) {
-        if (itemTransaction.getItemDto().getVolume() <= 0 ||
+    private void validateInputsMove(ItemTransactionRequestDto itemTransaction, ItemDto itemDto, Long accountId) {
+        if (isNotValidateVolume(itemDto) ||
             !warehouseDao.findById(itemTransaction.getDestinationWarehouseId(), accountId).isBottom()
             || !(existInAccount(itemTransaction, accountId))) {
             throw new SavedItemMoveException("Failed to get savedItem during `move` {account_id = " + accountId + "}");
@@ -60,18 +62,19 @@ public class SavedItemServiceImpl implements SavedItemService {
     private void validateInputsOut(ItemTransactionRequestDto itemTransaction, Long accountId) {
         if (associateDao.findById(accountId, itemTransaction.getAssociateId()).getType()
             .equals(AssociateType.SUPPLIER) ||
-            !(itemDao.isExistItemById(itemTransaction.getItemDto().getId(), accountId))) {
+            !(itemDao.isExistItemById(itemTransaction.getItemId(), accountId))) {
             throw new SavedItemOutException("Failed to get savedItem during `outcomeItem` {account_id = " + accountId +
                 " associateId = " + itemTransaction.getAssociateId() + "}");
         }
     }
 
     @Override
-    public void validateInputs(ItemTransactionRequestDto itemTransaction, Long accountId, TransactionType type) {
+    public void validateInputs(ItemTransactionRequestDto itemTransaction, ItemDto itemDto, Long accountId,
+        TransactionType type) {
         try {
             switch (type) {
-                case IN -> validateInputsAdd(itemTransaction, accountId);
-                case MOVE -> validateInputsMove(itemTransaction, accountId);
+                case IN -> validateInputsAdd(itemTransaction, itemDto, accountId);
+                case MOVE -> validateInputsMove(itemTransaction, itemDto, accountId);
                 case OUT -> validateInputsOut(itemTransaction, accountId);
             }
         } catch (BaseRuntimeException e) {
@@ -80,10 +83,11 @@ public class SavedItemServiceImpl implements SavedItemService {
     }
 
     @Override
-    public boolean isEnoughCapacityInWarehouse(ItemTransactionRequestDto itemTransaction, Long accountId) {
+    public boolean isEnoughCapacityInWarehouse(ItemTransactionRequestDto itemTransaction, ItemDto itemDto,
+        Long accountId) {
         float volume =
             toVolumeOfPassSavedItems(itemTransaction.getDestinationWarehouseId(), accountId) +
-                itemTransaction.getQuantity() * itemTransaction.getItemDto().getVolume();
+                itemTransaction.getQuantity() * itemDto.getVolume();
         return warehouseDao.findById(itemTransaction.getDestinationWarehouseId(), accountId).getCapacity() >= volume;
     }
 
@@ -92,7 +96,7 @@ public class SavedItemServiceImpl implements SavedItemService {
         float volumePassSavedItems = 0;
         if (savedItemDao.existSavedItemByWarehouseId(warehouseId)) {
             List<SavedItem> savedItem = savedItemDao.findSavedItemByWarehouseId(warehouseId);
-            if (savedItem.size() == 0) {
+            if (savedItem.isEmpty()) {
                 return 0;
             }
             String itemIds = savedItem.stream().map(x -> x.getItemId().toString()).collect(Collectors.joining(","));
@@ -110,8 +114,7 @@ public class SavedItemServiceImpl implements SavedItemService {
         if (volume == 0) {
             return true;
         } else {
-            return volume * 100 /
-                warehouseDao.findById(itemTransaction.getDestinationWarehouseId(), accountId).getCapacity() >
+            return loadingBottomLevelWarehouse(itemTransaction, volume, accountId) >
                 Float.parseFloat(maxWarehouseLoad);
         }
 
@@ -119,8 +122,18 @@ public class SavedItemServiceImpl implements SavedItemService {
 
     @Override
     public boolean existInAccount(ItemTransactionRequestDto itemTransaction, Long accountId) {
-        return itemDao.isExistItemById(itemTransaction.getItemDto().getId(), accountId) &&
+        return itemDao.isExistItemById(itemTransaction.getItemId(), accountId) &&
             accountId
                 .equals(warehouseDao.findById(itemTransaction.getDestinationWarehouseId(), accountId).getAccountID());
+    }
+
+    private boolean isNotValidateVolume(ItemDto itemDto){
+        return itemDto.getVolume() <= 0;
+    }
+
+    private float loadingBottomLevelWarehouse(ItemTransactionRequestDto itemTransaction, float volume,
+        Long accountId){
+        return volume * 100 /
+            warehouseDao.findById(itemTransaction.getDestinationWarehouseId(), accountId).getCapacity();
     }
 }

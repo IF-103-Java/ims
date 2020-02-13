@@ -35,7 +35,7 @@ public interface WarehouseDao {
 
     void hardDelete(Long accountId);
 
-    List<Long> findUsefulWarehouseTopWarehouseIds(Long capacity, Long accountId);
+    List<Warehouse> findUsefulTopWarehouse(Long capacity, Long accountId);
 
     List<Warehouse> findByTopWarehouseIDs(String ids, Long accountId);
 

@@ -8,6 +8,7 @@ import com.ita.if103java.ims.exception.service.GoogleAPIException;
 import com.ita.if103java.ims.exception.service.ImpossibleWarehouseAdviceException;
 import com.ita.if103java.ims.exception.service.ItemNotEnoughCapacityInWarehouseException;
 import com.ita.if103java.ims.exception.service.ItemNotEnoughQuantityException;
+import com.ita.if103java.ims.exception.service.ItemValidateInputException;
 import com.ita.if103java.ims.exception.service.MaxWarehouseDepthLimitReachedException;
 import com.ita.if103java.ims.exception.service.MaxWarehousesLimitReachedException;
 import com.ita.if103java.ims.exception.service.UpgradationException;
@@ -100,7 +101,8 @@ public class GlobalExceptionHandler {
         SavedItemMoveException.class,
         SavedItemOutException.class,
         ItemDuplicateException.class,
-        SavedItemValidateInputException.class})
+        SavedItemValidateInputException.class,
+        ItemValidateInputException.class})
     public ResponseEntity<ResponseMessageDto> handleItemAdviceException(Exception e) {
         LOGGER.info(e.getMessage(), e);
         return ResponseEntity

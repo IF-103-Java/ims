@@ -4,7 +4,7 @@ import javax.validation.constraints.NotNull;
 
 public class ItemTransactionRequestDto {
     @NotNull
-    private ItemDto itemDto;
+    private Long itemId;
     @NotNull
     private Long savedItemId;
     @NotNull
@@ -13,12 +13,12 @@ public class ItemTransactionRequestDto {
     private Long sourceWarehouseId;
     private Long destinationWarehouseId;
 
-    public ItemDto getItemDto() {
-        return itemDto;
+    public Long getItemId() {
+        return itemId;
     }
 
-    public void setItemDto(ItemDto itemDto) {
-        this.itemDto = itemDto;
+    public void setItemId(Long itemId) {
+        this.itemId = itemId;
     }
 
     public Long getSavedItemId() {

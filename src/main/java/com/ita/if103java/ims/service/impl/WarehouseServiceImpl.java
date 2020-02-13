@@ -10,12 +10,12 @@ import com.ita.if103java.ims.entity.Address;
 import com.ita.if103java.ims.entity.Event;
 import com.ita.if103java.ims.entity.EventName;
 import com.ita.if103java.ims.entity.Warehouse;
+import com.ita.if103java.ims.exception.dao.WarehouseNotFoundException;
 import com.ita.if103java.ims.exception.service.MaxWarehouseDepthLimitReachedException;
 import com.ita.if103java.ims.exception.service.MaxWarehousesLimitReachedException;
 import com.ita.if103java.ims.exception.service.WarehouseCreateException;
 import com.ita.if103java.ims.exception.service.WarehouseDeleteException;
 import com.ita.if103java.ims.exception.service.WarehouseUpdateException;
-import com.ita.if103java.ims.exception.dao.WarehouseNotFoundException;
 import com.ita.if103java.ims.exception.service.BottomLevelWarehouseException;
 import com.ita.if103java.ims.mapper.dto.AddressDtoMapper;
 import com.ita.if103java.ims.mapper.dto.WarehouseDtoMapper;
@@ -311,23 +311,28 @@ public class WarehouseServiceImpl implements WarehouseService {
         try {
             Long accountId = user.getUser().getAccountId();
             List<UsefulWarehouseDto> usefulWarehouseDtos = new ArrayList<>();
-            String ids = warehouseDao.findUsefulWarehouseTopWarehouseIds(capacity, accountId).stream().
-                map(x -> x.toString()).collect(Collectors.joining(","));
-            warehouseDao.findByTopWarehouseIDs(ids, accountId).stream().
+            List<Warehouse> warehouses = warehouseDao.findUsefulTopWarehouse(capacity, accountId);
+            String ids =  warehouses.stream().
+                map(x -> x.getTopWarehouseID().toString()).collect(Collectors.joining(","));
+            Map<Long, Map<Long, Warehouse>> groupedWarehouses = warehouseDao.findByTopWarehouseIDs(ids, accountId).stream().
                 collect(Collectors.groupingBy(Warehouse::getTopWarehouseID, Collectors.toMap(Warehouse::getId,
-                    Function.identity()))).
-                forEach((x, y) -> {
-                    y.entrySet().stream().filter(w -> w.getValue().isBottom() && (w.getValue().getCapacity()
-                        - savedItemService.toVolumeOfPassSavedItems(w.getValue().getId(), accountId)) >= capacity).
-                        forEach(w -> {
-                            List<String> path = findPath(w.getValue(), y);
-                            path.sort(Comparator.reverseOrder());
-                            usefulWarehouseDtos.add(new UsefulWarehouseDto(w.getValue().getId(), path));
-                        });
-                });
+                    Function.identity())));
+
+            for (Warehouse warehouse : warehouses) {
+                if (freeSpace(warehouse, accountId) >= capacity) {
+                     List<String> path = findPath(warehouse, groupedWarehouses.get(warehouse.getTopWarehouseID()));
+                    path.sort(Comparator.reverseOrder());
+                    usefulWarehouseDtos.add(new UsefulWarehouseDto(warehouse.getId(), path));
+                }
+            }
+
             return usefulWarehouseDtos;
         } catch (WarehouseNotFoundException e) {
             throw new BottomLevelWarehouseException("Error during finding useful warehouses {capacity = " + capacity + "}");
         }
+    }
+
+    private float freeSpace(Warehouse warehouse, Long accountId) {
+        return warehouse.getCapacity() - savedItemService.toVolumeOfPassSavedItems(warehouse.getId(), accountId);
     }
 }

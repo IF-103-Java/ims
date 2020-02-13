@@ -59,6 +59,8 @@ public class SavedItemDaoImpl implements SavedItemDao {
     public List<SavedItem> findSavedItemByItemId(Long id) {
         try {
             return jdbcTemplate.query(Queries.SQL_SELECT_SAVED_ITEMS_BY_ITEM_ID, savedItemRowMapper, id);
+        } catch (EmptyResultDataAccessException e) {
+            throw new SavedItemNotFoundException("Failed to get savedItem during `select` {item_id = " + id + "}", e);
         } catch (DataAccessException e) {
             throw new CRUDException("Failed during `select` {item_id = " + id + "}", e);
 
@@ -70,6 +72,9 @@ public class SavedItemDaoImpl implements SavedItemDao {
     public List<SavedItem> findSavedItemByWarehouseId(Long id) {
         try {
             return jdbcTemplate.query(Queries.SQL_SELECT_SAVED_ITEMS_BY_WAREHOUSE_ID, savedItemRowMapper, id);
+        } catch (EmptyResultDataAccessException e) {
+            throw new SavedItemNotFoundException("Failed to get savedItem during `select` {warehouse_id = " + id +
+                "}", e);
         } catch (DataAccessException e) {
             throw new CRUDException("Failed during `select` {warehouse_id = " + id + "}", e);
         }
