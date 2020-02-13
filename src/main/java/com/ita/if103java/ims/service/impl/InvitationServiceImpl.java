@@ -55,11 +55,12 @@ public class InvitationServiceImpl implements InvitationService {
     @Transactional
     public void inviteUser(User accountAdmin, UserDto userDto) {
         if (userService.isAllowedToInvite(accountAdmin.getAccountId())) {
-            userDto.setPassword(generatePassword());
+            String generatedPassword = generatePassword();
+            userDto.setPassword(generatedPassword);
             userDto.setRole(Role.ROLE_WORKER);
             userDto.setAccountId(accountAdmin.getAccountId());
             UserDto createdUserDto = userService.create(userDto);
-            sendInvitationMessage(createdUserDto, accountAdmin.getAccountId());
+            sendInvitationMessage(createdUserDto, accountAdmin.getAccountId(), generatedPassword);
 
             Event event = new Event("New worker " + createdUserDto.getFirstName() + " " + createdUserDto.getLastName() + " was invited.",
                 accountAdmin.getAccountId(), null,
@@ -70,11 +71,11 @@ public class InvitationServiceImpl implements InvitationService {
         }
     }
 
-    private void sendInvitationMessage(UserDto userDto, Long accountId) {
+    private void sendInvitationMessage(UserDto userDto, Long accountId, String generatedPassword) {
         Account account = accountDao.findById(accountId);
         mailService.sendMessage(userDto, INVITE_START + account.getName() + INVITE_MIDDLE +
             activationURL + userDto.getEmailUUID() + "\n" +
-            "Your password: " + userDto.getPassword() + "\n" +
+            "Your password: " + generatedPassword + "\n" +
             INVITE_FOOTER, "IMS. Invitation to " + account.getName() + " organization");
     }
 
