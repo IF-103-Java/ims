@@ -34,7 +34,8 @@ public class UserDaoImpl implements UserDao {
     private GeneratedKeyHolderFactory generatedKeyHolderFactory;
 
     @Autowired
-    public UserDaoImpl(JdbcTemplate jdbcTemplate, UserRowMapper userRowMapper,
+    public UserDaoImpl(JdbcTemplate jdbcTemplate,
+                       UserRowMapper userRowMapper,
                        GeneratedKeyHolderFactory generatedKeyHolderFactory) {
         this.jdbcTemplate = jdbcTemplate;
         this.userRowMapper = userRowMapper;

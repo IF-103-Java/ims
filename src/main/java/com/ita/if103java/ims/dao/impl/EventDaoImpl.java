@@ -43,9 +43,12 @@ public class EventDaoImpl implements EventDao {
     private GeneratedKeyHolderFactory generatedKeyHolderFactory;
 
     @Autowired
-    public EventDaoImpl(JdbcTemplate jdbcTemplate, EventRowMapper eventRowMapper) {
+    public EventDaoImpl(JdbcTemplate jdbcTemplate,
+                        EventRowMapper eventRowMapper,
+                        GeneratedKeyHolderFactory generatedKeyHolderFactory) {
         this.jdbcTemplate = jdbcTemplate;
         this.eventRowMapper = eventRowMapper;
+        this.generatedKeyHolderFactory = generatedKeyHolderFactory;
     }
 
     @Override

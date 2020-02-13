@@ -30,11 +30,14 @@ public class TransactionDaoImpl implements TransactionDao {
     private GeneratedKeyHolderFactory generatedKeyHolderFactory;
 
     @Autowired
-    public TransactionDaoImpl(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedJdbcTemplate,
-                              TransactionRowMapper mapper) {
+    public TransactionDaoImpl(JdbcTemplate jdbcTemplate,
+                              NamedParameterJdbcTemplate namedJdbcTemplate,
+                              TransactionRowMapper mapper,
+                              GeneratedKeyHolderFactory generatedKeyHolderFactory) {
         this.jdbcTemplate = jdbcTemplate;
         this.namedJdbcTemplate = namedJdbcTemplate;
         this.mapper = mapper;
+        this.generatedKeyHolderFactory = generatedKeyHolderFactory;
     }
 
     @Override
