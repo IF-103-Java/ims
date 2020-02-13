@@ -58,11 +58,11 @@ public class ItemDaoImpl implements ItemDao {
 
 
     @Override
-    public Item findItemByName(String name) {
+    public Item findItemByName(String name, Long accountId) {
         try {
-            return jdbcTemplate.queryForObject(Queries.SQL_SELECT_ITEM_BY_NAME, itemRowMapper, name);
+            return jdbcTemplate.queryForObject(Queries.SQL_SELECT_ITEM_BY_NAME, itemRowMapper, accountId, name);
         } catch (EmptyResultDataAccessException e) {
-            throw new ItemNotFoundException("Failed to get item during `select` {name = " + name + "}", e);
+            return null;
         } catch (DataAccessException e) {
             throw new CRUDException("Failed during `select` {name = " + name + "}", e);
         }
@@ -97,7 +97,8 @@ public class ItemDaoImpl implements ItemDao {
     @Override
     public List<Item> findItemsById(String id, Long accountId) {
         try {
-            return jdbcTemplate.query(String.format(Queries.SQL_SELECT_ITEMS_BY_ID_AND_ACCOUNT_ID, id), itemRowMapper, accountId);
+            return jdbcTemplate
+                .query(String.format(Queries.SQL_SELECT_ITEMS_BY_ID_AND_ACCOUNT_ID, id), itemRowMapper, accountId);
         } catch (EmptyResultDataAccessException e) {
             throw new ItemNotFoundException("Failed to get item during `select` {id = " + id + "}", e);
         } catch (DataAccessException e) {
@@ -109,11 +110,11 @@ public class ItemDaoImpl implements ItemDao {
     public boolean isExistItemById(Long id, Long accountId) {
         try {
             return jdbcTemplate.queryForObject(Queries.SQL_SELECT_IF_EXIST_ITEM_BY_ACCOUNT_ID,
-                (row, rs) -> row.getBoolean("true"), accountId, id);
+                (row, rs) -> row.getBoolean("active"), accountId, id);
         } catch (EmptyResultDataAccessException e) {
             throw new ItemNotFoundException("Failed to get item during `select` {id = " + id + "}", e);
         } catch (DataAccessException e) {
-            return false;
+            throw new CRUDException("Failed during `select` {id = " + id + "}", e);
         }
     }
 
@@ -216,7 +217,7 @@ public class ItemDaoImpl implements ItemDao {
         static final String SQL_SELECT_ITEM_BY_NAME = """
                 select *
                 from items
-                where name_item=?
+                where account_id=? and name_item=?
             """;
         static final String SQL_SELECT_ITEM_BY_ACCOUNT_ID = """
                 select *
@@ -224,9 +225,14 @@ public class ItemDaoImpl implements ItemDao {
                 where account_id=?
             """;
         static final String SQL_SELECT_IF_EXIST_ITEM_BY_ACCOUNT_ID = """
-                select true
+                select active
                 from items
                 where account_id=? and id=?
+            """;
+        static final String SQL_SELECT_ITEMS = """
+                select id
+                 from items
+                 where account_id=? and id IN (%s);
             """;
         static final String SQL_SELECT_ITEM_BY_ID_AND_ACCOUNT_ID = """
                 select *

@@ -8,6 +8,7 @@ import com.ita.if103java.ims.exception.service.GoogleAPIException;
 import com.ita.if103java.ims.exception.service.ImpossibleWarehouseAdviceException;
 import com.ita.if103java.ims.exception.service.ItemNotEnoughCapacityInWarehouseException;
 import com.ita.if103java.ims.exception.service.ItemNotEnoughQuantityException;
+import com.ita.if103java.ims.exception.service.ItemValidateInputException;
 import com.ita.if103java.ims.exception.service.MaxWarehouseDepthLimitReachedException;
 import com.ita.if103java.ims.exception.service.MaxWarehousesLimitReachedException;
 import com.ita.if103java.ims.exception.service.UpgradationException;
@@ -16,6 +17,12 @@ import com.ita.if103java.ims.exception.service.UserOrPasswordIncorrectException;
 import com.ita.if103java.ims.exception.service.WarehouseCreateException;
 import com.ita.if103java.ims.exception.service.WarehouseDeleteException;
 import com.ita.if103java.ims.exception.service.WarehouseUpdateException;
+import com.ita.if103java.ims.exception.service.BottomLevelWarehouseException;
+import com.ita.if103java.ims.exception.service.ItemDuplicateException;
+import com.ita.if103java.ims.exception.service.SavedItemAddException;
+import com.ita.if103java.ims.exception.service.SavedItemMoveException;
+import com.ita.if103java.ims.exception.service.SavedItemOutException;
+import com.ita.if103java.ims.exception.service.SavedItemValidateInputException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -69,7 +76,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler({UpgradationException.class,
-                       IllegalArgumentException.class})
+        IllegalArgumentException.class})
     public ResponseEntity<ResponseMessageDto> handleUpgradeException(Exception e) {
         LOGGER.error(e.getMessage(), e);
         return ResponseEntity
@@ -79,7 +86,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({WarehouseCreateException.class,
         WarehouseDeleteException.class,
-        WarehouseUpdateException.class})
+        WarehouseUpdateException.class,
+        BottomLevelWarehouseException.class})
     public ResponseEntity<ResponseMessageDto> handleWarehouseException(Exception e) {
         LOGGER.error(e.getMessage(), e);
         return ResponseEntity
@@ -88,7 +96,13 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler({ItemNotEnoughCapacityInWarehouseException.class,
-        ItemNotEnoughQuantityException.class})
+        ItemNotEnoughQuantityException.class,
+        SavedItemAddException.class,
+        SavedItemMoveException.class,
+        SavedItemOutException.class,
+        ItemDuplicateException.class,
+        SavedItemValidateInputException.class,
+        ItemValidateInputException.class})
     public ResponseEntity<ResponseMessageDto> handleItemAdviceException(Exception e) {
         LOGGER.info(e.getMessage(), e);
         return ResponseEntity

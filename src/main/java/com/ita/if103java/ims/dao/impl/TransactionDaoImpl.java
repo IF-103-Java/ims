@@ -55,7 +55,7 @@ public class TransactionDaoImpl implements TransactionDao {
                               TransactionType type) {
         final Transaction transaction = new Transaction();
         transaction.setAccountId(user.getAccountId());
-        transaction.setItemId(itemTransactionRequestDto.getItemDto().getId());
+        transaction.setItemId(itemTransactionRequestDto.getItemId());
         transaction.setQuantity(itemTransactionRequestDto.getQuantity());
         transaction.setWorkerId(user.getId());
         transaction.setType(type);
