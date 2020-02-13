@@ -135,11 +135,9 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemDto addItem(ItemDto itemDto, UserDetailsImpl user) {
         Long accountId = user.getUser().getAccountId();
-        try {
-            if (itemDto.equals(itemDtoMapper.toDto(itemDao.findItemByName(itemDto.getName(), accountId)))) {
-                throw new ItemDuplicateException("Failed to create item, because exist the same " + itemDto.toString());
-            }
-        } catch (BaseRuntimeException e) {
+        Item item = itemDao.findItemByName(itemDto.getName(), accountId);
+        if (item != null && itemDto.getName().equals(item.getName())) {
+            throw new ItemDuplicateException("Failed to create item, because exist the same " + itemDto.toString());
         }
         itemDto.setAccountId(accountId);
         return itemDtoMapper.toDto(itemDao.addItem(itemDtoMapper.toEntity(itemDto)));

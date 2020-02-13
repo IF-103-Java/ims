@@ -62,7 +62,7 @@ public class ItemDaoImpl implements ItemDao {
         try {
             return jdbcTemplate.queryForObject(Queries.SQL_SELECT_ITEM_BY_NAME, itemRowMapper, accountId, name);
         } catch (EmptyResultDataAccessException e) {
-            throw new ItemNotFoundException("Failed to get item during `select` {name = " + name + "}", e);
+            return null;
         } catch (DataAccessException e) {
             throw new CRUDException("Failed during `select` {name = " + name + "}", e);
         }

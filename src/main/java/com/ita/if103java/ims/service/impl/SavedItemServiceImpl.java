@@ -43,7 +43,7 @@ public class SavedItemServiceImpl implements SavedItemService {
 
 
     private void validateInputsAdd(ItemTransactionRequestDto itemTransaction, ItemDto itemDto, Long accountId) {
-        if (isNotValidateVolume(itemDto) ||
+        if (isVolumeZeroOrLess(itemDto) ||
             warehouseDao.findById(itemTransaction.getDestinationWarehouseId(), accountId) == null ||
             associateDao.findById(accountId, itemTransaction.getAssociateId()).getType().equals(AssociateType.CLIENT) ||
             !(existInAccount(itemTransaction, accountId))) {
@@ -52,7 +52,7 @@ public class SavedItemServiceImpl implements SavedItemService {
     }
 
     private void validateInputsMove(ItemTransactionRequestDto itemTransaction, ItemDto itemDto, Long accountId) {
-        if (isNotValidateVolume(itemDto) ||
+        if (isVolumeZeroOrLess(itemDto) ||
             !warehouseDao.findById(itemTransaction.getDestinationWarehouseId(), accountId).isBottom()
             || !(existInAccount(itemTransaction, accountId))) {
             throw new SavedItemMoveException("Failed to get savedItem during `move` {account_id = " + accountId + "}");
@@ -114,7 +114,7 @@ public class SavedItemServiceImpl implements SavedItemService {
         if (volume == 0) {
             return true;
         } else {
-            return loadingBottomLevelWarehouse(itemTransaction, volume, accountId) >
+            return getCurrentWarehouseLoadPercentege(itemTransaction, volume, accountId) >
                 Float.parseFloat(maxWarehouseLoad);
         }
 
@@ -127,11 +127,11 @@ public class SavedItemServiceImpl implements SavedItemService {
                 .equals(warehouseDao.findById(itemTransaction.getDestinationWarehouseId(), accountId).getAccountID());
     }
 
-    private boolean isNotValidateVolume(ItemDto itemDto){
+    private boolean isVolumeZeroOrLess(ItemDto itemDto){
         return itemDto.getVolume() <= 0;
     }
 
-    private float loadingBottomLevelWarehouse(ItemTransactionRequestDto itemTransaction, float volume,
+    private float getCurrentWarehouseLoadPercentege(ItemTransactionRequestDto itemTransaction, float volume,
         Long accountId){
         return volume * 100 /
             warehouseDao.findById(itemTransaction.getDestinationWarehouseId(), accountId).getCapacity();
