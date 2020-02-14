@@ -172,8 +172,8 @@ public class UserServiceImpl implements UserService {
             savedItemDao.hardDelete(accountId);
             itemDao.hardDelete(accountId);
             warehouseDao.hardDelete(accountId);
-            accountDao.hardDelete(accountId);
-            return userDao.hardDelete(accountId);
+            userDao.hardDelete(accountId);
+            return accountDao.hardDelete(accountId);
         }
         return userDao.activate(id, accountId, false);
     }
