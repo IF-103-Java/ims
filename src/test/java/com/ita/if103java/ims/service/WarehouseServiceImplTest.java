@@ -38,7 +38,9 @@ import static org.mockito.Mockito.when;
 @ExtendWith(SpringExtension.class)
 public class WarehouseServiceImplTest {
     private WarehouseDto warehouseDto = new WarehouseDto(12L, "WarehouseTest", "auto parts", 20, true, 5L, 2L, 4L, true, null);
-
+    //private Warehouse warehouse = new Warehouse(12L, "WarehouseTest", "auto parts", 20, true, 5L, 2L, 4L, true);
+    @Mock
+    private Warehouse warehouse;
     @Mock
     private WarehouseDao warehouseDao;
     @Mock
@@ -73,7 +75,7 @@ public class WarehouseServiceImplTest {
     @Test
     void findByIdTest() {
         Warehouse targetWarehouse = new Warehouse();
-
+        when(warehouseDao.findById(1L, 1L)).thenReturn(targetWarehouse);
     }
 
     @Test
