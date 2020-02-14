@@ -2,19 +2,20 @@ package com.ita.if103java.ims.dto;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 public class UsefulWarehouseDto {
    @NotNull
    private Long id;
    @NotBlank
-   private String name;
+   private List<String> path;
 
     public UsefulWarehouseDto() {
     }
 
-    public UsefulWarehouseDto(Long id, String name) {
+    public UsefulWarehouseDto(@NotNull Long id, @NotBlank List<String> path) {
         this.id = id;
-        this.name = name;
+        this.path = path;
     }
 
     public Long getId() {
@@ -25,11 +26,11 @@ public class UsefulWarehouseDto {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public List<String> getPath() {
+        return path;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setPath(List<String> path) {
+        this.path = path;
     }
 }

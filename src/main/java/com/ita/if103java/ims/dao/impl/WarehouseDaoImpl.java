@@ -195,12 +195,27 @@ public class WarehouseDaoImpl implements WarehouseDao {
     }
 
     @Override
-    public List<Warehouse> findUsefulWarehouses(Long capacity, Long accountId) {
+    public List<Warehouse> findUsefulTopWarehouse(Long capacity, Long accountId) {
         try {
-            return jdbcTemplate.query(Queries.SQL_SELECT_USEFUL_WAREHOUSES, warehouseRowMapper, accountId, capacity);
+            return jdbcTemplate
+                .query(Queries.SQL_SELECT_USEFUL_WAREHOUSES, warehouseRowMapper, accountId,
+                    capacity);
 
         } catch (DataAccessException e) {
-            throw new WarehouseNotFoundException("Error during finding useful warehouses {capacity = " + capacity + "}", e);
+            throw new WarehouseNotFoundException("Error during finding useful warehouses {capacity = " + capacity + "}",
+                e);
+        }
+    }
+
+    @Override
+    public List<Warehouse> findByTopWarehouseIDs(String ids, Long accountId) {
+        try {
+            return jdbcTemplate
+                .query(String.format(Queries.SQL_SELECT_BY_TOP_WAREHOUSE_IDS, ids), warehouseRowMapper, accountId);
+
+        } catch (DataAccessException e) {
+            throw new WarehouseNotFoundException(
+                "Error during finding all children of top-level-warehouse {Id = " + ids + "}", e);
         }
     }
 
@@ -269,6 +284,11 @@ public class WarehouseDaoImpl implements WarehouseDao {
                 SELECT *
                 FROM warehouses
                 WHERE top_warehouse_id = ? AND account_id = ?
+            """;
+        static final String SQL_SELECT_BY_TOP_WAREHOUSE_IDS = """
+                SELECT *
+                FROM warehouses
+                WHERE account_id = ? AND top_warehouse_id IN (%s)
             """;
 
         static final String SQL_SET_ACTIVE_STATUS_WAREHOUSE = """
