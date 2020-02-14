@@ -25,6 +25,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/items")
 public class ItemController {
+
     private ItemService itemService;
 
     @Autowired
@@ -50,16 +51,16 @@ public class ItemController {
         return itemService.findById(id, user);
     }
 
-    @DeleteMapping("/{itemId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public boolean softDelete(@PathVariable("itemId") Long id, @AuthenticationPrincipal UserDetailsImpl user) {
-        return itemService.softDelete(id, user);
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public void softDelete(@PathVariable("id") Long id, @AuthenticationPrincipal UserDetailsImpl user) {
+        itemService.softDelete(id, user);
     }
 
     @GetMapping("/name")
     @ResponseStatus(HttpStatus.OK)
     public List<ItemDto> findItemsByNameQuery(@RequestParam("q") String query,
-                                              @AuthenticationPrincipal UserDetailsImpl user) {
+        @AuthenticationPrincipal UserDetailsImpl user) {
         return itemService.findItemsByNameQuery(query, user);
     }
 
@@ -67,7 +68,7 @@ public class ItemController {
         consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public ItemDto updateItem(@RequestBody ItemDto itemDto,
-                              @AuthenticationPrincipal UserDetailsImpl user) {
+        @AuthenticationPrincipal UserDetailsImpl user) {
         return itemService.updateItem(itemDto, user);
     }
 }

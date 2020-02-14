@@ -1,5 +1,6 @@
 package com.ita.if103java.ims.service;
 
+import com.ita.if103java.ims.dto.UsefulWarehouseDto;
 import com.ita.if103java.ims.dto.WarehouseDto;
 import com.ita.if103java.ims.security.UserDetailsImpl;
 import org.springframework.data.domain.Page;
@@ -31,4 +32,5 @@ public interface WarehouseService {
 
     Integer findTotalCapacity (Long id, UserDetailsImpl user);
 
+    List<UsefulWarehouseDto> findUsefulWarehouses(Long capacity, UserDetailsImpl user);
 }

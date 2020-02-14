@@ -10,7 +10,7 @@ public interface ItemDao {
 
     Integer countItemsById(long accountId);
 
-    Item findItemByName(String name);
+    Item findItemByName(String name, Long accountId);
 
     List<Item> findItemByAccountId(Long id);
 
@@ -23,6 +23,8 @@ public interface ItemDao {
     Item addItem(Item item);
 
     boolean softDeleteItem(Long id, Long accountId);
+
+    boolean hardDelete(Long accountId);
 
     List<Item> findItemsByNameQuery(String query, long accountId);
 

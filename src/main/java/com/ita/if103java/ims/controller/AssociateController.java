@@ -50,7 +50,8 @@ public class AssociateController {
         associateService.delete(user, id);
     }
     @GetMapping
-    public List<SavedItemAssociateDto> getAssociatesByType(@AuthenticationPrincipal UserDetailsImpl user, @RequestParam("type")AssociateType type) {
+    public List<SavedItemAssociateDto> getAssociatesByType(@AuthenticationPrincipal UserDetailsImpl user,
+                                                           @RequestParam("type") AssociateType type) {
         return associateService.getAssociatesByType(user, type);
     }
 
