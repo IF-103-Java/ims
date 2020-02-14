@@ -31,6 +31,7 @@ public class WarehouseDtoMapperTest {
 
     @Test
     void testToEntity() {
+        warehouseDto.setAddressDto(addressDto);
         assertEquals(warehouse, warehouseDtoMapper.toEntity(warehouseDto));
     }
 }

@@ -21,7 +21,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
-import static org.junit.jupiter.api.AssertEquals.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -42,8 +41,8 @@ public class WarehouseDaoImplTest {
     private DataSource dataSource;
     @Mock
     private PreparedStatement preparedStatement;
-    @Mock
-    private GeneratedKeyHolderFactory generatedKeyHolderFactory;
+//    @Mock
+//    private GeneratedKeyHolderFactory generatedKeyHolderFactory;
 
     @InjectMocks
     private WarehouseDaoImpl warehouseDao;
@@ -57,7 +56,7 @@ public class WarehouseDaoImplTest {
         when(this.jdbcTemplate.getDataSource()).thenReturn(dataSource);
         when(this.dataSource.getConnection()).thenReturn(this.connection);
         when(this.connection.prepareStatement(anyString(), anyInt())).thenReturn(this.preparedStatement);
-        when(this.generatedKeyHolderFactory.newKeyHolder()).thenReturn(keyHolder);
+//        when(this.generatedKeyHolderFactory.newKeyHolder()).thenReturn(keyHolder);
         when(this.keyHolder.getKey()).thenReturn(1L);
         when(this.jdbcTemplate.update(Mockito.any(PreparedStatementCreator.class), Mockito.any(KeyHolder.class))).thenReturn(1);
 
@@ -91,7 +90,6 @@ public class WarehouseDaoImplTest {
     @Test
     void testFindById() {
         System.out.println(warehouse.getId());
-
         when(jdbcTemplate.queryForObject(anyString(), ArgumentMatchers.<WarehouseRowMapper>any(), anyLong()))
             .thenReturn(warehouse);
 

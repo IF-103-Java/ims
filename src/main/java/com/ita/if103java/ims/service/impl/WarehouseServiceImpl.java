@@ -236,10 +236,10 @@ public class WarehouseServiceImpl implements WarehouseService {
     @Override
     public boolean softDelete(Long id, UserDetailsImpl user) {
         Warehouse warehouse = warehouseDao.findById(id, user.getUser().getAccountId());
-        if (!CollectionUtils.isEmpty(warehouseDao.findChildrenById(warehouse.getParentID(), user.getUser().getAccountId()))) {
+        if (!CollectionUtils.isEmpty(warehouseDao.findChildrenById(id, user.getUser().getAccountId()))) {
             throw new WarehouseDeleteException("Warehouse has sub warehouses! Firstly you should delete them!");
         }
-        if (!savedItemDao.findSavedItemByWarehouseId(warehouse.getId()).isEmpty()) {
+        if (!CollectionUtils.isEmpty(savedItemDao.findSavedItemByWarehouseId(id))) {
             throw new WarehouseDeleteException("Warehouse is not empty! Firstly you should remove or transfer all items from that warehouse to another");
         }
         boolean isDelete = warehouseDao.softDelete(id);
