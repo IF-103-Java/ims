@@ -6,6 +6,7 @@ import com.ita.if103java.ims.entity.Event;
 import com.ita.if103java.ims.entity.EventName;
 import com.ita.if103java.ims.entity.Role;
 import com.ita.if103java.ims.entity.User;
+import com.ita.if103java.ims.exception.dao.CRUDException;
 import com.ita.if103java.ims.mapper.jdbc.EventRowMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,6 +34,7 @@ import java.util.Map;
 
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -106,21 +108,29 @@ public class EventDaoImplTest {
 
         params = new HashMap<>();
         params.put("type", new ArrayList<>(Arrays.asList("USER", "WAREHOUSE")));
+        params.put("after", "02-02-2002");
 
         pageable = PageRequest.of(0, 15, Sort.Direction.ASC, "id");
     }
 
     @Test
-    public void testCreate() {
+    public void testCreate_successFlow() {
         assertEquals(event, eventDao.create(event));
         assertNotNull(user.getId());
     }
 
     @Test
-    public void testFindAllForWorker() {
+    void testCreate_omittedNotNullFields() {
+        when(this.keyHolder.getKey()).thenReturn(null);
+        event = new Event();
+        assertThrows(CRUDException.class, () -> eventDao.create(event));
+    }
+
+    @Test
+    public void testFindAllForWorker_successFlow() {
         user.setRole(Role.ROLE_WORKER);
         String expectedQuery = """
-        select * from events where account_id = '2' and (name in
+        select * from events where account_id = '2' and DATE(date) >= '02-02-2002' and (name in
          ('ITEM_ENDED', 'LOW_SPACE_IN_WAREHOUSE', 'WAREHOUSE_CREATED', 'WAREHOUSE_EDITED',
          'WAREHOUSE_REMOVED') or (name in ('LOGIN', 'LOGOUT', 'PASSWORD_CHANGED', 'PROFILE_CHANGED', 'SIGN_UP')
          and author_id = '4')) ORDER BY id ASC Limit 15 OFFSET 0
@@ -132,11 +142,11 @@ public class EventDaoImplTest {
 
 
     @Test
-    public void testFindAllForAdmin() {
+    public void testFindAllForAdmin_successFlow() {
         String expectedQuery = """
-        select * from events where account_id = '2' and name in ('ITEM_ENDED', 'LOGIN', 'LOGOUT',
-        'LOW_SPACE_IN_WAREHOUSE', 'PASSWORD_CHANGED', 'PROFILE_CHANGED', 'SIGN_UP', 'WAREHOUSE_CREATED',
-        'WAREHOUSE_EDITED', 'WAREHOUSE_REMOVED') ORDER BY id ASC Limit 15 OFFSET 0
+        select * from events where account_id = '2' and DATE(date) >= '02-02-2002' and
+        name in ('ITEM_ENDED', 'LOGIN', 'LOGOUT', 'LOW_SPACE_IN_WAREHOUSE', 'PASSWORD_CHANGED', 'PROFILE_CHANGED',
+        'SIGN_UP', 'WAREHOUSE_CREATED', 'WAREHOUSE_EDITED', 'WAREHOUSE_REMOVED') ORDER BY id ASC Limit 15 OFFSET 0
             """.replace("\n", " ").replaceAll("\\s{2,}", " ").trim();
         eventDao.findAll(pageable, params, user);
         assertEquals(expectedQuery, stringArgumentCaptor.getValue().replaceAll("\\s{2,}", " ").trim());
