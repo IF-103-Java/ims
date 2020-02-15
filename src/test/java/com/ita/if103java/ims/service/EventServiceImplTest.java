@@ -20,17 +20,17 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyListOf;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.atMostOnce;
 import static org.mockito.Mockito.times;
@@ -49,7 +49,9 @@ public class EventServiceImplTest {
     private WarehouseDao warehouseDao;
 
     @Mock
-    EventDtoMapper eventDtoMapper;
+    private EventDtoMapper eventDtoMapperMock;
+
+    private EventDtoMapper eventDtoMapper;
 
     @Mock
     private SimpMessagingTemplate simpMessagingTemplate;
@@ -60,13 +62,17 @@ public class EventServiceImplTest {
 
     private Event event;
     private UserDetailsImpl userDetails;
+    private User user;
+    private Map<String, Object> params;
+    private PageRequest pageable;
 
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.initMocks(this);
 
-        // Initializing test event
+        eventDtoMapper = new EventDtoMapper();
+
         event = new Event();
         event.setMessage("New client test");
         event.setId(2l);
@@ -75,10 +81,38 @@ public class EventServiceImplTest {
         event.setAuthorId(4l);
         event.setAccountId(2l);
 
-        // Initializing test user
-        userDetails = new UserDetailsImpl(new User());
+        user = new User();
+        user.setAccountId(2l);
+        userDetails = new UserDetailsImpl(user);
 
-        when(eventDao.create(event)).thenReturn(event);
+        params = new HashMap<>();
+        params.put("type", new ArrayList<>(Arrays.asList("USER", "WAREHOUSE")));
+        params.put("after", "02-02-2002");
+
+        pageable = PageRequest.of(0, 15, Sort.Direction.ASC, "id");
+
+        when(eventDao.create(event)).thenReturn(this.event);
+        List<Event> events = Arrays.asList(
+            new Event("Test message 1", 2l, 26l, 4l,
+                EventName.ITEM_CAME, null),
+            new Event("Test message 2", 2l, null, 5l,
+                EventName.NEW_CLIENT, null));
+        events.forEach(event -> event.setId(1l));
+        when(eventDao.findAll(pageable, params, userDetails.getUser()))
+            .thenReturn(new PageImpl<Event>(events, pageable, 3));
+
+        when(eventDtoMapperMock.toDtoList(events)).thenReturn(eventDtoMapper.toDtoList(events));
+
+        Map<Long, String> usernames = new HashMap();
+        usernames.put(4l, "Paul Mccarartney");
+        usernames.put(5l, "John Lenon");
+        when(userDao.findUserNamesById(anyListOf(Long.class))).thenReturn(usernames);
+
+        Map<Long, String> warehouses = new HashMap();
+        warehouses.put(26l, "Warehouse A");
+        when(warehouseDao.findWarehouseNamesById(anyListOf(Long.class))).thenReturn(warehouses);
+
+
     }
 
     @Test
@@ -87,40 +121,21 @@ public class EventServiceImplTest {
         verify(eventDao, times(1)).create(event);
         verify(simpMessagingTemplate, atMostOnce()).convertAndSend(anyString(), ArgumentMatchers.<EventDto>any());
         assertNotNull(event.getDate());
+
     }
 
     @Test
     public void testFindAllEvents() {
-        List<Event> eventListFromDao = Arrays.asList(
-            new Event("Test message1", 2l, 26l, 4l, EventName.ITEM_CAME, null),
-            new Event("Test message2", 2l, null, 5l, EventName.NEW_CLIENT, null)
-        );
-
-        Map<Long, String> usernames = new HashMap();
-        usernames.put(4l, "Vasya Pupkin");
-        usernames.put(5l, "John Lenon");
-
-        Map<Long, String> warehouses = new HashMap();
-        usernames.put(26l, "Warehouse A");
-
-        Pageable pageable = PageRequest.of(0, 15, Sort.Direction.ASC, "id");
-        Map<String, Object> params = new HashMap<>();
-        UserDetailsImpl userDetails = new UserDetailsImpl(new User());
-
-        when(eventDao.findAll(pageable, params, userDetails.getUser())).thenReturn(new PageImpl<Event>(eventListFromDao, pageable, 3));
-        when(userDao.findUserNamesById(Arrays.asList(4l, 5l))).thenReturn(usernames);
-        when(warehouseDao.findWarehouseNamesById(Arrays.asList(26l))).thenReturn(warehouses);
-
-        assertTrue(eventService.findAll(pageable, params, userDetails) instanceof Page);
+        Page<EventDto> result = eventService.findAll(pageable, params, userDetails);
         verify(eventDao, times(1)).findAll(pageable, params, userDetails.getUser());
-        verify(userDao, atMostOnce()).findUserNamesById(Arrays.asList(4l, 5l));
-        verify(warehouseDao, atMostOnce()).findWarehouseNamesById(Arrays.asList(26l));
+        verify(userDao, atMostOnce()).findUserNamesById(anyListOf(Long.class));
+        verify(warehouseDao, atMostOnce()).findWarehouseNamesById(anyListOf(Long.class));
+        assertNotNull(result.getContent().get(0).getAuthor());
     }
 
     @Test
     public void testDeleteByAccountId() {
-        long accountId = 2;
-        eventService.deleteByAccountId(accountId);
-        verify(eventDao, times(1)).deleteByAccountId(accountId);
+        eventService.deleteByAccountId(userDetails.getUser().getAccountId());
+        verify(eventDao, times(1)).deleteByAccountId(userDetails.getUser().getAccountId());
     }
 }

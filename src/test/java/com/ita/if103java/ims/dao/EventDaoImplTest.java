@@ -80,19 +80,6 @@ public class EventDaoImplTest {
     @BeforeEach
     void setUp() throws SQLException {
         MockitoAnnotations.initMocks(this);
-        when(this.keyHolder.getKey()).thenReturn(1L);
-        when(this.jdbcTemplate.update(any(PreparedStatementCreator.class), any(KeyHolder.class))).thenReturn(1);
-        when(this.jdbcTemplate.update(anyString(), anyLong())).thenReturn(1);
-        when(this.generatedKeyHolderFactory.newKeyHolder()).thenReturn(keyHolder);
-        when(this.dataSource.getConnection()).thenReturn(this.connection);
-        when(this.generatedKeyHolderFactory.newKeyHolder()).thenReturn(keyHolder);
-        when(this.connection.prepareStatement(anyString(), anyInt())).thenReturn(this.preparedStatement);
-        when(jdbcTemplate.query(stringArgumentCaptor.capture(),
-            ArgumentMatchers.<EventRowMapper>any())).thenReturn(new ArrayList<Event>());
-        when(jdbcTemplate.queryForObject(anyString(), eq(Integer.class))).thenReturn(5);
-
-
-        // Initializing test event
         event = new Event();
         event.setDate(currentDateTime);
         event.setName(EventName.NEW_CLIENT);
@@ -100,7 +87,6 @@ public class EventDaoImplTest {
         event.setMessage("New client test");
         event.setAccountId(2l);
 
-        // Initializing test user
         user = new User();
         user.setRole(Role.ROLE_ADMIN);
         user.setAccountId(2l);
@@ -111,6 +97,17 @@ public class EventDaoImplTest {
         params.put("after", "02-02-2002");
 
         pageable = PageRequest.of(0, 15, Sort.Direction.ASC, "id");
+
+        when(this.keyHolder.getKey()).thenReturn(1L);
+        when(this.jdbcTemplate.update(any(PreparedStatementCreator.class), any(KeyHolder.class))).thenReturn(1);
+        when(this.jdbcTemplate.update(anyString(), anyLong())).thenReturn(1);
+        when(this.generatedKeyHolderFactory.newKeyHolder()).thenReturn(keyHolder);
+        when(this.dataSource.getConnection()).thenReturn(this.connection);
+        when(this.generatedKeyHolderFactory.newKeyHolder()).thenReturn(keyHolder);
+        when(this.connection.prepareStatement(anyString(), anyInt())).thenReturn(this.preparedStatement);
+        when(jdbcTemplate.query(stringArgumentCaptor.capture(),
+            ArgumentMatchers.<EventRowMapper>any())).thenReturn(new ArrayList<Event>());
+        when(jdbcTemplate.queryForObject(anyString(), eq(Integer.class))).thenReturn(5);
     }
 
     @Test
@@ -130,10 +127,10 @@ public class EventDaoImplTest {
     public void testFindAllForWorker_successFlow() {
         user.setRole(Role.ROLE_WORKER);
         String expectedQuery = """
-        select * from events where account_id = '2' and DATE(date) >= '02-02-2002' and (name in
-         ('ITEM_ENDED', 'LOW_SPACE_IN_WAREHOUSE', 'WAREHOUSE_CREATED', 'WAREHOUSE_EDITED',
-         'WAREHOUSE_REMOVED') or (name in ('LOGIN', 'LOGOUT', 'PASSWORD_CHANGED', 'PROFILE_CHANGED', 'SIGN_UP')
-         and author_id = '4')) ORDER BY id ASC Limit 15 OFFSET 0
+            select * from events where account_id = '2' and DATE(date) >= '02-02-2002' and (name in
+            ('ITEM_ENDED', 'LOW_SPACE_IN_WAREHOUSE', 'WAREHOUSE_CREATED', 'WAREHOUSE_EDITED',
+            'WAREHOUSE_REMOVED') or (name in ('LOGIN', 'LOGOUT', 'PASSWORD_CHANGED', 'PROFILE_CHANGED', 'SIGN_UP')
+            and author_id = '4')) ORDER BY id ASC Limit 15 OFFSET 0
         """.replace("\n", " ").replaceAll("\\s{2,}", " ").trim();
         eventDao.findAll(pageable, params, user);
         assertEquals(expectedQuery,
@@ -144,10 +141,10 @@ public class EventDaoImplTest {
     @Test
     public void testFindAllForAdmin_successFlow() {
         String expectedQuery = """
-        select * from events where account_id = '2' and DATE(date) >= '02-02-2002' and
-        name in ('ITEM_ENDED', 'LOGIN', 'LOGOUT', 'LOW_SPACE_IN_WAREHOUSE', 'PASSWORD_CHANGED', 'PROFILE_CHANGED',
-        'SIGN_UP', 'WAREHOUSE_CREATED', 'WAREHOUSE_EDITED', 'WAREHOUSE_REMOVED') ORDER BY id ASC Limit 15 OFFSET 0
-            """.replace("\n", " ").replaceAll("\\s{2,}", " ").trim();
+            select * from events where account_id = '2' and DATE(date) >= '02-02-2002' and
+            name in ('ITEM_ENDED', 'LOGIN', 'LOGOUT', 'LOW_SPACE_IN_WAREHOUSE', 'PASSWORD_CHANGED', 'PROFILE_CHANGED',
+            'SIGN_UP', 'WAREHOUSE_CREATED', 'WAREHOUSE_EDITED', 'WAREHOUSE_REMOVED') ORDER BY id ASC Limit 15 OFFSET 0
+        """.replace("\n", " ").replaceAll("\\s{2,}", " ").trim();
         eventDao.findAll(pageable, params, user);
         assertEquals(expectedQuery, stringArgumentCaptor.getValue().replaceAll("\\s{2,}", " ").trim());
     }
