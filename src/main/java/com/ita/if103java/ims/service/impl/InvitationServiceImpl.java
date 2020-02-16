@@ -54,12 +54,13 @@ public class InvitationServiceImpl implements InvitationService {
     @Override
     @Transactional
     public void inviteUser(User accountAdmin, UserDto userDto) {
-        if (allowToInvite(accountAdmin.getAccountId())) {
-            userDto.setPassword(generatePassword());
+        if (userService.isAllowedToInvite(accountAdmin.getAccountId())) {
+            String generatedPassword = generatePassword();
+            userDto.setPassword(generatedPassword);
             userDto.setRole(Role.ROLE_WORKER);
             userDto.setAccountId(accountAdmin.getAccountId());
             UserDto createdUserDto = userService.create(userDto);
-            sendInvitationMessage(createdUserDto, accountAdmin.getAccountId());
+            sendInvitationMessage(createdUserDto, accountAdmin.getAccountId(), generatedPassword);
 
             Event event = new Event("New worker " + createdUserDto.getFirstName() + " " + createdUserDto.getLastName() + " was invited.",
                 accountAdmin.getAccountId(), null,
@@ -70,18 +71,12 @@ public class InvitationServiceImpl implements InvitationService {
         }
     }
 
-    private void sendInvitationMessage(UserDto userDto, Long accountId) {
+    private void sendInvitationMessage(UserDto userDto, Long accountId, String generatedPassword) {
         Account account = accountDao.findById(accountId);
         mailService.sendMessage(userDto, INVITE_START + account.getName() + INVITE_MIDDLE +
             activationURL + userDto.getEmailUUID() + "\n" +
-            "Your password: " + userDto.getPassword() + "\n" +
+            "Your password: " + generatedPassword + "\n" +
             INVITE_FOOTER, "IMS. Invitation to " + account.getName() + " organization");
-    }
-
-    private boolean allowToInvite(Long accountId) {
-        Integer usersCount = userDao.countOfUsers(accountId);
-        Integer usersAllowed = accountTypeDao.findById(accountDao.findById(accountId).getTypeId()).getMaxUsers();
-        return usersCount < usersAllowed;
     }
 
     private String generatePassword() {

@@ -21,5 +21,7 @@ public interface AssociateDao {
 
     boolean delete(Long accountId, Long id);
 
+    void hardDelete(Long accountId);
+
     List<Associate> getAssociatesByType(Long accountId,  AssociateType type);
 }

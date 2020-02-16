@@ -1,8 +1,17 @@
 package com.ita.if103java.ims.service.impl;
 
 import com.ita.if103java.ims.dao.AccountDao;
+import com.ita.if103java.ims.dao.AccountTypeDao;
+import com.ita.if103java.ims.dao.AddressDao;
+import com.ita.if103java.ims.dao.AssociateDao;
+import com.ita.if103java.ims.dao.EventDao;
+import com.ita.if103java.ims.dao.ItemDao;
+import com.ita.if103java.ims.dao.SavedItemDao;
+import com.ita.if103java.ims.dao.TransactionDao;
 import com.ita.if103java.ims.dao.UserDao;
+import com.ita.if103java.ims.dao.WarehouseDao;
 import com.ita.if103java.ims.dto.AccountDto;
+import com.ita.if103java.ims.dto.ResetPasswordDto;
 import com.ita.if103java.ims.dto.UserDto;
 import com.ita.if103java.ims.entity.Role;
 import com.ita.if103java.ims.entity.User;
@@ -48,6 +57,15 @@ public class UserServiceImpl implements UserService {
     private AccountService accountService;
     private MailServiceImpl mailService;
     private AccountDao accountDao;
+    private AccountTypeDao accountTypeDao;
+
+    private EventDao eventDao;
+    private TransactionDao transactionDao;
+    private AddressDao addressDao;
+    private AssociateDao associateDao;
+    private SavedItemDao savedItemDao;
+    private ItemDao itemDao;
+    private WarehouseDao warehouseDao;
 
 
     @Autowired
@@ -57,7 +75,16 @@ public class UserServiceImpl implements UserService {
                            EventService eventService,
                            AccountService accountService,
                            MailServiceImpl mailService,
-                           AccountDao accountDao) {
+                           AccountDao accountDao,
+                           AccountTypeDao accountTypeDao,
+                           EventDao eventDao,
+                           TransactionDao transactionDao,
+                           AddressDao addressDao,
+                           AssociateDao associateDao,
+                           SavedItemDao savedItemDao,
+                           ItemDao itemDao,
+                           WarehouseDao warehouseDao) {
+
         this.userDao = userDao;
         this.mapper = mapper;
         this.passwordEncoder = passwordEncoder;
@@ -65,6 +92,15 @@ public class UserServiceImpl implements UserService {
         this.accountService = accountService;
         this.mailService = mailService;
         this.accountDao = accountDao;
+        this.accountTypeDao = accountTypeDao;
+
+        this.eventDao = eventDao;
+        this.transactionDao = transactionDao;
+        this.addressDao = addressDao;
+        this.associateDao = associateDao;
+        this.savedItemDao = savedItemDao;
+        this.itemDao = itemDao;
+        this.warehouseDao = warehouseDao;
     }
 
     @Override
@@ -129,8 +165,15 @@ public class UserServiceImpl implements UserService {
     public boolean delete(Long id, Long accountId) {
         User user = userDao.findById(id);
         if (user.getRole() == Role.ROLE_ADMIN) {
-            accountDao.delete(accountId);
-            return userDao.hardDelete(id, accountId);
+            eventDao.deleteByAccountId(accountId);
+            transactionDao.hardDelete(accountId);
+            addressDao.hardDelete(accountId);
+            associateDao.hardDelete(accountId);
+            savedItemDao.hardDelete(accountId);
+            itemDao.hardDelete(accountId);
+            warehouseDao.hardDelete(accountId);
+            userDao.hardDelete(accountId);
+            return accountDao.hardDelete(accountId);
         }
         return userDao.activate(id, accountId, false);
     }
@@ -148,13 +191,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean updatePassword(Long id, String newPassword) {
-        if (userDao.updatePassword(id, passwordEncoder.encode(newPassword))) {
-            User user = userDao.findById(id);
-            eventService.create(createEvent(user, PASSWORD_CHANGED, "changed the password."));
-            return true;
+    public boolean updatePassword(UserDto userDto, ResetPasswordDto resetPasswordDto) {
+        if (!passwordEncoder.matches(resetPasswordDto.getCurrentPassword(), userDto.getPassword())) {
+            throw new IllegalArgumentException("Incorrect current password provided");
         }
-        return false;
+
+        userDao.updatePassword(userDto.getId(), passwordEncoder.encode(resetPasswordDto.getNewPassword()));
+        eventService.create(
+            createEvent(mapper.toEntity(userDto), PASSWORD_CHANGED, "changed the password.")
+        );
+        return true;
     }
 
     @Override
@@ -163,12 +209,12 @@ public class UserServiceImpl implements UserService {
         Long accountId = activatedUser.getAccountId();
         Long userId = activatedUser.getId();
 
-        if (isValidToken(activatedUser)) {
+        if (isValidToken(activatedUser) && isAllowedToInvite(accountId)) {
             userDao.activate(userId, accountId, true);
             accountDao.activate(activatedUser.getAccountId());
             return true;
         } else {
-            userDao.hardDelete(userId, accountId);
+            userDao.hardDelete(accountId);
             return false;
         }
     }
@@ -176,5 +222,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public Map<Long, String> findAllUserNames(UserDetailsImpl user) {
         return userDao.findAllUserNames(user.getUser().getAccountId());
+    }
+
+    @Override
+    public boolean isAllowedToInvite(Long accountId) {
+        Integer usersCount = userDao.countOfUsers(accountId);
+        Integer usersAllowed = accountTypeDao.findById(accountDao.findById(accountId).getTypeId()).getMaxUsers();
+        return usersCount < usersAllowed;
     }
 }
