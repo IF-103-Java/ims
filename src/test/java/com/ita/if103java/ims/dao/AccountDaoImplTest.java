@@ -1,6 +1,8 @@
 package com.ita.if103java.ims.dao;
 
 import com.ita.if103java.ims.config.GeneratedKeyHolderFactory;
+import com.ita.if103java.ims.dao.impl.AccountDaoImpl;
+import com.ita.if103java.ims.dao.impl.AccountTypeDaoImpl;
 import com.ita.if103java.ims.entity.Account;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,21 +30,31 @@ class AccountDaoImplTest {
 
     @Mock
     private JdbcTemplate jdbcTemplate;
+
     @Mock
     private KeyHolder keyHolder;
+
     @Mock
     private Connection connection;
+
     @Mock
     private DataSource dataSource;
+
     @Mock
     private PreparedStatement preparedStatement;
+
     @Mock
     private GeneratedKeyHolderFactory generatedKeyHolderFactory;
+
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    @Mock
+    private AccountTypeDaoImpl accountTypeDao;
+
     @InjectMocks
-    private AccountDaoImplTest accountDao;
+    private AccountDaoImpl accountDao;
+
 
     private Account account;
     private ZonedDateTime currentDateTime = ZonedDateTime.now(ZoneId.systemDefault());
