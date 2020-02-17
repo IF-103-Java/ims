@@ -69,7 +69,7 @@ public class AccountServiceImplTest {
         assertEquals(accountDto, accountService.create(admin, accountName));
 
         verify(accountDao, times(1)).create(ArgumentMatchers.any());
-        verify(userDao, times(1)).updateAccountId(1L, 1L);
+        verify(userDao, times(1)).updateAccountId(admin.getId(), account.getId());
         verify(eventService, times(1)).create(event);
         verify(accountDtoMapper, times(1)).toDto(account);
     }
@@ -86,13 +86,13 @@ public class AccountServiceImplTest {
         Event event = new Event("Account \"" + expectedName + "\" was updated.", account.getId(), null,
             admin.getId(), EventName.ACCOUNT_EDITED, null);
 
-        when(accountDao.findById(1L)).thenReturn(account);
+        when(accountDao.findById(admin.getAccountId())).thenReturn(account);
         when(accountDao.update(account)).thenReturn(account);
         when(accountDtoMapper.toDto(account)).thenReturn(accountDto);
 
         assertEquals(accountDto, accountService.update(admin, expectedName));
 
-        verify(accountDao, times(1)).findById(anyLong());
+        verify(accountDao, times(1)).findById(admin.getAccountId());
         verify(accountDao, times(1)).update(account);
         verify(eventService, times(1)).create(event);
         verify(accountDtoMapper, times(1)).toDto(account);
@@ -104,12 +104,12 @@ public class AccountServiceImplTest {
             ZonedDateTime.now(ZoneId.systemDefault()), true);
         AccountDto accountDto = new AccountDto(1L, "Home", 1L, true);
 
-        when(accountDao.findById(1L)).thenReturn(account);
+        when(accountDao.findById(account.getId())).thenReturn(account);
         when(accountDtoMapper.toDto(account)).thenReturn(accountDto);
 
         assertEquals(accountDto, accountService.view(1L));
 
-        verify(accountDao, times(1)).findById(anyLong());
+        verify(accountDao, times(1)).findById(account.getId());
         verify(accountDtoMapper, times(1)).toDto(account);
     }
 
@@ -126,8 +126,8 @@ public class AccountServiceImplTest {
 
         assertTrue(accountService.delete(admin));
 
-        verify(accountDao, times(1)).delete(anyLong());
-        verify(accountDao, times(1)).findById(anyLong());
+        verify(accountDao, times(1)).delete(admin.getAccountId());
+        verify(accountDao, times(1)).findById(admin.getAccountId());
     }
 
     @Test
@@ -143,7 +143,7 @@ public class AccountServiceImplTest {
 
         assertFalse(accountService.delete(admin));
 
-        verify(accountDao, times(1)).delete(anyLong());
+        verify(accountDao, times(1)).delete(account.getId());
         verify(accountDao, times(0)).findById(anyLong());
     }
 }

@@ -79,9 +79,9 @@ public class InvitationServiceImplTest {
 
         invitationService.inviteUser(accountAdmin, userDto);
 
-        verify(userService, times(1)).isAllowedToInvite(anyLong());
+        verify(userService, times(1)).isAllowedToInvite(accountAdmin.getAccountId());
         verify(userService, times(1)).create(userDto);
-        verify(accountDao, times(1)).findById(anyLong());
+        verify(accountDao, times(1)).findById(accountAdmin.getAccountId());
         verify(mailService, times(1)).sendMessage(ArgumentMatchers.any(), anyString(), anyString());
         verify(eventService, times(1)).create(event);
     }
@@ -100,9 +100,9 @@ public class InvitationServiceImplTest {
 
         assertThrows(UserLimitReachedException.class, () -> invitationService.inviteUser(accountAdmin, userDto));
 
-        verify(userService, times(1)).isAllowedToInvite(anyLong());
+        verify(userService, times(1)).isAllowedToInvite(accountAdmin.getAccountId());
         verify(userService, times(0)).create(userDto);
-        verify(accountDao, times(0)).findById(anyLong());
+        verify(accountDao, times(0)).findById(accountAdmin.getAccountId());
         verify(mailService, times(0)).sendMessage(ArgumentMatchers.any(), anyString(), anyString());
         verify(eventService, times(0)).create(ArgumentMatchers.any());
     }

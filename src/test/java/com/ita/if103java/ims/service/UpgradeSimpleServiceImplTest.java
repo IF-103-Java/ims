@@ -71,8 +71,8 @@ public class UpgradeSimpleServiceImplTest {
 
         upgradeService.upgradeAccount(accountAdmin, newAccountTypeId);
 
-        verify(accountTypeDao, times(2)).findById(anyLong());
-        verify(accountDao, times(1)).upgradeAccount(anyLong(), anyLong());
+        verify(accountTypeDao, times(2)).findById(newAccountTypeId);
+        verify(accountDao, times(1)).upgradeAccount(accountAdmin.getUser().getAccountId(), newAccountTypeId);
         verify(eventService, times(1)).create(event);
     }
 
@@ -92,7 +92,7 @@ public class UpgradeSimpleServiceImplTest {
 
         assertThrows(UpgradationException.class, () -> upgradeService.upgradeAccount(accountAdmin, newAccountTypeId));
 
-        verify(accountTypeDao, times(1)).findById(anyLong());
+        verify(accountTypeDao, times(1)).findById(newAccountTypeId);
         verify(accountDao, times(0)).upgradeAccount(anyLong(), anyLong());
         verify(eventService, times(0)).create(any());
     }
