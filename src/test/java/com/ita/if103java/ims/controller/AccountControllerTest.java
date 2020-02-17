@@ -82,7 +82,7 @@ class AccountControllerTest {
     @Test
     void updateSuccess() throws Exception {
         String newName = "Name";
-        when(accountService.update(user, newName)).thenReturn(accountDto);
+        when(accountService.update(userDetails.getUser(), newName)).thenReturn(accountDto);
         mockMvc.perform(put("/accounts/" + newName)
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
