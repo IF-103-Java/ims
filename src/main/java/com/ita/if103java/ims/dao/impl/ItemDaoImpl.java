@@ -147,7 +147,7 @@ public class ItemDaoImpl implements ItemDao {
         statement.setString(++i, item.getDescription());
         statement.setInt(++i, item.getVolume());
         statement.setBoolean(++i, item.isActive());
-        statement.setLong(++i, item.getAccountId());
+        statement.setObject(++i, item.getAccountId());
         return statement;
     }
 

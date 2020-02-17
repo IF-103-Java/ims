@@ -1,0 +1,539 @@
+package com.ita.if103java.ims.service;
+
+import com.ita.if103java.ims.dao.AssociateDao;
+import com.ita.if103java.ims.dao.ItemDao;
+import com.ita.if103java.ims.dao.SavedItemDao;
+import com.ita.if103java.ims.dao.TransactionDao;
+import com.ita.if103java.ims.dao.WarehouseDao;
+import com.ita.if103java.ims.dto.ItemDto;
+import com.ita.if103java.ims.dto.ItemTransactionRequestDto;
+import com.ita.if103java.ims.dto.SavedItemDto;
+import com.ita.if103java.ims.entity.Associate;
+import com.ita.if103java.ims.entity.Event;
+import com.ita.if103java.ims.entity.EventName;
+import com.ita.if103java.ims.entity.Item;
+import com.ita.if103java.ims.entity.SavedItem;
+import com.ita.if103java.ims.entity.Transaction;
+import com.ita.if103java.ims.entity.TransactionType;
+import com.ita.if103java.ims.entity.User;
+import com.ita.if103java.ims.entity.Warehouse;
+import com.ita.if103java.ims.exception.dao.ItemNotFoundException;
+import com.ita.if103java.ims.exception.dao.SavedItemNotFoundException;
+import com.ita.if103java.ims.exception.service.ItemDuplicateException;
+import com.ita.if103java.ims.mapper.dto.ItemDtoMapper;
+import com.ita.if103java.ims.mapper.dto.SavedItemDtoMapper;
+import com.ita.if103java.ims.security.UserDetailsImpl;
+import com.ita.if103java.ims.service.impl.ItemServiceImpl;
+import com.ita.if103java.ims.service.impl.SavedItemServiceImpl;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.mockito.verification.VerificationMode;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import java.awt.print.Pageable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.only;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+@ExtendWith(SpringExtension.class)
+public class ItemServiceImplTest {
+    private ItemDto itemDto;
+    private Item item;
+    private SavedItemDto savedItemDto;
+    private SavedItem savedItem;
+    private UserDetailsImpl userDetails;
+    @Mock
+    private ItemDtoMapper itemDtoMapper;
+    @Mock
+    String maxWarehouseLoad;
+
+    @Mock
+    private SavedItemDtoMapper savedItemDtoMapper;
+    @Mock
+    private ItemDao itemDao;
+    @Mock
+    private SavedItemDao savedItemDao;
+    @Mock
+    private WarehouseDao warehouseDao;
+    @Mock
+    private TransactionDao transactionDao;
+    @Mock
+    private EventService eventService;
+    @Mock
+    private AssociateDao associateDao;
+    @Mock
+    SavedItemServiceImpl savedItemService;
+    @InjectMocks
+    ItemServiceImpl itemService;
+
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.initMocks(this);
+        User user = new User();
+        user.setAccountId(2L);
+        user.setId(1L);
+        userDetails = new UserDetailsImpl(user);
+        itemDto = getItemDto();
+    }
+
+    @Test
+    void findById() {
+        Item item = getItem();
+        when(itemDao.findItemById(108L, 2L)).thenReturn(item);
+        when(itemDtoMapper.toDto(item)).thenReturn(itemDto);
+        assertEquals(itemService.findById(108L, userDetails), itemDto);
+    }
+
+    @Test
+    void findSortedItems(){
+        Long accountId = userDetails.getUser().getAccountId();
+       List<Item> itemList = getListOfItems();
+        List<ItemDto> itemDtoList = getListOfItemDtos();
+        Integer expectedCount = 3;
+        PageRequest pageable = PageRequest.of(0, 3, Sort.Direction.ASC, "id");
+        Page page = new PageImpl(itemDtoList, pageable, expectedCount);
+        when(itemDao.getItems(accountId, pageable.getPageSize(), pageable.getOffset(), pageable.getSort())).thenReturn(itemList);
+        when(itemDao.countItemsById(accountId)).thenReturn(expectedCount);
+        when(itemDtoMapper.toDtoList(itemList)).thenReturn(itemDtoList);
+        assertEquals(itemService.findSortedItems(pageable, userDetails), page);
+    }
+    @Test
+    void addItem_successFlowNullItem(){
+    Long accountId = userDetails.getUser().getAccountId();
+    when(itemDao.findItemByName(itemDto.getName(), accountId)).thenReturn(null);
+    itemDto.setAccountId(accountId);
+    when(itemDtoMapper.toEntity(itemDto)).thenReturn(item);
+    when(itemDao.addItem(item)).thenReturn(item);
+    when(itemDtoMapper.toDto(item)).thenReturn(itemDto);
+    assertEquals(itemService.addItem(itemDto, userDetails), itemDto);
+    }
+    @Test
+    void addItem_successFlowNotNullItemAndNameNotEquals(){
+        Long accountId = userDetails.getUser().getAccountId();
+        Item item = getItem();
+        item.setName("test");
+        when(itemDao.findItemByName(itemDto.getName(), accountId)).thenReturn(item);
+        itemDto.setAccountId(accountId);
+        when(itemDtoMapper.toEntity(itemDto)).thenReturn(item);
+        when(itemDao.addItem(item)).thenReturn(item);
+        when(itemDtoMapper.toDto(item)).thenReturn(itemDto);
+        assertEquals(itemService.addItem(itemDto, userDetails), itemDto);    }
+    @Test
+    void addItem_omittedFlowNotNullItemAndNameEquals(){
+        Long accountId = userDetails.getUser().getAccountId();
+        Item item = getItem();
+        when(itemDao.findItemByName(itemDto.getName(), accountId)).thenReturn(item);
+        ItemDuplicateException itemDuplicateException = assertThrows(ItemDuplicateException.class,
+            ()->itemService.addItem(itemDto, userDetails));
+        assertEquals("Failed to create item, because exist the same "+getItemDto().toString(), itemDuplicateException.getMessage()); }
+    @Test
+    void softDelete(){
+        when(itemDao.softDeleteItem(108L, userDetails.getUser().getAccountId())).thenReturn(true);
+        assertEquals(itemService.softDelete(108L, userDetails), true);
+    }
+    @Test
+    void findItemsByNameQuery(){
+        String query = "Fish";
+        when(itemDao.findItemsByNameQuery(query, userDetails.getUser().getAccountId())).thenReturn(getListOfItems());
+        when(itemDtoMapper.toDtoList(getListOfItems())).thenReturn(getListOfItemDtos());
+        assertEquals(itemService.findItemsByNameQuery(query, userDetails), getListOfItemDtos());
+
+    }
+    @Test
+    void updateItem() {
+        itemDto = getItemDto();
+        itemDto.setAccountId(userDetails.getUser().getAccountId());
+        when(itemDtoMapper.toEntity(itemDto)).thenReturn(item);
+        when(itemDao.updateItem(item)).thenReturn(item);
+        when(itemDtoMapper.toDto(item)).thenReturn(itemDto);
+        assertEquals(itemService.updateItem(getItemDto(), userDetails), itemDto);
+
+    }
+    @Test
+    void findSavedItemById_successFlow(){
+        Long savedItemId = getSavedItem().getId();
+        SavedItem savedItem = getSavedItem();
+        savedItemDto = getSavedItemDto();
+        when(savedItemDao.findSavedItemById(savedItemId)).thenReturn(savedItem);
+        when(savedItemDao.findSavedItemById(savedItemId)).thenReturn(savedItem);
+        when(savedItemDtoMapper.toDto(savedItem)).thenReturn(savedItemDto);
+        when(itemDao.isExistItemById(savedItemDto.getItemId(), userDetails.getUser().getAccountId())).thenReturn(true);
+        assertEquals(itemService.findSavedItemById(savedItemId, userDetails), savedItemDto);
+
+    }
+    @Test
+    void findSavedItemById_omittedItemNotExistByIdFlow(){
+        Long savedItemId = getSavedItem().getId();
+        SavedItem savedItem = getSavedItem();
+        savedItemDto = getSavedItemDto();
+        when(savedItemDao.findSavedItemById(savedItemId)).thenReturn(savedItem);
+        when(savedItemDao.findSavedItemById(savedItemId)).thenReturn(savedItem);
+        when(savedItemDtoMapper.toDto(savedItem)).thenReturn(savedItemDto);
+        when(itemDao.isExistItemById(savedItemDto.getItemId(), userDetails.getUser().getAccountId())).thenReturn(false);
+       assertThrows(SavedItemNotFoundException.class, ()->itemService.findSavedItemById(savedItemId, userDetails));
+
+    }
+    @Test
+    void findByItemId_successFlow() {
+        SavedItemDto savedItemDto = new SavedItemDto();
+        List<SavedItem> savedItems = new ArrayList<>();
+        List<SavedItemDto> savedItemDtos = new ArrayList<>();
+        savedItemDto.setItemId(105L);
+        savedItemDto.setId(70L);
+        when(itemDao.isExistItemById(savedItemDto.getItemId(), userDetails.getUser().getAccountId())).thenReturn(true);
+        when(savedItemDtoMapper.toDtoList(savedItems)).thenReturn(savedItemDtos);
+        assertEquals(itemService.findByItemId(savedItemDto.getItemId(), userDetails), savedItemDtos);
+    }
+    @Test
+    void findByItemId_omittedItemNotExistByIdFlow() {
+        SavedItemDto savedItemDto = new SavedItemDto();
+        savedItemDto.setItemId(105L);
+        savedItemDto.setId(70L);
+        when(itemDao.isExistItemById(savedItemDto.getItemId(), userDetails.getUser().getAccountId())).thenReturn(false);
+        ItemNotFoundException itemNotFoundException = assertThrows(ItemNotFoundException.class,
+            ()->itemService.findByItemId(savedItemDto.getItemId(), userDetails));
+        assertEquals("Failed to get item during `select` {item_id = " + savedItemDto.getItemId() + "}",
+            itemNotFoundException.getMessage());
+    }
+
+    @Test
+    void addSavedItem_successFlowExistSameSavedItem() {
+        Long accountId = userDetails.getUser().getAccountId();
+        ItemTransactionRequestDto itemTransaction = new ItemTransactionRequestDto();
+        itemTransaction.setDestinationWarehouseId(19L);
+        itemTransaction.setItemId(108L);
+        itemTransaction.setQuantity(10L);
+        ItemDto itemDto = new ItemDto();
+        SavedItemDto savedItemDto = new SavedItemDto();
+        Warehouse warehouse = new Warehouse();
+        SavedItem savedItem = new SavedItem();
+        savedItem.setQuantity(10);
+        Optional<SavedItem> optional = Optional.of(savedItem);
+        when(itemService.findById(itemTransaction.getItemId(), userDetails)).thenReturn(itemDto);
+        doNothing().when(savedItemService).validateInputs(itemTransaction, itemDto, accountId, TransactionType.IN);
+        when(warehouseDao.findById(itemTransaction.getDestinationWarehouseId(), accountId)).thenReturn(warehouse);
+        when(savedItemService.isEnoughCapacityInWarehouse(itemTransaction, itemDto, accountId)).thenReturn(true);
+        when(savedItemDao.findSavedItemByItemIdAndWarehouseId(itemTransaction.getItemId(),
+            itemTransaction.getDestinationWarehouseId())).thenReturn(optional);
+        int quantity = Long.valueOf(savedItem.getQuantity() + itemTransaction.getQuantity()).intValue();
+
+        when(savedItemDao.outComeSavedItem(savedItem, quantity)).thenReturn(true);
+        savedItemDto.setQuantity(quantity);
+        when(savedItemDtoMapper.toDto(savedItem)).thenReturn(savedItemDto);
+        assertEquals(itemService.addSavedItem(itemTransaction, userDetails), savedItemDto);
+        verify(eventService, never()).create(any(Event.class));
+    }
+
+    @Test
+    void addSavedItem_successFlowNotExistSameSavedItem() {
+        Long accountId = userDetails.getUser().getAccountId();
+        Associate associate = new Associate();
+        associate.setId(40L);
+        associate.setName("Nazar");
+        ItemTransactionRequestDto itemTransaction = new ItemTransactionRequestDto();
+        itemTransaction.setDestinationWarehouseId(19L);
+        itemTransaction.setItemId(108L);
+        itemTransaction.setQuantity(10L);
+        itemTransaction.setAssociateId(40L);
+
+        ItemDto itemDto = new ItemDto();
+        itemDto.setName("Potato");
+        SavedItemDto savedItemDto = new SavedItemDto();
+        savedItemDto.setId(1L);
+        savedItemDto.setItemId(itemTransaction.getItemId());
+        savedItemDto.setQuantity(itemTransaction.getQuantity().intValue());
+        savedItemDto.setWarehouseId(itemTransaction.getDestinationWarehouseId());
+        Warehouse warehouse = new Warehouse();
+        warehouse.setName("Section1");
+
+        SavedItem savedItem = new SavedItem();
+        savedItem.setQuantity(20);
+
+        Transaction transaction = new Transaction();
+        transaction.setId(3L);
+        when(itemService.findById(itemTransaction.getItemId(), userDetails)).thenReturn(itemDto);
+        doNothing().when(savedItemService).validateInputs(itemTransaction, itemDto, accountId, TransactionType.IN);
+        when(warehouseDao.findById(itemTransaction.getDestinationWarehouseId(), accountId)).thenReturn(warehouse);
+        when(savedItemService.isEnoughCapacityInWarehouse(itemTransaction, itemDto, accountId)).thenReturn(true);
+
+        when(savedItemDao.findSavedItemByItemIdAndWarehouseId(itemTransaction.getItemId(),
+            itemTransaction.getDestinationWarehouseId())).thenReturn(Optional.empty());
+
+        when(savedItemDao.addSavedItem(ArgumentMatchers.<SavedItem>any())).thenReturn(savedItem);
+        when(savedItemDtoMapper.toDto(savedItem)).thenReturn(savedItemDto);
+        when(transactionDao.create(itemTransaction, userDetails.getUser(), itemTransaction.getAssociateId(),
+            TransactionType.IN)).thenReturn(transaction);
+        when(transactionDao.create(transaction)).thenReturn(transaction);
+
+             when(associateDao.findById(accountId, itemTransaction.getAssociateId())).thenReturn(associate);
+        Event event = new Event("Moved " + itemTransaction.getQuantity() + " " + itemDto.getName() +
+            " to warehouse " + warehouse.getName() + " " +
+            "from supplier " + associate.getName(),
+            accountId,
+            itemTransaction.getDestinationWarehouseId(), userDetails.getUser().getId(), EventName.ITEM_CAME,
+            transaction.getId().longValue());
+        doNothing().when(eventService).create(event);
+        when(savedItemService.isLowSpaceInWarehouse(itemTransaction, accountId)).thenReturn(false);
+
+        assertEquals(itemService.addSavedItem(itemTransaction, userDetails), savedItemDto);
+        verify(eventService, times(1)).create(event);
+          verify(savedItemService, times(1)).validateInputs(itemTransaction, itemDto, accountId, TransactionType.IN);
+
+    }
+
+    @Test
+    void addSavedItem_successFlowLowSpaceInWarehouse() {
+        Long accountId = userDetails.getUser().getAccountId();
+        Associate associate = new Associate();
+        associate.setId(40L);
+        associate.setName("Nazar");
+        ItemTransactionRequestDto itemTransaction = new ItemTransactionRequestDto();
+        itemTransaction.setDestinationWarehouseId(19L);
+        itemTransaction.setItemId(108L);
+        itemTransaction.setQuantity(10L);
+        itemTransaction.setAssociateId(40L);
+
+        ItemDto itemDto = new ItemDto();
+        itemDto.setName("Potato");
+        SavedItemDto savedItemDto = new SavedItemDto();
+        savedItemDto.setId(1L);
+        savedItemDto.setItemId(itemTransaction.getItemId());
+        savedItemDto.setQuantity(itemTransaction.getQuantity().intValue());
+        savedItemDto.setWarehouseId(itemTransaction.getDestinationWarehouseId());
+        Warehouse warehouse = new Warehouse();
+        warehouse.setId(1l);
+        warehouse.setName("Section1");
+        warehouse.setCapacity(10);
+
+
+        SavedItem savedItem = new SavedItem();
+        savedItem.setQuantity(10);
+
+        Transaction transaction = new Transaction();
+        transaction.setId(3L);
+        when(itemService.findById(itemTransaction.getItemId(), userDetails)).thenReturn(itemDto);
+        doNothing().when(savedItemService).validateInputs(itemTransaction, itemDto, accountId, TransactionType.IN);
+        when(warehouseDao.findById(itemTransaction.getDestinationWarehouseId(), accountId)).thenReturn(warehouse);
+        when(savedItemService.isEnoughCapacityInWarehouse(itemTransaction, itemDto, accountId)).thenReturn(true);
+
+        when(savedItemDao.findSavedItemByItemIdAndWarehouseId(itemTransaction.getItemId(),
+            itemTransaction.getDestinationWarehouseId())).thenReturn(Optional.empty());
+
+        when(savedItemDao.addSavedItem(ArgumentMatchers.<SavedItem>any())).thenReturn(savedItem);
+        when(savedItemDtoMapper.toDto(savedItem)).thenReturn(savedItemDto);
+        when(transactionDao.create(itemTransaction, userDetails.getUser(), itemTransaction.getAssociateId(),
+            TransactionType.IN)).thenReturn(transaction);
+        when(transactionDao.create(transaction)).thenReturn(transaction);
+        when(maxWarehouseLoad).thenReturn("90");
+        when(associateDao.findById(accountId, itemTransaction.getAssociateId())).thenReturn(associate);
+        Event event = new Event("Moved " + itemTransaction.getQuantity() + " " + itemDto.getName() +
+            " to warehouse " + warehouse.getName() + " " +
+            "from supplier " + associate.getName(),
+            accountId,
+            itemTransaction.getDestinationWarehouseId(), userDetails.getUser().getId(), EventName.ITEM_CAME,
+            transaction.getId().longValue());
+        doNothing().when(eventService).create(event);
+
+        when(savedItemService.isLowSpaceInWarehouse(itemTransaction, accountId)).thenReturn(true);
+        Event event2 = new Event("Warehouse is loaded more than " + "90" + "%! Capacity " +
+            warehouse.getCapacity() +
+            " in Warehouse " + warehouse.getName(),
+            accountId,
+            warehouse.getId(), userDetails.getUser().getId(),
+            EventName.LOW_SPACE_IN_WAREHOUSE, null);
+        doNothing().when(eventService).create(event2);
+        assertEquals(itemService.addSavedItem(itemTransaction, userDetails), savedItemDto);
+        verify(eventService, times(1)).create(event);
+        verify(eventService, times(1)).create(event2);
+        verify(savedItemService, times(1)).validateInputs(itemTransaction, itemDto, accountId, TransactionType.IN);
+    }
+
+    private List<ItemDto> getListOfItemDtos(){
+        Long accountId = userDetails.getUser().getAccountId();
+        List<ItemDto> items = new ArrayList<>();
+        ItemDto trout = new ItemDto();
+        trout.setName("Fish-Trout");
+        trout.setDescription("fresh trout");
+        trout.setAccountId(accountId);
+        trout.setUnit("box");
+        trout.setActive(true);
+        trout.setVolume(4);
+        trout.setId(109L);
+
+        items.add(trout);
+
+        ItemDto salmon = new ItemDto();
+        salmon.setName("Fish-Salmon");
+        salmon.setDescription("fresh salmon");
+        salmon.setAccountId(accountId);
+        salmon.setUnit("box");
+        trout.setActive(true);
+        salmon.setVolume(5);
+        salmon.setId(110L);
+
+        items.add(salmon);
+
+        ItemDto catfish = new ItemDto();
+        catfish.setName("Catfish");
+        catfish.setDescription("fresh salmon");
+        catfish.setAccountId(accountId);
+        catfish.setUnit("box");
+        catfish.setVolume(5);
+        catfish.setActive(true);
+        catfish.setId(111L);
+        items.add(catfish);
+
+        return items;
+    }
+    private List<Item> getListOfItems(){
+       Long accountId = userDetails.getUser().getAccountId();
+        List<Item> items = new ArrayList<>();
+        Item trout = new Item();
+        trout.setName("Fish-Trout");
+        trout.setDescription("fresh trout");
+        trout.setAccountId(accountId);
+        trout.setUnit("box");
+        trout.setActive(true);
+        trout.setVolume(4);
+        trout.setId(109L);
+
+        items.add(trout);
+
+        Item salmon = new Item();
+        salmon.setName("Fish-Salmon");
+        salmon.setDescription("fresh salmon");
+        salmon.setAccountId(accountId);
+        salmon.setUnit("box");
+        trout.setActive(true);
+        salmon.setVolume(5);
+        salmon.setId(110L);
+
+        items.add(salmon);
+
+        Item catfish = new Item();
+        catfish.setName("Catfish");
+        catfish.setDescription("fresh salmon");
+        catfish.setAccountId(accountId);
+        catfish.setUnit("box");
+        catfish.setVolume(5);
+        catfish.setActive(true);
+        catfish.setId(111L);
+        items.add(catfish);
+
+        return items;
+    }
+    private Item getItem(){
+        Long accountId = userDetails.getUser().getAccountId();
+        item = new Item();
+        item.setName("Green-Apple");
+        item.setDescription("Sweet apple");
+        item.setUnit("box");
+        item.setActive(true);
+        item.setVolume(5);
+        item.setId(108L);
+        item.setAccountId(accountId);
+        return item;
+    }
+    private ItemDto getItemDto(){
+        itemDto = new ItemDto();
+        itemDto.setName("Green-Apple");
+        itemDto.setDescription("Sweet apple");
+        itemDto.setUnit("box");
+        itemDto.setActive(true);
+        itemDto.setVolume(5);
+        itemDto.setId(108L);
+        return itemDto;
+    }
+
+    private List<SavedItemDto> getListOfSavedItemDtos(){
+        List<SavedItemDto> items = new ArrayList<>();
+        SavedItemDto trout = new SavedItemDto();
+        trout.setId(70L);
+        trout.setQuantity(5);
+        trout.setItemId(109L);
+        trout.setWarehouseId(37L);
+
+        items.add(trout);
+
+        SavedItemDto salmon = new SavedItemDto();
+        salmon.setId(71L);
+        salmon.setQuantity(5);
+        salmon.setItemId(110L);
+        salmon.setWarehouseId(38L);
+
+        items.add(salmon);
+
+        SavedItemDto catfish = new SavedItemDto();
+        catfish.setId(72L);
+        catfish.setQuantity(5);
+        catfish.setItemId(111L);
+        catfish.setWarehouseId(39L);
+
+        items.add(catfish);
+        return items;
+    }
+    private List<SavedItem> getListOfSavedItems(){
+        List<SavedItem> items = new ArrayList<>();
+        SavedItem trout = new SavedItem();
+        trout.setId(70L);
+        trout.setQuantity(5);
+        trout.setItemId(109L);
+        trout.setWarehouseId(37L);
+
+        items.add(trout);
+
+        SavedItem salmon = new SavedItem();
+        salmon.setId(71L);
+        salmon.setQuantity(5);
+        salmon.setItemId(110L);
+        salmon.setWarehouseId(38L);
+
+        items.add(salmon);
+
+        SavedItem catfish = new SavedItem();
+        catfish.setId(72L);
+        catfish.setQuantity(5);
+        catfish.setItemId(111L);
+        catfish.setWarehouseId(39L);
+
+        items.add(catfish);
+        return items;
+    }
+    private SavedItem getSavedItem(){
+        SavedItem trout = new SavedItem();
+        trout.setId(70L);
+        trout.setQuantity(5);
+        trout.setItemId(109L);
+        trout.setWarehouseId(37L);
+        return trout;
+    }
+    private SavedItemDto getSavedItemDto(){
+        SavedItemDto trout = new SavedItemDto();
+        trout.setId(70L);
+        trout.setQuantity(5);
+        trout.setItemId(109L);
+        trout.setWarehouseId(37L);
+        return trout;
+    }
+}
