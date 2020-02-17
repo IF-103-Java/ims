@@ -3,7 +3,9 @@ package com.ita.if103java.ims.service;
 import com.ita.if103java.ims.dao.AddressDao;
 import com.ita.if103java.ims.dao.SavedItemDao;
 import com.ita.if103java.ims.dao.WarehouseDao;
+import com.ita.if103java.ims.dto.AddressDto;
 import com.ita.if103java.ims.dto.WarehouseDto;
+import com.ita.if103java.ims.entity.Address;
 import com.ita.if103java.ims.entity.Event;
 import com.ita.if103java.ims.entity.SavedItem;
 import com.ita.if103java.ims.entity.User;
@@ -18,18 +20,20 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doReturn;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -38,7 +42,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(SpringExtension.class)
 public class WarehouseServiceImplTest {
     private WarehouseDto warehouseDto = new WarehouseDto(12L, "WarehouseTest", "auto parts", 20, true, 5L, 2L, 4L, true, null);
-    //private Warehouse warehouse = new Warehouse(12L, "WarehouseTest", "auto parts", 20, true, 5L, 2L, 4L, true);
+
     @Mock
     private Warehouse warehouse;
     @Mock
@@ -51,13 +55,14 @@ public class WarehouseServiceImplTest {
     private EventService eventService;
     @Mock
     private SavedItemDao savedItemDao;
-
-    private WarehouseDtoMapper warehouseDtoMapper = new WarehouseDtoMapper();
+    @Mock
+    private WarehouseDtoMapper warehouseDtoMapper;
 
     @InjectMocks
     private WarehouseServiceImpl warehouseService;
 
     private UserDetailsImpl userDetails;
+
 
     @BeforeEach
     void setUp() {
@@ -65,27 +70,60 @@ public class WarehouseServiceImplTest {
         User user = new User();
         user.setAccountId(1L);
         userDetails = new UserDetailsImpl(user);
+
+        List<Warehouse> warehouseList = Arrays.asList(
+            new Warehouse(2L, "Store2", "auto parts", 0, false, 2L, 2L,
+                2L, true),
+            new Warehouse(3L, "Store3!", "tyres", 50, true, 2L, 2L,
+                2L, true));
     }
 
     @Test
-    public void addWarehouseTest() {
-        Warehouse warehouse = warehouseDtoMapper.toEntity(warehouseDto);
+    public void addWarehouse_testMaxWarehouseNumberReached() {
+        WarehouseDto warehouseDto = new WarehouseDto();
+        int quantity = 2;
+        int maxQuantity = 3;
+        assertNull(warehouseDto.getParentID());
+        when(warehouseDao.findQuantityOfWarehousesByAccountId(2L)).thenReturn(quantity);
+
     }
 
     @Test
-    void findByIdTest() {
+    void findByIdTest_isWarehouseTopLevel() {
         Warehouse targetWarehouse = new Warehouse();
+        WarehouseDto warehouseDto = new WarehouseDto();
+        AddressDto addressDto = new AddressDto();
+        Address address = new Address();
         when(warehouseDao.findById(1L, 1L)).thenReturn(targetWarehouse);
+        when(warehouseDtoMapper.toDto(targetWarehouse)).thenReturn(warehouseDto);
+        assertTrue(targetWarehouse.isTopLevel());
+        when(addressDao.findByWarehouseId(1L)).thenReturn(address);
+        when(addressDtoMapper.toDto(address)).thenReturn(addressDto);
+
+        assertEquals(warehouseService.findById(1L, userDetails), warehouseDto);
+    }
+
+    @Test
+    void findByIdTest_isNotWarehouseTopLevel() {
+        Warehouse targetWarehouse = new Warehouse();
+        WarehouseDto warehouseDto = new WarehouseDto();
+        when(warehouseDao.findById(1L, 1L)).thenReturn(targetWarehouse);
+        when(warehouseDtoMapper.toDto(targetWarehouse)).thenReturn(warehouseDto);
+        when(!warehouse.isTopLevel()).thenReturn(false);
+        when(warehouseDao.findByTopWarehouseID(2L, 1L)).thenReturn(Collections.emptyList());
+
+        assertEquals(warehouseService.findById(1L, userDetails), warehouseDto);
     }
 
     @Test
     void findAllTopLevelTest() {
 
+
     }
 
     @Test
     void findWarehousesByTopLevelIdTest() {
-
+        when(warehouseDao.findByTopWarehouseID(1L, 1L)).thenReturn(List.of(warehouse));
     }
 
 
@@ -127,7 +165,7 @@ public class WarehouseServiceImplTest {
 
         boolean result = warehouseService.softDelete(1L, userDetails);
 
-        assertEquals(false, result);
+        assertFalse(result);
 
         verify(eventService, never()).create(any(Event.class));
     }
@@ -143,9 +181,14 @@ public class WarehouseServiceImplTest {
 
         boolean result = warehouseService.softDelete(1L, userDetails);
 
-        assertEquals(true, result);
+        assertTrue(result);
 
         verify(eventService).create(any(Event.class));
+    }
+
+    @Test
+    public void findTotalCapacityTest() {
+        when(warehouseDao.findTotalCapacity(1L, 2L)).thenReturn(anyInt());
     }
 
 }

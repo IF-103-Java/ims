@@ -241,10 +241,10 @@ public class WarehouseDaoImpl implements WarehouseDao {
             PreparedStatement.RETURN_GENERATED_KEYS);
         statement.setString(++i, warehouse.getName());
         statement.setString(++i, warehouse.getInfo());
-        statement.setInt(++i, warehouse.getCapacity());
+        statement.setObject(++i, warehouse.getCapacity());
         statement.setBoolean(++i, warehouse.isBottom());
         statement.setObject(++i, warehouse.getParentID());
-        statement.setLong(++i, warehouse.getAccountID());
+        statement.setObject(++i, warehouse.getAccountID());
         statement.setObject(++i, warehouse.getTopWarehouseID());
         statement.setBoolean(++i, warehouse.isActive());
 

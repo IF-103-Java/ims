@@ -1,5 +1,6 @@
 package com.ita.if103java.ims.dao;
 
+import com.ita.if103java.ims.config.GeneratedKeyHolderFactory;
 import com.ita.if103java.ims.dao.impl.WarehouseDaoImpl;
 import com.ita.if103java.ims.entity.Warehouse;
 import com.ita.if103java.ims.exception.dao.CRUDException;
@@ -41,8 +42,10 @@ public class WarehouseDaoImplTest {
     private DataSource dataSource;
     @Mock
     private PreparedStatement preparedStatement;
-//    @Mock
-//    private GeneratedKeyHolderFactory generatedKeyHolderFactory;
+    @Mock
+    private GeneratedKeyHolderFactory generatedKeyHolderFactory;
+    @Mock
+    private WarehouseRowMapper warehouseRowMapper;
 
     @InjectMocks
     private WarehouseDaoImpl warehouseDao;
@@ -56,7 +59,7 @@ public class WarehouseDaoImplTest {
         when(this.jdbcTemplate.getDataSource()).thenReturn(dataSource);
         when(this.dataSource.getConnection()).thenReturn(this.connection);
         when(this.connection.prepareStatement(anyString(), anyInt())).thenReturn(this.preparedStatement);
-//        when(this.generatedKeyHolderFactory.newKeyHolder()).thenReturn(keyHolder);
+        when(this.generatedKeyHolderFactory.newKeyHolder()).thenReturn(keyHolder);
         when(this.keyHolder.getKey()).thenReturn(1L);
         when(this.jdbcTemplate.update(Mockito.any(PreparedStatementCreator.class), Mockito.any(KeyHolder.class))).thenReturn(1);
 
@@ -71,6 +74,18 @@ public class WarehouseDaoImplTest {
         warehouse.setActive(true);
 
         warehouseDao.create(warehouse);
+
+        Warehouse warehouseTop = new Warehouse();
+        warehouse.setName("TopStock");
+        warehouse.setInfo("universal");
+        warehouse.setCapacity(0);
+        warehouse.setBottom(false);
+        warehouse.setParentID(null);
+        warehouse.setAccountID(2L);
+        warehouse.setTopWarehouseID(null);
+        warehouse.setActive(true);
+
+//        warehouseDao.create(warehouseTop);
     }
 
     @Test
@@ -83,24 +98,31 @@ public class WarehouseDaoImplTest {
     @Test
     void testCreate_omittedNotNullFields() {
         when(this.keyHolder.getKey()).thenReturn(null);
-        Warehouse warehouseEmpty = new Warehouse();
-        assertThrows(CRUDException.class, () -> warehouseDao.create(warehouseEmpty));
+        warehouse = new Warehouse();
+        assertThrows(CRUDException.class, () -> warehouseDao.create(warehouse));
     }
 
     @Test
     void testFindById() {
-        System.out.println(warehouse.getId());
         when(jdbcTemplate.queryForObject(anyString(), ArgumentMatchers.<WarehouseRowMapper>any(), anyLong()))
             .thenReturn(warehouse);
 
         assertEquals(warehouse, warehouseDao.findById(warehouse.getId(), warehouse.getAccountID()));
+
     }
 
     @Test
     void testUpdate_successFlow() {
         Warehouse updatedWarehouse = warehouse;
         updatedWarehouse.setName("Warehouse_update");
-        updatedWarehouse.setInfo("products");
+//        updatedWarehouse.setInfo("products");
+//        updatedWarehouse.setCapacity(20);
+//        updatedWarehouse.setBottom(true);
+//        updatedWarehouse.setParentID(3L);
+//        updatedWarehouse.setTopWarehouseID(2L);
+//        updatedWarehouse.setAccountID(2L);
+//        updatedWarehouse.setActive(true);
+//        updatedWarehouse.getId();
 
         when(jdbcTemplate.update(anyString(), ArgumentMatchers.<Object[]>any())).thenReturn(1);
         assertEquals(updatedWarehouse, warehouseDao.update(updatedWarehouse));
