@@ -20,9 +20,8 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -46,20 +45,24 @@ public class InvitationServiceImplTest {
     @Value("${mail.activationURL}")
     private String activationURL;
 
+    private User accountAdmin;
+    private UserDto userDto;
+
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.initMocks(this);
+        accountAdmin = new User();
+        accountAdmin.setAccountId(1L);
+        accountAdmin.setId(1L);
+        userDto = new UserDto();
+        userDto.setEmail("im.user@gmail.com");
+        userDto.setFirstName("User");
+        userDto.setLastName("User");
     }
 
     @Test
     public void inviteUserSuccess() {
-        User accountAdmin = new User();
-        accountAdmin.setAccountId(1L);
-        accountAdmin.setId(1L);
-        UserDto userDto = new UserDto();
-        userDto.setEmail("im.user@gmail.com");
-        userDto.setFirstName("User");
-        userDto.setLastName("User");
+
         UserDto createdUserDto = new UserDto();
         createdUserDto.setId(1L);
         createdUserDto.setEmail("im.user@gmail.com");
@@ -79,31 +82,24 @@ public class InvitationServiceImplTest {
 
         invitationService.inviteUser(accountAdmin, userDto);
 
-        verify(userService, times(1)).isAllowedToInvite(anyLong());
-        verify(userService, times(1)).create(userDto);
-        verify(accountDao, times(1)).findById(anyLong());
-        verify(mailService, times(1)).sendMessage(ArgumentMatchers.any(), anyString(), anyString());
-        verify(eventService, times(1)).create(event);
+        verify(userService).isAllowedToInvite(accountAdmin.getAccountId());
+        verify(userService).create(userDto);
+        verify(accountDao).findById(accountAdmin.getAccountId());
+        verify(mailService).sendMessage(ArgumentMatchers.any(), anyString(), anyString());
+        verify(eventService).create(event);
     }
 
     @Test
     public void inviteUserFail() {
-        User accountAdmin = new User();
-        accountAdmin.setAccountId(1L);
-        accountAdmin.setId(1L);
-        UserDto userDto = new UserDto();
-        userDto.setEmail("im.user@gmail.com");
-        userDto.setFirstName("User");
-        userDto.setLastName("User");
 
         when(userService.isAllowedToInvite(accountAdmin.getAccountId())).thenReturn(false);
 
         assertThrows(UserLimitReachedException.class, () -> invitationService.inviteUser(accountAdmin, userDto));
 
-        verify(userService, times(1)).isAllowedToInvite(anyLong());
-        verify(userService, times(0)).create(userDto);
-        verify(accountDao, times(0)).findById(anyLong());
-        verify(mailService, times(0)).sendMessage(ArgumentMatchers.any(), anyString(), anyString());
-        verify(eventService, times(0)).create(ArgumentMatchers.any());
+        verify(userService).isAllowedToInvite(accountAdmin.getAccountId());
+        verify(userService, never()).create(userDto);
+        verify(accountDao, never()).findById(accountAdmin.getAccountId());
+        verify(mailService, never()).sendMessage(ArgumentMatchers.any(), anyString(), anyString());
+        verify(eventService, never()).create(ArgumentMatchers.any());
     }
 }

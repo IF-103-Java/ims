@@ -24,12 +24,17 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -67,16 +72,37 @@ public class EventDaoImpl implements EventDao {
 
     @Override
     public Page<Event> findAll(Pageable pageable, Map<String, ?> params, User user) {
+        Map<String, Set> paramsNameAndType = new HashMap<>();
         if (params.containsKey("name")) {
+            if (params.get("name") instanceof Collection) {
+                paramsNameAndType.put("name", new HashSet((Collection<String>) params.get("name")));
+            } else {
+                paramsNameAndType.put("name", new HashSet(Arrays.asList(params.get("name"))));
+            }
             params.remove("type");
+        } else {
+            if (params.containsKey("type")) {
+                if (params.get("type") instanceof Collection) {
+                    paramsNameAndType.put("type", new HashSet<>((Collection<String>) params.get("type")));
+                } else {
+                    paramsNameAndType.put("type", new HashSet(Arrays.asList(params.get("type"))));
+                }
+                params.remove("type");
+            }
         }
         String accountCondition = buildSqlCondition("account_id", user.getAccountId());
         String personalConditions = "";
         if (user.getRole().equals(Role.ROLE_WORKER)) {
-            if (params.containsKey("name")) {
-                personalConditions = buildSqlNameCondition(params, user.getId());
-            } else if (params.containsKey("type")) {
-                personalConditions = buildSqlTypeCondition(params, user.getId());
+            if (paramsNameAndType.containsKey("name")) {
+                personalConditions = buildSqlNameCondition(paramsNameAndType.get("name"), user.getId());
+                if (paramsNameAndType.get("name").isEmpty()) {
+                    paramsNameAndType.remove("name");
+                }
+            } else if (paramsNameAndType.containsKey("type")) {
+                personalConditions = buildSqlTypeCondition(paramsNameAndType.get("type"), user.getId());
+                if (paramsNameAndType.get("type").isEmpty()) {
+                    paramsNameAndType.remove("type");
+                }
             } else {
                 personalConditions = "("
                     .concat(buildSqlPrivacyCondition())
@@ -88,8 +114,8 @@ public class EventDaoImpl implements EventDao {
 
         String typeAndNameConditions = Stream
             .of("type", "name")
-            .filter(params::containsKey)
-            .map(x -> buildSqlCondition(x, params.get(x)))
+            .filter(paramsNameAndType::containsKey)
+            .map(x -> buildSqlCondition(x, paramsNameAndType.get(x)))
             .collect(Collectors.joining("\n and "));
 
         String conditions = Stream
@@ -135,52 +161,33 @@ public class EventDaoImpl implements EventDao {
         }
     }
 
-    private String buildSqlNameCondition(Map<String, ?> params, Long userId) {
+    private String buildSqlNameCondition(Set<String> names, Long userId) {
         String condition = "";
-        if (params.get("name") instanceof Collection) {
-            List<String> names = new ArrayList<>();
-            for (String name : (Collection<String>) params.get("name")) {
-                if (EventName.valueOf(name).getType().equals(EventType.USER)) {
-                    names.add(name);
-                }
+        List<String> userEventNames = new ArrayList<>();
+        for (String name : names) {
+            if (EventName.valueOf(name).getType().equals(EventType.USER)) {
+                userEventNames.add(name);
             }
-            for (String name : names) {
-                ((Collection) params.get("name")).remove(name);
-            }
-            if (((Collection) params.get("name")).isEmpty()) {
-                params.remove("name");
-            }
-            if (!names.isEmpty()) {
-                condition = "("
-                    .concat(buildSqlCondition("name", names))
-                    .concat(" and ")
-                    .concat(buildSqlCondition("author_id", userId))
-                    .concat(")");
-            }
-        } else if (EventName.valueOf((String) params.get("name")).getType().equals(EventType.USER)) {
+        }
+        for (String name : userEventNames) {
+            names.remove(name);
+        }
+        Collections.sort(userEventNames);
+        if (!userEventNames.isEmpty()) {
             condition = "("
-                .concat(buildSqlCondition("name", params.get("name")))
+                .concat(buildSqlCondition("name", userEventNames))
                 .concat(" and ")
                 .concat(buildSqlCondition("author_id", userId))
                 .concat(")");
-            params.remove("name");
         }
         return condition;
     }
 
-    private String buildSqlTypeCondition(Map<String, ?> params, Long userId) {
+    private String buildSqlTypeCondition(Set<String> types, Long userId) {
         String condition = "";
-        if (params.get("type") instanceof Collection && ((Collection) params.get("type")).contains("USER")) {
-            ((Collection) params.get("type")).remove("USER");
-            if (((Collection) params.get("type")).size() > 0) {
-                condition = buildSqlDefaultCondition(userId);
-            } else {
-                params.remove("type");
-                condition = buildSqlDefaultCondition(userId);
-            }
-        } else if (params.get("type").equals("USER")) {
-            params.remove("type");
+        if (types.contains("USER")) {
             condition = buildSqlDefaultCondition(userId);
+            types.remove("USER");
         }
         return condition;
     }
@@ -210,13 +217,18 @@ public class EventDaoImpl implements EventDao {
         }
 
         if (columnName.equals("type")) {
-            Set<EventName> names = new HashSet<>();
+            Set<EventName> names = new TreeSet<>(new Comparator<EventName>() {
+                @Override
+                public int compare(EventName o1, EventName o2) {
+                    return o1.getLabel().compareTo(o2.getLabel());
+                }
+            });
             if (columnValue instanceof Collection) {
                 for (Object type : (Collection) columnValue) {
                     names.addAll(EventName.getValuesByType(EventType.valueOf(type.toString())));
                 }
             } else {
-                names = EventName.getValuesByType(EventType.valueOf(columnValue.toString()));
+                names.addAll(EventName.getValuesByType(EventType.valueOf(columnValue.toString())));
             }
 
             return buildSqlCondition("name", names);
