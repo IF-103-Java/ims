@@ -31,6 +31,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static com.ita.if103java.ims.DataUtil.getListOfUsers;
+import static com.ita.if103java.ims.DataUtil.getTestUser;
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -71,8 +73,8 @@ public class UserDaoImplTest {
     void setUp() throws SQLException {
         MockitoAnnotations.initMocks(this);
         when(this.jdbcTemplate.getDataSource()).thenReturn(dataSource);
-        when(this.dataSource.getConnection()).thenReturn(this.connection);
-        when(this.connection.prepareStatement(anyString(), anyInt())).thenReturn(this.preparedStatement);
+        when(this.dataSource.getConnection()).thenReturn(connection);
+        when(this.connection.prepareStatement(anyString(), anyInt())).thenReturn(preparedStatement);
         when(this.generatedKeyHolderFactory.newKeyHolder()).thenReturn(keyHolder);
         when(this.keyHolder.getKey()).thenReturn(1L);
         when(this.jdbcTemplate.update(any(PreparedStatementCreator.class), any(KeyHolder.class))).thenReturn(1);
@@ -80,31 +82,33 @@ public class UserDaoImplTest {
 
 
         // Initializing test user
-        user = new User();
-        user.setFirstName("Mary");
-        user.setLastName("Smith");
-        user.setEmail("mary.smith@gmail.com");
-        user.setPassword("qwerty12345");
-        user.setRole(Role.ROLE_ADMIN);
-        user.setCreatedDate(currentDateTime);
-        user.setUpdatedDate(currentDateTime);
-        user.setActive(false);
-        user.setEmailUUID(UUID.randomUUID().toString());
-        user.setAccountId(1l);
+        user = getTestUser();
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-        userDao.create(user);
     }
 
     @Test
     void testCreate_successFlow() {
+        // Initializing created user
+        User createdUser = new User();
+        createdUser.setFirstName("Mary");
+        createdUser.setLastName("Smith");
+        createdUser.setEmail("mary.smith@gmail.com");
+        createdUser.setPassword("qwerty12345");
+        createdUser.setRole(Role.ROLE_ADMIN);
+        createdUser.setCreatedDate(currentDateTime);
+        createdUser.setUpdatedDate(currentDateTime);
+        createdUser.setActive(false);
+        createdUser.setEmailUUID(UUID.randomUUID().toString());
+
         //Encoding password
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        createdUser.setPassword(passwordEncoder.encode(user.getPassword()));
         // Should return reference to the same object
-        assertEquals(user, userDao.create(user));
+        assertEquals(createdUser, userDao.create(createdUser));
         // Checking if the id was generated
-        assertNotNull(user.getId());
+        assertNotNull(createdUser.getId());
         // Checking if the user isn't active
-        assertFalse(user.isActive());
+        assertFalse(createdUser.isActive());
     }
 
     @Test
@@ -135,7 +139,7 @@ public class UserDaoImplTest {
     @Test
     void testFindAll_successFlow() {
         // Initializing users list
-        List<User> users = this.getListOfUsers();
+        List<User> users = getListOfUsers();
         for (User user : users) {
             // Adding these users to database
             userDao.create(user);
@@ -197,7 +201,8 @@ public class UserDaoImplTest {
     @Test
     void testHardDelete_successFlow() {
         when(jdbcTemplate.update(anyString(), ArgumentMatchers.<Object[]>any())).thenReturn(1);
-        assertTrue(userDao.hardDelete(user.getAccountId()));
+        userDao.hardDelete(user.getAccountId());
+        verify(jdbcTemplate, times(1)).update(anyString(), eq(user.getAccountId()));
     }
 
     @Test
@@ -232,54 +237,5 @@ public class UserDaoImplTest {
             .thenReturn(count);
 
         assertEquals(count, userDao.countOfUsers(user.getAccountId()));
-    }
-
-    private List<User> getListOfUsers() {
-        List<User> users = new ArrayList<>();
-
-        User user1 = new User();
-        user1.setId(2l);
-        user1.setFirstName("Mary1");
-        user1.setLastName("Smith1");
-        user1.setEmail("mary1.smith1@gmail.com");
-        user1.setPassword("qwerty12345");
-        user1.setRole(Role.ROLE_ADMIN);
-        user1.setCreatedDate(currentDateTime);
-        user1.setUpdatedDate(currentDateTime);
-        user1.setActive(true);
-        user1.setEmailUUID(UUID.randomUUID().toString());
-        user1.setAccountId(1l);
-
-        User user2 = new User();
-        user2.setId(3l);
-        user2.setFirstName("Mary2");
-        user2.setLastName("Smith2");
-        user2.setEmail("mary2.smith2@gmail.com");
-        user2.setPassword("qwerty12345");
-        user2.setRole(Role.ROLE_WORKER);
-        user2.setCreatedDate(currentDateTime);
-        user2.setUpdatedDate(currentDateTime);
-        user2.setActive(true);
-        user2.setEmailUUID(UUID.randomUUID().toString());
-        user2.setAccountId(1l);
-
-        User user3 = new User();
-        user3.setId(3l);
-        user3.setFirstName("Mary3");
-        user3.setLastName("Smith3");
-        user3.setEmail("mary3.smith3@gmail.com");
-        user3.setPassword("qwerty12345");
-        user3.setRole(Role.ROLE_WORKER);
-        user3.setCreatedDate(currentDateTime);
-        user3.setUpdatedDate(currentDateTime);
-        user3.setActive(false);
-        user3.setEmailUUID(UUID.randomUUID().toString());
-        user3.setAccountId(1l);
-
-        users.add(user1);
-        users.add(user2);
-        users.add(user3);
-
-        return users;
     }
 }
