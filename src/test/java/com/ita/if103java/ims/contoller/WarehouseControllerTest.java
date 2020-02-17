@@ -7,6 +7,7 @@ import com.ita.if103java.ims.dto.AddressDto;
 import com.ita.if103java.ims.dto.WarehouseDto;
 import com.ita.if103java.ims.entity.User;
 import com.ita.if103java.ims.exception.dao.WarehouseNotFoundException;
+import com.ita.if103java.ims.exception.service.MaxWarehousesLimitReachedException;
 import com.ita.if103java.ims.exception.service.WarehouseCreateException;
 import com.ita.if103java.ims.handler.GlobalExceptionHandler;
 import com.ita.if103java.ims.security.UserDetailsImpl;
@@ -54,6 +55,7 @@ public class WarehouseControllerTest {
     private Long id = 1L;
     private WarehouseCreateException warehouseCreateException;
     private WarehouseNotFoundException warehouseNotFoundException;
+    private MaxWarehousesLimitReachedException maxWarehousesLimitReachedException;
 
 
     @BeforeEach
@@ -73,6 +75,7 @@ public class WarehouseControllerTest {
 
         warehouseCreateException = new WarehouseCreateException();
         warehouseNotFoundException = new WarehouseNotFoundException();
+        maxWarehousesLimitReachedException = new MaxWarehousesLimitReachedException("The maximum number of warehouses has been reached");
     }
 
     @Test
@@ -97,7 +100,7 @@ public class WarehouseControllerTest {
     @Test
     void add_failFlow() throws Exception {
         when(warehouseService.add(any(WarehouseDto.class), any(UserDetailsImpl.class)))
-            .thenThrow(new WarehouseCreateException());
+            .thenThrow(maxWarehousesLimitReachedException);
 
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
@@ -106,8 +109,8 @@ public class WarehouseControllerTest {
         mockMvc.perform(post("/warehouses/add")
             .contentType(MediaType.APPLICATION_JSON)
             .content(resultJson))
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("message").value(warehouseCreateException.getLocalizedMessage())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("message").value(maxWarehousesLimitReachedException.getLocalizedMessage())
             );
 
 
