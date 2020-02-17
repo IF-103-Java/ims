@@ -29,7 +29,7 @@ public class EventController {
     }
 
     @PostMapping
-    public Page<EventDto> findAll(Pageable pageable, @RequestBody Map<String, Object> params, @AuthenticationPrincipal UserDetailsImpl user) {
+    public Page<EventDto> findAll(Pageable pageable, @RequestBody Map<String, ?> params, @AuthenticationPrincipal UserDetailsImpl user) {
         return eventService.findAll(pageable, params, user);
     }
 
