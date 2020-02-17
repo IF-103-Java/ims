@@ -38,11 +38,11 @@ class AccountControllerTest {
     @Mock
     AccountService accountService;
 
-
     @InjectMocks
     AccountController accountController;
 
     private User user;
+    private AccountDto accountDto;
 
     @BeforeEach
     void setUp() {
@@ -52,17 +52,18 @@ class AccountControllerTest {
         user = new User();
         user.setId(1L);
         user.setAccountId(2L);
+
+        accountDto = new AccountDto(1L, "Name", 1L, true);
+
     }
 
     @Test
     void updateSuccess() throws Exception {
-        String newName = "New Name";
-        AccountDto accountDto = new AccountDto(1L, newName, 1L, true);
-        //return accountService.update(user.getUser(), name);
+        String newName = "Name";
         when(accountService.update(user, newName)).thenReturn(accountDto);
-        mockMvc.perform(get("/accounts/" + newName)
+        mockMvc.perform(put("/accounts/" + newName)
             .contentType(MediaType.APPLICATION_JSON))
-           // .andExpect(status().isOk())
+            .andExpect(status().isOk())
             .andExpect(jsonPath("$.id").value(accountDto.getId()))
             .andExpect(jsonPath("$.name").value(accountDto.getName()))
             .andExpect(jsonPath("$.typeId").value(accountDto.getTypeId()))
@@ -70,7 +71,14 @@ class AccountControllerTest {
     }
 
     @Test
-    void view() {
-        // return accountService.view(user.getUser().getAccountId());
+    void view() throws Exception {
+        when(accountService.view(user.getAccountId())).thenReturn(accountDto);
+        mockMvc.perform(get("/accounts/")
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value(accountDto.getId()))
+            .andExpect(jsonPath("$.name").value(accountDto.getName()))
+            .andExpect(jsonPath("$.typeId").value(accountDto.getTypeId()))
+            .andExpect(jsonPath("$.active").value(accountDto.isActive()));
     }
 }
