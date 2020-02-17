@@ -58,7 +58,6 @@ class AssociateControllerTest {
     private AssociateEntityNotFoundException associateEntityNotFoundException;
     private AssociateLimitReachedException associateLimitReachedException;
 
-
     @BeforeEach
     void setUp() {
         MockitoAnnotations.initMocks(this);
@@ -81,7 +80,6 @@ class AssociateControllerTest {
 
         this.associateLimitReachedException = new AssociateLimitReachedException("The maximum of " +
             associateDto.getType() + "s for account has been reached.");
-
     }
 
     @Test
@@ -138,7 +136,6 @@ class AssociateControllerTest {
 
         verify(associateService, times(1))
             .findSortedAssociates(any(PageRequest.class), any(UserDetailsImpl.class));
-
     }
 
     @Test
@@ -158,7 +155,6 @@ class AssociateControllerTest {
 
         verify(associateService, times(1))
             .create(any(UserDetailsImpl.class), any(AssociateDto.class));
-
     }
 
     @Test
@@ -190,7 +186,6 @@ class AssociateControllerTest {
 
         verify(associateService, times(1))
             .create(any(UserDetailsImpl.class), any(AssociateDto.class));
-
     }
 
     @Test
@@ -222,7 +217,6 @@ class AssociateControllerTest {
 
         verify(associateService, times(1))
             .update(any(UserDetailsImpl.class), any(AssociateDto.class));
-
     }
 
     @Test
