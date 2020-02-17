@@ -5,7 +5,6 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.ita.if103java.ims.controller.WarehouseController;
 import com.ita.if103java.ims.dto.AddressDto;
 import com.ita.if103java.ims.dto.WarehouseDto;
-import com.ita.if103java.ims.entity.User;
 import com.ita.if103java.ims.exception.dao.WarehouseNotFoundException;
 import com.ita.if103java.ims.exception.service.MaxWarehousesLimitReachedException;
 import com.ita.if103java.ims.exception.service.WarehouseCreateException;
@@ -135,6 +134,7 @@ public class WarehouseControllerTest {
             .andExpect(jsonPath("$.info").value(warehouseDto.getInfo()))
             .andExpect(jsonPath("$.capacity").value(warehouseDto.getCapacity()))
             .andExpect(jsonPath("$.parentID").value(warehouseDto.getParentID()))
+            .andExpect(jsonPath("$.bottom").value(warehouseDto.isBottom()))
             .andExpect(jsonPath("$.accountID").value(warehouseDto.getAccountID()))
             .andExpect(jsonPath("$.topWarehouseID").value(warehouseDto.getTopWarehouseID()))
             .andExpect(jsonPath("$.active").value(warehouseDto.isActive()))
@@ -158,7 +158,7 @@ public class WarehouseControllerTest {
         objectMapper.registerModule(new JavaTimeModule());
         String resultJson = objectMapper.writeValueAsString(warehouseDto);
 
-        mockMvc.perform(post("/warehouses/add")
+        mockMvc.perform(post("/warehouses/update/" + warehouseDto.getId())
             .contentType(MediaType.APPLICATION_JSON)
             .content(resultJson))
             .andExpect(status().isOk())
@@ -167,6 +167,7 @@ public class WarehouseControllerTest {
             .andExpect(jsonPath("$.info").value(warehouseDto.getInfo()))
             .andExpect(jsonPath("$.capacity").value(warehouseDto.getCapacity()))
             .andExpect(jsonPath("$.parentID").value(warehouseDto.getParentID()))
+            .andExpect(jsonPath("$.bottom").value(warehouseDto.isBottom()))
             .andExpect(jsonPath("$.accountID").value(warehouseDto.getAccountID()))
             .andExpect(jsonPath("$.topWarehouseID").value(warehouseDto.getTopWarehouseID()))
             .andExpect(jsonPath("$.active").value(warehouseDto.isActive()))
@@ -197,6 +198,40 @@ public class WarehouseControllerTest {
         when(warehouseService.softDelete(eq(warehouseDto.getId()), any(UserDetailsImpl.class))).thenReturn(true);
 
         mockMvc.perform(delete("/warehouses/" + warehouseDto.getId())
+            .accept(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(status().isOk());
+    }
+
+    @Test
+    void findChildrenById_successFlow() throws Exception {
+        WarehouseDto warehouseDtoChild = new WarehouseDto(2L, "WarehouseChild", "goods", null, false,
+            1L, 2L, 1L, true, addressDto);
+        when(warehouseService.findChildrenById(eq(warehouseDto.getId()), any(UserDetailsImpl.class)))
+            .thenReturn(Collections.singletonList(warehouseDtoChild));
+
+        mockMvc.perform(get("/warehouses/children/" + warehouseDto.getId())
+            .accept(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(status().isOk());
+    }
+
+    @Test
+    void findTotalCapacity_successFlow() throws Exception {
+        when(warehouseService.findTotalCapacity(eq(warehouseDto.getId()), any(UserDetailsImpl.class)))
+            .thenReturn(warehouseDto.getCapacity());
+
+        mockMvc.perform(get("/warehouses/capacity/" + warehouseDto.getId())
+            .accept(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(status().isOk());
+    }
+
+    @Test
+    void getAllTopLevelList_successFlow() throws Exception {
+        WarehouseDto warehouseDTO = new WarehouseDto(3L, "WarehouseA", "goods", 30, true,
+            2L, 2L, 1L, true, addressDto);
+        when(warehouseService.findChildrenById(eq(warehouseDto.getId()), any(UserDetailsImpl.class)))
+            .thenReturn(Collections.singletonList(warehouseDTO));
+
+        mockMvc.perform(get("/warehouses/topwarehouses")
             .accept(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(status().isOk());
     }
