@@ -81,10 +81,11 @@ public class WarehouseServiceImplTest {
     @Test
     public void addWarehouse_testMaxWarehouseNumberReached() {
         WarehouseDto warehouseDto = new WarehouseDto();
-        int quantity = 2;
+        int quantity = 3;
         int maxQuantity = 3;
         assertNull(warehouseDto.getParentID());
         when(warehouseDao.findQuantityOfWarehousesByAccountId(2L)).thenReturn(quantity);
+        assertFalse(false);
 
     }
 
@@ -109,11 +110,13 @@ public class WarehouseServiceImplTest {
         WarehouseDto warehouseDto = new WarehouseDto();
         when(warehouseDao.findById(1L, 1L)).thenReturn(targetWarehouse);
         when(warehouseDtoMapper.toDto(targetWarehouse)).thenReturn(warehouseDto);
-        when(!warehouse.isTopLevel()).thenReturn(false);
+        assertFalse(targetWarehouse.isTopLevel());
         when(warehouseDao.findByTopWarehouseID(2L, 1L)).thenReturn(Collections.emptyList());
 
         assertEquals(warehouseService.findById(1L, userDetails), warehouseDto);
     }
+
+
 
     @Test
     void findAllTopLevelTest() {
@@ -122,7 +125,7 @@ public class WarehouseServiceImplTest {
     }
 
     @Test
-    void findWarehousesByTopLevelIdTest() {
+    void findWarehousesByTopLevelId_Test() {
         when(warehouseDao.findByTopWarehouseID(1L, 1L)).thenReturn(List.of(warehouse));
     }
 
