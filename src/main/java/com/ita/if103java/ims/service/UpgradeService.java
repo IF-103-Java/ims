@@ -11,7 +11,5 @@ public interface UpgradeService {
 
     AccountTypeDto findById(Long id);
 
-    List<AccountTypeDto> findAll();
-
     List<AccountTypeDto> findAllPossibleToUpgrade(Integer accountLvl);
 }
