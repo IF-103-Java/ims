@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -46,22 +47,28 @@ public class UpgradeSimpleServiceImplTest {
     @InjectMocks
     private UpgradeSimpleServiceImpl upgradeService;
 
+    private Long newAccountTypeId;
+    private AccountType currentAccountType;
+    private AccountType newAccountType;
+    private UserDetailsImpl accountAdmin;
+
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.initMocks(this);
+
+        User user = new User();
+        user.setAccountId(1L);
+        newAccountTypeId = 2L;
+        currentAccountType = new AccountType();
+        newAccountType = new AccountType();
+        accountAdmin = new UserDetailsImpl(user, currentAccountType);
     }
 
     @Test
     public void upgradeAccountSuccess() {
-        Long newAccountTypeId = 2L;
-        User user = new User();
-        user.setAccountId(1L);
-        AccountType currentAccountType = new AccountType();
         currentAccountType.setLevel(1);
-        AccountType newAccountType = new AccountType();
         newAccountType.setLevel(2);
         newAccountType.setName("Premium");
-        UserDetailsImpl accountAdmin = new UserDetailsImpl(user, currentAccountType);
         Event event = new Event("Account was upgraded to " + newAccountType.getName() + " level.",
             accountAdmin.getUser().getAccountId(), null,
             accountAdmin.getUser().getId(), EventName.ACCOUNT_UPGRADED, null);
@@ -72,29 +79,23 @@ public class UpgradeSimpleServiceImplTest {
         upgradeService.upgradeAccount(accountAdmin, newAccountTypeId);
 
         verify(accountTypeDao, times(2)).findById(newAccountTypeId);
-        verify(accountDao, times(1)).upgradeAccount(accountAdmin.getUser().getAccountId(), newAccountTypeId);
-        verify(eventService, times(1)).create(event);
+        verify(accountDao).upgradeAccount(accountAdmin.getUser().getAccountId(), newAccountTypeId);
+        verify(eventService).create(event);
     }
 
     @Test
     public void upgradeAccountFail() {
-        Long newAccountTypeId = 2L;
-        User user = new User();
-        user.setAccountId(1L);
-        AccountType currentAccountType = new AccountType();
         currentAccountType.setLevel(2);
-        AccountType newAccountType = new AccountType();
         newAccountType.setLevel(1);
-        UserDetailsImpl accountAdmin = new UserDetailsImpl(user, currentAccountType);
 
         when(accountTypeDao.findById(newAccountTypeId)).thenReturn(newAccountType);
         when(accountDao.upgradeAccount(currentAccountType.getId(), newAccountTypeId)).thenReturn(true);
 
         assertThrows(UpgradationException.class, () -> upgradeService.upgradeAccount(accountAdmin, newAccountTypeId));
 
-        verify(accountTypeDao, times(1)).findById(newAccountTypeId);
-        verify(accountDao, times(0)).upgradeAccount(anyLong(), anyLong());
-        verify(eventService, times(0)).create(any());
+        verify(accountTypeDao).findById(newAccountTypeId);
+        verify(accountDao, never()).upgradeAccount(anyLong(), anyLong());
+        verify(eventService, never()).create(any());
     }
 
 
@@ -112,8 +113,8 @@ public class UpgradeSimpleServiceImplTest {
 
         upgradeService.findById(accountId);
 
-        verify(accountTypeDao, times(1)).findById(accountId);
-        verify(accountTypeDtoMapper, times(1)).toDto(accountType);
+        verify(accountTypeDao).findById(accountId);
+        verify(accountTypeDtoMapper).toDto(accountType);
     }
 
     @Test
@@ -146,7 +147,7 @@ public class UpgradeSimpleServiceImplTest {
 
         assertEquals(allPossibleDto, upgradeService.findAllPossibleToUpgrade(2));
 
-        verify(accountTypeDao, times(1)).selectAllPossibleToUpgrade(anyInt());
-        verify(accountTypeDtoMapper, times(1)).toDtoList(allPossible);
+        verify(accountTypeDao).selectAllPossibleToUpgrade(anyInt());
+        verify(accountTypeDtoMapper).toDtoList(allPossible);
     }
 }
