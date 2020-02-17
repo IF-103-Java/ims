@@ -1,15 +1,19 @@
 package com.ita.if103java.ims.service;
 
+import ch.qos.logback.classic.spi.ILoggingEvent;
 import com.ita.if103java.ims.dao.AddressDao;
 import com.ita.if103java.ims.dao.SavedItemDao;
 import com.ita.if103java.ims.dao.WarehouseDao;
 import com.ita.if103java.ims.dto.AddressDto;
 import com.ita.if103java.ims.dto.WarehouseDto;
+import com.ita.if103java.ims.entity.AccountType;
 import com.ita.if103java.ims.entity.Address;
 import com.ita.if103java.ims.entity.Event;
+import com.ita.if103java.ims.entity.Role;
 import com.ita.if103java.ims.entity.SavedItem;
 import com.ita.if103java.ims.entity.User;
 import com.ita.if103java.ims.entity.Warehouse;
+import com.ita.if103java.ims.exception.service.MaxWarehousesLimitReachedException;
 import com.ita.if103java.ims.exception.service.WarehouseDeleteException;
 import com.ita.if103java.ims.mapper.dto.AddressDtoMapper;
 import com.ita.if103java.ims.mapper.dto.WarehouseDtoMapper;
@@ -41,7 +45,8 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
 public class WarehouseServiceImplTest {
-    private WarehouseDto warehouseDto = new WarehouseDto(12L, "WarehouseTest", "auto parts", 20, true, 5L, 2L, 4L, true, null);
+    private WarehouseDto warehouseDto = new WarehouseDto(12L, "WarehouseTest", "auto parts", 20, true, 5L, 1L, 4L, true, null);
+    private WarehouseDto topWarehouseDto = new WarehouseDto(1L, "WarehouseTop", "auto parts", 0, false, null, 1L, null, true, null);
 
     @Mock
     private Warehouse warehouse;
@@ -69,7 +74,9 @@ public class WarehouseServiceImplTest {
         MockitoAnnotations.initMocks(this);
         User user = new User();
         user.setAccountId(1L);
+        user.setRole(Role.ROLE_WORKER);
         userDetails = new UserDetailsImpl(user);
+
 
         List<Warehouse> warehouseList = Arrays.asList(
             new Warehouse(2L, "Store2", "auto parts", 0, false, 2L, 2L,
@@ -80,14 +87,15 @@ public class WarehouseServiceImplTest {
 
     @Test
     public void addWarehouse_testMaxWarehouseNumberReached() {
-        WarehouseDto warehouseDto = new WarehouseDto();
         int quantity = 3;
-        int maxQuantity = 3;
-        assertNull(warehouseDto.getParentID());
-        when(warehouseDao.findQuantityOfWarehousesByAccountId(2L)).thenReturn(quantity);
-        assertFalse(false);
-
-    }
+        Long accountId = topWarehouseDto.getAccountID();
+        assertNull(topWarehouseDto.getParentID());
+        when(warehouseDao.findQuantityOfWarehousesByAccountId(1L)).thenReturn(quantity);
+        MaxWarehousesLimitReachedException exception = assertThrows(MaxWarehousesLimitReachedException.class, () -> {
+            warehouseService.add(warehouseDto, userDetails);
+        });
+        assertEquals("The maximum number of warehouses has been reached for this" + "{accountId = " + accountId + "}", exception.getMessage());
+       }
 
     @Test
     void findByIdTest_isWarehouseTopLevel() {
