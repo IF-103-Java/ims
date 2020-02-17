@@ -110,7 +110,26 @@ public class EventDaoImpl implements EventDao {
                     .concat(buildSqlDefaultCondition(user.getId()))
                     .concat(")");
             }
+            if (params.containsKey("author_id")) {
+                if (params.get("author_id") instanceof Collection) {
+                    boolean contains = false;
+                    for (Object id : (Collection) params.get("author_id")) {
+                        if (id.toString().equals(user.getId().toString())) {
+                            contains = true;
+                            break;
+                        }
+                    }
+                    if (!contains) {
+                        personalConditions = "";
+                    }
+                } else if (!(params.get("author_id") instanceof Collection) &&
+                    !(((Object) params.get("author_id")).toString().equals(user.getId().toString()))) {
+                    personalConditions = "";
+
+                }
+            }
         }
+
 
         String typeAndNameConditions = Stream
             .of("type", "name")
@@ -141,6 +160,7 @@ public class EventDaoImpl implements EventDao {
                 where = conditions;
             }
         }
+
         where = where.isBlank() ? accountCondition : accountCondition.concat(" and " + where);
         String sort = pageable.getSort().toString().replaceAll(": ", " ");
         final String querySelectEvents = String.format("""
@@ -154,9 +174,11 @@ public class EventDaoImpl implements EventDao {
             List<Event> events = jdbcTemplate.query(querySelectEvents, eventRowMapper);
             Integer rowCount = jdbcTemplate.queryForObject(rowCountSql, Integer.class);
             return new PageImpl<>(events, pageable, rowCount);
-        } catch (EmptyResultDataAccessException e) {
+        } catch (
+            EmptyResultDataAccessException e) {
             throw new EventNotFoundException("Failed to obtain event during " + querySelectEvents + ", EventDao.findAll", e);
-        } catch (DataAccessException e) {
+        } catch (
+            DataAccessException e) {
             throw new CRUDException("Error during  " + querySelectEvents + ", EventDao.findAll", e);
         }
     }
