@@ -73,7 +73,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public Page<EventDto> findAll(Pageable pageable, Map<String, ?> params, UserDetailsImpl user) {
+    public Page<EventDto> findAll(Pageable pageable, Map<String, Object> params, UserDetailsImpl user) {
         Page<Event> page = eventDao.findAll(pageable, params, user.getUser());
         List<EventDto> eventDtos = eventDtoMapper.toDtoList(page.getContent());
         populateAdditionalInfo(eventDtos);

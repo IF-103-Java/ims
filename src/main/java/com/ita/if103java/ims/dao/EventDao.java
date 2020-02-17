@@ -11,7 +11,7 @@ public interface EventDao {
 
     Event create(Event event);
 
-    Page<Event> findAll(Pageable pageable, Map<String, ?> params, User user);
+    Page<Event> findAll(Pageable pageable, Map<String, Object> params, User user);
 
     void deleteByAccountId(Long accountId);
 }

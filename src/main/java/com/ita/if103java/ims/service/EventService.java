@@ -14,7 +14,7 @@ public interface EventService {
 
     void create(Event event);
 
-    Page<EventDto> findAll(Pageable pageable, Map<String, ?> params, UserDetailsImpl user);
+    Page<EventDto> findAll(Pageable pageable, Map<String, Object> params, UserDetailsImpl user);
 
     Map<String, EventType> getEventTypes();
 

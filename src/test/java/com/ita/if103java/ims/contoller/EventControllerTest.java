@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -33,7 +34,7 @@ public class EventControllerTest {
 
     private UserDetailsImpl userDetails;
     private Pageable pageable;
-    private Map<String, ?> params;
+    private Map<String, Object> params;
 
     @BeforeEach
     void setUp() {
@@ -48,7 +49,7 @@ public class EventControllerTest {
 
     @Test
     public void testFindAll() {
-        eventController.findAll(pageable, params, userDetails);
+        assertTrue(eventController.findAll(pageable, params, userDetails).getContent().isEmpty());
         verify(eventService, times(1)).findAll(pageable, params, userDetails);
     }
 }

@@ -68,7 +68,7 @@ public class EventDaoImpl implements EventDao {
     }
 
     @Override
-    public Page<Event> findAll(Pageable pageable, Map<String, ?> params, User user) {
+    public Page<Event> findAll(Pageable pageable, Map<String, Object> params, User user) {
         if (params.containsKey("name")) {
             params.remove("type");
         }
@@ -137,25 +137,28 @@ public class EventDaoImpl implements EventDao {
         }
     }
 
-    private String buildSqlNameCondition(Map<String, ?> params, Long userId) {
+    private String buildSqlNameCondition(Map<String, Object> params, Long userId) {
         String condition = "";
         if (params.get("name") instanceof Collection) {
-            List<String> names = new ArrayList<>();
-            for (String name : (Collection<String>) params.get("name")) {
+            List<String> names = new ArrayList<>((Collection<String>) params.get("name"));
+            List<String> userEventNames = new ArrayList<>();
+            for (String name : names) {
                 if (EventName.valueOf(name).getType().equals(EventType.USER)) {
-                    names.add(name);
+                    userEventNames.add(name);
                 }
             }
-            for (String name : names) {
-                ((Collection) params.get("name")).remove(name);
+            for (String name : userEventNames) {
+                names.remove(name);
             }
-            if (((Collection) params.get("name")).isEmpty()) {
+            if (names.isEmpty()) {
                 params.remove("name");
+            } else {
+                params.put("name", names);
             }
-            Collections.sort(names);
-            if (!names.isEmpty()) {
+            Collections.sort(userEventNames);
+            if (!userEventNames.isEmpty()) {
                 condition = "("
-                    .concat(buildSqlCondition("name", names))
+                    .concat(buildSqlCondition("name", userEventNames))
                     .concat(" and ")
                     .concat(buildSqlCondition("author_id", userId))
                     .concat(")");
