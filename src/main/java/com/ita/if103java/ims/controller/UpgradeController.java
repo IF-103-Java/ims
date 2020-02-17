@@ -37,12 +37,6 @@ public class UpgradeController {
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping(value = "/all")
-    public List<AccountTypeDto> findAll() {
-        return upgradeService.findAll();
-    }
-
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping(value = "/all-possible")
     public List<AccountTypeDto> findAllPossible(@AuthenticationPrincipal UserDetailsImpl user) {
         return upgradeService.findAllPossibleToUpgrade(user.getAccountType().getLevel());
