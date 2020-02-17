@@ -38,15 +38,6 @@ public class AccountTypeDaoImpl implements AccountTypeDao {
     }
 
     @Override
-    public List<AccountType> selectAllActive() {
-        try {
-            return jdbcTemplate.query(Queries.SQL_SELECT_ALL_ACCOUNT_TYPES, accountTypeRowMapper);
-        } catch (DataAccessException e) {
-            throw new CRUDException("Searching all active type exception, *", e);
-        }
-    }
-
-    @Override
     public List<AccountType> selectAllPossibleToUpgrade(Integer accountLvl) {
         try {
             return jdbcTemplate.query(Queries.SQL_FIND_ALL_POSSIBLE_TO_UPGRADE, accountTypeRowMapper, accountLvl);
@@ -72,12 +63,6 @@ public class AccountTypeDaoImpl implements AccountTypeDao {
                 SELECT *
                 FROM account_types
                 WHERE id = ?
-            """;
-
-        static final String SQL_SELECT_ALL_ACCOUNT_TYPES = """
-                SELECT *
-                FROM account_types
-                where active = true
             """;
 
         static final String SQL_FIND_MIN_LVL_TYPE = """
