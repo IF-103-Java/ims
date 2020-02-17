@@ -8,8 +8,6 @@ public interface AccountTypeDao {
 
     AccountType findById(Long id);
 
-    List<AccountType> selectAllActive();
-
     List<AccountType> selectAllPossibleToUpgrade(Integer accountLvl);
 
     Long minLvlType();
