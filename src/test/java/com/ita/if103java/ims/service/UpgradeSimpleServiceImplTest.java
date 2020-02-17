@@ -117,34 +117,6 @@ public class UpgradeSimpleServiceImplTest {
     }
 
     @Test
-    public void findAll() {
-        List<AccountType> allActiveAccountTypes = Arrays.asList(
-            new AccountType(1L, "Basic", 0.0, 1, 3, 3,
-                3, 3, 3, false,
-                false, true),
-            new AccountType(2L, "Premium", 500.0, 2, 100, 100,
-                100, 100, 100, true,
-                true, true)
-        );
-        List<AccountTypeDto> allActiveAccountTypesDto = Arrays.asList(
-            new AccountTypeDto(1L, "Basic", 0.0, 1, 3, 3,
-                3, 3, 3, false,
-                false, true),
-            new AccountTypeDto(2L, "Premium", 500.0, 2, 100, 100,
-                100, 100, 100, true,
-                true, true)
-        );
-
-        when(accountTypeDao.selectAllActive()).thenReturn(allActiveAccountTypes);
-        when(accountTypeDtoMapper.toDtoList(allActiveAccountTypes)).thenReturn(allActiveAccountTypesDto);
-
-        assertEquals(allActiveAccountTypesDto, upgradeService.findAll());
-
-        verify(accountTypeDao, times(1)).selectAllActive();
-        verify(accountTypeDtoMapper, times(1)).toDtoList(allActiveAccountTypes);
-    }
-
-    @Test
     public void findAllPossibleToUpgrade() {
         AccountType premium = new AccountType(2L, "Premium", 500.0, 3, 100, 100,
             100, 100, 100, true,
