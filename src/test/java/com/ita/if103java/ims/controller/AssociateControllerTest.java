@@ -73,7 +73,7 @@ class AssociateControllerTest {
         this.addressDto = new AddressDto(1L, "country", "city", "address", "zip",
             10F, -30F);
         this.associateDto = new AssociateDto(1L, 1L, "Associate name", "test@test.com",
-            "+380977959707", "additionalInfo", AssociateType.SUPPLIER, addressDto);
+            "+380977959707", "additionalInfo", AssociateType.SUPPLIER, true, addressDto);
 
         this.associateEntityNotFoundException =
             new AssociateEntityNotFoundException("Failed to obtain associate during `select`, id = " + fakeId);
