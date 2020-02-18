@@ -47,37 +47,26 @@ class InvitationControllerTest {
     private UserDto userDto;
     private AccountDto accountDto;
     private UserDetailsImpl userDetails;
+    private ZonedDateTime currentDateTime;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.initMocks(this);
         mockMvc = MockMvcBuilders.standaloneSetup(accountController).build();
 
-        user = new User();
-        user.setId(1L);
-        user.setFirstName("First name");
-        user.setLastName("Last name");
-        user.setPassword("nfdfsasf");
-        user.setEmail("im.user@gmail.com");
-        user.setEmailUUID("rddfgfd");
-        user.setUpdatedDate(ZonedDateTime.now(ZoneId.systemDefault()));
-        user.setUpdatedDate(ZonedDateTime.now(ZoneId.systemDefault()));
-        user.setRole(Role.ROLE_ADMIN);
-        user.setActive(true);
-        user.setAccountId(2L);
-        accountType = new AccountType();
-        accountType.setId(1L);
-        accountType.setName("Basic");
-        accountType.setLevel(1);
-        accountType.setActive(true);
+        currentDateTime = ZonedDateTime.now(ZoneId.systemDefault());
+        user = new User(1L, "First name", "Last name", "im.user@gmail.com","nfdfsasf", Role.ROLE_ADMIN,
+            currentDateTime, currentDateTime,  true, "rddfgfd", 3L);
+        accountType = new AccountType(2L, "Premium", 300.0, 2,
+            100, 100, 100, 100, 100,
+            true, true, true);
         userDetails = new UserDetailsImpl(user, accountType);
+        accountDto = new AccountDto(3L, "Name", 2L, true);
 
         userDto = new UserDto();
         userDto.setFirstName("First Name");
         userDto.setLastName("Last Name");
         userDto.setEmail("im.user@gmail.com");
-
-        accountDto = new AccountDto(1L, "Name", 1L, true);
 
     }
 

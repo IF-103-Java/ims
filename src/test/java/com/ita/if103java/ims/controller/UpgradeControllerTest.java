@@ -52,6 +52,8 @@ class UpgradeControllerTest {
     private AccountDto accountDto;
     private UserDetailsImpl userDetails;
     private AccountType accountType;
+    private ZonedDateTime currentDateTime;
+    private AccountTypeDto accountTypeDto;
 
     @BeforeEach
     void setUp() {
@@ -60,24 +62,17 @@ class UpgradeControllerTest {
 
         accountTypeId = 2L;
 
-        user = new User();
-        user.setId(1L);
-        user.setFirstName("First name");
-        user.setLastName("Last name");
-        user.setPassword("nfdfsasf");
-        user.setEmail("im.user@gmail.com");
-        user.setEmailUUID("rddfgfd");
-        user.setUpdatedDate(ZonedDateTime.now(ZoneId.systemDefault()));
-        user.setUpdatedDate(ZonedDateTime.now(ZoneId.systemDefault()));
-        user.setRole(Role.ROLE_ADMIN);
-        user.setActive(true);
-        user.setAccountId(2L);
-        accountType = new AccountType();
-        accountType.setId(1L);
-        accountType.setName("Basic");
-        accountType.setLevel(1);
-        accountType.setActive(true);
+        currentDateTime = ZonedDateTime.now(ZoneId.systemDefault());
+        user = new User(1L, "First name", "Last name", "im.user@gmail.com","nfdfsasf", Role.ROLE_ADMIN,
+            currentDateTime, currentDateTime,  true, "rddfgfd", 3L);
+        accountType = new AccountType(2L, "Premium", 300.0, 2,
+            100, 100, 100, 100, 100,
+            true, true, true);
         userDetails = new UserDetailsImpl(user, accountType);
+        accountDto = new AccountDto(3L, "Name", 2L, true);
+        accountTypeDto = new AccountTypeDto(2L, "Premium", 300.0, 2,
+            100, 100, 100, 100, 100,
+            true, true, true);
     }
 
     @Test
@@ -91,7 +86,7 @@ class UpgradeControllerTest {
 
     @Test
     void findCurrentType() throws Exception {
-        AccountTypeDto accountTypeDto = new AccountTypeDto();
+
         when(upgradeService.findById(any())).thenReturn(accountTypeDto);
         mockMvc.perform(get("/upgrade/")
             .principal(new UsernamePasswordAuthenticationToken(userDetails, userDetails.getAuthorities()))
