@@ -212,6 +212,9 @@ public class ItemServiceImpl implements ItemService {
             if (savedItemDto.getQuantity() == itemTransaction.getQuantity()) {
                 savedItemDao.deleteSavedItem(itemTransaction.getSavedItemId());
                 savedItemDto.setQuantity(Long.valueOf(difference).intValue());
+                Transaction transaction = transactionDao.create(transactionDao.create(itemTransaction,
+                    user.getUser(), itemTransaction.getAssociateId(), TransactionType.OUT));
+                eventService.create(createOutEvent(itemTransaction, itemDto, accountId, transaction, userId));
                 return savedItemDto;
             }
             savedItemDao.outComeSavedItem(savedItemDtoMapper.toEntity(savedItemDto),

@@ -20,6 +20,8 @@ import com.ita.if103java.ims.entity.Warehouse;
 import com.ita.if103java.ims.exception.dao.ItemNotFoundException;
 import com.ita.if103java.ims.exception.dao.SavedItemNotFoundException;
 import com.ita.if103java.ims.exception.service.ItemDuplicateException;
+import com.ita.if103java.ims.exception.service.ItemNotEnoughCapacityInWarehouseException;
+import com.ita.if103java.ims.exception.service.ItemNotEnoughQuantityException;
 import com.ita.if103java.ims.mapper.dto.ItemDtoMapper;
 import com.ita.if103java.ims.mapper.dto.SavedItemDtoMapper;
 import com.ita.if103java.ims.security.UserDetailsImpl;
@@ -38,6 +40,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.awt.print.Pageable;
 import java.util.ArrayList;
@@ -45,6 +48,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
@@ -64,8 +68,6 @@ public class ItemServiceImplTest {
     private UserDetailsImpl userDetails;
     @Mock
     private ItemDtoMapper itemDtoMapper;
-    @Mock
-    String maxWarehouseLoad;
 
     @Mock
     private SavedItemDtoMapper savedItemDtoMapper;
@@ -95,6 +97,8 @@ public class ItemServiceImplTest {
         user.setId(1L);
         userDetails = new UserDetailsImpl(user);
         itemDto = getItemDto();
+        ReflectionTestUtils.setField(itemService, "maxWarehouseLoad", "90");
+        ReflectionTestUtils.setField(itemService, "minQuantityItemsInWarehouse", "10");
     }
 
     @Test
@@ -298,6 +302,7 @@ public class ItemServiceImplTest {
 
         assertEquals(itemService.addSavedItem(itemTransaction, userDetails), savedItemDto);
         verify(eventService, times(1)).create(event);
+        verify(transactionDao, times(1)).create(transaction);
           verify(savedItemService, times(1)).validateInputs(itemTransaction, itemDto, accountId, TransactionType.IN);
 
     }
@@ -345,7 +350,6 @@ public class ItemServiceImplTest {
         when(transactionDao.create(itemTransaction, userDetails.getUser(), itemTransaction.getAssociateId(),
             TransactionType.IN)).thenReturn(transaction);
         when(transactionDao.create(transaction)).thenReturn(transaction);
-        when(maxWarehouseLoad).thenReturn("90");
         when(associateDao.findById(accountId, itemTransaction.getAssociateId())).thenReturn(associate);
         Event event = new Event("Moved " + itemTransaction.getQuantity() + " " + itemDto.getName() +
             " to warehouse " + warehouse.getName() + " " +
@@ -366,7 +370,473 @@ public class ItemServiceImplTest {
         assertEquals(itemService.addSavedItem(itemTransaction, userDetails), savedItemDto);
         verify(eventService, times(1)).create(event);
         verify(eventService, times(1)).create(event2);
+        verify(transactionDao, times(1)).create(transaction);
         verify(savedItemService, times(1)).validateInputs(itemTransaction, itemDto, accountId, TransactionType.IN);
+    }
+
+    @Test
+    void addSavedItem_omittedFlowNotEnoughCapacityInWarehouse() {
+        Long accountId = userDetails.getUser().getAccountId();
+        Associate associate = new Associate();
+        associate.setId(40L);
+        associate.setName("Nazar");
+        ItemTransactionRequestDto itemTransaction = new ItemTransactionRequestDto();
+        itemTransaction.setDestinationWarehouseId(19L);
+        itemTransaction.setItemId(108L);
+        itemTransaction.setQuantity(10L);
+        itemTransaction.setAssociateId(40L);
+
+        ItemDto itemDto = new ItemDto();
+        itemDto.setName("Potato");
+        SavedItemDto savedItemDto = new SavedItemDto();
+        savedItemDto.setId(1L);
+        savedItemDto.setItemId(itemTransaction.getItemId());
+        savedItemDto.setQuantity(itemTransaction.getQuantity().intValue());
+        savedItemDto.setWarehouseId(itemTransaction.getDestinationWarehouseId());
+        Warehouse warehouse = new Warehouse();
+        warehouse.setId(1l);
+        warehouse.setName("Section1");
+        warehouse.setCapacity(10);
+        when(itemService.findById(itemTransaction.getItemId(), userDetails)).thenReturn(itemDto);
+        doNothing().when(savedItemService).validateInputs(itemTransaction, itemDto, accountId, TransactionType.IN);
+        when(warehouseDao.findById(itemTransaction.getDestinationWarehouseId(), accountId)).thenReturn(warehouse);
+        when(savedItemService.isEnoughCapacityInWarehouse(itemTransaction, itemDto, accountId)).thenReturn(false);
+
+        Event event = new Event("Not enough capacity! Capacity " +
+            warehouse.getCapacity() +
+            " in Warehouse " +
+            warehouse.getName(),
+            accountId,
+            warehouse.getId(), userDetails.getUser().getId(), EventName.LOW_SPACE_IN_WAREHOUSE
+            , null);
+        doNothing().when(eventService).create(event);
+        ItemNotEnoughCapacityInWarehouseException exception = assertThrows(ItemNotEnoughCapacityInWarehouseException.class,
+            ()->itemService.addSavedItem(itemTransaction, userDetails));
+        assertEquals("Can't add savedItemDto in warehouse because it " + "doesn't  " +
+            "have enough capacity {warehouse_id = " + itemTransaction.getDestinationWarehouseId() + "}",
+            exception.getMessage());
+        verify(eventService, times(1)).create(event);
+        verify(transactionDao, never()).create(ArgumentMatchers.<Transaction>any());
+        verify(savedItemService, times(1)).validateInputs(itemTransaction, itemDto, accountId, TransactionType.IN);
+    }
+
+    @Test
+    void moveItem_successFlow() {
+        Long accountId = userDetails.getUser().getAccountId();
+        Associate associate = new Associate();
+        associate.setId(40L);
+        associate.setName("Nazar");
+        ItemTransactionRequestDto itemTransaction = new ItemTransactionRequestDto();
+        itemTransaction.setDestinationWarehouseId(19L);
+        itemTransaction.setSourceWarehouseId(18L);
+        itemTransaction.setItemId(108L);
+        itemTransaction.setQuantity(10L);
+        itemTransaction.setAssociateId(40L);
+        itemTransaction.setSavedItemId(1L);
+
+        ItemDto itemDto = new ItemDto();
+        itemDto.setName("Potato");
+        SavedItemDto savedItemDto = new SavedItemDto();
+        savedItemDto.setId(1L);
+        savedItemDto.setItemId(itemTransaction.getItemId());
+        savedItemDto.setQuantity(itemTransaction.getQuantity().intValue());
+        savedItemDto.setWarehouseId(itemTransaction.getDestinationWarehouseId());
+        Warehouse warehouse = new Warehouse();
+        warehouse.setId(1l);
+        warehouse.setName("Section1");
+        warehouse.setCapacity(10);
+        Transaction transaction = new Transaction();
+        transaction.setId(3L);
+
+        when(itemService.findById(itemTransaction.getItemId(), userDetails)).thenReturn(itemDto);
+        doNothing().when(savedItemService).validateInputs(itemTransaction, itemDto, accountId, TransactionType.MOVE);
+        when(warehouseDao.findById(itemTransaction.getDestinationWarehouseId(), accountId)).thenReturn(warehouse);
+        when(warehouseDao.findById(itemTransaction.getSourceWarehouseId(), accountId)).thenReturn(warehouse);
+        when(savedItemService.isEnoughCapacityInWarehouse(itemTransaction, itemDto, accountId)).thenReturn(true);
+        when(savedItemDao.updateSavedItem(itemTransaction.getDestinationWarehouseId(),
+            itemTransaction.getSavedItemId())).thenReturn(true);
+        when(transactionDao.create(itemTransaction, userDetails.getUser(), itemTransaction.getAssociateId(),
+            TransactionType.MOVE)).thenReturn(transaction);
+        when(transactionDao.create(transaction)).thenReturn(transaction);
+        Event event = new Event("Moved " + itemTransaction.getQuantity() + " " + itemDto.getName() +
+            " from warehouse " +
+            warehouse.getName() + " to " +
+            "warehouse " + warehouse.getName(), accountId,
+            itemTransaction.getSourceWarehouseId(), userDetails.getUser().getId(), EventName.ITEM_MOVED,
+            transaction.getId().longValue());
+        doNothing().when(eventService).create(event);
+        when(savedItemService.isLowSpaceInWarehouse(itemTransaction, accountId)).thenReturn(false);
+        assertEquals(itemService.moveItem(itemTransaction, userDetails), true);
+        verify(eventService, times(1)).create(event);
+        verify(transactionDao, times(1)).create(transaction);
+        verify(savedItemService, times(1)).validateInputs(itemTransaction, itemDto, accountId, TransactionType.MOVE);
+    }
+
+    @Test
+    void moveItem_successFlowLowSpaceInWarehouse() {
+        Long accountId = userDetails.getUser().getAccountId();
+        Long userId = userDetails.getUser().getId();
+        Associate associate = new Associate();
+        associate.setId(40L);
+        associate.setName("Nazar");
+        ItemTransactionRequestDto itemTransaction = new ItemTransactionRequestDto();
+        itemTransaction.setDestinationWarehouseId(19L);
+        itemTransaction.setSourceWarehouseId(18L);
+        itemTransaction.setItemId(108L);
+        itemTransaction.setQuantity(10L);
+        itemTransaction.setAssociateId(40L);
+        itemTransaction.setSavedItemId(1L);
+
+        ItemDto itemDto = new ItemDto();
+        itemDto.setName("Potato");
+        SavedItemDto savedItemDto = new SavedItemDto();
+        savedItemDto.setId(1L);
+        savedItemDto.setItemId(itemTransaction.getItemId());
+        savedItemDto.setQuantity(itemTransaction.getQuantity().intValue());
+        savedItemDto.setWarehouseId(itemTransaction.getDestinationWarehouseId());
+        Warehouse warehouse = new Warehouse();
+        warehouse.setId(1l);
+        warehouse.setName("Section1");
+        warehouse.setCapacity(10);
+        Transaction transaction = new Transaction();
+        transaction.setId(3L);
+
+        when(itemService.findById(itemTransaction.getItemId(), userDetails)).thenReturn(itemDto);
+        doNothing().when(savedItemService).validateInputs(itemTransaction, itemDto, accountId, TransactionType.MOVE);
+        when(warehouseDao.findById(itemTransaction.getDestinationWarehouseId(), accountId)).thenReturn(warehouse);
+        when(warehouseDao.findById(itemTransaction.getSourceWarehouseId(), accountId)).thenReturn(warehouse);
+        when(savedItemService.isEnoughCapacityInWarehouse(itemTransaction, itemDto, accountId)).thenReturn(true);
+        when(savedItemDao.updateSavedItem(itemTransaction.getDestinationWarehouseId(),
+            itemTransaction.getSavedItemId())).thenReturn(true);
+        when(transactionDao.create(itemTransaction, userDetails.getUser(), itemTransaction.getAssociateId(),
+            TransactionType.MOVE)).thenReturn(transaction);
+        when(transactionDao.create(transaction)).thenReturn(transaction);
+        Event event = new Event("Moved " + itemTransaction.getQuantity() + " " + itemDto.getName() +
+            " from warehouse " +
+            warehouse.getName() + " to " +
+            "warehouse " + warehouse.getName(), accountId,
+            itemTransaction.getSourceWarehouseId(), userId, EventName.ITEM_MOVED,
+            transaction.getId().longValue());
+        doNothing().when(eventService).create(event);
+
+        when(savedItemService.isLowSpaceInWarehouse(itemTransaction, accountId)).thenReturn(true);
+        Event event2 = new Event("Warehouse is loaded more than " + "90" + "%! Capacity " +
+                warehouse.getCapacity() + " in Warehouse " + warehouse.getName(), accountId,
+            warehouse.getId(), userId,
+            EventName.LOW_SPACE_IN_WAREHOUSE, null);
+        doNothing().when(eventService).create(event2);
+
+        assertEquals(itemService.moveItem(itemTransaction, userDetails), true);
+        verify(eventService, times(1)).create(event);
+        verify(eventService, times(1)).create(event2);
+        verify(transactionDao, times(1)).create(transaction);
+        verify(savedItemService, times(1)).validateInputs(itemTransaction, itemDto, accountId, TransactionType.MOVE);
+    }
+
+    @Test
+    void moveItem_successFlowNotEnoughCapacityInWarehouse() {
+        Long accountId = userDetails.getUser().getAccountId();
+        Long userId = userDetails.getUser().getId();
+        Associate associate = new Associate();
+        associate.setId(40L);
+        associate.setName("Nazar");
+        ItemTransactionRequestDto itemTransaction = new ItemTransactionRequestDto();
+        itemTransaction.setDestinationWarehouseId(19L);
+        itemTransaction.setItemId(108L);
+        itemTransaction.setQuantity(10L);
+        itemTransaction.setAssociateId(40L);
+        itemTransaction.setSavedItemId(1L);
+
+        ItemDto itemDto = new ItemDto();
+        itemDto.setName("Potato");
+        SavedItemDto savedItemDto = new SavedItemDto();
+        savedItemDto.setId(1L);
+        savedItemDto.setItemId(itemTransaction.getItemId());
+        savedItemDto.setQuantity(itemTransaction.getQuantity().intValue());
+        savedItemDto.setWarehouseId(itemTransaction.getDestinationWarehouseId());
+        Warehouse warehouse = new Warehouse();
+        warehouse.setId(1l);
+        warehouse.setName("Section1");
+        warehouse.setCapacity(10);
+
+
+        when(itemService.findById(itemTransaction.getItemId(), userDetails)).thenReturn(itemDto);
+        doNothing().when(savedItemService).validateInputs(itemTransaction, itemDto, accountId, TransactionType.MOVE);
+        when(warehouseDao.findById(itemTransaction.getDestinationWarehouseId(), accountId)).thenReturn(warehouse);
+        when(warehouseDao.findById(itemTransaction.getSourceWarehouseId(), accountId)).thenReturn(warehouse);
+        when(savedItemService.isEnoughCapacityInWarehouse(itemTransaction, itemDto, accountId)).thenReturn(false);
+
+        Event event = new Event("Not enough capacity! Capacity " + warehouse.getCapacity() + " in warehouse " +
+            warehouse.getName(), accountId,
+            warehouse.getId(), userId, EventName.LOW_SPACE_IN_WAREHOUSE, null);
+        doNothing().when(eventService).create(event);
+
+        ItemNotEnoughCapacityInWarehouseException exception = assertThrows(ItemNotEnoughCapacityInWarehouseException.class,
+            ()->itemService.moveItem(itemTransaction, userDetails));
+        assertEquals("Can't move savedItemDto in warehouse because it " +
+            "doesn't " +
+            " have enough capacity {warehouse_id = " + itemTransaction.getDestinationWarehouseId() + "}", exception.getMessage());
+        verify(transactionDao, never()).create(ArgumentMatchers.<Transaction>any());
+        verify(eventService, times(1)).create(event);
+        verify(savedItemService, times(1)).validateInputs(itemTransaction, itemDto, accountId, TransactionType.MOVE);
+    }
+
+    @Test
+    void outcomeItem_successFlow() {
+        Long accountId = userDetails.getUser().getAccountId();
+        Long userId = userDetails.getUser().getId();
+        Associate associate = new Associate();
+        associate.setId(40L);
+        associate.setName("Nazar");
+        ItemTransactionRequestDto itemTransaction = new ItemTransactionRequestDto();
+        itemTransaction.setSourceWarehouseId(18L);
+        itemTransaction.setItemId(108L);
+        itemTransaction.setQuantity(10L);
+        itemTransaction.setAssociateId(40L);
+        itemTransaction.setSavedItemId(1L);
+
+        ItemDto itemDto = new ItemDto();
+        itemDto.setName("Potato");
+
+        SavedItemDto savedItemDto = new SavedItemDto();
+        savedItemDto.setId(1L);
+        savedItemDto.setItemId(itemTransaction.getItemId());
+        savedItemDto.setQuantity(25);
+        savedItemDto.setWarehouseId(itemTransaction.getDestinationWarehouseId());
+
+        SavedItem savedItem = new SavedItem();
+        SavedItemDto savedItemDto2 = new SavedItemDto();
+        savedItemDto2.setId(1L);
+        savedItemDto2.setItemId(itemTransaction.getItemId());
+        savedItemDto2.setWarehouseId(itemTransaction.getDestinationWarehouseId());
+
+        Transaction transaction = new Transaction();
+        transaction.setId(3L);
+
+        when(itemService.findById(itemTransaction.getItemId(), userDetails)).thenReturn(itemDto);
+        doNothing().when(savedItemService).validateInputs(itemTransaction, itemDto, accountId, TransactionType.OUT);
+        when(savedItemDao.findSavedItemById(itemTransaction.getSavedItemId())).thenReturn(savedItem);
+        when(savedItemDtoMapper.toDto(savedItem)).thenReturn(savedItemDto);
+        when(savedItemDtoMapper.toEntity(savedItemDto)).thenReturn(savedItem);
+        long difference = savedItemDto.getQuantity() - itemTransaction.getQuantity();
+        when(savedItemDao.outComeSavedItem(savedItem, Long.valueOf(difference).intValue())).thenReturn(true);
+        when(transactionDao.create(itemTransaction,
+            userDetails.getUser(), itemTransaction.getAssociateId(), TransactionType.OUT)).thenReturn(transaction);
+        when(transactionDao.create(transaction)).thenReturn(transaction);
+        when(associateDao.findById(accountId, associate.getId())).thenReturn(associate);
+        Event event = new Event("Sold  " + itemTransaction.getQuantity() + " " + itemDto.getName() + " to client " +
+            associate.getName(),
+            accountId,
+            itemTransaction.getSourceWarehouseId(), userId, EventName.ITEM_SHIPPED,
+            transaction.getId().longValue());
+         doNothing().when(eventService).create(event);
+
+         savedItemDto2.setQuantity(Long.valueOf(difference).intValue());
+         SavedItemDto result = itemService.outcomeItem(itemTransaction, userDetails);
+        assertEquals(result.getItemId(), savedItemDto.getItemId());
+        assertEquals(result.getId(), savedItemDto2.getId());
+        assertEquals(result.getWarehouseId(), savedItemDto2.getWarehouseId());
+        assertEquals(result.getQuantity(), savedItemDto2.getQuantity());
+        verify(eventService, times(1)).create(event);
+        verify(transactionDao, times(1)).create(transaction);
+        verify(savedItemService, times(1)).validateInputs(itemTransaction, itemDto, accountId, TransactionType.OUT);
+
+    }
+
+    @Test
+    void outcomeItem_successFlowOutcomeCompletelyQuantity() {
+        Long accountId = userDetails.getUser().getAccountId();
+        Long userId = userDetails.getUser().getId();
+        Associate associate = new Associate();
+        associate.setId(40L);
+        associate.setName("Nazar");
+        ItemTransactionRequestDto itemTransaction = new ItemTransactionRequestDto();
+        itemTransaction.setSourceWarehouseId(18L);
+        itemTransaction.setItemId(108L);
+        itemTransaction.setQuantity(10L);
+        itemTransaction.setAssociateId(40L);
+        itemTransaction.setSavedItemId(1L);
+
+        ItemDto itemDto = new ItemDto();
+        itemDto.setName("Potato");
+
+        SavedItemDto savedItemDto = new SavedItemDto();
+        savedItemDto.setId(1L);
+        savedItemDto.setItemId(itemTransaction.getItemId());
+        savedItemDto.setQuantity(10);
+        savedItemDto.setWarehouseId(itemTransaction.getDestinationWarehouseId());
+
+        SavedItem savedItem = new SavedItem();
+        SavedItemDto savedItemDto2 = new SavedItemDto();
+        savedItemDto2.setId(1L);
+        savedItemDto2.setItemId(itemTransaction.getItemId());
+        savedItemDto2.setWarehouseId(itemTransaction.getDestinationWarehouseId());
+
+        Transaction transaction = new Transaction();
+        transaction.setId(3L);
+
+        when(itemService.findById(itemTransaction.getItemId(), userDetails)).thenReturn(itemDto);
+        doNothing().when(savedItemService).validateInputs(itemTransaction, itemDto, accountId, TransactionType.OUT);
+        when(savedItemDao.findSavedItemById(itemTransaction.getSavedItemId())).thenReturn(savedItem);
+        when(savedItemDtoMapper.toDto(savedItem)).thenReturn(savedItemDto);
+        long difference = savedItemDto.getQuantity() - itemTransaction.getQuantity();
+
+        when(savedItemDao.deleteSavedItem(itemTransaction.getSavedItemId())).thenReturn(true);
+        when(transactionDao.create(itemTransaction,
+            userDetails.getUser(), itemTransaction.getAssociateId(), TransactionType.OUT)).thenReturn(transaction);
+        when(transactionDao.create(transaction)).thenReturn(transaction);
+        when(associateDao.findById(accountId, associate.getId())).thenReturn(associate);
+        Event event = new Event("Sold  " + itemTransaction.getQuantity() + " " + itemDto.getName() + " to client " +
+            associate.getName(),
+            accountId,
+            itemTransaction.getSourceWarehouseId(), userId, EventName.ITEM_SHIPPED,
+            transaction.getId().longValue());
+        doNothing().when(eventService).create(event);
+
+
+        savedItemDto2.setQuantity(Long.valueOf(difference).intValue());
+        SavedItemDto result = itemService.outcomeItem(itemTransaction, userDetails);
+        assertEquals(result.getItemId(), savedItemDto.getItemId());
+        assertEquals(result.getId(), savedItemDto2.getId());
+        assertEquals(result.getWarehouseId(), savedItemDto2.getWarehouseId());
+        assertEquals(result.getQuantity(), savedItemDto2.getQuantity());
+        verify(savedItemDao, times(1)).deleteSavedItem(itemTransaction.getSavedItemId());
+        verify(eventService, times(1)).create(event);
+        verify(transactionDao, times(1)).create(transaction);
+        verify(savedItemService, times(1)).validateInputs(itemTransaction, itemDto, accountId, TransactionType.OUT);
+
+    }
+
+    @Test
+    void outcomeItem_successFlowLowQuantity() {
+        Long accountId = userDetails.getUser().getAccountId();
+        Long userId = userDetails.getUser().getId();
+        Associate associate = new Associate();
+        associate.setId(40L);
+        associate.setName("Nazar");
+        ItemTransactionRequestDto itemTransaction = new ItemTransactionRequestDto();
+        itemTransaction.setSourceWarehouseId(18L);
+        itemTransaction.setItemId(108L);
+        itemTransaction.setQuantity(10L);
+        itemTransaction.setAssociateId(40L);
+        itemTransaction.setSavedItemId(1L);
+
+        ItemDto itemDto = new ItemDto();
+        itemDto.setName("Potato");
+
+        Warehouse warehouse = new Warehouse();
+        warehouse.setId(1l);
+        warehouse.setName("Section1");
+        warehouse.setCapacity(10);
+
+        SavedItemDto savedItemDto = new SavedItemDto();
+        savedItemDto.setId(1L);
+        savedItemDto.setItemId(itemTransaction.getItemId());
+        savedItemDto.setQuantity(15);
+        savedItemDto.setWarehouseId(itemTransaction.getDestinationWarehouseId());
+
+        SavedItem savedItem = new SavedItem();
+        SavedItemDto savedItemDto2 = new SavedItemDto();
+        savedItemDto2.setId(1L);
+        savedItemDto2.setItemId(itemTransaction.getItemId());
+        savedItemDto2.setWarehouseId(itemTransaction.getDestinationWarehouseId());
+
+        Transaction transaction = new Transaction();
+        transaction.setId(3L);
+
+        when(itemService.findById(itemTransaction.getItemId(), userDetails)).thenReturn(itemDto);
+        doNothing().when(savedItemService).validateInputs(itemTransaction, itemDto, accountId, TransactionType.OUT);
+        when(savedItemDao.findSavedItemById(itemTransaction.getSavedItemId())).thenReturn(savedItem);
+        when(savedItemDtoMapper.toDto(savedItem)).thenReturn(savedItemDto);
+        when(savedItemDtoMapper.toEntity(savedItemDto)).thenReturn(savedItem);
+        long difference = savedItemDto.getQuantity() - itemTransaction.getQuantity();
+        when(savedItemDao.outComeSavedItem(savedItem, Long.valueOf(difference).intValue())).thenReturn(true);
+        when(transactionDao.create(itemTransaction,
+            userDetails.getUser(), itemTransaction.getAssociateId(), TransactionType.OUT)).thenReturn(transaction);
+        when(transactionDao.create(transaction)).thenReturn(transaction);
+        when(associateDao.findById(accountId, associate.getId())).thenReturn(associate);
+        Event event = new Event("Sold  " + itemTransaction.getQuantity() + " " + itemDto.getName() + " to client " +
+            associate.getName(),
+            accountId,
+            itemTransaction.getSourceWarehouseId(), userId, EventName.ITEM_SHIPPED,
+            transaction.getId().longValue());
+        doNothing().when(eventService).create(event);
+        when(warehouseDao.findById(itemTransaction.getSourceWarehouseId(), accountId)).thenReturn(warehouse);
+        Event event2 = new Event("Left less than " + "10" + " items! Quantity" +
+            itemTransaction.getQuantity() + " " +
+            itemDto.getName() +
+            " in warehouse " +
+            warehouse.getName(),
+            accountId,
+            itemTransaction.getSourceWarehouseId(), userId, EventName.ITEM_ENDED, null);
+        doNothing().when(eventService).create(event2);
+
+        savedItemDto2.setQuantity(Long.valueOf(difference).intValue());
+        SavedItemDto result = itemService.outcomeItem(itemTransaction, userDetails);
+        assertEquals(result.getItemId(), savedItemDto.getItemId());
+        assertEquals(result.getId(), savedItemDto2.getId());
+        assertEquals(result.getWarehouseId(), savedItemDto2.getWarehouseId());
+        assertEquals(result.getQuantity(), savedItemDto2.getQuantity());
+        verify(eventService, times(1)).create(event);
+        verify(eventService, times(1)).create(event2);
+        verify(transactionDao, times(1)).create(transaction);
+        verify(savedItemService, times(1)).validateInputs(itemTransaction, itemDto, accountId, TransactionType.OUT);
+
+    }
+
+    @Test
+    void outcomeItem_omittedFlowNotEnoughQuantity() {
+        Long accountId = userDetails.getUser().getAccountId();
+        Long userId = userDetails.getUser().getId();
+        Associate associate = new Associate();
+        associate.setId(40L);
+        associate.setName("Nazar");
+        ItemTransactionRequestDto itemTransaction = new ItemTransactionRequestDto();
+        itemTransaction.setSourceWarehouseId(18L);
+        itemTransaction.setItemId(108L);
+        itemTransaction.setQuantity(15L);
+        itemTransaction.setAssociateId(40L);
+        itemTransaction.setSavedItemId(1L);
+
+        ItemDto itemDto = new ItemDto();
+        itemDto.setName("Potato");
+
+        Warehouse warehouse = new Warehouse();
+        warehouse.setId(1l);
+        warehouse.setName("Section1");
+        warehouse.setCapacity(10);
+
+        SavedItemDto savedItemDto = new SavedItemDto();
+        savedItemDto.setId(1L);
+        savedItemDto.setItemId(itemTransaction.getItemId());
+        savedItemDto.setQuantity(10);
+        savedItemDto.setWarehouseId(itemTransaction.getDestinationWarehouseId());
+
+        SavedItem savedItem = new SavedItem();
+        SavedItemDto savedItemDto2 = new SavedItemDto();
+        savedItemDto2.setId(1L);
+        savedItemDto2.setItemId(itemTransaction.getItemId());
+        savedItemDto2.setWarehouseId(itemTransaction.getDestinationWarehouseId());
+
+        when(itemService.findById(itemTransaction.getItemId(), userDetails)).thenReturn(itemDto);
+        doNothing().when(savedItemService).validateInputs(itemTransaction, itemDto, accountId, TransactionType.OUT);
+        when(savedItemDao.findSavedItemById(itemTransaction.getSavedItemId())).thenReturn(savedItem);
+        when(savedItemDtoMapper.toDto(savedItem)).thenReturn(savedItemDto);
+        when(warehouseDao.findById(itemTransaction.getSourceWarehouseId(), accountId)).thenReturn(warehouse);
+        Event event = new Event(
+            "Not enough quantity  " + itemTransaction.getQuantity() + " " + itemDto.getName() +
+                " in warehouse " + warehouse.getName(),
+            accountId, itemTransaction.getSourceWarehouseId(), userId, EventName.ITEM_ENDED, null);
+        doNothing().when(eventService).create(event);
+        ItemNotEnoughQuantityException exception = assertThrows(ItemNotEnoughQuantityException.class,
+            ()->itemService.outcomeItem(itemTransaction, userDetails));
+        assertEquals("Outcome failed. Can't find needed quantity item in warehouse " +
+            "needed" +
+            " quantity of items {warehouse_id = " + itemTransaction.getSourceWarehouseId() + ", quantity = " +
+            itemTransaction.getQuantity() + "}", exception.getMessage());
+        verify(eventService, times(1)).create(event);
+        verify(savedItemService, times(1)).validateInputs(itemTransaction, itemDto, accountId, TransactionType.OUT);
+
     }
 
     private List<ItemDto> getListOfItemDtos(){
