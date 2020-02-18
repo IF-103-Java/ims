@@ -1,5 +1,7 @@
 package com.ita.if103java.ims.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.ita.if103java.ims.dto.AccountDto;
 import com.ita.if103java.ims.dto.UserDto;
 import com.ita.if103java.ims.entity.AccountType;
@@ -15,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
@@ -83,10 +86,16 @@ class AccountControllerTest {
 
     @Test
     void updateSuccess() throws Exception {
-        String newName = "Name";
         when(accountService.update(any(User.class), anyString())).thenReturn(accountDto);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        String resultJson = objectMapper.writeValueAsString(accountDto.getName());
+
         mockMvc.perform(put("/accounts/")
-            .contentType(MediaType.APPLICATION_JSON))
+            .principal(new UsernamePasswordAuthenticationToken(userDetails, userDetails.getAuthorities()))
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(resultJson))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.id").value(accountDto.getId()))
             .andExpect(jsonPath("$.name").value(accountDto.getName()))
