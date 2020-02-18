@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -26,9 +25,13 @@ import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -46,24 +49,23 @@ public class WarehouseDaoImplTest {
     @Mock
     private GeneratedKeyHolderFactory generatedKeyHolderFactory;
 
-
     @InjectMocks
     private WarehouseDaoImpl warehouseDao;
 
     private Warehouse warehouse;
 
-
     @BeforeEach
     void setUp() throws SQLException {
         MockitoAnnotations.initMocks(this);
         when(this.jdbcTemplate.getDataSource()).thenReturn(dataSource);
-        when(this.dataSource.getConnection()).thenReturn(this.connection);
-        when(this.connection.prepareStatement(anyString(), anyInt())).thenReturn(this.preparedStatement);
+        when(this.dataSource.getConnection()).thenReturn(connection);
+        when(this.connection.prepareStatement(anyString(), anyInt())).thenReturn(preparedStatement);
         when(this.generatedKeyHolderFactory.newKeyHolder()).thenReturn(keyHolder);
         when(this.keyHolder.getKey()).thenReturn(1L);
-        when(this.jdbcTemplate.update(Mockito.any(PreparedStatementCreator.class), Mockito.any(KeyHolder.class))).thenReturn(1);
+        when(this.jdbcTemplate.update(any(PreparedStatementCreator.class), any(KeyHolder.class))).thenReturn(1);
 
         warehouse = new Warehouse();
+        warehouse.setId(1L);
         warehouse.setName("Stock");
         warehouse.setInfo("universal");
         warehouse.setCapacity(30);
@@ -75,17 +77,17 @@ public class WarehouseDaoImplTest {
 
         warehouseDao.create(warehouse);
 
-        Warehouse warehouseTop = new Warehouse();
-        warehouseTop.setName("TopStock");
-        warehouseTop.setInfo("universal");
-        warehouseTop.setCapacity(0);
-        warehouseTop.setBottom(false);
-        warehouseTop.setParentID(null);
-        warehouseTop.setAccountID(2L);
-        warehouseTop.setTopWarehouseID(null);
-        warehouseTop.setActive(true);
-
-        warehouseDao.create(warehouseTop);
+//        Warehouse warehouseTop = new Warehouse();
+//        warehouseTop.setName("TopStock");
+//        warehouseTop.setInfo("universal");
+//        warehouseTop.setCapacity(0);
+//        warehouseTop.setBottom(false);
+//        warehouseTop.setParentID(null);
+//        warehouseTop.setAccountID(2L);
+//        warehouseTop.setTopWarehouseID(null);
+//        warehouseTop.setActive(true);
+//
+//        warehouseDao.create(warehouseTop);
     }
 
     @Test
@@ -108,23 +110,22 @@ public class WarehouseDaoImplTest {
             .thenReturn(warehouse);
 
         assertEquals(warehouse, warehouseDao.findById(warehouse.getId(), warehouse.getAccountID()));
+
+        verify(jdbcTemplate).queryForObject(anyString(), ArgumentMatchers.<WarehouseRowMapper>any(), eq(warehouse.getId()));
     }
 
     @Test
     void testUpdate_successFlow() {
         Warehouse updatedWarehouse = warehouse;
-        updatedWarehouse.setName("Warehouse_update");
-        updatedWarehouse.setInfo("products");
-        updatedWarehouse.setCapacity(20);
-        updatedWarehouse.setBottom(true);
-        updatedWarehouse.setParentID(3L);
-        updatedWarehouse.setTopWarehouseID(2L);
-        updatedWarehouse.setAccountID(2L);
-        updatedWarehouse.setActive(true);
-        updatedWarehouse.getId();
 
         when(jdbcTemplate.update(anyString(), ArgumentMatchers.<Object[]>any())).thenReturn(1);
         assertEquals(updatedWarehouse, warehouseDao.update(updatedWarehouse));
+    }
+
+    @Test
+    public void testDeleteByAccountId() {
+        warehouseDao.hardDelete(1L);
+        verify(jdbcTemplate, times(1)).update(anyString(), eq(1L));
     }
 
 }
