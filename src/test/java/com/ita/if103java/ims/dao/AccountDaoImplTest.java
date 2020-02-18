@@ -12,6 +12,7 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.support.KeyHolder;
@@ -25,14 +26,16 @@ import java.time.ZonedDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.times;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@SpringBootTest
 class AccountDaoImplTest {
 
     @Mock
@@ -59,7 +62,6 @@ class AccountDaoImplTest {
     @InjectMocks
     private AccountDaoImpl accountDao;
 
-
     private Account account;
     private ZonedDateTime currentDateTime = ZonedDateTime.now(ZoneId.systemDefault());
 
@@ -82,72 +84,78 @@ class AccountDaoImplTest {
     }
 
     @Test
-    public void createSuccess() {
+    public void create_successFlow() {
         when(accountTypeDao.minLvlType()).thenReturn(1L);
 
         assertEquals(account, accountDao.create(account));
 
-        verify(accountTypeDao, times(1)).minLvlType();
-        }
+        verify(accountTypeDao).minLvlType();
+    }
 
     @Test
-    public void createFail() {
+    public void create_failFlow() {
         when(accountTypeDao.minLvlType()).thenReturn(1L);
         when(this.keyHolder.getKey()).thenReturn(null);
 
         assertThrows(CRUDException.class, () -> accountDao.create(new Account()));
 
-        verify(accountTypeDao, times(1)).minLvlType();
+        verify(accountTypeDao).minLvlType();
     }
 
     @Test
-    public void findById() {
-        Long id = account.getId();
+    public void findById_successFlow() {
 
         when(jdbcTemplate.queryForObject(anyString(), ArgumentMatchers.<AccountRowMapper>any(), anyLong()))
             .thenReturn(account);
 
-        accountDao.findById(id);
-       // assertEquals(account, accountDao.findById(account.getId()));
+        assertEquals(account, accountDao.findById(account.getId()));
+
+        verify(jdbcTemplate).queryForObject(anyString(), ArgumentMatchers.<AccountRowMapper>any(), eq(account.getId()));
     }
 
     @Test
     public void update() {
 
         when(jdbcTemplate.update(anyString(), ArgumentMatchers.<Object[]>any())).thenReturn(1);
-        // assertEquals(updatedAccount, accountDao.update(updatedAccount));
-        accountDao.update(account);
+
+        assertEquals(account, accountDao.update(account));
+
+        verify(jdbcTemplate).update(anyString(), eq(account.getName()), eq(account.getId()));
     }
 
     @Test
     public void activate() {
         when(jdbcTemplate.update(anyString(), ArgumentMatchers.<Object[]>any())).thenReturn(1);
+
         accountDao.activate(account.getId());
 
-      //  verify(jdbcTemplate, times(1)).update(anyLong());
+        verify(jdbcTemplate).update(anyString(), eq(true), eq(account.getId()));
     }
 
     @Test
     public void delete() {
         when(jdbcTemplate.update(anyString(), ArgumentMatchers.<Object[]>any())).thenReturn(1);
+
         accountDao.delete(account.getId());
 
-    //    verify(jdbcTemplate, times(1)).update(anyString(), anyLong());
+        verify(jdbcTemplate).update(anyString(), eq(false), anyLong());
     }
 
     @Test
     public void upgradeAccount() {
         when(jdbcTemplate.update(anyString(), anyLong(), anyLong())).thenReturn(1);
-        accountDao.upgradeAccount(account.getId(), account.getTypeId());
-        //assertTrue
-    //    verify(jdbcTemplate, times(1)).update(anyString(), anyLong());
+
+        assertTrue(accountDao.upgradeAccount(account.getId(), account.getTypeId()));
+
+        verify(jdbcTemplate).update(anyString(), eq(account.getId()), eq(account.getTypeId()));
     }
 
     @Test
     public void hardDelete() {
         when(jdbcTemplate.update(anyString(), anyLong())).thenReturn(1);
-        accountDao.hardDelete(account.getId());
-        //assertTrue
-     //   verify(jdbcTemplate, times(1)).update(anyString(), anyLong());
+
+        assertTrue(accountDao.hardDelete(account.getId()));
+
+        verify(jdbcTemplate).update(anyString(), anyLong());
     }
 }
