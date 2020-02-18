@@ -102,11 +102,6 @@ public class UserServiceImplTest {
         mapper = new UserDtoMapper();
         accountMapper = new AccountDtoMapper();
         currentDateTime = ZonedDateTime.now(ZoneId.systemDefault());
-
-        account = new Account();
-        accountType = new AccountType();
-        createdUserDto = new UserDto();
-
         userService = new UserServiceImpl(
             userDao,
             mapper,
@@ -134,6 +129,7 @@ public class UserServiceImplTest {
         userDto = mapper.toDto(user);
 
         //Initializing created user
+        createdUserDto = new UserDto();
         createdUserDto.setId(1l);
         createdUserDto.setFirstName("Mary");
         createdUserDto.setLastName("Smith");
@@ -150,7 +146,9 @@ public class UserServiceImplTest {
 
 
         //Initializing account and accountType
+        accountType = new AccountType();
         accountType.setMaxUsers(3);
+        account = new Account();
         account.setId(1l);
         account.setTypeId(1l);
         when(accountDao.findById(userDto.getAccountId())).thenReturn(account);
@@ -167,8 +165,8 @@ public class UserServiceImplTest {
         //Preparing user for creating
         user.setActive(false);
         user.setAccountId(null);
-        when(userDao.create(any(User.class))).thenReturn(user);
 
+        when(userDao.create(any(User.class))).thenReturn(user);
         UserDto resultUserDto = userService.create(createdUserDto);
 
         // Checking if the id was generated
@@ -206,7 +204,7 @@ public class UserServiceImplTest {
         UserDto resultUserDto = userService.findById(user.getId());
 
         // Checking if the correct user was returned except of password
-        assertThat(userDto).isEqualToIgnoringGivenFields(resultUserDto, "password", "emailUUID");
+        assertEquals(userDto, resultUserDto);
     }
 
     @Test
@@ -215,7 +213,7 @@ public class UserServiceImplTest {
         UserDto resultUserDto = userService.findAdminByAccountId(user.getAccountId());
 
         // Checking if the correct user was returned except of password
-        assertThat(userDto).isEqualToIgnoringGivenFields(resultUserDto, "password", "emailUUID");
+        assertEquals(userDto, resultUserDto);
     }
 
     @Test
@@ -224,7 +222,7 @@ public class UserServiceImplTest {
         UserDto resultUserDto = userService.findByEmail(user.getEmail());
 
         // Checking if the correct user was returned except of password
-        assertThat(userDto).isEqualToIgnoringGivenFields(resultUserDto, "password", "emailUUID");
+        assertEquals(userDto, resultUserDto);
     }
 
     @Test
@@ -255,15 +253,15 @@ public class UserServiceImplTest {
 
     @Test
     void update_successFlow() {
-        User updatedUser = mapper.toEntity(userDto);
-        updatedUser.setFirstName("MaryNew");
-        updatedUser.setLastName("SmithNew");
+        user.setFirstName("MaryNew");
+        user.setLastName("SmithNew");
+        userDto = mapper.toDto(user);
 
-        when(userDao.update(updatedUser)).thenReturn(updatedUser);
+        when(userDao.update(user)).thenReturn(user);
 
-        UserDto resultUserDto = userService.update(mapper.toDto(updatedUser));
+        UserDto resultUserDto = userService.update(userDto);
         // Checking if the correct user was returned
-        assertThat(updatedUser).isEqualToIgnoringGivenFields(resultUserDto, "password", "emailUUID", "updatedDate");
+        assertEquals(userDto, resultUserDto);
 
         verify(eventService).create(any(Event.class));
 

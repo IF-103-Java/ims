@@ -84,22 +84,14 @@ public class UserDaoImplTest {
         // Initializing test user
         user = getTestUser();
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-
     }
 
     @Test
     void testCreate_successFlow() {
         // Initializing created user
-        User createdUser = new User();
-        createdUser.setFirstName("Mary");
-        createdUser.setLastName("Smith");
-        createdUser.setEmail("mary.smith@gmail.com");
-        createdUser.setPassword("qwerty12345");
-        createdUser.setRole(Role.ROLE_ADMIN);
-        createdUser.setCreatedDate(currentDateTime);
-        createdUser.setUpdatedDate(currentDateTime);
+        User createdUser = getTestUser();
         createdUser.setActive(false);
-        createdUser.setEmailUUID(UUID.randomUUID().toString());
+        createdUser.setAccountId(null);
 
         //Encoding password
         createdUser.setPassword(passwordEncoder.encode(user.getPassword()));
