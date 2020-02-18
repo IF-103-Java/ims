@@ -4,6 +4,7 @@ import com.ita.if103java.ims.config.GeneratedKeyHolderFactory;
 import com.ita.if103java.ims.dao.impl.AccountDaoImpl;
 import com.ita.if103java.ims.dao.impl.AccountTypeDaoImpl;
 import com.ita.if103java.ims.entity.Account;
+import com.ita.if103java.ims.exception.dao.AccountNotFoundException;
 import com.ita.if103java.ims.exception.dao.CRUDException;
 import com.ita.if103java.ims.mapper.jdbc.AccountRowMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -75,7 +76,7 @@ class AccountDaoImplTest {
         when(this.keyHolder.getKey()).thenReturn(1L);
         when(this.jdbcTemplate.update(any(PreparedStatementCreator.class), any(KeyHolder.class))).thenReturn(1);
 
-        account = new Account(1L, "Account name",  1L, currentDateTime,true);
+        account = new Account(1L, "Account name", 1L, currentDateTime, true);
     }
 
     @Test
@@ -109,7 +110,7 @@ class AccountDaoImplTest {
     }
 
     @Test
-    public void update() {
+    public void update_successFlow() {
 
         when(jdbcTemplate.update(anyString(), ArgumentMatchers.<Object[]>any())).thenReturn(1);
 
@@ -119,7 +120,17 @@ class AccountDaoImplTest {
     }
 
     @Test
-    public void activate() {
+    public void update_AccountNotFoundException() {
+
+        when(jdbcTemplate.update(anyString(), ArgumentMatchers.<Object[]>any())).thenReturn(0);
+
+        assertThrows(AccountNotFoundException.class, () -> accountDao.update(account));
+
+        verify(jdbcTemplate).update(anyString(), eq(account.getName()), eq(account.getId()));
+    }
+
+    @Test
+    public void activate_successFlow() {
         when(jdbcTemplate.update(anyString(), ArgumentMatchers.<Object[]>any())).thenReturn(1);
 
         accountDao.activate(account.getId());
@@ -128,7 +139,16 @@ class AccountDaoImplTest {
     }
 
     @Test
-    public void delete() {
+    public void activate_AccountNotFoundException() {
+        when(jdbcTemplate.update(anyString(), ArgumentMatchers.<Object[]>any())).thenReturn(0);
+
+        assertThrows(AccountNotFoundException.class, () -> accountDao.activate(account.getId()));
+
+        verify(jdbcTemplate).update(anyString(), eq(true), eq(account.getId()));
+    }
+
+    @Test
+    public void delete_successFlow() {
         when(jdbcTemplate.update(anyString(), ArgumentMatchers.<Object[]>any())).thenReturn(1);
 
         accountDao.delete(account.getId());
@@ -137,7 +157,16 @@ class AccountDaoImplTest {
     }
 
     @Test
-    public void upgradeAccount() {
+    public void delete_AccountNotFoundException() {
+        when(jdbcTemplate.update(anyString(), ArgumentMatchers.<Object[]>any())).thenReturn(0);
+
+        assertThrows(AccountNotFoundException.class, () -> accountDao.delete(account.getId()));
+
+        verify(jdbcTemplate).update(anyString(), eq(false), anyLong());
+    }
+
+    @Test
+    public void upgradeAccount_successFlow() {
         when(jdbcTemplate.update(anyString(), anyLong(), anyLong())).thenReturn(1);
 
         assertTrue(accountDao.upgradeAccount(account.getId(), account.getTypeId()));
@@ -146,7 +175,25 @@ class AccountDaoImplTest {
     }
 
     @Test
-    public void hardDelete() {
+    public void upgradeAccount_AccountNotFoundException() {
+        when(jdbcTemplate.update(anyString(), anyLong(), anyLong())).thenReturn(0);
+
+        assertThrows(AccountNotFoundException.class, () -> accountDao.upgradeAccount(account.getId(), account.getTypeId()));
+
+        verify(jdbcTemplate).update(anyString(), eq(account.getId()), eq(account.getTypeId()));
+    }
+
+    @Test
+    public void hardDelete_successFlow() {
+        when(jdbcTemplate.update(anyString(), anyLong())).thenReturn(1);
+
+        assertTrue(accountDao.hardDelete(account.getId()));
+
+        verify(jdbcTemplate).update(anyString(), anyLong());
+    }
+
+    @Test
+    public void hardDelete_AccountNotFoundException() {
         when(jdbcTemplate.update(anyString(), anyLong())).thenReturn(1);
 
         assertTrue(accountDao.hardDelete(account.getId()));
