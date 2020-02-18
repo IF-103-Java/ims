@@ -111,17 +111,12 @@ public class EventDaoImpl implements EventDao {
                     if (!contains) {
                         personalConditions = "";
                     }
-                } else if (!(params.get("author_id") instanceof Collection) &&
-                    !((params.get("author_id")).toString().equals(user.getId().toString()))) {
+                } else if (!((params.get("author_id")).toString().equals(user.getId().toString()))) {
                     personalConditions = "";
 
                 }
             }
         }
-
-
-        String eventNameCondition =
-            eventNames.isEmpty() ? "" : buildSqlCondition("name", eventNames);
 
         String conditions = Stream
             .of("warehouse_id", "author_id", "date", "after", "before")
@@ -129,32 +124,25 @@ public class EventDaoImpl implements EventDao {
             .map(x -> buildSqlCondition(x, params.get(x)))
             .collect(Collectors.joining("\n and "));
 
-        String where;
-        if (eventNameCondition.isBlank()) {
-            where = personalConditions;
+        String eventNameCondition;
+        if (eventNames.isEmpty()) {
+            eventNameCondition = personalConditions;
         } else {
+            eventNameCondition = buildSqlCondition("name", eventNames);
             if (!personalConditions.isBlank()) {
-                where = "(" + eventNameCondition + " or " + personalConditions + ")";
-            } else {
-                where = eventNameCondition;
+                eventNameCondition = "(" + eventNameCondition + " or " + personalConditions + ")";
             }
         }
-        if (!conditions.isBlank()) {
-            if (!where.isBlank()) {
-                where = conditions + " and " + where;
-            } else {
-                where = conditions;
-            }
-        }
+        String where = Stream.of(accountCondition, conditions, eventNameCondition)
+            .filter(x -> !x.isBlank()).collect(Collectors.joining(" and "));
 
-        where = where.isBlank() ? accountCondition : accountCondition.concat(" and " + where);
         String sort = pageable.getSort().toString().replaceAll(": ", " ");
         final String querySelectEvents = String.format("""
-                select * from events where %s ORDER BY %s Limit %s OFFSET %s
+                SELECT * FROM events WHERE %s ORDER BY %s LIMIT %s OFFSET %s
                 """,
             where, sort, pageable.getPageSize(), pageable.getOffset());
         final String rowCountSql = String.format("""
-            select count(1) from events where %s
+            SELECT COUNT(1) FROM events WHERE %s
             """, where);
         try {
             List<Event> events = jdbcTemplate.query(querySelectEvents, eventRowMapper);
@@ -192,14 +180,14 @@ public class EventDaoImpl implements EventDao {
 
     private String buildSqlPrivacyCondition() {
         return "("
-            .concat(buildSqlCondition("type", EventType.USER))
+            .concat(buildSqlCondition("name", EventName.getValuesByType(EventType.USER)))
             .concat(")")
             .replace("in", "not in");
     }
 
     private String buildSqlDefaultCondition(Long userId) {
         return "("
-            .concat(buildSqlCondition("type", EventType.USER))
+            .concat(buildSqlCondition("name", EventName.getValuesByType(EventType.USER)))
             .concat(" and ")
             .concat(buildSqlCondition("author_id", userId))
             .concat(")");
