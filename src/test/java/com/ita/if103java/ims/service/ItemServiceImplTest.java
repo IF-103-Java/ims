@@ -34,6 +34,7 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
 import org.mockito.verification.VerificationMode;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -53,6 +54,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.times;
@@ -85,6 +87,7 @@ public class ItemServiceImplTest {
     private AssociateDao associateDao;
     @Mock
     SavedItemServiceImpl savedItemService;
+    @Spy
     @InjectMocks
     ItemServiceImpl itemService;
 
@@ -112,7 +115,7 @@ public class ItemServiceImplTest {
     @Test
     void findSortedItems(){
         Long accountId = userDetails.getUser().getAccountId();
-       List<Item> itemList = getListOfItems();
+        List<Item> itemList = getListOfItems();
         List<ItemDto> itemDtoList = getListOfItemDtos();
         Integer expectedCount = 3;
         PageRequest pageable = PageRequest.of(0, 3, Sort.Direction.ASC, "id");
@@ -124,13 +127,13 @@ public class ItemServiceImplTest {
     }
     @Test
     void addItem_successFlowNullItem(){
-    Long accountId = userDetails.getUser().getAccountId();
-    when(itemDao.findItemByName(itemDto.getName(), accountId)).thenReturn(null);
-    itemDto.setAccountId(accountId);
-    when(itemDtoMapper.toEntity(itemDto)).thenReturn(item);
-    when(itemDao.addItem(item)).thenReturn(item);
-    when(itemDtoMapper.toDto(item)).thenReturn(itemDto);
-    assertEquals(itemService.addItem(itemDto, userDetails), itemDto);
+        Long accountId = userDetails.getUser().getAccountId();
+        when(itemDao.findItemByName(itemDto.getName(), accountId)).thenReturn(null);
+        itemDto.setAccountId(accountId);
+        when(itemDtoMapper.toEntity(itemDto)).thenReturn(item);
+        when(itemDao.addItem(item)).thenReturn(item);
+        when(itemDtoMapper.toDto(item)).thenReturn(itemDto);
+        assertEquals(itemService.addItem(itemDto, userDetails), itemDto);
     }
     @Test
     void addItem_successFlowNotNullItemAndNameNotEquals(){
@@ -195,7 +198,7 @@ public class ItemServiceImplTest {
         when(savedItemDao.findSavedItemById(savedItemId)).thenReturn(savedItem);
         when(savedItemDtoMapper.toDto(savedItem)).thenReturn(savedItemDto);
         when(itemDao.isExistItemById(savedItemDto.getItemId(), userDetails.getUser().getAccountId())).thenReturn(false);
-       assertThrows(SavedItemNotFoundException.class, ()->itemService.findSavedItemById(savedItemId, userDetails));
+        assertThrows(SavedItemNotFoundException.class, ()->itemService.findSavedItemById(savedItemId, userDetails));
 
     }
     @Test
@@ -229,12 +232,13 @@ public class ItemServiceImplTest {
         itemTransaction.setItemId(108L);
         itemTransaction.setQuantity(10L);
         ItemDto itemDto = new ItemDto();
+        itemDto.setId(2L);
         SavedItemDto savedItemDto = new SavedItemDto();
         Warehouse warehouse = new Warehouse();
         SavedItem savedItem = new SavedItem();
         savedItem.setQuantity(10);
         Optional<SavedItem> optional = Optional.of(savedItem);
-        when(itemService.findById(itemTransaction.getItemId(), userDetails)).thenReturn(itemDto);
+        doReturn(itemDto).when(itemService).findById(itemTransaction.getItemId(), userDetails);
         doNothing().when(savedItemService).validateInputs(itemTransaction, itemDto, accountId, TransactionType.IN);
         when(warehouseDao.findById(itemTransaction.getDestinationWarehouseId(), accountId)).thenReturn(warehouse);
         when(savedItemService.isEnoughCapacityInWarehouse(itemTransaction, itemDto, accountId)).thenReturn(true);
@@ -290,7 +294,7 @@ public class ItemServiceImplTest {
             TransactionType.IN)).thenReturn(transaction);
         when(transactionDao.create(transaction)).thenReturn(transaction);
 
-             when(associateDao.findById(accountId, itemTransaction.getAssociateId())).thenReturn(associate);
+        when(associateDao.findById(accountId, itemTransaction.getAssociateId())).thenReturn(associate);
         Event event = new Event("Moved " + itemTransaction.getQuantity() + " " + itemDto.getName() +
             " to warehouse " + warehouse.getName() + " " +
             "from supplier " + associate.getName(),
@@ -303,7 +307,7 @@ public class ItemServiceImplTest {
         assertEquals(itemService.addSavedItem(itemTransaction, userDetails), savedItemDto);
         verify(eventService, times(1)).create(event);
         verify(transactionDao, times(1)).create(transaction);
-          verify(savedItemService, times(1)).validateInputs(itemTransaction, itemDto, accountId, TransactionType.IN);
+        verify(savedItemService, times(1)).validateInputs(itemTransaction, itemDto, accountId, TransactionType.IN);
 
     }
 
@@ -413,7 +417,7 @@ public class ItemServiceImplTest {
         ItemNotEnoughCapacityInWarehouseException exception = assertThrows(ItemNotEnoughCapacityInWarehouseException.class,
             ()->itemService.addSavedItem(itemTransaction, userDetails));
         assertEquals("Can't add savedItemDto in warehouse because it " + "doesn't  " +
-            "have enough capacity {warehouse_id = " + itemTransaction.getDestinationWarehouseId() + "}",
+                "have enough capacity {warehouse_id = " + itemTransaction.getDestinationWarehouseId() + "}",
             exception.getMessage());
         verify(eventService, times(1)).create(event);
         verify(transactionDao, never()).create(ArgumentMatchers.<Transaction>any());
@@ -521,7 +525,7 @@ public class ItemServiceImplTest {
 
         when(savedItemService.isLowSpaceInWarehouse(itemTransaction, accountId)).thenReturn(true);
         Event event2 = new Event("Warehouse is loaded more than " + "90" + "%! Capacity " +
-                warehouse.getCapacity() + " in Warehouse " + warehouse.getName(), accountId,
+            warehouse.getCapacity() + " in Warehouse " + warehouse.getName(), accountId,
             warehouse.getId(), userId,
             EventName.LOW_SPACE_IN_WAREHOUSE, null);
         doNothing().when(eventService).create(event2);
@@ -629,10 +633,10 @@ public class ItemServiceImplTest {
             accountId,
             itemTransaction.getSourceWarehouseId(), userId, EventName.ITEM_SHIPPED,
             transaction.getId().longValue());
-         doNothing().when(eventService).create(event);
+        doNothing().when(eventService).create(event);
 
-         savedItemDto2.setQuantity(Long.valueOf(difference).intValue());
-         SavedItemDto result = itemService.outcomeItem(itemTransaction, userDetails);
+        savedItemDto2.setQuantity(Long.valueOf(difference).intValue());
+        SavedItemDto result = itemService.outcomeItem(itemTransaction, userDetails);
         assertEquals(result.getItemId(), savedItemDto.getItemId());
         assertEquals(result.getId(), savedItemDto2.getId());
         assertEquals(result.getWarehouseId(), savedItemDto2.getWarehouseId());
@@ -877,7 +881,7 @@ public class ItemServiceImplTest {
         return items;
     }
     private List<Item> getListOfItems(){
-       Long accountId = userDetails.getUser().getAccountId();
+        Long accountId = userDetails.getUser().getAccountId();
         List<Item> items = new ArrayList<>();
         Item trout = new Item();
         trout.setName("Fish-Trout");
