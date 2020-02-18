@@ -14,6 +14,7 @@ import com.ita.if103java.ims.entity.User;
 import com.ita.if103java.ims.entity.Warehouse;
 import com.ita.if103java.ims.exception.service.MaxWarehousesLimitReachedException;
 import com.ita.if103java.ims.exception.service.WarehouseDeleteException;
+import com.ita.if103java.ims.exception.service.WarehouseUpdateException;
 import com.ita.if103java.ims.mapper.dto.AddressDtoMapper;
 import com.ita.if103java.ims.mapper.dto.WarehouseDtoMapper;
 import com.ita.if103java.ims.security.UserDetailsImpl;
@@ -129,6 +130,19 @@ public class WarehouseServiceImplTest {
     void findAllTopLevelTest() {
 
 
+    }
+
+    @Test
+    void update_notActive() {
+        Warehouse inActive = new Warehouse(12L, "WarehouseTest", "auto parts", 20, true, 5L, 1L, 4L, false);
+        when(warehouseDtoMapper.toEntity(warehouseDto)).thenReturn(inActive);
+
+        assertFalse(warehouse.isActive());
+
+        WarehouseUpdateException exception = assertThrows(WarehouseUpdateException.class, () -> {
+            warehouseService.update(warehouseDto, userDetails);
+        });
+        assertEquals("You can't make warehouse inactive!", exception.getMessage());
     }
 
     @Test
