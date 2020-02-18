@@ -53,7 +53,7 @@ class AccountTypeDaoImplTest {
     }
 
     @Test
-    void findById() {
+    void findById_successFlow() {
         when(jdbcTemplate.queryForObject(anyString(), ArgumentMatchers.<AccountTypeRowMapper>any(), anyLong()))
             .thenReturn(accountType);
 
@@ -63,7 +63,7 @@ class AccountTypeDaoImplTest {
     }
 
     @Test
-    void selectAllPossibleToUpgrade() {
+    void selectAllPossibleToUpgrade_successFlow() {
         List<AccountType> allPossible = Arrays.asList(
             new AccountType(1L, "Basic", 0.0, 1, 3, 3,
                 3, 3, 3, false,
@@ -77,7 +77,7 @@ class AccountTypeDaoImplTest {
     }
 
     @Test
-    void minLvlType() {
+    void minLvlType_successFlow() {
         Long accountTypeWithMinLvlId = 1L;
 
         when(jdbcTemplate.queryForObject(anyString(), eq(Long.class))).thenReturn(accountTypeWithMinLvlId);

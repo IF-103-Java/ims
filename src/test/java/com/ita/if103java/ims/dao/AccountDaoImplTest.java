@@ -89,7 +89,7 @@ class AccountDaoImplTest {
     }
 
     @Test
-    public void create_failFlow() {
+    public void create__omittedNotNullFields() {
         when(accountTypeDao.minLvlType()).thenReturn(1L);
         when(this.keyHolder.getKey()).thenReturn(null);
 
