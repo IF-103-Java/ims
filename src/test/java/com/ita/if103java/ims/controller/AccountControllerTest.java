@@ -105,9 +105,9 @@ class AccountControllerTest {
 
     @Test
     void view() throws Exception {
-        when(any(UserDetailsImpl.class).getUser()).thenReturn(user);
-        when(accountService.view(anyLong())).thenReturn(accountDto);
+        when(accountService.view(userDetails.getUser().getAccountId())).thenReturn(accountDto);
         mockMvc.perform(get("/accounts/")
+            .principal(new UsernamePasswordAuthenticationToken(userDetails, userDetails.getAuthorities()))
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.id").value(accountDto.getId()))
