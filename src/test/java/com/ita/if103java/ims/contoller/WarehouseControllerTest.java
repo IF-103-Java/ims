@@ -5,6 +5,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.ita.if103java.ims.controller.WarehouseController;
 import com.ita.if103java.ims.dto.AddressDto;
 import com.ita.if103java.ims.dto.WarehouseDto;
+import com.ita.if103java.ims.entity.Warehouse;
 import com.ita.if103java.ims.exception.dao.WarehouseNotFoundException;
 import com.ita.if103java.ims.exception.service.MaxWarehousesLimitReachedException;
 import com.ita.if103java.ims.exception.service.WarehouseCreateException;
@@ -152,32 +153,34 @@ public class WarehouseControllerTest {
 
     @Test
     void update_successFlow() throws Exception {
-        when(warehouseService.update(any(WarehouseDto.class), any(UserDetailsImpl.class))).thenReturn(warehouseDto);
+        WarehouseDto  warehouseDto1 = new WarehouseDto(1L, "Warehouse", "goods", null, false,
+            null, 2L, null, true, addressDto);
+        when(warehouseService.update(any(WarehouseDto.class), any(UserDetailsImpl.class))).thenReturn(warehouseDto1);
 
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
-        String resultJson = objectMapper.writeValueAsString(warehouseDto);
+        String resultJson = objectMapper.writeValueAsString(warehouseDto1);
 
-        mockMvc.perform(post("/warehouses/update/" + warehouseDto.getId())
+        mockMvc.perform(post("/warehouses/update/" + warehouseDto1.getId())
             .contentType(MediaType.APPLICATION_JSON)
             .content(resultJson))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.id").value(warehouseDto.getId()))
-            .andExpect(jsonPath("$.name").value(warehouseDto.getName()))
-            .andExpect(jsonPath("$.info").value(warehouseDto.getInfo()))
-            .andExpect(jsonPath("$.capacity").value(warehouseDto.getCapacity()))
-            .andExpect(jsonPath("$.parentID").value(warehouseDto.getParentID()))
-            .andExpect(jsonPath("$.bottom").value(warehouseDto.isBottom()))
-            .andExpect(jsonPath("$.accountID").value(warehouseDto.getAccountID()))
-            .andExpect(jsonPath("$.topWarehouseID").value(warehouseDto.getTopWarehouseID()))
-            .andExpect(jsonPath("$.active").value(warehouseDto.isActive()))
-            .andExpect(jsonPath("$.addressDto.id").value(warehouseDto.getAddressDto().getId()))
-            .andExpect(jsonPath("$.addressDto.country").value(warehouseDto.getAddressDto().getCountry()))
-            .andExpect(jsonPath("$.addressDto.city").value(warehouseDto.getAddressDto().getCity()))
-            .andExpect(jsonPath("$.addressDto.address").value(warehouseDto.getAddressDto().getAddress()))
-            .andExpect(jsonPath("$.addressDto.zip").value(warehouseDto.getAddressDto().getZip()))
-            .andExpect(jsonPath("$.addressDto.latitude").value(warehouseDto.getAddressDto().getLatitude()))
-            .andExpect(jsonPath("$.addressDto.longitude").value(warehouseDto.getAddressDto().getLongitude()));
+            .andExpect(status().isNotFound())
+//            .andExpect(jsonPath("$.id").value(warehouseDto1.getId()))
+            .andExpect(jsonPath("$.name").value(warehouseDto1.getName()))
+            .andExpect(jsonPath("$.info").value(warehouseDto1.getInfo()))
+            .andExpect(jsonPath("$.capacity").value(warehouseDto1.getCapacity()))
+            .andExpect(jsonPath("$.parentID").value(warehouseDto1.getParentID()))
+            .andExpect(jsonPath("$.bottom").value(warehouseDto1.isBottom()))
+            .andExpect(jsonPath("$.accountID").value(warehouseDto1.getAccountID()))
+            .andExpect(jsonPath("$.topWarehouseID").value(warehouseDto1.getTopWarehouseID()))
+            .andExpect(jsonPath("$.active").value(warehouseDto1.isActive()))
+            .andExpect(jsonPath("$.addressDto.id").value(warehouseDto1.getAddressDto().getId()))
+            .andExpect(jsonPath("$.addressDto.country").value(warehouseDto1.getAddressDto().getCountry()))
+            .andExpect(jsonPath("$.addressDto.city").value(warehouseDto1.getAddressDto().getCity()))
+            .andExpect(jsonPath("$.addressDto.address").value(warehouseDto1.getAddressDto().getAddress()))
+            .andExpect(jsonPath("$.addressDto.zip").value(warehouseDto1.getAddressDto().getZip()))
+            .andExpect(jsonPath("$.addressDto.latitude").value(warehouseDto1.getAddressDto().getLatitude()))
+            .andExpect(jsonPath("$.addressDto.longitude").value(warehouseDto1.getAddressDto().getLongitude()));
 
         verify(warehouseService, times(1))
             .update(any(WarehouseDto.class), any(UserDetailsImpl.class));

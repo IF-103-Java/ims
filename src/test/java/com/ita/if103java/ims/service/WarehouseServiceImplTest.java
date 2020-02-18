@@ -136,9 +136,7 @@ public class WarehouseServiceImplTest {
     void update_notActive() {
         Warehouse inActive = new Warehouse(12L, "WarehouseTest", "auto parts", 20, true, 5L, 1L, 4L, false);
         when(warehouseDtoMapper.toEntity(warehouseDto)).thenReturn(inActive);
-
         assertFalse(warehouse.isActive());
-
         WarehouseUpdateException exception = assertThrows(WarehouseUpdateException.class, () -> {
             warehouseService.update(warehouseDto, userDetails);
         });

@@ -12,6 +12,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.support.KeyHolder;
@@ -30,6 +31,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
+@SpringBootTest
 public class WarehouseDaoImplTest {
     @Mock
     private JdbcTemplate jdbcTemplate;
@@ -83,7 +85,7 @@ public class WarehouseDaoImplTest {
         warehouseTop.setTopWarehouseID(null);
         warehouseTop.setActive(true);
 
-//        warehouseDao.create(warehouseTop);
+        warehouseDao.create(warehouseTop);
     }
 
     @Test
@@ -101,27 +103,25 @@ public class WarehouseDaoImplTest {
     }
 
     @Test
-    void testFindById() {
-       // warehouseRowMapper = new WarehouseRowMapper();
+    void testFindById_successFlow() {
         when(jdbcTemplate.queryForObject(anyString(), ArgumentMatchers.<WarehouseRowMapper>any(), anyLong()))
             .thenReturn(warehouse);
 
         assertEquals(warehouse, warehouseDao.findById(warehouse.getId(), warehouse.getAccountID()));
-
     }
 
     @Test
     void testUpdate_successFlow() {
         Warehouse updatedWarehouse = warehouse;
         updatedWarehouse.setName("Warehouse_update");
-//        updatedWarehouse.setInfo("products");
-//        updatedWarehouse.setCapacity(20);
-//        updatedWarehouse.setBottom(true);
-//        updatedWarehouse.setParentID(3L);
-//        updatedWarehouse.setTopWarehouseID(2L);
-//        updatedWarehouse.setAccountID(2L);
-//        updatedWarehouse.setActive(true);
-//        updatedWarehouse.getId();
+        updatedWarehouse.setInfo("products");
+        updatedWarehouse.setCapacity(20);
+        updatedWarehouse.setBottom(true);
+        updatedWarehouse.setParentID(3L);
+        updatedWarehouse.setTopWarehouseID(2L);
+        updatedWarehouse.setAccountID(2L);
+        updatedWarehouse.setActive(true);
+        updatedWarehouse.getId();
 
         when(jdbcTemplate.update(anyString(), ArgumentMatchers.<Object[]>any())).thenReturn(1);
         assertEquals(updatedWarehouse, warehouseDao.update(updatedWarehouse));
