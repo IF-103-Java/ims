@@ -25,6 +25,8 @@ import java.util.Collections;
 
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -82,8 +84,8 @@ class AccountControllerTest {
     @Test
     void updateSuccess() throws Exception {
         String newName = "Name";
-        when(accountService.update(userDetails.getUser(), newName)).thenReturn(accountDto);
-        mockMvc.perform(put("/accounts/" + newName)
+        when(accountService.update(any(User.class), anyString())).thenReturn(accountDto);
+        mockMvc.perform(put("/accounts/")
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.id").value(accountDto.getId()))
@@ -94,7 +96,8 @@ class AccountControllerTest {
 
     @Test
     void view() throws Exception {
-        when(accountService.view(userDetails.getUser().getAccountId())).thenReturn(accountDto);
+        when(any(UserDetailsImpl.class).getUser()).thenReturn(user);
+        when(accountService.view(anyLong())).thenReturn(accountDto);
         mockMvc.perform(get("/accounts/")
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
