@@ -16,7 +16,8 @@ public class AssociateDto {
     public AssociateDto() {
     }
 
-    public AssociateDto(Long id, Long accountId, String name, String email, String phone, String additionalInfo, AssociateType type, AddressDto addressDto) {
+    public AssociateDto(Long id, Long accountId, String name, String email, String phone, String additionalInfo,
+                        AssociateType type, AddressDto addressDto) {
         this.id = id;
         this.accountId = accountId;
         this.name = name;
