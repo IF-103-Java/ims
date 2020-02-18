@@ -5,6 +5,7 @@ import com.ita.if103java.ims.dao.AccountTypeDao;
 import com.ita.if103java.ims.dao.UserDao;
 import com.ita.if103java.ims.dto.ForgotPasswordDto;
 import com.ita.if103java.ims.dto.UserLoginDto;
+import com.ita.if103java.ims.entity.Account;
 import com.ita.if103java.ims.entity.AccountType;
 import com.ita.if103java.ims.entity.User;
 import com.ita.if103java.ims.exception.service.UserOrPasswordIncorrectException;

@@ -187,7 +187,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public boolean hardDelete(Long accountId) {
+    public void hardDelete(Long accountId) {
         try {
             final int rowsAffected = jdbcTemplate.update(Queries.SQL_DELETE_USERS_BY_ID, accountId);
             if (rowsAffected == 0) {
@@ -196,7 +196,6 @@ public class UserDaoImpl implements UserDao {
         } catch (DataAccessException e) {
             throw new CRUDException("Error during hard `delete` user {accountId = " + accountId + "}", e);
         }
-        return true;
     }
 
 

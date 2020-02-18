@@ -135,10 +135,12 @@ public class User {
             ", firstName='" + firstName + '\'' +
             ", lastName='" + lastName + '\'' +
             ", email='" + email + '\'' +
+            ", password='" + password + '\'' +
             ", role=" + role +
             ", createdDate=" + createdDate +
             ", updatedDate=" + updatedDate +
             ", active=" + active +
+            ", emailUUID='" + emailUUID + '\'' +
             ", accountId=" + accountId +
             '}';
     }
