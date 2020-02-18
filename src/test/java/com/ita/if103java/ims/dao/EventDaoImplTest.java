@@ -205,13 +205,24 @@ public class EventDaoImplTest {
                 select * from events where account_id = '2' and author_id in ('2', '5', '6') and
                 name in ('ITEM_CAME', 'ITEM_MOVED', 'ITEM_SHIPPED') ORDER BY id ASC Limit 15 OFFSET 0
                 """.replace("\n", " ").replaceAll("\\s{2,}", " ").trim();
+
+            HashMap<String, Object> params7 = new HashMap<>();
+            params7.put("name", Arrays.asList("NEW_CLIENT", "LOGOUT"));
+            params7.put("type", "TRANSACTION");
+            params7.put("author_id", Arrays.asList(2, 4, 5, 8, 13));
+            String expectedQuery7 = """
+                select * from events where account_id = '2' and author_id in ('2', '4', '5', '8', '13') and
+                (name in ('ITEM_CAME', 'ITEM_MOVED', 'ITEM_SHIPPED', 'NEW_CLIENT') or
+                (name in ('LOGOUT') and author_id = '4')) ORDER BY id ASC Limit 15 OFFSET 0
+                """.replace("\n", " ").replaceAll("\\s{2,}", " ").trim();
             return Stream.of(
                 Arguments.of(Role.ROLE_WORKER, params1, expectedQuery1),
                 Arguments.of(Role.ROLE_ADMIN, params2, expectedQuery2),
                 Arguments.of(Role.ROLE_WORKER, params3, expectedQuery3),
                 Arguments.of(Role.ROLE_WORKER, params4, expectedQuery4),
                 Arguments.of(Role.ROLE_WORKER, params5, expectedQuery5),
-                Arguments.of(Role.ROLE_WORKER, params6, expectedQuery6)
+                Arguments.of(Role.ROLE_WORKER, params6, expectedQuery6),
+                Arguments.of(Role.ROLE_WORKER, params7, expectedQuery7)
             );
         }
     }
