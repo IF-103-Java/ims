@@ -7,8 +7,11 @@ import com.ita.if103java.ims.dao.TransactionDao;
 import com.ita.if103java.ims.dao.WarehouseDao;
 import com.ita.if103java.ims.dto.ItemDto;
 import com.ita.if103java.ims.dto.ItemTransactionRequestDto;
+import com.ita.if103java.ims.dto.SavedItemAssociateDto;
 import com.ita.if103java.ims.dto.SavedItemDto;
+import com.ita.if103java.ims.dto.UsefulWarehouseDto;
 import com.ita.if103java.ims.entity.Associate;
+import com.ita.if103java.ims.entity.AssociateType;
 import com.ita.if103java.ims.entity.Event;
 import com.ita.if103java.ims.entity.EventName;
 import com.ita.if103java.ims.entity.Item;
@@ -23,10 +26,13 @@ import com.ita.if103java.ims.exception.service.ItemDuplicateException;
 import com.ita.if103java.ims.exception.service.ItemNotEnoughCapacityInWarehouseException;
 import com.ita.if103java.ims.exception.service.ItemNotEnoughQuantityException;
 import com.ita.if103java.ims.mapper.dto.ItemDtoMapper;
+import com.ita.if103java.ims.mapper.dto.SavedItemAssociateDtoMapper;
 import com.ita.if103java.ims.mapper.dto.SavedItemDtoMapper;
 import com.ita.if103java.ims.security.UserDetailsImpl;
+import com.ita.if103java.ims.service.impl.AssociateServiceImpl;
 import com.ita.if103java.ims.service.impl.ItemServiceImpl;
 import com.ita.if103java.ims.service.impl.SavedItemServiceImpl;
+import com.ita.if103java.ims.service.impl.WarehouseServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -46,12 +52,17 @@ import org.springframework.test.util.ReflectionTestUtils;
 import java.awt.print.Pageable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertLinesMatch;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
@@ -87,9 +98,17 @@ public class ItemServiceImplTest {
     private AssociateDao associateDao;
     @Mock
     SavedItemServiceImpl savedItemService;
+    @Mock
+    SavedItemAssociateDtoMapper associateDtoMapper;
     @Spy
     @InjectMocks
     ItemServiceImpl itemService;
+
+    @InjectMocks
+    WarehouseServiceImpl warehouseService;
+
+    @InjectMocks
+    AssociateServiceImpl associateService;
 
 
     @BeforeEach
@@ -843,6 +862,91 @@ public class ItemServiceImplTest {
 
     }
 
+    @Test
+    void findUsefulWarehouses(){
+        Long accountId = userDetails.getUser().getAccountId();
+        Long capacity = 8L;
+
+        List<Warehouse> usefulWarehouse = new ArrayList<>();
+        Warehouse sectionA = new Warehouse(3L, "SectionA", "some info", 100, true, 1L, 2L, 1L, true);
+        usefulWarehouse.add(sectionA);
+        Warehouse sectionB = new Warehouse(4L, "SectionB", "some info", 100, true, 2L, 2L, 2L, true);
+        usefulWarehouse.add(sectionB);
+        List<Warehouse> usefulTopWarehouse = new ArrayList<>();
+        Warehouse warehouseA = new Warehouse(1L, "WarehouseA", "some info", 0, false, null, 2L, 1L, true);
+        Warehouse warehouseB =new Warehouse(2L, "WarehouseB", "some info", 0, false, null, 2L, 2L, true);
+        usefulTopWarehouse.add(warehouseA);
+        usefulTopWarehouse.add(warehouseB);
+        usefulTopWarehouse.add(sectionA);
+        usefulTopWarehouse.add(sectionB);
+        when(warehouseDao.findUsefulTopWarehouse(capacity, accountId)).thenReturn(usefulWarehouse);
+        String ids =  usefulWarehouse.stream().
+            map(x -> x.getTopWarehouseID().toString()).collect(Collectors.joining(","));
+        when(warehouseDao.findByTopWarehouseIDs(ids, accountId)).thenReturn(usefulTopWarehouse);
+        List<UsefulWarehouseDto> usefulWarehouseDtos =  warehouseService.findUsefulWarehouses(capacity, userDetails);
+        System.out.println(usefulWarehouseDtos.size());
+        when(savedItemService.toVolumeOfPassSavedItems(anyLong(), anyLong())).thenReturn(5F);
+        assertLinesMatch(usefulWarehouseDtos.get(0).getPath(), List.of("WarehouseA", "SectionA"));
+        assertLinesMatch(usefulWarehouseDtos.get(1).getPath(), List.of("WarehouseB", "SectionB"));
+    }
+
+    @Test
+    void getAssociatesByType(){
+        List<Associate> associates = new ArrayList<>();
+        List<SavedItemAssociateDto> savedItemAssociateDtos = new ArrayList<>();
+        SavedItemAssociateDto savedItemAssociateDto = new SavedItemAssociateDto();
+        savedItemAssociateDtos.add(savedItemAssociateDto);
+        Associate associate = new Associate();
+        associate.setType(AssociateType.SUPPLIER);
+        associates.add(associate);
+        when(associateDao.getAssociatesByType(anyLong(), ArgumentMatchers.<AssociateType>any())).thenReturn(associates);
+        when(associateDtoMapper.toDto(associate)).thenReturn(savedItemAssociateDto);
+        assertEquals(associateService.getAssociatesByType(userDetails, AssociateType.SUPPLIER),
+            savedItemAssociateDtos);
+    }
+
+//     @Test
+//    void findUsefulWarehouses(){
+//        Long accountId = userDetails.getUser().getAccountId();
+//        Long capacity = 8L;
+//
+//        List<Warehouse> usefulWarehouse = new ArrayList<>();
+//
+//        Warehouse shelfA = new Warehouse(5L, "ShelfA", "some info", 100, true, 3L, 2L, 1L, true);
+//        usefulWarehouse.add(shelfA);
+//
+//        Warehouse shelfB = new Warehouse(5L, "ShelfB", "some info", 100, true, 4L, 2L, 2L, true);
+//        usefulWarehouse.add(shelfB);
+//
+//        List<Warehouse> usefulTopWarehouse = new ArrayList<>();
+//        Warehouse warehouseA = new Warehouse(1L, "WarehouseA", "some info", 0, false, null, 2L, 1L, true);
+//        Warehouse warehouseB =new Warehouse(2L, "WarehouseB", "some info", 0, false, null, 2L, 2L, true);
+//        Warehouse sectionA = new Warehouse(3L, "SectionA", "some info", 0, false, 1L, 2L, 1L, true);
+//        Warehouse sectionB = new Warehouse(4L, "SectionB", "some info", 0, false, 2L, 2L, 2L, true);
+//        usefulTopWarehouse.add(warehouseA);
+//        usefulTopWarehouse.add(warehouseB);
+//        usefulTopWarehouse.add(sectionA);
+//        usefulTopWarehouse.add(sectionB);
+//        usefulTopWarehouse.add(shelfA);
+//        usefulTopWarehouse.add(shelfB);
+//
+//        when(warehouseDao.findUsefulTopWarehouse(capacity, accountId)).thenReturn(usefulWarehouse);
+//        String ids =  usefulWarehouse.stream().
+//            map(x -> x.getTopWarehouseID().toString()).collect(Collectors.joining(","));
+//
+//
+//
+//        when(warehouseDao.findByTopWarehouseIDs(ids, accountId)).thenReturn(usefulTopWarehouse);
+//        List<UsefulWarehouseDto> usefulWarehouseDtos =  warehouseService.findUsefulWarehouses(capacity, userDetails);
+//        System.out.println(usefulWarehouseDtos.size());
+//        when(savedItemService.toVolumeOfPassSavedItems(warehouseA.getId(), accountId)).thenReturn(5F);
+//        when(savedItemService.toVolumeOfPassSavedItems(warehouseB.getId(), accountId)).thenReturn(5F);
+//        when(savedItemService.toVolumeOfPassSavedItems(sectionA.getId(), accountId)).thenReturn(5F);
+//        when(savedItemService.toVolumeOfPassSavedItems(sectionB.getId(), accountId)).thenReturn(5F);
+//        usefulWarehouseDtos.get(0).getPath().forEach(x-> System.out.println(x));
+//        assertLinesMatch(usefulWarehouseDtos.get(0).getPath(), List.of("WarehouseA", "ShelfA", "SectionA"));
+//        assertLinesMatch(usefulWarehouseDtos.get(1).getPath(), List.of("WarehouseB", "ShelfB","SectionB"));
+//    }
     private List<ItemDto> getListOfItemDtos(){
         Long accountId = userDetails.getUser().getAccountId();
         List<ItemDto> items = new ArrayList<>();
