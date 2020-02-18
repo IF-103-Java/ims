@@ -19,6 +19,7 @@ import com.ita.if103java.ims.mapper.dto.UserDtoMapper;
 import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.AccountService;
 import com.ita.if103java.ims.service.EventService;
+import com.ita.if103java.ims.service.MailService;
 import com.ita.if103java.ims.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -55,7 +56,7 @@ public class UserServiceImpl implements UserService {
     private PasswordEncoder passwordEncoder;
     private EventService eventService;
     private AccountService accountService;
-    private MailServiceImpl mailService;
+    private MailService mailService;
     private AccountDao accountDao;
     private AccountTypeDao accountTypeDao;
 
@@ -74,7 +75,7 @@ public class UserServiceImpl implements UserService {
                            PasswordEncoder passwordEncoder,
                            EventService eventService,
                            AccountService accountService,
-                           MailServiceImpl mailService,
+                           MailService mailService,
                            AccountDao accountDao,
                            AccountTypeDao accountTypeDao,
                            EventDao eventDao,
@@ -154,7 +155,9 @@ public class UserServiceImpl implements UserService {
 
         User updatedUser = userDao.update(user);
         user.setUpdatedDate(updatedUser.getUpdatedDate());
-        eventService.create(createEvent(user, PROFILE_CHANGED, "updated profile."));
+        eventService.create(
+            createEvent(user, PROFILE_CHANGED, "updated profile.")
+        );
 
         return mapper.toDto(user);
     }
@@ -211,8 +214,7 @@ public class UserServiceImpl implements UserService {
 
         if (isValidToken(activatedUser) && isAllowedToInvite(accountId)) {
             userDao.activate(userId, accountId, true);
-            accountDao.activate(activatedUser.getAccountId());
-            return true;
+            return accountDao.activate(activatedUser.getAccountId());
         } else {
             userDao.hardDelete(accountId);
             return false;

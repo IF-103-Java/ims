@@ -12,6 +12,7 @@ import javax.validation.constraints.Null;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.time.ZonedDateTime;
+import java.util.Objects;
 
 public class UserDto implements Serializable {
 
@@ -174,5 +175,29 @@ public class UserDto implements Serializable {
             ", accountId=" + accountId +
             ", accountName='" + accountName + '\'' +
             '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        UserDto userDto = (UserDto) o;
+        return active == userDto.active &&
+            Objects.equals(id, userDto.id) &&
+            Objects.equals(firstName, userDto.firstName) &&
+            Objects.equals(lastName, userDto.lastName) &&
+            Objects.equals(email, userDto.email) &&
+            Objects.equals(password, userDto.password) &&
+            role == userDto.role &&
+            Objects.equals(createdDate, userDto.createdDate) &&
+            Objects.equals(updatedDate, userDto.updatedDate) &&
+            Objects.equals(emailUUID, userDto.emailUUID) &&
+            Objects.equals(accountId, userDto.accountId) &&
+            Objects.equals(accountName, userDto.accountName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, firstName, lastName, email, password, role, createdDate, updatedDate, active, emailUUID, accountId, accountName);
     }
 }
