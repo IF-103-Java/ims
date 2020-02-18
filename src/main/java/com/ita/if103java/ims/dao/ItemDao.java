@@ -24,7 +24,7 @@ public interface ItemDao {
 
     boolean softDeleteItem(Long id, Long accountId);
 
-    boolean hardDelete(Long accountId);
+    void hardDelete(Long accountId);
 
     List<Item> findItemsByNameQuery(String query, long accountId);
 

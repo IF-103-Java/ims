@@ -20,7 +20,7 @@ public interface UserDao {
 
     boolean activate(Long id, Long accountId, boolean state);
 
-    boolean hardDelete(Long accountId);
+    void hardDelete(Long accountId);
 
     List<User> findAll(Pageable pageable, Long accountId);
 
