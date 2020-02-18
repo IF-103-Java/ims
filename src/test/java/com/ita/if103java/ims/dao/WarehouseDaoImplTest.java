@@ -31,7 +31,6 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 public class WarehouseDaoImplTest {
-
     @Mock
     private JdbcTemplate jdbcTemplate;
     @Mock
@@ -44,8 +43,7 @@ public class WarehouseDaoImplTest {
     private PreparedStatement preparedStatement;
     @Mock
     private GeneratedKeyHolderFactory generatedKeyHolderFactory;
-    @Mock
-    private WarehouseRowMapper warehouseRowMapper;
+
 
     @InjectMocks
     private WarehouseDaoImpl warehouseDao;
@@ -76,14 +74,14 @@ public class WarehouseDaoImplTest {
         warehouseDao.create(warehouse);
 
         Warehouse warehouseTop = new Warehouse();
-        warehouse.setName("TopStock");
-        warehouse.setInfo("universal");
-        warehouse.setCapacity(0);
-        warehouse.setBottom(false);
-        warehouse.setParentID(null);
-        warehouse.setAccountID(2L);
-        warehouse.setTopWarehouseID(null);
-        warehouse.setActive(true);
+        warehouseTop.setName("TopStock");
+        warehouseTop.setInfo("universal");
+        warehouseTop.setCapacity(0);
+        warehouseTop.setBottom(false);
+        warehouseTop.setParentID(null);
+        warehouseTop.setAccountID(2L);
+        warehouseTop.setTopWarehouseID(null);
+        warehouseTop.setActive(true);
 
 //        warehouseDao.create(warehouseTop);
     }
@@ -104,6 +102,7 @@ public class WarehouseDaoImplTest {
 
     @Test
     void testFindById() {
+       // warehouseRowMapper = new WarehouseRowMapper();
         when(jdbcTemplate.queryForObject(anyString(), ArgumentMatchers.<WarehouseRowMapper>any(), anyLong()))
             .thenReturn(warehouse);
 
