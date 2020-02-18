@@ -75,12 +75,7 @@ class AccountDaoImplTest {
         when(this.keyHolder.getKey()).thenReturn(1L);
         when(this.jdbcTemplate.update(any(PreparedStatementCreator.class), any(KeyHolder.class))).thenReturn(1);
 
-        account = new Account();
-        account.setId(1L);
-        account.setName("Account name");
-        account.setCreatedDate(currentDateTime);
-        account.setTypeId(1L);
-        account.setActive(true);
+        account = new Account(1L, "Account name",  1L, currentDateTime,true);
     }
 
     @Test
