@@ -61,7 +61,7 @@ public class DashboardDaoImplTest {
     }
 
     @Test
-    public void testWarehouseLoadException(){
+    public void testWarehouseLoad_DBNotResponding(){
         when(jdbcTemplate.query(
             DashboardDaoImpl.Queries.SQL_FIND_WAREHOUSE_LOAD_BY_ACCOUNT_ID, warehouseLoadRowMapper, -1L))
             .thenThrow(EmptyResultDataAccessException.class);
@@ -154,7 +154,7 @@ public class DashboardDaoImplTest {
             );
     }
     @Test
-    public void testEndedItemsException1() {
+    public void testEndedItems_DBNotRespondToFindEndedItems() {
         PageRequest pageable = PageRequest.of(1, 4, Sort.by("quantity,DESC"));
 
         when(jdbcTemplate
@@ -168,7 +168,7 @@ public class DashboardDaoImplTest {
             dashboardDaoImpl.findEndedItemsByAccountId(pageable, 5, 1L));
     }
     @Test
-    public void testEndedItemsException2() {
+    public void testEndedItems_DBNotRespondToFindRowCount() {
         PageRequest pageable = PageRequest.of(1, 4, Sort.by("quantity,DESC"));
 
         when(jdbcTemplate
@@ -199,7 +199,7 @@ public class DashboardDaoImplTest {
     }
 
     @Test
-    public void testPremiumLoadException1(){
+    public void testPremiumLoad_DBNotRespondToFindPrimaryWarehouse(){
         when(jdbcTemplate.queryForObject(
             DashboardDaoImpl.Queries.SQL_WAREHOUSE_STRUCTURE_PRIMARY,
             warehousePremiumStructRowMapper, 4L, 1L
@@ -210,7 +210,7 @@ public class DashboardDaoImplTest {
     }
 
     @Test
-    public void testPremiumLoadException2(){
+    public void testPremiumLoad_DBNotRespondToFindWarehouseStructure(){
         when(jdbcTemplate.queryForObject(
             DashboardDaoImpl.Queries.SQL_WAREHOUSE_STRUCTURE_PRIMARY,
             warehousePremiumStructRowMapper, 4L, 1L
