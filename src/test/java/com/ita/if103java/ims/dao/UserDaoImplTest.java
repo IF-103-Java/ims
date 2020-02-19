@@ -64,7 +64,12 @@ public class UserDaoImplTest {
     private UserDaoImpl userDao;
 
     private User user;
+    private Long fakeId;
     private ZonedDateTime currentDateTime = ZonedDateTime.now(ZoneId.systemDefault());
+
+    private final UserNotFoundException userNotFoundException = new UserNotFoundException();
+    private final CRUDException crudException = new CRUDException();
+
 
     @BeforeEach
     void setUp() throws SQLException {
@@ -81,6 +86,7 @@ public class UserDaoImplTest {
         // Initializing test user
         user = getTestUser();
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        fakeId = 100l;
     }
 
     @Test
@@ -118,11 +124,42 @@ public class UserDaoImplTest {
     }
 
     @Test
+    void testFindById_notFoundException() {
+        when(jdbcTemplate.queryForObject(anyString(), ArgumentMatchers.<UserRowMapper>any(), eq(fakeId)))
+            .thenThrow(userNotFoundException);
+
+        assertThrows(UserNotFoundException.class, () -> userDao.findById(fakeId));
+    }
+
+
+    @Test
+    void testFindById_crudException() {
+        String fakeQuery = """
+                SELECT *
+                FROM users
+                WHERE id = ?
+                AND active = 1
+            """;
+        when(jdbcTemplate.queryForObject(eq(fakeQuery), ArgumentMatchers.<UserRowMapper>any(), eq(user.getId())))
+            .thenThrow(crudException);
+
+        assertThrows(CRUDException.class, () -> userDao.findById(user.getId()));
+    }
+
+    @Test
     void testFindAdminByAccountId_successFlow() {
         when(this.jdbcTemplate.queryForObject(anyString(), ArgumentMatchers.<UserRowMapper>any(), anyLong()))
             .thenReturn(user);
 
         assertEquals(user, userDao.findAdminByAccountId(user.getAccountId()));
+    }
+
+    @Test
+    void testFindAdminByAccountId_notFoundException() {
+        when(jdbcTemplate.queryForObject(anyString(), ArgumentMatchers.<UserRowMapper>any(), eq(fakeId)))
+            .thenThrow(userNotFoundException);
+
+        assertThrows(UserNotFoundException.class, () -> userDao.findAdminByAccountId(fakeId));
     }
 
     @Test
