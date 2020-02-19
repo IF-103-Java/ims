@@ -278,7 +278,6 @@ public class WarehouseServiceImpl implements WarehouseService {
             Warehouse parentWarehouse = groupedWarehouses.get(warehouse.getParentID());
             List<String> parentPath;
             if (!parentWarehouse.getPath().isEmpty()) {
-
                 parentPath = parentWarehouse.getPath();
             } else {
                 parentPath = findPath(parentWarehouse, groupedWarehouses);

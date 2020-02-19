@@ -33,6 +33,8 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -73,12 +75,12 @@ public class WarehouseServiceImplTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.initMocks(this);
-        basic = new AccountType(
-
-        );
+        basic = new AccountType();
         basic.setMaxWarehouses(3);
+        basic.setMaxWarehouseDepth(3);
         basic.setId(1L);
         User user = new User();
+        user.setId(1L);
         user.setAccountId(1L);
         user.setRole(Role.ROLE_WORKER);
         userDetails = new UserDetailsImpl(user);
@@ -92,6 +94,23 @@ public class WarehouseServiceImplTest {
         Long accountId = topWarehouseDto.getAccountID();
         assertNull(topWarehouseDto.getParentID());
         when(warehouseDao.findQuantityOfWarehousesByAccountId(1L)).thenReturn(quantity);
+
+        MaxWarehousesLimitReachedException exception = assertThrows(MaxWarehousesLimitReachedException.class, () -> {
+            warehouseService.add(warehouseDto, userDetails);
+        });
+        assertEquals("The maximum number of warehouses has been reached for this" + "{accountId = " + accountId + "}", exception.getMessage());
+    }
+
+    @Test
+    public void addWarehouse_testMaxDepthReached() {
+        int level = 3;
+        warehouseDto.setParentID(5L);
+        Long accountId = topWarehouseDto.getAccountID();
+        int maxDepth = userDetails.getAccountType().getMaxWarehouseDepth();
+        assertNotNull(warehouseDto.getParentID());
+
+        when(warehouseDao.findById(5L, accountId).isBottom()).thenReturn(true);
+        when(warehouseDao.findLevelByParentID(warehouseDto.getParentID())).thenReturn(level);
 
         MaxWarehousesLimitReachedException exception = assertThrows(MaxWarehousesLimitReachedException.class, () -> {
             warehouseService.add(warehouseDto, userDetails);
@@ -142,6 +161,22 @@ public class WarehouseServiceImplTest {
         });
         assertEquals("You can't make warehouse inactive!", exception.getMessage());
     }
+
+    @Test
+    void update_notChangeParent() {
+        Warehouse warehouse = new Warehouse(12L, "WarehouseTest", "auto parts", 20, true, 5L, 1L, 4L, true);
+        when(warehouseDtoMapper.toEntity(warehouseDto)).thenReturn(warehouse);
+        when(warehouseDao.findById(warehouse.getId(), warehouse.getAccountID())).thenReturn(warehouse);
+        warehouseDto.setId(5L);
+        assertTrue(warehouse.isActive());
+        warehouse.setActive(true);
+        assertNotEquals(warehouseDto.getId(), warehouse.getId());
+        WarehouseUpdateException exception = assertThrows(WarehouseUpdateException.class, () -> {
+            warehouseService.update(warehouseDto, userDetails);
+        });
+        assertEquals("You can't change parent warehouse!", exception.getMessage());
+    }
+
 
     @Test
     void findWarehousesByTopLevelId_Test() {
