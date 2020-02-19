@@ -110,6 +110,11 @@ public class ItemServiceImplTest {
     @InjectMocks
     AssociateServiceImpl associateService;
 
+    private SavedItemDto troutDto;
+    private SavedItem trout;
+    private List<SavedItem> items;
+    private Long accountId;
+
 
     @BeforeEach
     void setUp() {
@@ -118,9 +123,74 @@ public class ItemServiceImplTest {
         user.setAccountId(2L);
         user.setId(1L);
         userDetails = new UserDetailsImpl(user);
+        accountId = user.getAccountId();
         itemDto = getItemDto();
         ReflectionTestUtils.setField(itemService, "maxWarehouseLoad", "90");
         ReflectionTestUtils.setField(itemService, "minQuantityItemsInWarehouse", "10");
+
+        troutDto = new SavedItemDto();
+        troutDto.setId(70L);
+        troutDto.setQuantity(5);
+        troutDto.setItemId(109L);
+        troutDto.setWarehouseId(37L);
+
+        trout = new SavedItem();
+        trout.setId(70L);
+        trout.setQuantity(5);
+        trout.setItemId(109L);
+        trout.setWarehouseId(37L);
+
+        items = new ArrayList<>();
+        items.add(trout);
+
+        SavedItem salmon = new SavedItem();
+        salmon.setId(71L);
+        salmon.setQuantity(5);
+        salmon.setItemId(110L);
+        salmon.setWarehouseId(38L);
+
+        items.add(salmon);
+
+        SavedItem catfish = new SavedItem();
+        catfish.setId(72L);
+        catfish.setQuantity(5);
+        catfish.setItemId(111L);
+        catfish.setWarehouseId(39L);
+
+        items.add(catfish);
+
+        List<ItemDto> itemsDto = new ArrayList<>();
+        ItemDto troutDto = new ItemDto();
+        troutDto.setName("Fish-Trout");
+        troutDto.setDescription("fresh trout");
+        troutDto.setAccountId(accountId);
+        troutDto.setUnit("box");
+        troutDto.setActive(true);
+        troutDto.setVolume(4);
+        troutDto.setId(109L);
+
+        itemsDto.add(troutDto);
+
+        ItemDto salmonDto = new ItemDto();
+        salmonDto.setName("Fish-Salmon");
+        salmonDto.setDescription("fresh salmon");
+        salmonDto.setAccountId(accountId);
+        salmonDto.setUnit("box");
+        salmonDto.setActive(true);
+        salmonDto.setVolume(5);
+        salmonDto.setId(110L);
+
+        itemsDto.add(salmonDto);
+
+        ItemDto catfishDto = new ItemDto();
+        catfishDto.setName("Catfish");
+        catfishDto.setDescription("fresh salmon");
+        catfishDto.setAccountId(accountId);
+        catfishDto.setUnit("box");
+        catfishDto.setVolume(5);
+        catfishDto.setActive(true);
+        catfishDto.setId(111L);
+        itemsDto.add(catfishDto);
     }
 
     @Test
