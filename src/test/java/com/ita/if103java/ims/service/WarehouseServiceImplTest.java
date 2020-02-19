@@ -8,6 +8,7 @@ import com.ita.if103java.ims.dto.WarehouseDto;
 import com.ita.if103java.ims.entity.AccountType;
 import com.ita.if103java.ims.entity.Address;
 import com.ita.if103java.ims.entity.Event;
+import com.ita.if103java.ims.entity.EventName;
 import com.ita.if103java.ims.entity.Role;
 import com.ita.if103java.ims.entity.SavedItem;
 import com.ita.if103java.ims.entity.User;
@@ -33,14 +34,15 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -50,6 +52,10 @@ public class WarehouseServiceImplTest {
     private WarehouseDto warehouseDto = new WarehouseDto(12L, "WarehouseTest", "auto parts", 20, true, 5L, 1L, 4L, true, null);
     private WarehouseDto topWarehouseDto = new WarehouseDto(1L, "WarehouseTop", "auto parts", 0, false, null, 1L, null, true, null);
     private AccountType basic;
+    private UserDetailsImpl userDetails;
+    private Long accountId;
+    Address address;
+    AddressDto addressDto;
 
     @Mock
     private Warehouse warehouse;
@@ -69,9 +75,6 @@ public class WarehouseServiceImplTest {
     @InjectMocks
     private WarehouseServiceImpl warehouseService;
 
-    private UserDetailsImpl userDetails;
-
-
     @BeforeEach
     void setUp() {
         MockitoAnnotations.initMocks(this);
@@ -85,6 +88,36 @@ public class WarehouseServiceImplTest {
         user.setRole(Role.ROLE_WORKER);
         userDetails = new UserDetailsImpl(user);
         userDetails.setAccountType(basic);
+        address = new Address("Ukraine", "Kyiv", "Stusa, 5", "77000", 48F, 50F);
+        addressDto = new AddressDto(1L,"Ukraine", "Kyiv", "Stusa, 5", "77000", 48F, 50F);
+    }
+
+    @Test
+    public void add_successFlow(){
+        int quantity = 2;
+        int level = 0;
+        int maxQuantity = userDetails.getAccountType().getMaxWarehouses();
+        Warehouse warehouseCreate = new Warehouse(1L, "WarehouseTop", "auto parts", 0, false, null, 1L, null, true);
+        warehouseDto.setParentID(null);
+        Long accountId = topWarehouseDto.getAccountID();
+        assertNull(topWarehouseDto.getParentID());
+        when(warehouseDao.findQuantityOfWarehousesByAccountId(accountId)).thenReturn(quantity);
+        assertTrue(quantity < maxQuantity);
+        when(warehouseDao.create(warehouseDtoMapper.toEntity(warehouseDto))).thenReturn(warehouseCreate);
+        when(addressDtoMapper.toEntity(warehouseDto.getAddressDto())).thenReturn(address);
+        assertTrue(warehouseCreate.isTopLevel());
+        when(addressDao.createWarehouseAddress(warehouseCreate.getId(), address)).thenReturn(address);
+        when(addressDtoMapper.toDto(address)).thenReturn(addressDto);
+
+       Event event = new Event("Warehouse created " + warehouse.getCapacity() + " in warehouse " +
+            warehouse.getName(), accountId,
+            warehouse.getId(), 1L, EventName.WAREHOUSE_CREATED, 2L);
+        doNothing().when(eventService).create(event);
+//      verify(eventService, times(1)).create(event);
+//         //form a return DTO
+        when(warehouseDtoMapper.toDto(warehouseCreate)).thenReturn(topWarehouseDto);
+        topWarehouseDto.setAddressDto(addressDto);
+
     }
 
     @Test
@@ -103,19 +136,19 @@ public class WarehouseServiceImplTest {
 
     @Test
     public void addWarehouse_testMaxDepthReached() {
-        int level = 3;
+        Warehouse warehouse = new Warehouse(1L, "Bottom", "auto parts", 20, true, 5L, 1L, 4L, true);
+        int level = 4;
         warehouseDto.setParentID(5L);
-        Long accountId = topWarehouseDto.getAccountID();
+        accountId = userDetails.getUser().getAccountId();
         int maxDepth = userDetails.getAccountType().getMaxWarehouseDepth();
         assertNotNull(warehouseDto.getParentID());
-
-        when(warehouseDao.findById(5L, accountId).isBottom()).thenReturn(true);
         when(warehouseDao.findLevelByParentID(warehouseDto.getParentID())).thenReturn(level);
+        assertFalse (level < maxDepth);
+//        MaxWarehousesLimitReachedException exception = assertThrows(MaxWarehousesLimitReachedException.class, () -> {
+//            warehouseService.add(warehouseDto, userDetails);
+//        });
+//        assertEquals("The maximum number of warehouses has been reached for this" + "{accountId = " + accountId + "}", exception.getMessage());
 
-        MaxWarehousesLimitReachedException exception = assertThrows(MaxWarehousesLimitReachedException.class, () -> {
-            warehouseService.add(warehouseDto, userDetails);
-        });
-        assertEquals("The maximum number of warehouses has been reached for this" + "{accountId = " + accountId + "}", exception.getMessage());
     }
 
     @Test
@@ -164,17 +197,20 @@ public class WarehouseServiceImplTest {
 
     @Test
     void update_notChangeParent() {
-        Warehouse warehouse = new Warehouse(12L, "WarehouseTest", "auto parts", 20, true, 5L, 1L, 4L, true);
-        when(warehouseDtoMapper.toEntity(warehouseDto)).thenReturn(warehouse);
-        when(warehouseDao.findById(warehouse.getId(), warehouse.getAccountID())).thenReturn(warehouse);
-        warehouseDto.setId(5L);
-        assertTrue(warehouse.isActive());
-        warehouse.setActive(true);
-        assertNotEquals(warehouseDto.getId(), warehouse.getId());
-        WarehouseUpdateException exception = assertThrows(WarehouseUpdateException.class, () -> {
-            warehouseService.update(warehouseDto, userDetails);
-        });
-        assertEquals("You can't change parent warehouse!", exception.getMessage());
+        Warehouse updatedWarehouse = new Warehouse(12L, "updatedWarehouse", "auto parts", 20, true, 5L, 1L, 4L, true);
+        Warehouse dBWarehouse = new Warehouse(12L, "dBWarehouse", "auto parts", 20, true, 5L, 1L, 4L, true);
+
+        when(warehouseDtoMapper.toEntity(warehouseDto)).thenReturn(updatedWarehouse);
+        when(warehouseDao.findById(updatedWarehouse.getId(), updatedWarehouse.getAccountID())).thenReturn(warehouse);
+        warehouseDto.setId(3L);
+        assertTrue(updatedWarehouse.isActive());
+        updatedWarehouse.setActive(true);
+        if (!updatedWarehouse.getParentID().equals(dBWarehouse.getParentID())) {
+            WarehouseUpdateException exception = assertThrows(WarehouseUpdateException.class, () -> {
+                warehouseService.update(warehouseDto, userDetails);
+            });
+            assertEquals("You can't change parent warehouse!", exception.getMessage());
+        }
     }
 
 
