@@ -48,6 +48,8 @@ public class WarehouseDaoImplTest {
     private PreparedStatement preparedStatement;
     @Mock
     private GeneratedKeyHolderFactory generatedKeyHolderFactory;
+    @Mock
+    WarehouseRowMapper warehouseRowMapper;
 
     @InjectMocks
     private WarehouseDaoImpl warehouseDao;
@@ -76,6 +78,7 @@ public class WarehouseDaoImplTest {
         warehouse.setActive(true);
 
         warehouseDao.create(warehouse);
+
 
 //        Warehouse warehouseTop = new Warehouse();
 //        warehouseTop.setName("TopStock");
@@ -106,12 +109,10 @@ public class WarehouseDaoImplTest {
 
     @Test
     void testFindById_successFlow() {
-        when(jdbcTemplate.queryForObject(anyString(), ArgumentMatchers.<WarehouseRowMapper>any(), anyLong()))
+        when(jdbcTemplate.queryForObject(anyString(), ArgumentMatchers.<WarehouseRowMapper>any(), anyLong(), anyLong()))
             .thenReturn(warehouse);
 
         assertEquals(warehouse, warehouseDao.findById(warehouse.getId(), warehouse.getAccountID()));
-
-        verify(jdbcTemplate).queryForObject(anyString(), ArgumentMatchers.<WarehouseRowMapper>any(), eq(warehouse.getId()));
     }
 
     @Test
@@ -127,7 +128,7 @@ public class WarehouseDaoImplTest {
         warehouseDao.hardDelete(1L);
         verify(jdbcTemplate, times(1)).update(anyString(), eq(1L));
     }
-
 }
+
 
 
