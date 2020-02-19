@@ -90,7 +90,7 @@ public class UserControllerTest {
         when(this.passwordEncoder.encode(anyString()))
             .thenReturn("$2a$10$jl.3oXcrjxo9qcCUoQIzT.TKxCNHAvlDaL3uh/ekUM.XpSa/Rhnse");
 
-        //Initializing test user
+        //Initialization oftest user
         user = getTestUser();
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userDto = mapper.toDto(user);
@@ -99,12 +99,12 @@ public class UserControllerTest {
         createdDate = userDto.getCreatedDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS"));
         updatedDate = userDto.getUpdatedDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS"));
 
-        //Initialization principal
+        //Initialization of principal
         userDetails = new UserDetailsImpl(user);
         AccountType accountType = new AccountType();
         userDetails.setAccountType(accountType);
 
-        //Initialization json mapper
+        //Initialization of json mapper
         objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
 
@@ -189,7 +189,7 @@ public class UserControllerTest {
 
     @Test
     void findAll_successFlow() throws Exception {
-        // Initializing list of UserDto
+        // Initialization of an userDto list
         List<UserDto> users = mapper.toDtoList(getListOfUsers());
 
         // First 3 users (should return 1, because there is only 1 user with role WORKER and an active status in db)
@@ -324,7 +324,7 @@ public class UserControllerTest {
 
     @Test
     void updatePassword_badFlow() throws Exception {
-        //initialization of test data
+        //Initialization of test data
         String newPassword = "12345678";
         String fakePassword = "";
         ResetPasswordDto resetPasswordDto = new ResetPasswordDto();
@@ -339,6 +339,6 @@ public class UserControllerTest {
 
         mockMvc.perform(put("/users/update-password")
             .principal(init(userDetails)))
-            .andExpect(status().is(400));
+            .andExpect(status().isBadRequest());
     }
 }
