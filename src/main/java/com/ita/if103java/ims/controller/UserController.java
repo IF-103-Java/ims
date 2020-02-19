@@ -51,7 +51,7 @@ public class UserController {
         return userService.findById(id);
     }
 
-    @GetMapping("/")
+    @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public UserDto findByEmail(@RequestParam("email") String email) {
         return userService.findByEmail(email);
@@ -93,7 +93,7 @@ public class UserController {
         return userService.activateUser(emailUUID);
     }
 
-    @PostMapping("/update-password")
+    @PutMapping("/update-password")
     @ResponseStatus(HttpStatus.OK)
     public boolean updatePassword(@AuthenticationPrincipal UserDetailsImpl user,
                                   @Validated({ExistData.class})  @RequestBody ResetPasswordDto resetPasswordDto) {
