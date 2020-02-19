@@ -2,7 +2,6 @@ package com.ita.if103java.ims.dao;
 
 import com.ita.if103java.ims.config.GeneratedKeyHolderFactory;
 import com.ita.if103java.ims.dao.impl.UserDaoImpl;
-import com.ita.if103java.ims.entity.Role;
 import com.ita.if103java.ims.entity.User;
 import com.ita.if103java.ims.exception.dao.CRUDException;
 import com.ita.if103java.ims.exception.dao.UserNotFoundException;
@@ -29,10 +28,9 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
-import static com.ita.if103java.ims.DataUtil.getListOfUsers;
-import static com.ita.if103java.ims.DataUtil.getTestUser;
+import static com.ita.if103java.ims.util.DataUtil.getListOfUsers;
+import static com.ita.if103java.ims.util.DataUtil.getTestUser;
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -62,7 +60,6 @@ public class UserDaoImplTest {
     private GeneratedKeyHolderFactory generatedKeyHolderFactory;
     @Mock
     private PasswordEncoder passwordEncoder;
-
     @InjectMocks
     private UserDaoImpl userDao;
 
@@ -145,7 +142,7 @@ public class UserDaoImplTest {
         when(jdbcTemplate.query(anyString(), ArgumentMatchers.<UserRowMapper>any(), anyLong(), anyInt(), anyLong()))
             .thenReturn(newList);
 
-        // First 3 users (should return 1, because there is only 1 user with role worker and is active in db)
+        // First 3 users (should return 1, because there is only 1 user with role WORKER and an active status in db)
         Integer expectedCount = 1;
         List<User> resultUserList = userDao.findAll(pageable, user.getAccountId());
         assertEquals(expectedCount, resultUserList.size());
