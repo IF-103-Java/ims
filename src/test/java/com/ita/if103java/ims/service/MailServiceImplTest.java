@@ -15,7 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
-import static com.ita.if103java.ims.DataUtil.getTestUser;
+import static com.ita.if103java.ims.util.DataUtil.getTestUser;
 import static com.ita.if103java.ims.config.MailMessagesConfig.FOOTER;
 import static com.ita.if103java.ims.config.MailMessagesConfig.RESET_PASSWORD;
 import static org.mockito.ArgumentMatchers.anyString;

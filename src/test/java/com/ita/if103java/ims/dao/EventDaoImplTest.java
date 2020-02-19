@@ -153,47 +153,75 @@ public class EventDaoImplTest {
             params1.put("type", new ArrayList<>(Arrays.asList("USER", "WAREHOUSE")));
             params1.put("after", "02-02-2002");
             String expectedQuery1 = """
-            select * from events where account_id = '2' and DATE(date) >= '02-02-2002' and (name in
-            ('ITEM_ENDED', 'LOW_SPACE_IN_WAREHOUSE', 'WAREHOUSE_CREATED', 'WAREHOUSE_EDITED',
-            'WAREHOUSE_REMOVED') or (name in ('LOGIN', 'LOGOUT', 'PASSWORD_CHANGED', 'PROFILE_CHANGED', 'SIGN_UP')
-            and author_id = '4')) ORDER BY id ASC Limit 15 OFFSET 0
-        """.replace("\n", " ").replaceAll("\\s{2,}", " ").trim();
+                SELECT * FROM events WHERE account_id = '2' and DATE(date) >= '02-02-2002' and (name in
+                ('ITEM_ENDED', 'LOW_SPACE_IN_WAREHOUSE', 'WAREHOUSE_CREATED', 'WAREHOUSE_EDITED',
+                'WAREHOUSE_REMOVED') or (name in ('LOGIN', 'LOGOUT', 'PASSWORD_CHANGED', 'PROFILE_CHANGED', 'SIGN_UP')
+                and author_id = '4')) ORDER BY id ASC LIMIT 15 OFFSET 0
+                """.replace("\n", " ").replaceAll("\\s{2,}", " ").trim();
 
             HashMap<String, Object> params2 = new HashMap<>();
             params2.put("type", new ArrayList<>(Arrays.asList("USER", "WAREHOUSE", "TRANSACTION")));
             params2.put("before", "02-02-2002");
             String expectedQuery2 = """
-            select * from events where account_id = '2' and DATE(date) <= '02-02-2002' and
-            name in ('ITEM_CAME', 'ITEM_ENDED', 'ITEM_MOVED', 'ITEM_SHIPPED', 'LOGIN', 'LOGOUT',
-            'LOW_SPACE_IN_WAREHOUSE', 'PASSWORD_CHANGED', 'PROFILE_CHANGED', 'SIGN_UP', 'WAREHOUSE_CREATED',
-            'WAREHOUSE_EDITED', 'WAREHOUSE_REMOVED') ORDER BY id ASC Limit 15 OFFSET 0
-        """.replace("\n", " ").replaceAll("\\s{2,}", " ").trim();
-
+                SELECT * FROM events WHERE account_id = '2' and DATE(date) <= '02-02-2002' and
+                name in ('ITEM_CAME', 'ITEM_ENDED', 'ITEM_MOVED', 'ITEM_SHIPPED', 'LOGIN', 'LOGOUT',
+                'LOW_SPACE_IN_WAREHOUSE', 'PASSWORD_CHANGED', 'PROFILE_CHANGED', 'SIGN_UP', 'WAREHOUSE_CREATED',
+                'WAREHOUSE_EDITED', 'WAREHOUSE_REMOVED') ORDER BY id ASC LIMIT 15 OFFSET 0
+                """.replace("\n", " ").replaceAll("\\s{2,}", " ").trim();
 
             HashMap<String, Object> params3 = new HashMap<>();
             params3.put("name", Arrays.asList("NEW_CLIENT", "WAREHOUSE_EDITED", "PASSWORD_CHANGED"));
-            //params3.put("name", "NEW_CLIENT");
             params3.put("author_id", Arrays.asList(2, 4, 5, 8, 13));
             String expectedQuery3 = """
-            select * from events where account_id = '2' and author_id in ('2', '4', '5', '8', '13') and
-            (name in ('NEW_CLIENT', 'WAREHOUSE_EDITED') or (name in ('PASSWORD_CHANGED')
-            and author_id = '4')) ORDER BY id ASC Limit 15 OFFSET 0
-        """.replace("\n", " ").replaceAll("\\s{2,}", " ").trim();
+                SELECT * FROM events WHERE account_id = '2' and author_id in ('2', '4', '5', '8', '13') and
+                (name in ('NEW_CLIENT', 'WAREHOUSE_EDITED') or (name in ('PASSWORD_CHANGED') and author_id = '4'))
+                ORDER BY id ASC LIMIT 15 OFFSET 0
+                """.replace("\n", " ").replaceAll("\\s{2,}", " ").trim();
 
             HashMap<String, Object> params4 = new HashMap<>();
             params4.put("type", "USER");
             params4.put("after", "02-02-2002");
             String expectedQuery4 = """
-            select * from events where account_id = '2' and DATE(date) >= '02-02-2002' and
-            (name in ('LOGIN', 'LOGOUT', 'PASSWORD_CHANGED', 'PROFILE_CHANGED', 'SIGN_UP') and
-            author_id = '4') ORDER BY id ASC Limit 15 OFFSET 0
-        """.replace("\n", " ").replaceAll("\\s{2,}", " ").trim();
+                SELECT * FROM events WHERE account_id = '2' and DATE(date) >= '02-02-2002' and
+                (name in ('LOGIN', 'LOGOUT', 'PASSWORD_CHANGED', 'PROFILE_CHANGED', 'SIGN_UP') and
+                author_id = '4') ORDER BY id ASC LIMIT 15 OFFSET 0
+                """.replace("\n", " ").replaceAll("\\s{2,}", " ").trim();
+
+            HashMap<String, Object> params5 = new HashMap<>();
+            params5.put("type", "USER");
+            params5.put("author_id", 4);
+            String expectedQuery5 = """
+                SELECT * FROM events WHERE account_id = '2' and author_id = '4' and
+                (name in ('LOGIN', 'LOGOUT', 'PASSWORD_CHANGED', 'PROFILE_CHANGED', 'SIGN_UP') and
+                author_id = '4') ORDER BY id ASC LIMIT 15 OFFSET 0
+                """.replace("\n", " ").replaceAll("\\s{2,}", " ").trim();
+
+            HashMap<String, Object> params6 = new HashMap<>();
+            params6.put("type", Arrays.asList("USER", "TRANSACTION"));
+            params6.put("author_id", Arrays.asList(2, 5, 6));
+            String expectedQuery6 = """
+                SELECT * FROM events WHERE account_id = '2' and author_id in ('2', '5', '6') and
+                name in ('ITEM_CAME', 'ITEM_MOVED', 'ITEM_SHIPPED') ORDER BY id ASC LIMIT 15 OFFSET 0
+                """.replace("\n", " ").replaceAll("\\s{2,}", " ").trim();
+
+            HashMap<String, Object> params7 = new HashMap<>();
+            params7.put("name", Arrays.asList("NEW_CLIENT", "LOGOUT"));
+            params7.put("type", "TRANSACTION");
+            params7.put("author_id", Arrays.asList(2, 4, 5, 8, 13));
+            String expectedQuery7 = """
+                SELECT * FROM events WHERE account_id = '2' and author_id in ('2', '4', '5', '8', '13') and
+                (name in ('ITEM_CAME', 'ITEM_MOVED', 'ITEM_SHIPPED', 'NEW_CLIENT') or
+                (name in ('LOGOUT') and author_id = '4')) ORDER BY id ASC LIMIT 15 OFFSET 0
+                """.replace("\n", " ").replaceAll("\\s{2,}", " ").trim();
 
             return Stream.of(
                 Arguments.of(Role.ROLE_WORKER, params1, expectedQuery1),
                 Arguments.of(Role.ROLE_ADMIN, params2, expectedQuery2),
                 Arguments.of(Role.ROLE_WORKER, params3, expectedQuery3),
-                Arguments.of(Role.ROLE_WORKER, params4, expectedQuery4)
+                Arguments.of(Role.ROLE_WORKER, params4, expectedQuery4),
+                Arguments.of(Role.ROLE_WORKER, params5, expectedQuery5),
+                Arguments.of(Role.ROLE_WORKER, params6, expectedQuery6),
+                Arguments.of(Role.ROLE_WORKER, params7, expectedQuery7)
             );
         }
     }
