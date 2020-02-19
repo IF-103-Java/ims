@@ -86,7 +86,7 @@ class UpgradeControllerTest {
     }
 
     @Test
-    void upgrade() throws Exception {
+    void upgrade_SuccessFlow() throws Exception {
         mockMvc.perform(put("/upgrade/" + accountTypeId)
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk());
@@ -104,7 +104,7 @@ class UpgradeControllerTest {
     }
 
     @Test
-    void findCurrentType() throws Exception {
+    void findCurrentType_SuccessFlow() throws Exception {
 
         when(upgradeService.findById(userDetails.getAccountType().getId())).thenReturn(accountTypeDto);
         mockMvc.perform(get("/upgrade/")
@@ -128,7 +128,7 @@ class UpgradeControllerTest {
     }
 
     @Test
-    void findAllPossible() throws Exception {
+    void findAllPossible_SuccessFlow() throws Exception {
         List<AccountTypeDto> allPossibleDto = Arrays.asList(
             new AccountTypeDto(1L, "Basic", 0.0, 1, 3, 3,
                 3, 3, 3, false,
@@ -141,7 +141,9 @@ class UpgradeControllerTest {
         mockMvc.perform(get("/upgrade/all-possible")
             .principal(init(userDetails))
             .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk());
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.[0].id").value(allPossibleDto.get(0).getId()))
+            .andExpect(jsonPath("$.[1].name").value(allPossibleDto.get(1).getName()));
 
         verify(upgradeService).findAllPossibleToUpgrade(userDetails.getAccountType().getLevel());
     }

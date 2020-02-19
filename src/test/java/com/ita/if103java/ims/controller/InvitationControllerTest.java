@@ -81,7 +81,7 @@ class InvitationControllerTest {
     }
 
     @Test
-    void invite() throws Exception {
+    void invite_SuccessFlow() throws Exception {
 
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
