@@ -216,14 +216,22 @@ public class EventDaoImplTest {
 
 
             HashMap<String, Object> params8 = new HashMap<>();
-           // params8.put("name", Arrays.asList("NEW_CLIENT", "LOGOUT"));
-           // params8.put("type", "TRANSACTION");
             params8.put("author_id", Arrays.asList(2, 5, 8, 13));
             String expectedQuery8 = """
                 SELECT * FROM events WHERE account_id = '2' and author_id in ('2', '5', '8', '13') and
-                (name not in ('LOGOUT', 'PASSWORD_CHANGED', 'PROFILE_CHANGED', 'SIGN_UP', 'LOGIN'))
+                (name not in ('LOGIN', 'LOGOUT', 'PASSWORD_CHANGED', 'PROFILE_CHANGED', 'SIGN_UP'))
                 ORDER BY id ASC LIMIT 15 OFFSET 0
                 """.replace("\n", " ").replaceAll("\\s{2,}", " ").trim();
+
+            HashMap<String, Object> params9 = new HashMap<>();
+            params9.put("type", Arrays.asList("USER"));
+            params9.put("author_id", Arrays.asList(3));
+            String expectedQuery9 = """
+                SELECT * FROM events WHERE account_id = '2' and author_id in ('3') and
+                name in ('') ORDER BY id ASC LIMIT 15 OFFSET 0
+                """.replace("\n", " ").replaceAll("\\s{2,}", " ").trim();
+
+
             return Stream.of(
                 Arguments.of(Role.ROLE_WORKER, params1, expectedQuery1),
                 Arguments.of(Role.ROLE_ADMIN, params2, expectedQuery2),
@@ -232,7 +240,8 @@ public class EventDaoImplTest {
                 Arguments.of(Role.ROLE_WORKER, params5, expectedQuery5),
                 Arguments.of(Role.ROLE_WORKER, params6, expectedQuery6),
                 Arguments.of(Role.ROLE_WORKER, params7, expectedQuery7),
-                Arguments.of(Role.ROLE_WORKER, params8, expectedQuery8)
+                Arguments.of(Role.ROLE_WORKER, params8, expectedQuery8),
+                Arguments.of(Role.ROLE_WORKER, params9, expectedQuery9)
             );
         }
     }

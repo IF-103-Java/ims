@@ -134,9 +134,14 @@ public class EventDaoImpl implements EventDao {
 
 
         if (!eventNames.isEmpty()) {
-            personalConditions = buildSqlNameCondition(eventNames, user.getId());
             if (!showPersonalEvents) {
-                personalConditions = "";
+                eventNames.removeIf(o -> o.getType().equals(EventType.USER));
+            }
+
+            personalConditions = buildSqlNameCondition(eventNames, user.getId());
+
+            if (eventNames.isEmpty() && !showPersonalEvents) {
+                personalConditions = "name in ('')";
             }
         } else {
             personalConditions = showPersonalEvents ?

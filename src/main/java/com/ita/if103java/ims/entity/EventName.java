@@ -1,9 +1,10 @@
 package com.ita.if103java.ims.entity;
 
+import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 public enum EventName {
     LOGIN("Login", EventType.USER, false),
@@ -51,7 +52,7 @@ public enum EventName {
     }
 
     public static Set<EventName> getValuesByType(EventType type) {
-        Set<EventName> values = new HashSet<>();
+        Set<EventName> values = new TreeSet<>(Comparator.comparing(Enum::toString));
         for (EventName name : EventName.values()) {
             if (name.getType() == type) {
                 values.add(name);
