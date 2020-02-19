@@ -4,6 +4,7 @@ import com.ita.if103java.ims.dao.AddressDao;
 import com.ita.if103java.ims.dao.SavedItemDao;
 import com.ita.if103java.ims.dao.WarehouseDao;
 import com.ita.if103java.ims.dto.AddressDto;
+import com.ita.if103java.ims.dto.UsefulWarehouseDto;
 import com.ita.if103java.ims.dto.WarehouseDto;
 import com.ita.if103java.ims.entity.AccountType;
 import com.ita.if103java.ims.entity.Address;
@@ -19,6 +20,7 @@ import com.ita.if103java.ims.exception.service.WarehouseUpdateException;
 import com.ita.if103java.ims.mapper.dto.AddressDtoMapper;
 import com.ita.if103java.ims.mapper.dto.WarehouseDtoMapper;
 import com.ita.if103java.ims.security.UserDetailsImpl;
+import com.ita.if103java.ims.service.impl.SavedItemServiceImpl;
 import com.ita.if103java.ims.service.impl.WarehouseServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,22 +29,27 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static org.junit.jupiter.api.Assertions.assertLinesMatch;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertLinesMatch;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -71,6 +78,8 @@ public class WarehouseServiceImplTest {
     private SavedItemDao savedItemDao;
     @Mock
     private WarehouseDtoMapper warehouseDtoMapper;
+    @Mock
+    SavedItemServiceImpl savedItemService;
 
     @InjectMocks
     private WarehouseServiceImpl warehouseService;
@@ -289,6 +298,31 @@ public class WarehouseServiceImplTest {
     public void findTotalCapacityTest() {
         when(warehouseDao.findTotalCapacity(1L, 2L)).thenReturn(anyInt());
 
+    }
+
+    @Test
+    void findUsefulWarehouses(){
+        Long capacity = 8L;
+        List<Warehouse> usefulWarehouse = new ArrayList<>();
+        Warehouse sectionA = new Warehouse(3L, "SectionA", "some info", 100, true, 1L, 2L, 1L, true);
+        usefulWarehouse.add(sectionA);
+        Warehouse sectionB = new Warehouse(4L, "SectionB", "some info", 100, true, 2L, 2L, 2L, true);
+        usefulWarehouse.add(sectionB);
+        List<Warehouse> usefulTopWarehouse = new ArrayList<>();
+        Warehouse warehouseA = new Warehouse(1L, "WarehouseA", "some info", 0, false, null, 2L, 1L, true);
+        Warehouse warehouseB =new Warehouse(2L, "WarehouseB", "some info", 0, false, null, 2L, 2L, true);
+        usefulTopWarehouse.add(warehouseA);
+        usefulTopWarehouse.add(warehouseB);
+        usefulTopWarehouse.add(sectionA);
+        usefulTopWarehouse.add(sectionB);
+        when(warehouseDao.findUsefulTopWarehouse(capacity, accountId)).thenReturn(usefulWarehouse);
+        String ids =  usefulWarehouse.stream().
+            map(x -> x.getTopWarehouseID().toString()).collect(Collectors.joining(","));
+        when(warehouseDao.findByTopWarehouseIDs(ids, accountId)).thenReturn(usefulTopWarehouse);
+        List<UsefulWarehouseDto> usefulWarehouseDtos =  warehouseService.findUsefulWarehouses(capacity, userDetails);
+        when(savedItemService.toVolumeOfPassSavedItems(anyLong(), anyLong())).thenReturn(5F);
+        assertLinesMatch(usefulWarehouseDtos.get(0).getPath(), List.of("WarehouseA", "SectionA"));
+        assertLinesMatch(usefulWarehouseDtos.get(1).getPath(), List.of("WarehouseB", "SectionB"));
     }
 
 }
