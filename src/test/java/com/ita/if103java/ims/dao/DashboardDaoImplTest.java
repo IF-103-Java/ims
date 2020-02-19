@@ -61,7 +61,7 @@ public class DashboardDaoImplTest {
     }
 
     @Test
-    public void testWarehouseLoadException1(){
+    public void testWarehouseLoadException(){
         when(jdbcTemplate.query(
             DashboardDaoImpl.Queries.SQL_FIND_WAREHOUSE_LOAD_BY_ACCOUNT_ID, warehouseLoadRowMapper, -1L))
             .thenThrow(EmptyResultDataAccessException.class);
@@ -70,7 +70,7 @@ public class DashboardDaoImplTest {
     }
 
     @Test
-    public void testPopularItems1() {
+    public void testPopularItems_popularDuringYear() {
         PopularItemsRequestDto popularItems =
             new PopularItemsRequestDto(3, DateType.YEAR, PopType.TOP, "17-02-2020");
 
@@ -86,7 +86,7 @@ public class DashboardDaoImplTest {
     }
 
     @Test
-    public void testPopularItems2() {
+    public void testPopularItems_unpopularDuringMonth() {
         PopularItemsRequestDto popularItems =
             new PopularItemsRequestDto(9, DateType.MONTH, PopType.BOT, "17-02-2019");
 
@@ -103,7 +103,7 @@ public class DashboardDaoImplTest {
 
 
     @Test
-    public void testPopularItems3() {
+    public void testPopularItems_unpopularDuringWholeTime() {
         PopularItemsRequestDto popularItems =
             new PopularItemsRequestDto(15, DateType.ALL, PopType.BOT, "13-06-2019");
 
