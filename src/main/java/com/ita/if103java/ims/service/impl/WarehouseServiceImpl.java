@@ -143,7 +143,6 @@ public class WarehouseServiceImpl implements WarehouseService {
             warehouses.add(warehouseDto);
         }
         return new PageImpl<>(warehouses, pageable, warehouseQuantity);
-
     }
 
     @Override

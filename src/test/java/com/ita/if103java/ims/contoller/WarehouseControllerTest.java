@@ -38,6 +38,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -161,11 +162,11 @@ public class WarehouseControllerTest {
         objectMapper.registerModule(new JavaTimeModule());
         String resultJson = objectMapper.writeValueAsString(warehouseDto1);
 
-        mockMvc.perform(post("/warehouses/update/" + warehouseDto1.getId())
+        mockMvc.perform(put("/warehouses/update/")
             .contentType(MediaType.APPLICATION_JSON)
             .content(resultJson))
-            .andExpect(status().isNotFound())
-//            .andExpect(jsonPath("$.id").value(warehouseDto1.getId()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value(warehouseDto1.getId()))
             .andExpect(jsonPath("$.name").value(warehouseDto1.getName()))
             .andExpect(jsonPath("$.info").value(warehouseDto1.getInfo()))
             .andExpect(jsonPath("$.capacity").value(warehouseDto1.getCapacity()))

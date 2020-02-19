@@ -63,9 +63,8 @@ public class WarehouseController {
     @PutMapping("/update/")
     @ResponseStatus(HttpStatus.OK)
     public WarehouseDto update(@RequestBody WarehouseDto warehouseDto,
-                               @PathVariable("id") Long id,
                                @AuthenticationPrincipal UserDetailsImpl user) {
-        warehouseDto.setId(id);
+
         return warehouseService.update(warehouseDto, user);
     }
 

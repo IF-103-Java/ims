@@ -117,7 +117,7 @@ public class WarehouseServiceImplTest {
     @Test
     void findByIdTest_isNotWarehouseTopLevel() {
         Warehouse bottom = new Warehouse(12L, "Bottom", "auto parts", 20, true, 5L, 1L, 4L, true);
-        WarehouseDto warehouseDto = this.warehouseDto;
+
         when(warehouseDao.findById(1L, 1L)).thenReturn(bottom);
         when(warehouseDtoMapper.toDto(bottom)).thenReturn(warehouseDto);
         assertFalse(bottom.isTopLevel());
