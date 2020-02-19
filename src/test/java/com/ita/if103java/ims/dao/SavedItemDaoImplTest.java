@@ -100,29 +100,88 @@ public class SavedItemDaoImplTest {
     }
 
     @Test
-    void getSavedItems(){
+    void getSavedItems_successFlow(){
         when(jdbcTemplate.query(anyString(), ArgumentMatchers.<SavedItemRowMapper>any())).thenReturn(savedItems);
         assertEquals(savedItems, savedItemDao.getSavedItems());
     }
 
     @Test
-    void findSavedItemById(){
+    void getSavedItems_omittedFlowCRUDException(){
+        when(jdbcTemplate.query(anyString(), ArgumentMatchers.<SavedItemRowMapper>any())).thenThrow(new DataAccessException(""){});
+        assertThrows(CRUDException.class,()-> savedItemDao.getSavedItems());
+    }
+
+    @Test
+    void findSavedItemById_successFlow(){
         when(jdbcTemplate.queryForObject(anyString(), ArgumentMatchers.<SavedItemRowMapper>any(), anyLong())).thenReturn(trout);
         assertEquals(trout, savedItemDao.findSavedItemById(trout.getId()));
     }
 
     @Test
-    void findSavedItemByItemId(){
+    void findSavedItemById_omittedFlow(){
+        when(jdbcTemplate.queryForObject(anyString(), ArgumentMatchers.<SavedItemRowMapper>any(), anyLong()))
+            .thenThrow(new EmptyResultDataAccessException(1){});
+        SavedItemNotFoundException exception = assertThrows(SavedItemNotFoundException.class,
+            ()-> savedItemDao.findSavedItemById(trout.getId()));
+        assertEquals("Failed to get savedItem during `select` {id = " + trout.getId() + "}", exception.getMessage());
+    }
+
+    @Test
+    void findSavedItemById_omittedFlowCRUDException(){
+        when(jdbcTemplate.queryForObject(anyString(), ArgumentMatchers.<SavedItemRowMapper>any(), anyLong()))
+            .thenThrow(new DataAccessException(""){});
+        CRUDException exception = assertThrows(CRUDException.class,
+            ()-> savedItemDao.findSavedItemById(trout.getId()));
+        assertEquals("Failed during `select` {id = " + trout.getId() + "}", exception.getMessage());
+    }
+
+    @Test
+    void findSavedItemByItemId_successFlow(){
         when(jdbcTemplate.query(anyString(), ArgumentMatchers.<SavedItemRowMapper>any(), anyLong())).thenReturn(savedItems);
         assertEquals(savedItems, savedItemDao.findSavedItemByItemId(trout.getItemId()));
     }
 
     @Test
-    void findSavedItemByWarehouseId(){
+    void findSavedItemByItemId_omittedFlow(){
+        when(jdbcTemplate.query(anyString(), ArgumentMatchers.<SavedItemRowMapper>any(), anyLong())).thenThrow(new EmptyResultDataAccessException(1){});
+        SavedItemNotFoundException exception = assertThrows(SavedItemNotFoundException.class,
+            ()-> savedItemDao.findSavedItemByItemId(trout.getItemId()));
+        assertEquals("Failed to get savedItem during `select` {item_id = " + trout.getItemId() +
+            "}", exception.getMessage());
+    }
+
+    @Test
+    void findSavedItemByItemId_omittedFlowCRUDException(){
+        when(jdbcTemplate.query(anyString(), ArgumentMatchers.<SavedItemRowMapper>any(), anyLong())).thenThrow(new DataAccessException(""){});
+        CRUDException exception = assertThrows(CRUDException.class,
+            ()-> savedItemDao.findSavedItemByItemId(trout.getItemId()));
+        assertEquals("Failed during `select` {item_id = " + trout.getItemId() + "}", exception.getMessage());
+    }
+
+
+    @Test
+    void findSavedItemByWarehouseId_successFlow(){
         when(jdbcTemplate.query(anyString(), ArgumentMatchers.<SavedItemRowMapper>any(), anyLong())).thenReturn(savedItems);
         assertEquals(savedItems, savedItemDao.findSavedItemByWarehouseId(trout.getWarehouseId()));
     }
-//test
+
+    @Test
+    void findSavedItemByWarehouseId_omittedFlow(){
+        when(jdbcTemplate.query(anyString(), ArgumentMatchers.<SavedItemRowMapper>any(), anyLong())).thenThrow(new EmptyResultDataAccessException(1){});
+        SavedItemNotFoundException exception = assertThrows(SavedItemNotFoundException.class,
+            ()->savedItemDao.findSavedItemByWarehouseId(trout.getWarehouseId()));
+        assertEquals("Failed to get savedItem during `select` {warehouse_id = " + trout.getWarehouseId() +
+            "}", exception.getMessage());
+    }
+
+    @Test
+    void findSavedItemByWarehouseId_omittedFlowCRUDException(){
+        when(jdbcTemplate.query(anyString(), ArgumentMatchers.<SavedItemRowMapper>any(), anyLong())).thenThrow(new DataAccessException(""){});
+        CRUDException exception = assertThrows(CRUDException.class,
+            ()->savedItemDao.findSavedItemByWarehouseId(trout.getWarehouseId()));
+        assertEquals("Failed during `select` {warehouse_id = " + trout.getWarehouseId() + "}", exception.getMessage());
+    }
+
     @Test
     void existSavedItemByWarehouseId_successFlow(){
         when(jdbcTemplate.query(anyString(), ArgumentMatchers.<SavedItemRowMapper>any(), anyLong())).thenReturn(savedItems);
@@ -138,6 +197,21 @@ public class SavedItemDaoImplTest {
         verify(jdbcTemplate, times(1)).query(anyString(), ArgumentMatchers.<SavedItemRowMapper>any(), anyLong());
     }
 
+    @Test
+    void existSavedItemByWarehouseId_omittedFlow(){
+        when(jdbcTemplate.query(anyString(), ArgumentMatchers.<SavedItemRowMapper>any(), anyLong())).thenThrow(
+            EmptyResultDataAccessException.class);
+        assertEquals(false, savedItemDao.existSavedItemByWarehouseId(trout.getWarehouseId()));
+        verify(jdbcTemplate, times(1)).query(anyString(), ArgumentMatchers.<SavedItemRowMapper>any(), anyLong());
+    }
+
+    @Test
+    void existSavedItemByWarehouseId_omittedFlowCRUDException(){
+        when(jdbcTemplate.query(anyString(), ArgumentMatchers.<SavedItemRowMapper>any(), anyLong())).thenThrow(new DataAccessException(""){});
+        CRUDException exception = assertThrows(CRUDException.class,
+            ()->savedItemDao.existSavedItemByWarehouseId(trout.getWarehouseId()));
+        assertEquals("Failed during `select` {warehouse_id = " + trout.getWarehouseId() + "}", exception.getMessage());
+    }
     @Test
     void addSavedItem_successFlow(){
         SavedItem savedItem = new SavedItem();
