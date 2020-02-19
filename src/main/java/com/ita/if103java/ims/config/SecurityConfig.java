@@ -53,10 +53,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .and()
             .authorizeRequests()
             .antMatchers("/",
-                "/signin",
+                "/sign-in",
                 "/forgot-password",
                 "/reset-password",
-                "/signup",
+                "/sign-up",
                 "/users/confirmation",
                 //--swagger--
                 "/v2/api-docs",
