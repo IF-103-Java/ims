@@ -7,6 +7,8 @@ import com.ita.if103java.ims.dto.UserDto;
 import com.ita.if103java.ims.entity.AccountType;
 import com.ita.if103java.ims.entity.Role;
 import com.ita.if103java.ims.entity.User;
+import com.ita.if103java.ims.handler.GlobalExceptionHandler;
+import com.ita.if103java.ims.security.SecurityInterceptor;
 import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.AccountService;
 import com.ita.if103java.ims.service.InvitationService;
@@ -17,15 +19,18 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.web.method.annotation.AuthenticationPrincipalArgumentResolver;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
+import static com.ita.if103java.ims.security.SecurityInterceptor.init;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -40,7 +45,7 @@ class InvitationControllerTest {
     InvitationService invitationService;
 
     @InjectMocks
-    AccountController accountController;
+    InvitationController invitationController;
 
     private User user;
     private AccountType accountType;
@@ -52,7 +57,12 @@ class InvitationControllerTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.initMocks(this);
-        mockMvc = MockMvcBuilders.standaloneSetup(accountController).build();
+        mockMvc = MockMvcBuilders.standaloneSetup(invitationController)
+            .setControllerAdvice(GlobalExceptionHandler.class)
+            .addInterceptors(new SecurityInterceptor())
+            .setCustomArgumentResolvers(
+                new AuthenticationPrincipalArgumentResolver())
+            .build();
 
         currentDateTime = ZonedDateTime.now(ZoneId.systemDefault());
         user = new User(1L, "First name", "Last name", "im.user@gmail.com","nfdfsasf", Role.ROLE_ADMIN,
@@ -72,15 +82,17 @@ class InvitationControllerTest {
 
     @Test
     void invite() throws Exception {
-        // invitationService.inviteUser(user.getUser(), userDto);
+
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         String resultJson = objectMapper.writeValueAsString(userDto);
 
         mockMvc.perform(post("/invite/")
-            .principal(new UsernamePasswordAuthenticationToken(userDetails, userDetails.getAuthorities()))
+            .principal(init(userDetails))
             .contentType(MediaType.APPLICATION_JSON)
             .content(resultJson))
             .andExpect(status().isOk());
+
+        verify(invitationService).inviteUser(userDetails.getUser(), userDto);
     }
 }

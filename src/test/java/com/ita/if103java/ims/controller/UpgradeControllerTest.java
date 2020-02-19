@@ -5,6 +5,8 @@ import com.ita.if103java.ims.dto.AccountTypeDto;
 import com.ita.if103java.ims.entity.AccountType;
 import com.ita.if103java.ims.entity.Role;
 import com.ita.if103java.ims.entity.User;
+import com.ita.if103java.ims.handler.GlobalExceptionHandler;
+import com.ita.if103java.ims.security.SecurityInterceptor;
 import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.AccountService;
 import com.ita.if103java.ims.service.UpgradeService;
@@ -15,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.web.method.annotation.AuthenticationPrincipalArgumentResolver;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -23,6 +26,8 @@ import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.ita.if103java.ims.security.SecurityInterceptor.init;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -58,7 +63,12 @@ class UpgradeControllerTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.initMocks(this);
-        mockMvc = MockMvcBuilders.standaloneSetup(upgradeController).build();
+        mockMvc = MockMvcBuilders.standaloneSetup(upgradeController)
+            .setControllerAdvice(GlobalExceptionHandler.class)
+            .addInterceptors(new SecurityInterceptor())
+            .setCustomArgumentResolvers(
+                new AuthenticationPrincipalArgumentResolver())
+            .build();
 
         accountTypeId = 2L;
 
@@ -85,18 +95,40 @@ class UpgradeControllerTest {
     }
 
     @Test
-    void findCurrentType() throws Exception {
-
-        when(upgradeService.findById(any())).thenReturn(accountTypeDto);
-        mockMvc.perform(get("/upgrade/")
-            .principal(new UsernamePasswordAuthenticationToken(userDetails, userDetails.getAuthorities()))
+    void upgrade_Fail() throws Exception {
+        mockMvc.perform(put("/upgrade/" + accountTypeId)
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk());
+
+        verify(upgradeService).upgradeAccount(any(UserDetailsImpl.class), eq(accountTypeId));
+    }
+
+    @Test
+    void findCurrentType() throws Exception {
+
+        when(upgradeService.findById(userDetails.getAccountType().getId())).thenReturn(accountTypeDto);
+        mockMvc.perform(get("/upgrade/")
+            .principal(init(userDetails))
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value(accountTypeDto.getId()))
+            .andExpect(jsonPath("$.name").value(accountTypeDto.getName()))
+            .andExpect(jsonPath("$.price").value(accountTypeDto.getPrice()))
+            .andExpect(jsonPath("$.level").value(accountTypeDto.getLevel()))
+            .andExpect(jsonPath("$.maxWarehouses").value(accountTypeDto.getMaxWarehouses()))
+            .andExpect(jsonPath("$.maxWarehouseDepth").value(accountTypeDto.getMaxWarehouseDepth()))
+            .andExpect(jsonPath("$.maxUsers").value(accountTypeDto.getMaxUsers()))
+            .andExpect(jsonPath("$.maxSuppliers").value(accountTypeDto.getMaxSuppliers()))
+            .andExpect(jsonPath("$.maxClients").value(accountTypeDto.getMaxClients()))
+            .andExpect(jsonPath("$.deepWarehouseAnalytics").value(accountTypeDto.isDeepWarehouseAnalytics()))
+            .andExpect(jsonPath("$.itemStorageAdvisor").value(accountTypeDto.isItemStorageAdvisor()))
+            .andExpect(jsonPath("$.active").value(accountTypeDto.isActive()));
+
+        verify(upgradeService).findById(userDetails.getAccountType().getId());
     }
 
     @Test
     void findAllPossible() throws Exception {
-        //return upgradeService.findAllPossibleToUpgrade(user.getAccountType().getLevel());
         List<AccountTypeDto> allPossibleDto = Arrays.asList(
             new AccountTypeDto(1L, "Basic", 0.0, 1, 3, 3,
                 3, 3, 3, false,
@@ -105,10 +137,12 @@ class UpgradeControllerTest {
                 100, 100, 100, true,
                 true, true)
         );
-        when(upgradeService.findAllPossibleToUpgrade(anyInt())).thenReturn(allPossibleDto);
+        when(upgradeService.findAllPossibleToUpgrade(userDetails.getAccountType().getLevel())).thenReturn(allPossibleDto);
         mockMvc.perform(get("/upgrade/all-possible")
-            .principal(new UsernamePasswordAuthenticationToken(userDetails, userDetails.getAuthorities()))
+            .principal(init(userDetails))
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk());
+
+        verify(upgradeService).findAllPossibleToUpgrade(userDetails.getAccountType().getLevel());
     }
 }
