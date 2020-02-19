@@ -62,6 +62,9 @@ public class SavedItemServiceImplTest {
     @Spy
     @InjectMocks
     SavedItemServiceImpl savedItemService;
+    private Long accountId = 2L;
+    private Long warehouseId = 37L;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.initMocks(this);
@@ -69,18 +72,15 @@ public class SavedItemServiceImplTest {
     }
     @Test
     void validateInputs_Add_successFlow() {
-        Long accountId = 2L;
-
         ItemTransactionRequestDto requestDto = new ItemTransactionRequestDto();
         requestDto.setAssociateId(40L);
         requestDto.setDestinationWarehouseId(37L);
-
         ItemDto itemDto = new ItemDto();
         itemDto.setVolume(3);
-
         Warehouse warehouse = new Warehouse();
         Associate associate = new Associate();
         associate.setType(AssociateType.SUPPLIER);
+
         when(warehouseDao.findById(requestDto.getDestinationWarehouseId(), accountId)).thenReturn(warehouse);
         when(associateDao.findById(accountId, requestDto.getAssociateId())).thenReturn(associate);
         doReturn(true).when(savedItemService).existInAccount(requestDto, accountId);
@@ -90,7 +90,6 @@ public class SavedItemServiceImplTest {
 
     @Test
     void validateInputs_Add_omittedFlowVolumeZeroOrLess() {
-        Long accountId = 2L;
         ItemTransactionRequestDto requestDto = new ItemTransactionRequestDto();
         ItemDto itemDto = new ItemDto();
         itemDto.setVolume(-3);
@@ -102,11 +101,8 @@ public class SavedItemServiceImplTest {
 
     @Test
     void validateInputs_Add_omittedFlowWarehouseNotFound() {
-        Long accountId = 2L;
-
         ItemTransactionRequestDto requestDto = new ItemTransactionRequestDto();
         requestDto.setDestinationWarehouseId(37L);
-
         ItemDto itemDto = new ItemDto();
         itemDto.setVolume(3);
 
@@ -118,18 +114,15 @@ public class SavedItemServiceImplTest {
 
     @Test
     void validateInputs_Add_omittedFlowNotValidAssociateType() {
-        Long accountId = 2L;
-
         ItemTransactionRequestDto requestDto = new ItemTransactionRequestDto();
         requestDto.setAssociateId(40L);
         requestDto.setDestinationWarehouseId(37L);
-
         ItemDto itemDto = new ItemDto();
         itemDto.setVolume(3);
-
         Warehouse warehouse = new Warehouse();
         Associate associate = new Associate();
         associate.setType(AssociateType.CLIENT);
+
         when(warehouseDao.findById(requestDto.getDestinationWarehouseId(), accountId)).thenReturn(warehouse);
         when(associateDao.findById(accountId, requestDto.getAssociateId())).thenReturn(associate);
         SavedItemValidateInputException exception = assertThrows(SavedItemValidateInputException.class,
@@ -139,18 +132,15 @@ public class SavedItemServiceImplTest {
 
     @Test
     void validateInputs_Add_omittedFlowNotExistInAccount() {
-        Long accountId = 2L;
-
         ItemTransactionRequestDto requestDto = new ItemTransactionRequestDto();
         requestDto.setAssociateId(40L);
         requestDto.setDestinationWarehouseId(37L);
-
         ItemDto itemDto = new ItemDto();
         itemDto.setVolume(3);
-
         Warehouse warehouse = new Warehouse();
         Associate associate = new Associate();
         associate.setType(AssociateType.SUPPLIER);
+
         when(warehouseDao.findById(requestDto.getDestinationWarehouseId(), accountId)).thenReturn(warehouse);
         when(associateDao.findById(accountId, requestDto.getAssociateId())).thenReturn(associate);
         doReturn(false).when(savedItemService).existInAccount(requestDto, accountId);
@@ -161,14 +151,10 @@ public class SavedItemServiceImplTest {
 
     @Test
     void validateInputs_Move_successFlow() {
-        Long accountId = 2L;
-
         ItemTransactionRequestDto requestDto = new ItemTransactionRequestDto();
         requestDto.setDestinationWarehouseId(37L);
-
         ItemDto itemDto = new ItemDto();
         itemDto.setVolume(3);
-
         Warehouse warehouse = new Warehouse();
         warehouse.setBottom(true);
 
@@ -179,10 +165,7 @@ public class SavedItemServiceImplTest {
 
     @Test
     void validateInputs_Move_omittedFlowVolumeZeroOrLess() {
-        Long accountId = 2L;
-
         ItemTransactionRequestDto requestDto = new ItemTransactionRequestDto();
-
         ItemDto itemDto = new ItemDto();
         itemDto.setVolume(-3);
 
@@ -193,11 +176,11 @@ public class SavedItemServiceImplTest {
 
     @Test
     void validateInputs_Move_omittedFlowWarehouseNotBottom() {
-        Long accountId = 2L;
         ItemTransactionRequestDto requestDto = new ItemTransactionRequestDto();
         ItemDto itemDto = new ItemDto();
         itemDto.setVolume(3);
         Warehouse warehouse = new Warehouse();
+
         when(warehouseDao.findById(requestDto.getDestinationWarehouseId(), accountId)).thenReturn(warehouse);
         SavedItemValidateInputException exception = assertThrows(SavedItemValidateInputException.class,
             ()->savedItemService.validateInputs(requestDto, itemDto, accountId, TransactionType.MOVE));
@@ -206,14 +189,10 @@ public class SavedItemServiceImplTest {
 
     @Test
     void validateInputs_Move_omittedFlowNotExistInAccount() {
-        Long accountId = 2L;
-
         ItemTransactionRequestDto requestDto = new ItemTransactionRequestDto();
         requestDto.setDestinationWarehouseId(37L);
-
         ItemDto itemDto = new ItemDto();
         itemDto.setVolume(3);
-
         Warehouse warehouse = new Warehouse();
         warehouse.setBottom(true);
 
@@ -226,13 +205,9 @@ public class SavedItemServiceImplTest {
 
     @Test
     void validateInputs_Out_successFlow() {
-        Long accountId = 2L;
-
         ItemTransactionRequestDto requestDto = new ItemTransactionRequestDto();
         requestDto.setAssociateId(40L);
-
         ItemDto itemDto = new ItemDto();
-
         Associate associate = new Associate();
         associate.setType(AssociateType.CLIENT);
 
@@ -242,14 +217,13 @@ public class SavedItemServiceImplTest {
     }
 
     @Test
-    void validateInputs_Out__omittedFlowNotValidAssociateType() {
-        Long accountId = 2L;
-
+    void validateInputs_Out_omittedFlowNotValidAssociateType() {
         ItemTransactionRequestDto requestDto = new ItemTransactionRequestDto();
         requestDto.setAssociateId(40L);
         ItemDto itemDto = new ItemDto();
         Associate associate = new Associate();
         associate.setType(AssociateType.SUPPLIER);
+
         when(associateDao.findById(accountId, requestDto.getAssociateId())).thenReturn(associate);
         SavedItemValidateInputException exception = assertThrows(SavedItemValidateInputException.class,
             ()->savedItemService.validateInputs(requestDto, itemDto, accountId, TransactionType.OUT));
@@ -259,13 +233,9 @@ public class SavedItemServiceImplTest {
 
     @Test
     void validateInputs_Out_NotExistInAccount() {
-        Long accountId = 2L;
-
         ItemTransactionRequestDto requestDto = new ItemTransactionRequestDto();
         requestDto.setAssociateId(40L);
-
         ItemDto itemDto = new ItemDto();
-
         Associate associate = new Associate();
         associate.setType(AssociateType.CLIENT);
 
@@ -279,7 +249,6 @@ public class SavedItemServiceImplTest {
 
     @Test
     void isEnoughCapacityInWarehouse(){
-        Long accountId = 2L;
         ItemTransactionRequestDto transactionRequestDto = new ItemTransactionRequestDto();
         transactionRequestDto.setDestinationWarehouseId(37L);
         transactionRequestDto.setQuantity(2L);
@@ -287,6 +256,7 @@ public class SavedItemServiceImplTest {
         itemDto.setVolume(5);
         Warehouse warehouse = new Warehouse();
         warehouse.setCapacity(100);
+
         doReturn(20F).when(savedItemService).toVolumeOfPassSavedItems(transactionRequestDto.getDestinationWarehouseId(), accountId);
         when(warehouseDao.findById(transactionRequestDto.getDestinationWarehouseId(), accountId)).thenReturn(warehouse);
         assertEquals(savedItemService.isEnoughCapacityInWarehouse(transactionRequestDto,itemDto, accountId), true);
@@ -295,7 +265,6 @@ public class SavedItemServiceImplTest {
 
     @Test
     void isEnoughCapacityInWarehouse_NotEnoughCapacityInWarehouse(){
-        Long accountId = 2L;
         ItemTransactionRequestDto transactionRequestDto = new ItemTransactionRequestDto();
         transactionRequestDto.setDestinationWarehouseId(37L);
         transactionRequestDto.setQuantity(2L);
@@ -303,6 +272,7 @@ public class SavedItemServiceImplTest {
         itemDto.setVolume(5);
         Warehouse warehouse = new Warehouse();
         warehouse.setCapacity(0);
+
         doReturn(20F).when(savedItemService).toVolumeOfPassSavedItems(transactionRequestDto.getDestinationWarehouseId(), accountId);
         when(warehouseDao.findById(transactionRequestDto.getDestinationWarehouseId(), accountId)).thenReturn(warehouse);
         assertEquals(savedItemService.isEnoughCapacityInWarehouse(transactionRequestDto,itemDto, accountId), false);
@@ -313,8 +283,7 @@ public class SavedItemServiceImplTest {
     void toVolumeOfPassSavedItems(){
         List<SavedItem> savedItems = getListOfSavedItems();
         List<Item> items = getListOfItems();
-        Long warehouseId = 37L;
-        Long accountId = 2L;
+
         when(savedItemDao.existSavedItemByWarehouseId(warehouseId)).thenReturn(true);
         when(savedItemDao.findSavedItemByWarehouseId(warehouseId)).thenReturn(savedItems);
         String itemIds = savedItems.stream().map(x -> x.getItemId().toString()).collect(Collectors.joining(","));
@@ -324,8 +293,6 @@ public class SavedItemServiceImplTest {
 
     @Test
     void toVolumeOfPassSavedItems_NotExistSavedItemByWarehouseId(){
-        Long warehouseId = 37L;
-        Long accountId = 2L;
         when(savedItemDao.existSavedItemByWarehouseId(warehouseId)).thenReturn(false);
         assertEquals(0, savedItemService.toVolumeOfPassSavedItems(warehouseId, accountId));
 
@@ -334,8 +301,7 @@ public class SavedItemServiceImplTest {
     @Test
     void toVolumeOfPassSavedItems_SavedItemsEmpty(){
         List<SavedItem> savedItems = new ArrayList<>();
-        Long warehouseId = 37L;
-        Long accountId = 2L;
+
         when(savedItemDao.existSavedItemByWarehouseId(warehouseId)).thenReturn(true);
         when(savedItemDao.findSavedItemByWarehouseId(warehouseId)).thenReturn(savedItems);
         assertEquals(0, savedItemService.toVolumeOfPassSavedItems(warehouseId, accountId));
@@ -344,11 +310,11 @@ public class SavedItemServiceImplTest {
 
     @Test
     void isLowSpaceInWarehouse(){
-        Long accountId = 2L;
         Warehouse warehouse = new Warehouse();
         warehouse.setCapacity(40);
         ItemTransactionRequestDto itemTransaction = new ItemTransactionRequestDto();
         itemTransaction.setDestinationWarehouseId(37L);
+
         doReturn(10F).when(savedItemService).toVolumeOfPassSavedItems(itemTransaction.getDestinationWarehouseId(),
             accountId);
         when(warehouseDao.findById(itemTransaction.getDestinationWarehouseId(), accountId)).thenReturn(warehouse);
@@ -357,9 +323,9 @@ public class SavedItemServiceImplTest {
 
     @Test
     void isLowSpaceInWarehouse_VolumeZero(){
-        Long accountId = 2L;
-        ItemTransactionRequestDto itemTransaction = new ItemTransactionRequestDto();
+         ItemTransactionRequestDto itemTransaction = new ItemTransactionRequestDto();
         itemTransaction.setDestinationWarehouseId(37L);
+
         doReturn(0F).when(savedItemService).toVolumeOfPassSavedItems(itemTransaction.getDestinationWarehouseId(),
             accountId);
         assertEquals(savedItemService.isLowSpaceInWarehouse(itemTransaction, accountId), true);
@@ -367,11 +333,11 @@ public class SavedItemServiceImplTest {
 
     @Test
     void isLowSpaceInWarehouse_WarehouseLoadMoreThenMaxWarehouseLoad(){
-        Long accountId = 2L;
         Warehouse warehouse = new Warehouse();
         warehouse.setCapacity(2);
         ItemTransactionRequestDto itemTransaction = new ItemTransactionRequestDto();
         itemTransaction.setDestinationWarehouseId(37L);
+
         doReturn(10F).when(savedItemService).toVolumeOfPassSavedItems(itemTransaction.getDestinationWarehouseId(),
             accountId);
         when(warehouseDao.findById(itemTransaction.getDestinationWarehouseId(), accountId)).thenReturn(warehouse);
@@ -380,12 +346,12 @@ public class SavedItemServiceImplTest {
 
     @Test
     void existInAccount(){
-        Long accountId = 2L;
         ItemTransactionRequestDto itemTransaction = new ItemTransactionRequestDto();
         itemTransaction.setDestinationWarehouseId(37L);
         itemTransaction.setItemId(108L);
         Warehouse warehouse = new Warehouse();
         warehouse.setAccountID(2L);
+
         when(itemDao.isExistItemById(itemTransaction.getItemId(), accountId)).thenReturn(true);
         when(warehouseDao.findById(itemTransaction.getDestinationWarehouseId(), accountId)).thenReturn(warehouse);
         assertEquals(savedItemService.existInAccount(itemTransaction, accountId), true);
@@ -393,26 +359,62 @@ public class SavedItemServiceImplTest {
 
     @Test
     void existInAccount_NotExistItemById(){
-        Long accountId = 2L;
         ItemTransactionRequestDto itemTransaction = new ItemTransactionRequestDto();
         itemTransaction.setItemId(108L);
+
         when(itemDao.isExistItemById(itemTransaction.getItemId(), accountId)).thenReturn(false);
         assertEquals(savedItemService.existInAccount(itemTransaction, accountId), false);
     }
 
     @Test
     void existInAccount_NotValidWarehouseAccountId(){
-        Long accountId = 2L;
         ItemTransactionRequestDto itemTransaction = new ItemTransactionRequestDto();
         itemTransaction.setDestinationWarehouseId(37L);
         itemTransaction.setItemId(108L);
         Warehouse warehouse = new Warehouse();
         warehouse.setAccountID(3L);
+
         when(itemDao.isExistItemById(itemTransaction.getItemId(), accountId)).thenReturn(true);
         when(warehouseDao.findById(itemTransaction.getDestinationWarehouseId(), accountId)).thenReturn(warehouse);
         assertEquals(savedItemService.existInAccount(itemTransaction, accountId), false);
     }
 
+    private List<Item> getListOfItems(){
+        List<Item> items = new ArrayList<>();
+        Item trout = new Item();
+        trout.setName("Fish-Trout");
+        trout.setDescription("fresh trout");
+        trout.setAccountId(accountId);
+        trout.setUnit("box");
+        trout.setActive(true);
+        trout.setVolume(4);
+        trout.setId(109L);
+
+        items.add(trout);
+
+        Item salmon = new Item();
+        salmon.setName("Fish-Salmon");
+        salmon.setDescription("fresh salmon");
+        salmon.setAccountId(accountId);
+        salmon.setUnit("box");
+        trout.setActive(true);
+        salmon.setVolume(5);
+        salmon.setId(110L);
+
+        items.add(salmon);
+
+        Item catfish = new Item();
+        catfish.setName("Catfish");
+        catfish.setDescription("fresh salmon");
+        catfish.setAccountId(accountId);
+        catfish.setUnit("box");
+        catfish.setVolume(5);
+        catfish.setActive(true);
+        catfish.setId(111L);
+        items.add(catfish);
+
+        return items;
+    }
     private List<SavedItem> getListOfSavedItems(){
         List<SavedItem> items = new ArrayList<>();
         SavedItem trout = new SavedItem();
@@ -440,38 +442,5 @@ public class SavedItemServiceImplTest {
         items.add(catfish);
         return items;
     }
-    private List<Item> getListOfItems(){
-        List<Item> items = new ArrayList<>();
-        Item trout = new Item();
-        trout.setName("Fish-Trout");
-        trout.setDescription("fresh trout");
-        trout.setAccountId(2L);
-        trout.setUnit("box");
-        trout.setActive(true);
-        trout.setVolume(4);
 
-        items.add(trout);
-
-        Item salmon = new Item();
-        salmon.setName("Fish-Salmon");
-        salmon.setDescription("fresh salmon");
-        salmon.setAccountId(2L);
-        salmon.setUnit("box");
-        trout.setActive(true);
-        salmon.setVolume(5);
-
-        items.add(salmon);
-
-        Item catfish = new Item();
-        catfish.setName("Catfish");
-        catfish.setDescription("fresh salmon");
-        catfish.setAccountId(2L);
-        catfish.setUnit("box");
-        catfish.setVolume(5);
-        trout.setActive(true);
-
-        items.add(catfish);
-
-        return items;
-    }
 }
