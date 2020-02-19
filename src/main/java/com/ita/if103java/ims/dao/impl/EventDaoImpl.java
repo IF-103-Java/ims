@@ -69,53 +69,22 @@ public class EventDaoImpl implements EventDao {
     public Page<Event> findAll(Pageable pageable, Map<String, ?> params, User user) {
         Set<EventName> eventNames = new TreeSet<>(Comparator.comparing(Enum::toString));
         if (params.containsKey("type")) {
-            if (params.get("type") instanceof Collection) {
-                for (String eventType : (Collection<String>) params.get("type")) {
-                    eventNames.addAll(EventName.getValuesByType(EventType.valueOf(eventType)));
-                }
-            } else {
-                eventNames.addAll(EventName.getValuesByType(EventType.valueOf(params.get("type").toString())));
+            for (String eventType : (Collection<String>) params.get("type")) {
+                eventNames.addAll(EventName.getValuesByType(EventType.valueOf(eventType)));
             }
         }
         if (params.containsKey("name")) {
-            if (params.get("name") instanceof Collection) {
-                for (String eventName : (Collection<String>) params.get("name")) {
-                    eventNames.add(EventName.valueOf(eventName));
-                }
-            } else {
-                eventNames.add(EventName.valueOf((params.get("name")).toString()));
+            for (String eventName : (Collection<String>) params.get("name")) {
+                eventNames.add(EventName.valueOf(eventName));
             }
         }
 
-        String accountCondition = buildSqlCondition("account_id", user.getAccountId());
-        String personalConditions = "";
-        if (user.getRole().equals(Role.ROLE_WORKER)) {
-            if (!eventNames.isEmpty()) {
-                personalConditions = buildSqlNameCondition(eventNames, user.getId());
-            } else {
-                personalConditions = "("
-                    .concat(buildSqlPrivacyCondition())
-                    .concat(" or ")
-                    .concat(buildSqlDefaultCondition(user.getId()))
-                    .concat(")");
-            }
-            if (params.containsKey("author_id")) {
-                if (params.get("author_id") instanceof Collection) {
-                    boolean contains = false;
-                    for (Object id : (Collection) params.get("author_id")) {
-                        if (id.toString().equals(user.getId().toString())) {
-                            contains = true;
-                            break;
-                        }
-                    }
-                    if (!contains) {
-                        personalConditions = "";
-                    }
-                } else if (!((params.get("author_id")).toString().equals(user.getId().toString()))) {
-                    personalConditions = "";
+        String accountCondition = String.format("account_id = '%s'", user.getAccountId());
 
-                }
-            }
+        String personalConditions = "";
+
+        if (user.getRole().equals(Role.ROLE_WORKER)) {
+            personalConditions = restrictPersonalEventsForWorker(params, user, eventNames);
         }
 
         String conditions = Stream
@@ -157,17 +126,47 @@ public class EventDaoImpl implements EventDao {
         }
     }
 
+    private String restrictPersonalEventsForWorker(Map<String, ?> params, User user, Set<EventName> eventNames) {
+        String personalConditions;
+        boolean showPersonalEvents =
+            !params.containsKey("author_id") ||
+                collectionContainsElement((Collection) params.get("author_id"), user.getId());
+
+
+        if (!eventNames.isEmpty()) {
+            personalConditions = buildSqlNameCondition(eventNames, user.getId());
+            if (!showPersonalEvents) {
+                personalConditions = "";
+            }
+        } else {
+            personalConditions = showPersonalEvents ?
+                "(".concat(buildSqlPrivacyCondition())
+                    .concat(" or ")
+                    .concat(buildSqlDefaultCondition(user.getId()))
+                    .concat(")") :
+                buildSqlPrivacyCondition();
+        }
+        return personalConditions;
+    }
+
+    private boolean collectionContainsElement(Collection collection, Object target) {
+        for (Object elem : collection) {
+            if (elem.toString().equals(target.toString())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private String buildSqlNameCondition(Set<EventName> eventNames, Long userId) {
         String condition = "";
         Set<EventName> personalEventNames = new TreeSet<>(Comparator.comparing(Enum::toString));
-        for (EventName eventName : eventNames) {
-            if (eventName.getType().equals(EventType.USER)) {
-                personalEventNames.add(eventName);
-            }
-        }
-        for (EventName personalEventName : personalEventNames) {
-            eventNames.remove(personalEventName);
-        }
+
+        eventNames.stream().filter(eventName -> eventName.getType().equals(EventType.USER)).
+            forEach(personalEventNames::add);
+
+        eventNames.removeIf(o -> o.getType().equals(EventType.USER));
+
         if (!personalEventNames.isEmpty()) {
             condition = "("
                 .concat(buildSqlCondition("name", personalEventNames))
@@ -194,14 +193,6 @@ public class EventDaoImpl implements EventDao {
     }
 
     private String buildSqlCondition(String columnName, Object columnValue) {
-        if (columnValue instanceof Collection) {
-            StringJoiner values = new StringJoiner("', '", "'", "'");
-            for (Object value : (Collection<Object>) columnValue) {
-                values.add(value.toString());
-            }
-            return String.format("%s in (%s)", columnName, values);
-        }
-
         if (columnName.equals("date")) {
             return String.format("DATE(date) = '%s'", columnValue);
         }
@@ -211,6 +202,16 @@ public class EventDaoImpl implements EventDao {
         if (columnName.equals("before")) {
             return String.format("DATE(date) <= '%s'", columnValue);
         }
+
+        if (columnValue instanceof Collection) {
+            StringJoiner values = new StringJoiner("', '", "'", "'");
+            for (Object value : (Collection<Object>) columnValue) {
+                values.add(value.toString());
+            }
+            return String.format("%s in (%s)", columnName, values);
+        }
+
+
         return String.format("%s %s '%s'", columnName, "=", columnValue);
     }
 

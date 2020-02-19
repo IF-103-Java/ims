@@ -179,7 +179,7 @@ public class EventDaoImplTest {
                 """.replace("\n", " ").replaceAll("\\s{2,}", " ").trim();
 
             HashMap<String, Object> params4 = new HashMap<>();
-            params4.put("type", "USER");
+            params4.put("type", Arrays.asList("USER"));
             params4.put("after", "02-02-2002");
             String expectedQuery4 = """
                 SELECT * FROM events WHERE account_id = '2' and DATE(date) >= '02-02-2002' and
@@ -188,10 +188,10 @@ public class EventDaoImplTest {
                 """.replace("\n", " ").replaceAll("\\s{2,}", " ").trim();
 
             HashMap<String, Object> params5 = new HashMap<>();
-            params5.put("type", "USER");
-            params5.put("author_id", 4);
+            params5.put("type", Arrays.asList("USER"));
+            params5.put("author_id", Arrays.asList(4));
             String expectedQuery5 = """
-                SELECT * FROM events WHERE account_id = '2' and author_id = '4' and
+                SELECT * FROM events WHERE account_id = '2' and author_id in ('4') and
                 (name in ('LOGIN', 'LOGOUT', 'PASSWORD_CHANGED', 'PROFILE_CHANGED', 'SIGN_UP') and
                 author_id = '4') ORDER BY id ASC LIMIT 15 OFFSET 0
                 """.replace("\n", " ").replaceAll("\\s{2,}", " ").trim();
@@ -206,7 +206,7 @@ public class EventDaoImplTest {
 
             HashMap<String, Object> params7 = new HashMap<>();
             params7.put("name", Arrays.asList("NEW_CLIENT", "LOGOUT"));
-            params7.put("type", "TRANSACTION");
+            params7.put("type", Arrays.asList("TRANSACTION"));
             params7.put("author_id", Arrays.asList(2, 4, 5, 8, 13));
             String expectedQuery7 = """
                 SELECT * FROM events WHERE account_id = '2' and author_id in ('2', '4', '5', '8', '13') and
@@ -214,6 +214,16 @@ public class EventDaoImplTest {
                 (name in ('LOGOUT') and author_id = '4')) ORDER BY id ASC LIMIT 15 OFFSET 0
                 """.replace("\n", " ").replaceAll("\\s{2,}", " ").trim();
 
+
+            HashMap<String, Object> params8 = new HashMap<>();
+           // params8.put("name", Arrays.asList("NEW_CLIENT", "LOGOUT"));
+           // params8.put("type", "TRANSACTION");
+            params8.put("author_id", Arrays.asList(2, 5, 8, 13));
+            String expectedQuery8 = """
+                SELECT * FROM events WHERE account_id = '2' and author_id in ('2', '5', '8', '13') and
+                (name not in ('LOGOUT', 'PASSWORD_CHANGED', 'PROFILE_CHANGED', 'SIGN_UP', 'LOGIN'))
+                ORDER BY id ASC LIMIT 15 OFFSET 0
+                """.replace("\n", " ").replaceAll("\\s{2,}", " ").trim();
             return Stream.of(
                 Arguments.of(Role.ROLE_WORKER, params1, expectedQuery1),
                 Arguments.of(Role.ROLE_ADMIN, params2, expectedQuery2),
@@ -221,7 +231,8 @@ public class EventDaoImplTest {
                 Arguments.of(Role.ROLE_WORKER, params4, expectedQuery4),
                 Arguments.of(Role.ROLE_WORKER, params5, expectedQuery5),
                 Arguments.of(Role.ROLE_WORKER, params6, expectedQuery6),
-                Arguments.of(Role.ROLE_WORKER, params7, expectedQuery7)
+                Arguments.of(Role.ROLE_WORKER, params7, expectedQuery7),
+                Arguments.of(Role.ROLE_WORKER, params8, expectedQuery8)
             );
         }
     }
