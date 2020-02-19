@@ -1,8 +1,7 @@
-package com.ita.if103java.ims.contoller;
+package com.ita.if103java.ims.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.ita.if103java.ims.controller.AssociateController;
 import com.ita.if103java.ims.dto.AddressDto;
 import com.ita.if103java.ims.dto.AssociateDto;
 import com.ita.if103java.ims.entity.AssociateType;

@@ -1,8 +1,7 @@
-package com.ita.if103java.ims.contoller;
+package com.ita.if103java.ims.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.ita.if103java.ims.controller.UserController;
 import com.ita.if103java.ims.dto.ResetPasswordDto;
 import com.ita.if103java.ims.dto.UserDto;
 import com.ita.if103java.ims.entity.AccountType;
