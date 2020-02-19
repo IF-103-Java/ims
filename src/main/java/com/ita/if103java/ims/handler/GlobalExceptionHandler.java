@@ -75,8 +75,7 @@ public class GlobalExceptionHandler {
             .body(new ResponseMessageDto(e.getMessage()));
     }
 
-    @ExceptionHandler({UpgradationException.class,
-        IllegalArgumentException.class})
+    @ExceptionHandler({UpgradationException.class, IllegalArgumentException.class})
     public ResponseEntity<ResponseMessageDto> handleUpgradeException(Exception e) {
         LOGGER.error(e.getMessage(), e);
         return ResponseEntity

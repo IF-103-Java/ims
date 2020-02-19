@@ -29,7 +29,7 @@ public class LoginController {
         this.loginService = loginService;
     }
 
-    @PostMapping("/signin")
+    @PostMapping("/sign-in")
     public ResponseEntity<Map<String, String>> singIn(@RequestBody UserLoginDto userLoginDto) {
         return loginService.signIn(userLoginDto);
     }

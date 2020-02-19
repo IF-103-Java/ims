@@ -10,6 +10,16 @@ public class PopularItemsRequestDto {
     private PopType popType;
     private String date;
 
+    public PopularItemsRequestDto() {
+    }
+
+    public PopularItemsRequestDto(int quantity, DateType dateType, PopType popType, String date) {
+        this.quantity = quantity;
+        this.dateType = dateType;
+        this.popType = popType;
+        this.date = date;
+    }
+
     public int getQuantity() {
         return quantity;
     }
