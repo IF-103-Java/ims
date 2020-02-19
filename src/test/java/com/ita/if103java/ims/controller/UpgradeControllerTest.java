@@ -5,10 +5,10 @@ import com.ita.if103java.ims.dto.AccountTypeDto;
 import com.ita.if103java.ims.entity.AccountType;
 import com.ita.if103java.ims.entity.Role;
 import com.ita.if103java.ims.entity.User;
+import com.ita.if103java.ims.exception.service.UpgradationException;
 import com.ita.if103java.ims.handler.GlobalExceptionHandler;
 import com.ita.if103java.ims.security.SecurityInterceptor;
 import com.ita.if103java.ims.security.UserDetailsImpl;
-import com.ita.if103java.ims.service.AccountService;
 import com.ita.if103java.ims.service.UpgradeService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,7 +16,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.web.method.annotation.AuthenticationPrincipalArgumentResolver;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -27,13 +26,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.ita.if103java.ims.security.SecurityInterceptor.init;
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -59,6 +54,7 @@ class UpgradeControllerTest {
     private AccountType accountType;
     private ZonedDateTime currentDateTime;
     private AccountTypeDto accountTypeDto;
+    private UpgradationException upgradationException;
 
     @BeforeEach
     void setUp() {
@@ -73,8 +69,8 @@ class UpgradeControllerTest {
         accountTypeId = 2L;
 
         currentDateTime = ZonedDateTime.now(ZoneId.systemDefault());
-        user = new User(1L, "First name", "Last name", "im.user@gmail.com","nfdfsasf", Role.ROLE_ADMIN,
-            currentDateTime, currentDateTime,  true, "rddfgfd", 3L);
+        user = new User(1L, "First name", "Last name", "im.user@gmail.com", "nfdfsasf", Role.ROLE_ADMIN,
+            currentDateTime, currentDateTime, true, "rddfgfd", 3L);
         accountType = new AccountType(2L, "Premium", 300.0, 2,
             100, 100, 100, 100, 100,
             true, true, true);
@@ -83,6 +79,8 @@ class UpgradeControllerTest {
         accountTypeDto = new AccountTypeDto(2L, "Premium", 300.0, 2,
             100, 100, 100, 100, 100,
             true, true, true);
+
+        upgradationException = new UpgradationException("Upgrade exception");
     }
 
     @Test
@@ -95,12 +93,15 @@ class UpgradeControllerTest {
     }
 
     @Test
-    void upgrade_Fail() throws Exception {
-        mockMvc.perform(put("/upgrade/" + accountTypeId)
-            .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk());
+    void upgrade_UpgradationException() throws Exception {
+        doThrow(upgradationException).when(upgradeService).upgradeAccount(userDetails, accountTypeId);
 
-        verify(upgradeService).upgradeAccount(any(UserDetailsImpl.class), eq(accountTypeId));
+        mockMvc.perform(put("/upgrade/" + accountTypeId)
+            .principal(init(userDetails))
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isBadRequest());
+
+        verify(upgradeService).upgradeAccount(userDetails, accountTypeId);
     }
 
     @Test
