@@ -1,4 +1,4 @@
-package com.ita.if103java.ims.service.impl;
+package com.ita.if103java.ims.service;
 
 import com.ita.if103java.ims.dao.AddressDao;
 import com.ita.if103java.ims.dao.AssociateDao;
@@ -9,7 +9,6 @@ import com.ita.if103java.ims.entity.Address;
 import com.ita.if103java.ims.entity.Associate;
 import com.ita.if103java.ims.entity.AssociateType;
 import com.ita.if103java.ims.entity.Event;
-import com.ita.if103java.ims.entity.EventType;
 import com.ita.if103java.ims.entity.User;
 import com.ita.if103java.ims.exception.dao.AssociateEntityNotFoundException;
 import com.ita.if103java.ims.exception.service.AssociateLimitReachedException;
@@ -17,15 +16,13 @@ import com.ita.if103java.ims.mapper.dto.AddressDtoMapper;
 import com.ita.if103java.ims.mapper.dto.AssociateDtoMapper;
 import com.ita.if103java.ims.mapper.dto.SavedItemAssociateDtoMapper;
 import com.ita.if103java.ims.security.UserDetailsImpl;
-import com.ita.if103java.ims.service.EventService;
-import com.ita.if103java.ims.service.LocationService;
+import com.ita.if103java.ims.service.impl.AssociateServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -34,23 +31,20 @@ import org.springframework.data.domain.Sort;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static com.ita.if103java.ims.dto.warehouse.advice.Address.Geo;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.doReturn;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
 class AssociateServiceImplTest {
 
     @Mock
@@ -72,22 +66,17 @@ class AssociateServiceImplTest {
     private AssociateDtoMapper associateDtoMapper = new AssociateDtoMapper();
     private AddressDtoMapper addressDtoMapper = new AddressDtoMapper();
 
-
-    private Associate associate = new Associate(1L, 1L, "Associate name", "test@test.com",
-        "+380977959707", "additionalInfo", AssociateType.SUPPLIER, true);
-
-    private Address address = new Address("country", "city", "address", "zip", 10F, -30F);
-
+    private Address address;
+    private Associate associate;
+    private AddressDto addressDto;
     private AssociateDto associateDto;
-
-    private AddressDto addressDto = addressDtoMapper.toDto(address);
-
+    private List<Associate> associateList;
     private UserDetailsImpl userDetails;
 
     private Long fakeId = 5L;
+    private PageRequest pageRequest = PageRequest.of(0, 15, Sort.Direction.ASC, "id");
 
-    AssociateEntityNotFoundException associateEntityNotFoundException =
-        new AssociateEntityNotFoundException("Failed to obtain associate during `select`, id = " + fakeId);
+    private AssociateEntityNotFoundException associateEntityNotFoundException;
 
 
     @BeforeEach
@@ -106,9 +95,17 @@ class AssociateServiceImplTest {
         user.setAccountId(1L);
         this.userDetails = new UserDetailsImpl(user, accountType);
 
+        this.address = new Address("country", "city", "address", "zip", 10F, -30F);
+        this.addressDto = addressDtoMapper.toDto(address);
+
         this.associateDto = new AssociateDto(1L, 1L, "Associate name", "test@test.com",
             "+380977959707", "additionalInfo", AssociateType.SUPPLIER, true, addressDto);
+        this.associate = associateDtoMapper.toEntity(associateDto);
 
+        this.associateList = Collections.singletonList(associate);
+
+        this.associateEntityNotFoundException =
+            new AssociateEntityNotFoundException("Failed to obtain associate during `select`, id = " + fakeId);
     }
 
     @Test
@@ -129,25 +126,26 @@ class AssociateServiceImplTest {
 
     @Test
     void testCreate_failFlow() {
-        List<Associate> associateList = Collections.singletonList(associate);
-
         when(associateDao.findByAccountId(userDetails.getUser().getAccountId())).thenReturn(associateList);
 
         assertThrows(AssociateLimitReachedException.class,
-            () -> {associateService.create(userDetails, associateDto);});
+            () -> {
+                associateService.create(userDetails, associateDto);
+            });
     }
 
     @Test
     void testCreate_failFlowTypeClient() {
         associateDto.setType(AssociateType.CLIENT);
         associate = associateDtoMapper.toEntity(associateDto);
-
-        List<Associate> associateList = Collections.singletonList(associate);
+        associateList = Collections.singletonList(associate);
 
         when(associateDao.findByAccountId(userDetails.getUser().getAccountId())).thenReturn(associateList);
 
         assertThrows(AssociateLimitReachedException.class,
-            () -> {associateService.create(userDetails, associateDto);});
+            () -> {
+                associateService.create(userDetails, associateDto);
+            });
     }
 
 
@@ -169,37 +167,52 @@ class AssociateServiceImplTest {
         when(associateDao.findById(userDetails.getUser().getAccountId(), fakeId)).thenThrow(associateEntityNotFoundException);
 
         assertThrows(AssociateEntityNotFoundException.class,
-            () -> {associateService.view(userDetails, fakeId);});
+            () -> {
+                associateService.view(userDetails, fakeId);
+            });
     }
 
     @Test
-    void findSortedAssociates() {
-        List<Associate> associateList = Collections.singletonList(associate);
-
-        //logic for mock
+    void testFindSortedAssociates_successFlow() {
         when(associateDao.getAssociates(any(Pageable.class), anyLong())).thenReturn(new PageImpl<>(associateList));
 
-        //execute
-        Page pageActual = associateService.findSortedAssociates(
-            PageRequest.of(1, 1, Sort.by(Sort.Order.asc("id"))), userDetails);
+        Page pageActual = associateService.findSortedAssociates(pageRequest, userDetails);
 
-        //verify
-        verify(associateDao, atLeastOnce()).getAssociates(any(Pageable.class), anyLong());
+        verify(associateDao, times(1)).getAssociates(any(Pageable.class), anyLong());
         assertEquals(associateDtoMapper.toDtoList(associateList), pageActual.getContent());
     }
 
     @Test
-    void delete() {
+    void testDelete_successFlow() {
         when(associateDao.delete(anyLong(), anyLong())).thenReturn(true);
         when(associateDao.findById(anyLong(), anyLong())).thenReturn(associate);
 
         boolean result = associateService.delete(userDetails, associateDto.getId());
 
-        assertTrue(result);
+        verify(associateDao, times(1)).delete(anyLong(), anyLong());
         verify(eventService, times(1)).create(any(Event.class));
+        assertTrue(result);
     }
 
     @Test
-    void getAssociatesByType() {
+    void testDelete_failFlow() {
+        when(associateDao.findById(anyLong(), eq(fakeId))).thenThrow(associateEntityNotFoundException);
+
+        assertThrows(AssociateEntityNotFoundException.class,
+            () -> {
+                associateService.delete(userDetails, fakeId);
+            });
+
+        verify(associateDao, times(1)).findById(anyLong(), eq(fakeId));
+        verify(eventService, never()).create(any(Event.class));
+    }
+
+    @Test
+    void testGetAssociatesByType_successFlow() {
+        when(associateDao.getAssociatesByType(anyLong(), ArgumentMatchers.<AssociateType>any()))
+            .thenReturn(associateList);
+
+        assertEquals(savedItemAssociateDtoMapper.toDtoList(associateList),
+            associateService.getAssociatesByType(userDetails, AssociateType.SUPPLIER));
     }
 }
