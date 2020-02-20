@@ -20,7 +20,6 @@ import com.ita.if103java.ims.exception.service.WarehouseUpdateException;
 import com.ita.if103java.ims.mapper.dto.AddressDtoMapper;
 import com.ita.if103java.ims.mapper.dto.WarehouseDtoMapper;
 import com.ita.if103java.ims.security.UserDetailsImpl;
-import com.ita.if103java.ims.service.impl.SavedItemServiceImpl;
 import com.ita.if103java.ims.service.impl.WarehouseServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,15 +27,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import static org.junit.jupiter.api.Assertions.assertLinesMatch;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -79,7 +80,7 @@ public class WarehouseServiceImplTest {
     @Mock
     private WarehouseDtoMapper warehouseDtoMapper;
     @Mock
-    SavedItemServiceImpl savedItemService;
+    SavedItemService savedItemService;
 
     @InjectMocks
     private WarehouseServiceImpl warehouseService;
@@ -98,11 +99,11 @@ public class WarehouseServiceImplTest {
         userDetails = new UserDetailsImpl(user);
         userDetails.setAccountType(basic);
         address = new Address("Ukraine", "Kyiv", "Stusa, 5", "77000", 48F, 50F);
-        addressDto = new AddressDto(1L,"Ukraine", "Kyiv", "Stusa, 5", "77000", 48F, 50F);
+        addressDto = new AddressDto(1L, "Ukraine", "Kyiv", "Stusa, 5", "77000", 48F, 50F);
     }
 
     @Test
-    public void add_successFlow(){
+    public void add_successFlow() {
         int quantity = 2;
         int level = 0;
         int maxQuantity = userDetails.getAccountType().getMaxWarehouses();
@@ -118,7 +119,7 @@ public class WarehouseServiceImplTest {
         when(addressDao.createWarehouseAddress(warehouseCreate.getId(), address)).thenReturn(address);
         when(addressDtoMapper.toDto(address)).thenReturn(addressDto);
 
-       Event event = new Event("Warehouse created " + warehouse.getCapacity() + " in warehouse " +
+        Event event = new Event("Warehouse created " +
             warehouse.getName(), accountId,
             warehouse.getId(), 1L, EventName.WAREHOUSE_CREATED, 2L);
         doNothing().when(eventService).create(event);
@@ -152,7 +153,7 @@ public class WarehouseServiceImplTest {
         int maxDepth = userDetails.getAccountType().getMaxWarehouseDepth();
         assertNotNull(warehouseDto.getParentID());
         when(warehouseDao.findLevelByParentID(warehouseDto.getParentID())).thenReturn(level);
-        assertFalse (level < maxDepth);
+        assertFalse(level < maxDepth);
 //        MaxWarehousesLimitReachedException exception = assertThrows(MaxWarehousesLimitReachedException.class, () -> {
 //            warehouseService.add(warehouseDto, userDetails);
 //        });
@@ -188,9 +189,24 @@ public class WarehouseServiceImplTest {
     }
 
     @Test
-    void findAllTopLevelTest() {
-
-
+    void findAllTopLevel_pageble_success() {
+        Long accountId = userDetails.getUser().getAccountId();
+        List<Warehouse> warehouseList = getListOfWarehouses();
+        List<WarehouseDto> warehouseDtoList = getListOfWarehouseDtos();
+        Integer warehouseQuantity = 3;
+        PageRequest pageable = PageRequest.of(0, 3, Sort.Direction.ASC, "id");
+        Page page = new PageImpl(warehouseDtoList, pageable, warehouseQuantity);
+        when(warehouseDao.findQuantityOfWarehousesByAccountId(accountId)).thenReturn(warehouseQuantity);
+        when(warehouseDao.findAllTopLevel(pageable, accountId)).thenReturn(warehouseList);
+        when(warehouseDtoMapper.toDto(warehouseList.get(0))).thenReturn(warehouseDtoList.get(0));
+        when(warehouseDtoMapper.toDto(warehouseList.get(1))).thenReturn(warehouseDtoList.get(1));
+        when(warehouseDtoMapper.toDto(warehouseList.get(2))).thenReturn(warehouseDtoList.get(2));
+        when(addressDao.findByWarehouseId(warehouse.getId())).thenReturn(address);
+        when(addressDtoMapper.toDto(address)).thenReturn(addressDto);
+        warehouseDtoList.get(0).setAddressDto(addressDto);
+        warehouseDtoList.get(1).setAddressDto(addressDto);
+        warehouseDtoList.get(2).setAddressDto(addressDto);
+        assertEquals(warehouseService.findAllTopLevel(pageable, userDetails), page);
     }
 
     @Test
@@ -301,7 +317,7 @@ public class WarehouseServiceImplTest {
     }
 
     @Test
-    void findUsefulWarehouses(){
+    void findUsefulWarehouses() {
         Long capacity = 8L;
         List<Warehouse> usefulWarehouse = new ArrayList<>();
         Warehouse sectionA = new Warehouse(3L, "SectionA", "some info", 100, true, 1L, 2L, 1L, true);
@@ -310,19 +326,101 @@ public class WarehouseServiceImplTest {
         usefulWarehouse.add(sectionB);
         List<Warehouse> usefulTopWarehouse = new ArrayList<>();
         Warehouse warehouseA = new Warehouse(1L, "WarehouseA", "some info", 0, false, null, 2L, 1L, true);
-        Warehouse warehouseB =new Warehouse(2L, "WarehouseB", "some info", 0, false, null, 2L, 2L, true);
+        Warehouse warehouseB = new Warehouse(2L, "WarehouseB", "some info", 0, false, null, 2L, 2L, true);
         usefulTopWarehouse.add(warehouseA);
         usefulTopWarehouse.add(warehouseB);
         usefulTopWarehouse.add(sectionA);
         usefulTopWarehouse.add(sectionB);
         when(warehouseDao.findUsefulTopWarehouse(capacity, accountId)).thenReturn(usefulWarehouse);
-        String ids =  usefulWarehouse.stream().
+        String ids = usefulWarehouse.stream().
             map(x -> x.getTopWarehouseID().toString()).collect(Collectors.joining(","));
         when(warehouseDao.findByTopWarehouseIDs(ids, accountId)).thenReturn(usefulTopWarehouse);
-        List<UsefulWarehouseDto> usefulWarehouseDtos =  warehouseService.findUsefulWarehouses(capacity, userDetails);
+        List<UsefulWarehouseDto> usefulWarehouseDtos = warehouseService.findUsefulWarehouses(capacity, userDetails);
         when(savedItemService.toVolumeOfPassSavedItems(anyLong(), anyLong())).thenReturn(5F);
         assertLinesMatch(usefulWarehouseDtos.get(0).getPath(), List.of("WarehouseA", "SectionA"));
         assertLinesMatch(usefulWarehouseDtos.get(1).getPath(), List.of("WarehouseB", "SectionB"));
     }
 
+    private List<WarehouseDto> getListOfWarehouseDtos() {
+        Long accountId = userDetails.getUser().getAccountId();
+        List<WarehouseDto> warehouseDtos = new ArrayList<>();
+        WarehouseDto stockA = new WarehouseDto();
+        stockA.setName("stockA");
+        stockA.setInfo("products");
+        stockA.setCapacity(null);
+        stockA.setParentID(null);
+        stockA.setAccountID(accountId);
+        stockA.setTopWarehouseID(null);
+        stockA.setActive(true);
+        stockA.setAddressDto(null);
+        stockA.setId(9L);
+
+        warehouseDtos.add(stockA);
+
+        WarehouseDto stockB = new WarehouseDto();
+        stockB.setName("stockB");
+        stockB.setInfo("products");
+        stockB.setCapacity(null);
+        stockB.setParentID(null);
+        stockB.setAccountID(accountId);
+        stockB.setTopWarehouseID(null);
+        stockB.setActive(true);
+        stockB.setAddressDto(null);
+        stockB.setId(10L);
+
+        warehouseDtos.add(stockB);
+
+        WarehouseDto stockC = new WarehouseDto();
+        stockC.setName("stockC");
+        stockC.setInfo("products");
+        stockC.setCapacity(null);
+        stockC.setParentID(null);
+        stockC.setAccountID(accountId);
+        stockC.setTopWarehouseID(null);
+        stockC.setActive(true);
+        stockC.setAddressDto(null);
+        stockC.setId(11L);
+
+        warehouseDtos.add(stockC);
+        return warehouseDtos;
+    }
+
+    private List<Warehouse> getListOfWarehouses() {
+        Long accountId = userDetails.getUser().getAccountId();
+        List<Warehouse> warehouses = new ArrayList<>();
+        Warehouse stockA = new Warehouse();
+        stockA.setName("stockA");
+        stockA.setInfo("products");
+        stockA.setCapacity(null);
+        stockA.setParentID(null);
+        stockA.setAccountID(accountId);
+        stockA.setTopWarehouseID(null);
+        stockA.setActive(true);
+        stockA.setId(12L);
+
+        Warehouse stockB = new Warehouse();
+        stockB.setName("stockB");
+        stockB.setInfo("products");
+        stockB.setCapacity(null);
+        stockB.setParentID(null);
+        stockB.setAccountID(accountId);
+        stockB.setTopWarehouseID(null);
+        stockB.setActive(true);
+        stockB.setId(13L);
+
+        Warehouse stockC = new Warehouse();
+        stockC.setName("stockC");
+        stockC.setInfo("products");
+        stockC.setCapacity(null);
+        stockC.setParentID(null);
+        stockC.setAccountID(accountId);
+        stockC.setTopWarehouseID(null);
+        stockC.setActive(true);
+        stockC.setId(14L);
+
+        warehouses.add(stockA);
+        warehouses.add(stockB);
+        warehouses.add(stockC);
+        return warehouses;
+    }
 }
