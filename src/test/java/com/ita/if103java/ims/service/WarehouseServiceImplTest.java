@@ -51,19 +51,20 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 
 @ExtendWith(SpringExtension.class)
 public class WarehouseServiceImplTest {
-    private WarehouseDto warehouseDto = new WarehouseDto(12L, "WarehouseTest", "auto parts", 20, true, 5L, 1L, 4L, true, null);
-    private WarehouseDto topWarehouseDto = new WarehouseDto(1L, "WarehouseTop", "auto parts", 0, false, null, 1L, null, true, null);
+    private WarehouseDto warehouseDto;
+    private WarehouseDto topWarehouseDto;
     private AccountType basic;
     private UserDetailsImpl userDetails;
     private Long accountId;
-    Address address;
-    AddressDto addressDto;
+    private Address address;
+    private AddressDto addressDto;
 
     @Mock
     private Warehouse warehouse;
@@ -80,7 +81,7 @@ public class WarehouseServiceImplTest {
     @Mock
     private WarehouseDtoMapper warehouseDtoMapper;
     @Mock
-    SavedItemService savedItemService;
+    private SavedItemService savedItemService;
 
     @InjectMocks
     private WarehouseServiceImpl warehouseService;
@@ -98,6 +99,8 @@ public class WarehouseServiceImplTest {
         user.setRole(Role.ROLE_WORKER);
         userDetails = new UserDetailsImpl(user);
         userDetails.setAccountType(basic);
+        topWarehouseDto = new WarehouseDto(1L, "WarehouseTop", "auto parts", 0, false, null, 1L, null, true, null);
+        warehouseDto = new WarehouseDto(12L, "WarehouseTest", "auto parts", 20, true, 5L, 1L, 4L, true, null);
         address = new Address("Ukraine", "Kyiv", "Stusa, 5", "77000", 48F, 50F);
         addressDto = new AddressDto(1L, "Ukraine", "Kyiv", "Stusa, 5", "77000", 48F, 50F);
     }
@@ -210,6 +213,30 @@ public class WarehouseServiceImplTest {
     }
 
     @Test
+    void update_success(){
+        Warehouse topLevel = new Warehouse(4L, "updatedWarehouse", "auto parts", null, false, null, 1L, 4L, true);
+
+        Warehouse updatedWarehouse = new Warehouse(12L, "updatedWarehouse", "auto parts", 20, true, 5L, 1L, 4L, true);
+        Warehouse dBWarehouse = new Warehouse(12L, "dBWarehouse", "auto parts", 20, true, 5L, 1L, 4L, true);
+        warehouseDto = new WarehouseDto(12L, "WarehouseTest", "auto parts", 20, true, 5L, 1L, 4L, true, addressDto);
+
+        when(warehouseDtoMapper.toEntity(warehouseDto)).thenReturn(updatedWarehouse);
+        when(warehouseDao.findById(updatedWarehouse.getId(), dBWarehouse.getAccountID())).thenReturn(dBWarehouse);
+        assertTrue(dBWarehouse.isActive());
+        when(addressDtoMapper.toEntity(warehouseDto.getAddressDto())).thenReturn(address);
+        Event event = new Event("Warehouse edited " +
+            updatedWarehouse.getName(), updatedWarehouse.getAccountID(),
+            updatedWarehouse.getId(), 1L, EventName.WAREHOUSE_EDITED, 2L);
+        doNothing().when(eventService).create(event);
+        when(warehouseDao.update(dBWarehouse)).thenReturn(updatedWarehouse);
+        assertFalse(updatedWarehouse.isTopLevel());
+
+        when(warehouseDao.findLevelByParentID(dBWarehouse.getParentID())).thenReturn(2);
+      when(warehouseDao.findByTopWarehouseID(4L, 1L)).thenReturn(List.of(new Warehouse()));
+        assertEquals(warehouseService.update(warehouseDto, userDetails), updatedWarehouse);
+    }
+
+    @Test
     void update_notActive() {
         Warehouse inActive = new Warehouse(12L, "WarehouseTest", "auto parts", 20, true, 5L, 1L, 4L, false);
         when(warehouseDtoMapper.toEntity(warehouseDto)).thenReturn(inActive);
@@ -221,12 +248,13 @@ public class WarehouseServiceImplTest {
     }
 
     @Test
-    void update_notChangeParent() {
+    void update_notAllowChangeParent() {
         Warehouse updatedWarehouse = new Warehouse(12L, "updatedWarehouse", "auto parts", 20, true, 5L, 1L, 4L, true);
         Warehouse dBWarehouse = new Warehouse(12L, "dBWarehouse", "auto parts", 20, true, 5L, 1L, 4L, true);
+        warehouseDto = new WarehouseDto(12L, "WarehouseTest", "auto parts", 20, true, 5L, 1L, 4L, true, null);
 
         when(warehouseDtoMapper.toEntity(warehouseDto)).thenReturn(updatedWarehouse);
-        when(warehouseDao.findById(updatedWarehouse.getId(), updatedWarehouse.getAccountID())).thenReturn(warehouse);
+        when(warehouseDao.findById(updatedWarehouse.getId(), updatedWarehouse.getAccountID())).thenReturn(dBWarehouse);
         warehouseDto.setId(3L);
         assertTrue(updatedWarehouse.isActive());
         updatedWarehouse.setActive(true);
@@ -312,7 +340,7 @@ public class WarehouseServiceImplTest {
 
     @Test
     public void findTotalCapacityTest() {
-        when(warehouseDao.findTotalCapacity(1L, 2L)).thenReturn(anyInt());
+        when(warehouseDao.findTotalCapacity(1L, 2L)).thenReturn(5);
 
     }
 
