@@ -4,10 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.ita.if103java.ims.dto.AddressDto;
 import com.ita.if103java.ims.dto.AssociateDto;
+import com.ita.if103java.ims.dto.SavedItemAssociateDto;
 import com.ita.if103java.ims.entity.AssociateType;
 import com.ita.if103java.ims.exception.dao.AssociateEntityNotFoundException;
 import com.ita.if103java.ims.exception.service.AssociateLimitReachedException;
 import com.ita.if103java.ims.handler.GlobalExceptionHandler;
+import com.ita.if103java.ims.mapper.dto.AssociateDtoMapper;
+import com.ita.if103java.ims.mapper.dto.SavedItemAssociateDtoMapper;
 import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.AssociateService;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,6 +30,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 import java.util.Collections;
+import java.util.List;
 
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.mockito.ArgumentMatchers.any;
@@ -73,7 +77,7 @@ class AssociateControllerTest {
         this.addressDto = new AddressDto(1L, "country", "city", "address", "zip",
             10F, -30F);
         this.associateDto = new AssociateDto(1L, 1L, "Associate name", "test@test.com",
-            "+380977959707", "additionalInfo", AssociateType.SUPPLIER, addressDto);
+            "+380977959707", "additionalInfo", AssociateType.SUPPLIER, true, addressDto);
 
         this.associateEntityNotFoundException =
             new AssociateEntityNotFoundException("Failed to obtain associate during `select`, id = " + fakeId);
@@ -236,5 +240,20 @@ class AssociateControllerTest {
         mockMvc.perform(delete("/associates/" + associateDto.getId())
             .accept(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(status().isOk());
+    }
+
+    @Test
+    void testGetAssociatesByType_successFlow() throws Exception {
+        List<SavedItemAssociateDto> savedItemAssociateDtoList = Collections.singletonList(
+            new SavedItemAssociateDtoMapper().toDto(new AssociateDtoMapper().toEntity(associateDto)));
+
+        when(associateService.getAssociatesByType(any(UserDetailsImpl.class), any()))
+            .thenReturn(savedItemAssociateDtoList);
+
+        mockMvc.perform(get("/associates?type=" + "SUPPLIER")
+            .accept(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.[0]").value(savedItemAssociateDtoList.get(0)));
+        ;
     }
 }

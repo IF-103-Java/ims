@@ -1,5 +1,7 @@
 package com.ita.if103java.ims.dto;
 
+import java.util.Objects;
+
 public class AddressDto {
     private Long id;
     private String country;
@@ -76,6 +78,25 @@ public class AddressDto {
 
     public void setLongitude(Float longitude) {
         this.longitude = longitude;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AddressDto that = (AddressDto) o;
+        return Objects.equals(id, that.id) &&
+            Objects.equals(country, that.country) &&
+            Objects.equals(city, that.city) &&
+            Objects.equals(address, that.address) &&
+            Objects.equals(zip, that.zip) &&
+            Objects.equals(latitude, that.latitude) &&
+            Objects.equals(longitude, that.longitude);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, country, city, address, zip, latitude, longitude);
     }
 
     @Override
