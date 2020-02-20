@@ -196,7 +196,7 @@ public class ItemDaoImpl implements ItemDao {
             throw new CRUDException("Error during `update` {id " + item.getId() + "}", e);
         }
         if (status == 0) {
-            throw new SavedItemNotFoundException("Failed to get savedItem during `update` {id" + item.getId() + "}");
+            throw new ItemNotFoundException("Failed to get item during `update` {id" + item.getId() + "}");
         }
         return item;
     }
