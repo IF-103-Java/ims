@@ -2,7 +2,6 @@ package com.ita.if103java.ims.dao;
 
 import com.ita.if103java.ims.config.GeneratedKeyHolderFactory;
 import com.ita.if103java.ims.dao.impl.UserDaoImpl;
-import com.ita.if103java.ims.entity.Role;
 import com.ita.if103java.ims.entity.User;
 import com.ita.if103java.ims.exception.dao.CRUDException;
 import com.ita.if103java.ims.exception.dao.UserNotFoundException;
@@ -29,8 +28,9 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
+import static com.ita.if103java.ims.util.DataUtil.getListOfUsers;
+import static com.ita.if103java.ims.util.DataUtil.getTestUser;
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -60,19 +60,23 @@ public class UserDaoImplTest {
     private GeneratedKeyHolderFactory generatedKeyHolderFactory;
     @Mock
     private PasswordEncoder passwordEncoder;
-
     @InjectMocks
     private UserDaoImpl userDao;
 
     private User user;
+    private Long fakeId;
     private ZonedDateTime currentDateTime = ZonedDateTime.now(ZoneId.systemDefault());
+
+    private final UserNotFoundException userNotFoundException = new UserNotFoundException();
+    private final CRUDException crudException = new CRUDException();
+
 
     @BeforeEach
     void setUp() throws SQLException {
         MockitoAnnotations.initMocks(this);
         when(this.jdbcTemplate.getDataSource()).thenReturn(dataSource);
-        when(this.dataSource.getConnection()).thenReturn(this.connection);
-        when(this.connection.prepareStatement(anyString(), anyInt())).thenReturn(this.preparedStatement);
+        when(this.dataSource.getConnection()).thenReturn(connection);
+        when(this.connection.prepareStatement(anyString(), anyInt())).thenReturn(preparedStatement);
         when(this.generatedKeyHolderFactory.newKeyHolder()).thenReturn(keyHolder);
         when(this.keyHolder.getKey()).thenReturn(1L);
         when(this.jdbcTemplate.update(any(PreparedStatementCreator.class), any(KeyHolder.class))).thenReturn(1);
@@ -80,31 +84,26 @@ public class UserDaoImplTest {
 
 
         // Initializing test user
-        user = new User();
-        user.setFirstName("Mary");
-        user.setLastName("Smith");
-        user.setEmail("mary.smith@gmail.com");
-        user.setPassword("qwerty12345");
-        user.setRole(Role.ROLE_ADMIN);
-        user.setCreatedDate(currentDateTime);
-        user.setUpdatedDate(currentDateTime);
-        user.setActive(false);
-        user.setEmailUUID(UUID.randomUUID().toString());
-        user.setAccountId(1l);
-
-        userDao.create(user);
+        user = getTestUser();
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        fakeId = 100l;
     }
 
     @Test
     void testCreate_successFlow() {
+        // Initializing created user
+        User createdUser = getTestUser();
+        createdUser.setActive(false);
+        createdUser.setAccountId(null);
+
         //Encoding password
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        createdUser.setPassword(passwordEncoder.encode(user.getPassword()));
         // Should return reference to the same object
-        assertEquals(user, userDao.create(user));
+        assertEquals(createdUser, userDao.create(createdUser));
         // Checking if the id was generated
-        assertNotNull(user.getId());
+        assertNotNull(createdUser.getId());
         // Checking if the user isn't active
-        assertFalse(user.isActive());
+        assertFalse(createdUser.isActive());
     }
 
     @Test
@@ -125,6 +124,29 @@ public class UserDaoImplTest {
     }
 
     @Test
+    void testFindById_notFoundException() {
+        when(jdbcTemplate.queryForObject(anyString(), ArgumentMatchers.<UserRowMapper>any(), eq(fakeId)))
+            .thenThrow(userNotFoundException);
+
+        assertThrows(UserNotFoundException.class, () -> userDao.findById(fakeId));
+    }
+
+
+    @Test
+    void testFindById_crudException() {
+        String fakeQuery = """
+                SELECT *
+                FROM users
+                WHERE id = ?
+                AND active = 1
+            """;
+        when(jdbcTemplate.queryForObject(eq(fakeQuery), ArgumentMatchers.<UserRowMapper>any(), eq(user.getId())))
+            .thenThrow(crudException);
+
+        assertThrows(CRUDException.class, () -> userDao.findById(user.getId()));
+    }
+
+    @Test
     void testFindAdminByAccountId_successFlow() {
         when(this.jdbcTemplate.queryForObject(anyString(), ArgumentMatchers.<UserRowMapper>any(), anyLong()))
             .thenReturn(user);
@@ -133,9 +155,17 @@ public class UserDaoImplTest {
     }
 
     @Test
+    void testFindAdminByAccountId_notFoundException() {
+        when(jdbcTemplate.queryForObject(anyString(), ArgumentMatchers.<UserRowMapper>any(), eq(fakeId)))
+            .thenThrow(userNotFoundException);
+
+        assertThrows(UserNotFoundException.class, () -> userDao.findAdminByAccountId(fakeId));
+    }
+
+    @Test
     void testFindAll_successFlow() {
         // Initializing users list
-        List<User> users = this.getListOfUsers();
+        List<User> users = getListOfUsers();
         for (User user : users) {
             // Adding these users to database
             userDao.create(user);
@@ -149,7 +179,7 @@ public class UserDaoImplTest {
         when(jdbcTemplate.query(anyString(), ArgumentMatchers.<UserRowMapper>any(), anyLong(), anyInt(), anyLong()))
             .thenReturn(newList);
 
-        // First 3 users (should return 1, because there is only 1 user with role worker and is active in db)
+        // First 3 users (should return 1, because there is only 1 user with role WORKER and an active status in db)
         Integer expectedCount = 1;
         List<User> resultUserList = userDao.findAll(pageable, user.getAccountId());
         assertEquals(expectedCount, resultUserList.size());
@@ -197,7 +227,8 @@ public class UserDaoImplTest {
     @Test
     void testHardDelete_successFlow() {
         when(jdbcTemplate.update(anyString(), ArgumentMatchers.<Object[]>any())).thenReturn(1);
-        assertTrue(userDao.hardDelete(user.getAccountId()));
+        userDao.hardDelete(user.getAccountId());
+        verify(jdbcTemplate, times(1)).update(anyString(), eq(user.getAccountId()));
     }
 
     @Test
@@ -232,54 +263,5 @@ public class UserDaoImplTest {
             .thenReturn(count);
 
         assertEquals(count, userDao.countOfUsers(user.getAccountId()));
-    }
-
-    private List<User> getListOfUsers() {
-        List<User> users = new ArrayList<>();
-
-        User user1 = new User();
-        user1.setId(2l);
-        user1.setFirstName("Mary1");
-        user1.setLastName("Smith1");
-        user1.setEmail("mary1.smith1@gmail.com");
-        user1.setPassword("qwerty12345");
-        user1.setRole(Role.ROLE_ADMIN);
-        user1.setCreatedDate(currentDateTime);
-        user1.setUpdatedDate(currentDateTime);
-        user1.setActive(true);
-        user1.setEmailUUID(UUID.randomUUID().toString());
-        user1.setAccountId(1l);
-
-        User user2 = new User();
-        user2.setId(3l);
-        user2.setFirstName("Mary2");
-        user2.setLastName("Smith2");
-        user2.setEmail("mary2.smith2@gmail.com");
-        user2.setPassword("qwerty12345");
-        user2.setRole(Role.ROLE_WORKER);
-        user2.setCreatedDate(currentDateTime);
-        user2.setUpdatedDate(currentDateTime);
-        user2.setActive(true);
-        user2.setEmailUUID(UUID.randomUUID().toString());
-        user2.setAccountId(1l);
-
-        User user3 = new User();
-        user3.setId(3l);
-        user3.setFirstName("Mary3");
-        user3.setLastName("Smith3");
-        user3.setEmail("mary3.smith3@gmail.com");
-        user3.setPassword("qwerty12345");
-        user3.setRole(Role.ROLE_WORKER);
-        user3.setCreatedDate(currentDateTime);
-        user3.setUpdatedDate(currentDateTime);
-        user3.setActive(false);
-        user3.setEmailUUID(UUID.randomUUID().toString());
-        user3.setAccountId(1l);
-
-        users.add(user1);
-        users.add(user2);
-        users.add(user3);
-
-        return users;
     }
 }

@@ -168,13 +168,12 @@ public class ItemDaoImpl implements ItemDao {
     }
 
     @Override
-    public boolean hardDelete(Long accountId) {
+    public void hardDelete(Long accountId) {
         try {
             jdbcTemplate.update(Queries.SQL_DELETE_ITEM_BY_ACCOUNT_ID, accountId);
         } catch (DataAccessException e) {
             throw new CRUDException("Error during hard `delete` item {accountId = " + accountId + "}", e);
         }
-        return true;
     }
 
     @Override
