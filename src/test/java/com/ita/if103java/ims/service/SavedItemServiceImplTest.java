@@ -48,6 +48,7 @@ public class SavedItemServiceImplTest {
     @Spy
     @InjectMocks
     SavedItemServiceImpl savedItemService;
+
     private Long accountId = 2L;
     private Long warehouseId = 37L;
 
@@ -56,7 +57,6 @@ public class SavedItemServiceImplTest {
         MockitoAnnotations.initMocks(this);
         ReflectionTestUtils.setField(savedItemService, "maxWarehouseLoad", "90");
     }
-
     @Test
     void validateInputs_Add_successFlow() {
         ItemTransactionRequestDto requestDto = new ItemTransactionRequestDto();
@@ -64,6 +64,7 @@ public class SavedItemServiceImplTest {
         requestDto.setDestinationWarehouseId(37L);
         ItemDto itemDto = new ItemDto();
         itemDto.setVolume(3);
+
         Warehouse warehouse = new Warehouse();
         Associate associate = new Associate();
         associate.setType(AssociateType.SUPPLIER);
@@ -71,7 +72,8 @@ public class SavedItemServiceImplTest {
         when(warehouseDao.findById(requestDto.getDestinationWarehouseId(), accountId)).thenReturn(warehouse);
         when(associateDao.findById(accountId, requestDto.getAssociateId())).thenReturn(associate);
         doReturn(true).when(savedItemService).existInAccount(requestDto, accountId);
-        assertDoesNotThrow(() -> savedItemService.validateInputs(requestDto, itemDto, accountId, TransactionType.IN));
+
+        assertDoesNotThrow(()->savedItemService.validateInputs(requestDto, itemDto, accountId, TransactionType.IN));
     }
 
 
@@ -82,8 +84,8 @@ public class SavedItemServiceImplTest {
         itemDto.setVolume(-3);
 
         SavedItemValidateInputException exception = assertThrows(SavedItemValidateInputException.class,
-            () -> savedItemService.validateInputs(requestDto, itemDto, accountId, TransactionType.IN));
-        assertEquals("Failed to get savedItem during `add`" + accountId + "}", exception.getMessage());
+            ()->savedItemService.validateInputs(requestDto, itemDto, accountId, TransactionType.IN));
+          assertEquals("Failed to get savedItem during `add`" + accountId + "}", exception.getMessage());
     }
 
     @Test
@@ -94,8 +96,9 @@ public class SavedItemServiceImplTest {
         itemDto.setVolume(3);
 
         when(warehouseDao.findById(requestDto.getDestinationWarehouseId(), accountId)).thenReturn(null);
+
         SavedItemValidateInputException exception = assertThrows(SavedItemValidateInputException.class,
-            () -> savedItemService.validateInputs(requestDto, itemDto, accountId, TransactionType.IN));
+            ()->savedItemService.validateInputs(requestDto, itemDto, accountId, TransactionType.IN));
         assertEquals("Failed to get savedItem during `add`" + accountId + "}", exception.getMessage());
     }
 
@@ -106,14 +109,16 @@ public class SavedItemServiceImplTest {
         requestDto.setDestinationWarehouseId(37L);
         ItemDto itemDto = new ItemDto();
         itemDto.setVolume(3);
+
         Warehouse warehouse = new Warehouse();
         Associate associate = new Associate();
         associate.setType(AssociateType.CLIENT);
 
         when(warehouseDao.findById(requestDto.getDestinationWarehouseId(), accountId)).thenReturn(warehouse);
         when(associateDao.findById(accountId, requestDto.getAssociateId())).thenReturn(associate);
+
         SavedItemValidateInputException exception = assertThrows(SavedItemValidateInputException.class,
-            () -> savedItemService.validateInputs(requestDto, itemDto, accountId, TransactionType.IN));
+            ()->savedItemService.validateInputs(requestDto, itemDto, accountId, TransactionType.IN));
         assertEquals("Failed to get savedItem during `add`" + accountId + "}", exception.getMessage());
     }
 
@@ -124,6 +129,7 @@ public class SavedItemServiceImplTest {
         requestDto.setDestinationWarehouseId(37L);
         ItemDto itemDto = new ItemDto();
         itemDto.setVolume(3);
+
         Warehouse warehouse = new Warehouse();
         Associate associate = new Associate();
         associate.setType(AssociateType.SUPPLIER);
@@ -131,8 +137,9 @@ public class SavedItemServiceImplTest {
         when(warehouseDao.findById(requestDto.getDestinationWarehouseId(), accountId)).thenReturn(warehouse);
         when(associateDao.findById(accountId, requestDto.getAssociateId())).thenReturn(associate);
         doReturn(false).when(savedItemService).existInAccount(requestDto, accountId);
+
         SavedItemValidateInputException exception = assertThrows(SavedItemValidateInputException.class,
-            () -> savedItemService.validateInputs(requestDto, itemDto, accountId, TransactionType.IN));
+            ()->savedItemService.validateInputs(requestDto, itemDto, accountId, TransactionType.IN));
         assertEquals("Failed to get savedItem during `add`" + accountId + "}", exception.getMessage());
     }
 
@@ -147,7 +154,8 @@ public class SavedItemServiceImplTest {
 
         when(warehouseDao.findById(requestDto.getDestinationWarehouseId(), accountId)).thenReturn(warehouse);
         doReturn(true).when(savedItemService).existInAccount(requestDto, accountId);
-        assertDoesNotThrow(() -> savedItemService.validateInputs(requestDto, itemDto, accountId, TransactionType.MOVE));
+
+        assertDoesNotThrow(()->savedItemService.validateInputs(requestDto, itemDto, accountId, TransactionType.MOVE));
     }
 
     @Test
@@ -157,7 +165,7 @@ public class SavedItemServiceImplTest {
         itemDto.setVolume(-3);
 
         SavedItemValidateInputException exception = assertThrows(SavedItemValidateInputException.class,
-            () -> savedItemService.validateInputs(requestDto, itemDto, accountId, TransactionType.MOVE));
+            ()->savedItemService.validateInputs(requestDto, itemDto, accountId, TransactionType.MOVE));
         assertEquals("Failed to get savedItem during `move` {account_id = " + accountId + "}", exception.getMessage());
     }
 
@@ -169,8 +177,9 @@ public class SavedItemServiceImplTest {
         Warehouse warehouse = new Warehouse();
 
         when(warehouseDao.findById(requestDto.getDestinationWarehouseId(), accountId)).thenReturn(warehouse);
+
         SavedItemValidateInputException exception = assertThrows(SavedItemValidateInputException.class,
-            () -> savedItemService.validateInputs(requestDto, itemDto, accountId, TransactionType.MOVE));
+            ()->savedItemService.validateInputs(requestDto, itemDto, accountId, TransactionType.MOVE));
         assertEquals("Failed to get savedItem during `move` {account_id = " + accountId + "}", exception.getMessage());
     }
 
@@ -185,8 +194,9 @@ public class SavedItemServiceImplTest {
 
         when(warehouseDao.findById(requestDto.getDestinationWarehouseId(), accountId)).thenReturn(warehouse);
         doReturn(false).when(savedItemService).existInAccount(requestDto, accountId);
+
         SavedItemValidateInputException exception = assertThrows(SavedItemValidateInputException.class,
-            () -> savedItemService.validateInputs(requestDto, itemDto, accountId, TransactionType.MOVE));
+            ()->savedItemService.validateInputs(requestDto, itemDto, accountId, TransactionType.MOVE));
         assertEquals("Failed to get savedItem during `move` {account_id = " + accountId + "}", exception.getMessage());
     }
 
@@ -200,7 +210,8 @@ public class SavedItemServiceImplTest {
 
         when(associateDao.findById(accountId, requestDto.getAssociateId())).thenReturn(associate);
         when(itemDao.isExistItemById(requestDto.getItemId(), accountId)).thenReturn(true);
-        assertDoesNotThrow(() -> savedItemService.validateInputs(requestDto, itemDto, accountId, TransactionType.OUT));
+
+        assertDoesNotThrow(()->savedItemService.validateInputs(requestDto, itemDto, accountId, TransactionType.OUT));
     }
 
     @Test
@@ -212,8 +223,9 @@ public class SavedItemServiceImplTest {
         associate.setType(AssociateType.SUPPLIER);
 
         when(associateDao.findById(accountId, requestDto.getAssociateId())).thenReturn(associate);
+
         SavedItemValidateInputException exception = assertThrows(SavedItemValidateInputException.class,
-            () -> savedItemService.validateInputs(requestDto, itemDto, accountId, TransactionType.OUT));
+            ()->savedItemService.validateInputs(requestDto, itemDto, accountId, TransactionType.OUT));
         assertEquals("Failed to get savedItem during `outcomeItem` {account_id = " + accountId +
             " associateId = " + requestDto.getAssociateId() + "}", exception.getMessage());
     }
@@ -228,14 +240,15 @@ public class SavedItemServiceImplTest {
 
         when(associateDao.findById(accountId, requestDto.getAssociateId())).thenReturn(associate);
         when(itemDao.isExistItemById(requestDto.getItemId(), accountId)).thenReturn(false);
+
         SavedItemValidateInputException exception = assertThrows(SavedItemValidateInputException.class,
-            () -> savedItemService.validateInputs(requestDto, itemDto, accountId, TransactionType.OUT));
+            ()->savedItemService.validateInputs(requestDto, itemDto, accountId, TransactionType.OUT));
         assertEquals("Failed to get savedItem during `outcomeItem` {account_id = " + accountId +
             " associateId = " + requestDto.getAssociateId() + "}", exception.getMessage());
     }
 
     @Test
-    void isEnoughCapacityInWarehouse() {
+    void isEnoughCapacityInWarehouse(){
         ItemTransactionRequestDto transactionRequestDto = new ItemTransactionRequestDto();
         transactionRequestDto.setDestinationWarehouseId(37L);
         transactionRequestDto.setQuantity(2L);
@@ -244,15 +257,15 @@ public class SavedItemServiceImplTest {
         Warehouse warehouse = new Warehouse();
         warehouse.setCapacity(100);
 
-        doReturn(20F).when(savedItemService)
-            .toVolumeOfPassSavedItems(transactionRequestDto.getDestinationWarehouseId(), accountId);
+        doReturn(20F).when(savedItemService).toVolumeOfPassSavedItems(transactionRequestDto.getDestinationWarehouseId(), accountId);
         when(warehouseDao.findById(transactionRequestDto.getDestinationWarehouseId(), accountId)).thenReturn(warehouse);
-        assertEquals(savedItemService.isEnoughCapacityInWarehouse(transactionRequestDto, itemDto, accountId), true);
+
+        assertEquals(savedItemService.isEnoughCapacityInWarehouse(transactionRequestDto,itemDto, accountId), true);
 
     }
 
     @Test
-    void isEnoughCapacityInWarehouse_NotEnoughCapacityInWarehouse() {
+    void isEnoughCapacityInWarehouse_NotEnoughCapacityInWarehouse(){
         ItemTransactionRequestDto transactionRequestDto = new ItemTransactionRequestDto();
         transactionRequestDto.setDestinationWarehouseId(37L);
         transactionRequestDto.setQuantity(2L);
@@ -261,44 +274,49 @@ public class SavedItemServiceImplTest {
         Warehouse warehouse = new Warehouse();
         warehouse.setCapacity(0);
 
-        doReturn(20F).when(savedItemService)
-            .toVolumeOfPassSavedItems(transactionRequestDto.getDestinationWarehouseId(), accountId);
+        doReturn(20F).when(savedItemService).toVolumeOfPassSavedItems(transactionRequestDto.getDestinationWarehouseId(), accountId);
         when(warehouseDao.findById(transactionRequestDto.getDestinationWarehouseId(), accountId)).thenReturn(warehouse);
-        assertEquals(savedItemService.isEnoughCapacityInWarehouse(transactionRequestDto, itemDto, accountId), false);
+
+        assertEquals(savedItemService.isEnoughCapacityInWarehouse(transactionRequestDto,itemDto, accountId), false);
 
     }
 
     @Test
-    void toVolumeOfPassSavedItems() {
+    void toVolumeOfPassSavedItems(){
         List<SavedItem> savedItems = getListOfSavedItems();
         List<Item> items = getListOfItems();
 
         when(savedItemDao.existSavedItemByWarehouseId(warehouseId)).thenReturn(true);
         when(savedItemDao.findSavedItemByWarehouseId(warehouseId)).thenReturn(savedItems);
+
         String itemIds = savedItems.stream().map(x -> x.getItemId().toString()).collect(Collectors.joining(","));
+
         when(itemDao.findItemsById(itemIds, accountId)).thenReturn(items);
-        assertTrue(savedItemService.toVolumeOfPassSavedItems(warehouseId, accountId) > 0);
+
+        assertTrue(savedItemService.toVolumeOfPassSavedItems(warehouseId, accountId)>0);
     }
 
     @Test
-    void toVolumeOfPassSavedItems_NotExistSavedItemByWarehouseId() {
+    void toVolumeOfPassSavedItems_NotExistSavedItemByWarehouseId(){
         when(savedItemDao.existSavedItemByWarehouseId(warehouseId)).thenReturn(false);
+
         assertEquals(0, savedItemService.toVolumeOfPassSavedItems(warehouseId, accountId));
 
     }
 
     @Test
-    void toVolumeOfPassSavedItems_SavedItemsEmpty() {
+    void toVolumeOfPassSavedItems_SavedItemsEmpty(){
         List<SavedItem> savedItems = new ArrayList<>();
 
         when(savedItemDao.existSavedItemByWarehouseId(warehouseId)).thenReturn(true);
         when(savedItemDao.findSavedItemByWarehouseId(warehouseId)).thenReturn(savedItems);
+
         assertEquals(0, savedItemService.toVolumeOfPassSavedItems(warehouseId, accountId));
 
     }
 
     @Test
-    void isLowSpaceInWarehouse() {
+    void isLowSpaceInWarehouse(){
         Warehouse warehouse = new Warehouse();
         warehouse.setCapacity(40);
         ItemTransactionRequestDto itemTransaction = new ItemTransactionRequestDto();
@@ -307,21 +325,23 @@ public class SavedItemServiceImplTest {
         doReturn(10F).when(savedItemService).toVolumeOfPassSavedItems(itemTransaction.getDestinationWarehouseId(),
             accountId);
         when(warehouseDao.findById(itemTransaction.getDestinationWarehouseId(), accountId)).thenReturn(warehouse);
+
         assertEquals(savedItemService.isLowSpaceInWarehouse(itemTransaction, accountId), false);
     }
 
     @Test
-    void isLowSpaceInWarehouse_VolumeZero() {
+    void isLowSpaceInWarehouse_VolumeZero(){
         ItemTransactionRequestDto itemTransaction = new ItemTransactionRequestDto();
         itemTransaction.setDestinationWarehouseId(37L);
 
         doReturn(0F).when(savedItemService).toVolumeOfPassSavedItems(itemTransaction.getDestinationWarehouseId(),
             accountId);
+
         assertEquals(savedItemService.isLowSpaceInWarehouse(itemTransaction, accountId), true);
     }
 
     @Test
-    void isLowSpaceInWarehouse_WarehouseLoadMoreThenMaxWarehouseLoad() {
+    void isLowSpaceInWarehouse_WarehouseLoadMoreThenMaxWarehouseLoad(){
         Warehouse warehouse = new Warehouse();
         warehouse.setCapacity(2);
         ItemTransactionRequestDto itemTransaction = new ItemTransactionRequestDto();
@@ -330,11 +350,12 @@ public class SavedItemServiceImplTest {
         doReturn(10F).when(savedItemService).toVolumeOfPassSavedItems(itemTransaction.getDestinationWarehouseId(),
             accountId);
         when(warehouseDao.findById(itemTransaction.getDestinationWarehouseId(), accountId)).thenReturn(warehouse);
+
         assertEquals(savedItemService.isLowSpaceInWarehouse(itemTransaction, accountId), true);
     }
 
     @Test
-    void existInAccount() {
+    void existInAccount(){
         ItemTransactionRequestDto itemTransaction = new ItemTransactionRequestDto();
         itemTransaction.setDestinationWarehouseId(37L);
         itemTransaction.setItemId(108L);
@@ -343,20 +364,22 @@ public class SavedItemServiceImplTest {
 
         when(itemDao.isExistItemById(itemTransaction.getItemId(), accountId)).thenReturn(true);
         when(warehouseDao.findById(itemTransaction.getDestinationWarehouseId(), accountId)).thenReturn(warehouse);
+
         assertEquals(savedItemService.existInAccount(itemTransaction, accountId), true);
     }
 
     @Test
-    void existInAccount_NotExistItemById() {
+    void existInAccount_NotExistItemById(){
         ItemTransactionRequestDto itemTransaction = new ItemTransactionRequestDto();
         itemTransaction.setItemId(108L);
 
         when(itemDao.isExistItemById(itemTransaction.getItemId(), accountId)).thenReturn(false);
+
         assertEquals(savedItemService.existInAccount(itemTransaction, accountId), false);
     }
 
     @Test
-    void existInAccount_NotValidWarehouseAccountId() {
+    void existInAccount_NotValidWarehouseAccountId(){
         ItemTransactionRequestDto itemTransaction = new ItemTransactionRequestDto();
         itemTransaction.setDestinationWarehouseId(37L);
         itemTransaction.setItemId(108L);
@@ -365,11 +388,13 @@ public class SavedItemServiceImplTest {
 
         when(itemDao.isExistItemById(itemTransaction.getItemId(), accountId)).thenReturn(true);
         when(warehouseDao.findById(itemTransaction.getDestinationWarehouseId(), accountId)).thenReturn(warehouse);
+
         assertEquals(savedItemService.existInAccount(itemTransaction, accountId), false);
     }
 
-    private List<Item> getListOfItems() {
+    private List<Item> getListOfItems(){
         List<Item> items = new ArrayList<>();
+
         Item trout = new Item();
         trout.setName("Fish-Trout");
         trout.setDescription("fresh trout");
@@ -404,9 +429,9 @@ public class SavedItemServiceImplTest {
 
         return items;
     }
-
-    private List<SavedItem> getListOfSavedItems() {
+    private List<SavedItem> getListOfSavedItems(){
         List<SavedItem> items = new ArrayList<>();
+
         SavedItem trout = new SavedItem();
         trout.setId(70L);
         trout.setQuantity(5);

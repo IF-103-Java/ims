@@ -62,12 +62,14 @@ public class SavedItemDaoImplTest {
     @BeforeEach
     void setUp() throws SQLException {
         MockitoAnnotations.initMocks(this);
+
         when(this.jdbcTemplate.getDataSource()).thenReturn(dataSource);
         when(this.dataSource.getConnection()).thenReturn(this.connection);
         when(this.connection.prepareStatement(anyString(), anyInt())).thenReturn(this.preparedStatement);
         when(this.generatedKeyHolderFactory.newKeyHolder()).thenReturn(keyHolder);
         when(this.keyHolder.getKey()).thenReturn(1L);
         when(this.jdbcTemplate.update(any(PreparedStatementCreator.class), any(KeyHolder.class))).thenReturn(1);
+
         trout = new SavedItem();
         trout.setId(70L);
         trout.setQuantity(5);
@@ -103,6 +105,7 @@ public class SavedItemDaoImplTest {
     @Test
     void getSavedItems_successFlow() {
         when(jdbcTemplate.query(anyString(), ArgumentMatchers.<SavedItemRowMapper>any())).thenReturn(savedItems);
+
         assertEquals(savedItems, savedItemDao.getSavedItems());
     }
 
@@ -111,6 +114,7 @@ public class SavedItemDaoImplTest {
         when(jdbcTemplate.query(anyString(), ArgumentMatchers.<SavedItemRowMapper>any()))
             .thenThrow(new DataAccessException("") {
             });
+
         assertThrows(CRUDException.class, () -> savedItemDao.getSavedItems());
     }
 
@@ -118,6 +122,7 @@ public class SavedItemDaoImplTest {
     void findSavedItemById_successFlow() {
         when(jdbcTemplate.queryForObject(anyString(), ArgumentMatchers.<SavedItemRowMapper>any(), anyLong()))
             .thenReturn(trout);
+
         assertEquals(trout, savedItemDao.findSavedItemById(trout.getId()));
     }
 
@@ -126,6 +131,7 @@ public class SavedItemDaoImplTest {
         when(jdbcTemplate.queryForObject(anyString(), ArgumentMatchers.<SavedItemRowMapper>any(), anyLong()))
             .thenThrow(new EmptyResultDataAccessException(1) {
             });
+
         SavedItemNotFoundException exception = assertThrows(SavedItemNotFoundException.class,
             () -> savedItemDao.findSavedItemById(trout.getId()));
         assertEquals("Failed to get savedItem during `select` {id = " + trout.getId() + "}", exception.getMessage());
@@ -136,6 +142,7 @@ public class SavedItemDaoImplTest {
         when(jdbcTemplate.queryForObject(anyString(), ArgumentMatchers.<SavedItemRowMapper>any(), anyLong()))
             .thenThrow(new DataAccessException("") {
             });
+
         CRUDException exception = assertThrows(CRUDException.class,
             () -> savedItemDao.findSavedItemById(trout.getId()));
         assertEquals("Failed during `select` {id = " + trout.getId() + "}", exception.getMessage());
@@ -145,6 +152,7 @@ public class SavedItemDaoImplTest {
     void findSavedItemByItemId_successFlow() {
         when(jdbcTemplate.query(anyString(), ArgumentMatchers.<SavedItemRowMapper>any(), anyLong()))
             .thenReturn(savedItems);
+
         assertEquals(savedItems, savedItemDao.findSavedItemByItemId(trout.getItemId()));
     }
 
@@ -153,6 +161,7 @@ public class SavedItemDaoImplTest {
         when(jdbcTemplate.query(anyString(), ArgumentMatchers.<SavedItemRowMapper>any(), anyLong()))
             .thenThrow(new EmptyResultDataAccessException(1) {
             });
+
         SavedItemNotFoundException exception = assertThrows(SavedItemNotFoundException.class,
             () -> savedItemDao.findSavedItemByItemId(trout.getItemId()));
         assertEquals("Failed to get savedItem during `select` {item_id = " + trout.getItemId() +
@@ -164,6 +173,7 @@ public class SavedItemDaoImplTest {
         when(jdbcTemplate.query(anyString(), ArgumentMatchers.<SavedItemRowMapper>any(), anyLong()))
             .thenThrow(new DataAccessException("") {
             });
+
         CRUDException exception = assertThrows(CRUDException.class,
             () -> savedItemDao.findSavedItemByItemId(trout.getItemId()));
         assertEquals("Failed during `select` {item_id = " + trout.getItemId() + "}", exception.getMessage());
@@ -174,6 +184,7 @@ public class SavedItemDaoImplTest {
     void findSavedItemByWarehouseId_successFlow() {
         when(jdbcTemplate.query(anyString(), ArgumentMatchers.<SavedItemRowMapper>any(), anyLong()))
             .thenReturn(savedItems);
+
         assertEquals(savedItems, savedItemDao.findSavedItemByWarehouseId(trout.getWarehouseId()));
     }
 
@@ -182,6 +193,7 @@ public class SavedItemDaoImplTest {
         when(jdbcTemplate.query(anyString(), ArgumentMatchers.<SavedItemRowMapper>any(), anyLong()))
             .thenThrow(new EmptyResultDataAccessException(1) {
             });
+
         SavedItemNotFoundException exception = assertThrows(SavedItemNotFoundException.class,
             () -> savedItemDao.findSavedItemByWarehouseId(trout.getWarehouseId()));
         assertEquals("Failed to get savedItem during `select` {warehouse_id = " + trout.getWarehouseId() +
@@ -193,6 +205,7 @@ public class SavedItemDaoImplTest {
         when(jdbcTemplate.query(anyString(), ArgumentMatchers.<SavedItemRowMapper>any(), anyLong()))
             .thenThrow(new DataAccessException("") {
             });
+
         CRUDException exception = assertThrows(CRUDException.class,
             () -> savedItemDao.findSavedItemByWarehouseId(trout.getWarehouseId()));
         assertEquals("Failed during `select` {warehouse_id = " + trout.getWarehouseId() + "}", exception.getMessage());
@@ -202,7 +215,9 @@ public class SavedItemDaoImplTest {
     void existSavedItemByWarehouseId_successFlow() {
         when(jdbcTemplate.query(anyString(), ArgumentMatchers.<SavedItemRowMapper>any(), anyLong()))
             .thenReturn(savedItems);
+
         assertEquals(true, savedItemDao.existSavedItemByWarehouseId(trout.getWarehouseId()));
+
         verify(jdbcTemplate, times(1)).query(anyString(), ArgumentMatchers.<SavedItemRowMapper>any(), anyLong());
     }
 
@@ -210,7 +225,9 @@ public class SavedItemDaoImplTest {
     void existSavedItemByWarehouseId_omittedFlowEmptyResult() {
         when(jdbcTemplate.query(anyString(), ArgumentMatchers.<SavedItemRowMapper>any(), anyLong())).thenThrow(
             EmptyResultDataAccessException.class);
+
         assertEquals(false, savedItemDao.existSavedItemByWarehouseId(trout.getWarehouseId()));
+
         verify(jdbcTemplate, times(1)).query(anyString(), ArgumentMatchers.<SavedItemRowMapper>any(), anyLong());
     }
 
@@ -218,7 +235,9 @@ public class SavedItemDaoImplTest {
     void existSavedItemByWarehouseId_omittedFlow() {
         when(jdbcTemplate.query(anyString(), ArgumentMatchers.<SavedItemRowMapper>any(), anyLong())).thenThrow(
             EmptyResultDataAccessException.class);
+
         assertEquals(false, savedItemDao.existSavedItemByWarehouseId(trout.getWarehouseId()));
+
         verify(jdbcTemplate, times(1)).query(anyString(), ArgumentMatchers.<SavedItemRowMapper>any(), anyLong());
     }
 
@@ -227,6 +246,7 @@ public class SavedItemDaoImplTest {
         when(jdbcTemplate.query(anyString(), ArgumentMatchers.<SavedItemRowMapper>any(), anyLong()))
             .thenThrow(new DataAccessException("") {
             });
+
         CRUDException exception = assertThrows(CRUDException.class,
             () -> savedItemDao.existSavedItemByWarehouseId(trout.getWarehouseId()));
         assertEquals("Failed during `select` {warehouse_id = " + trout.getWarehouseId() + "}", exception.getMessage());
@@ -235,6 +255,7 @@ public class SavedItemDaoImplTest {
     @Test
     void addSavedItem_successFlow() {
         SavedItem savedItem = new SavedItem();
+
         assertEquals(savedItem, savedItemDao.addSavedItem(savedItem));
         assertNotNull(savedItem.getId());
     }
@@ -242,8 +263,10 @@ public class SavedItemDaoImplTest {
     @Test
     void addSavedItem_omittedFlowNotNullFields() {
         when(this.keyHolder.getKey()).thenReturn(null);
+
         SavedItem savedItem = new SavedItem();
         savedItem.setWarehouseId(37L);
+
         assertThrows(CRUDException.class, () -> savedItemDao.addSavedItem(savedItem));
     }
 
@@ -253,7 +276,9 @@ public class SavedItemDaoImplTest {
         savedItem.setId(2L);
         savedItem.setQuantity(5);
         int quantity = 5;
+
         when(jdbcTemplate.update(anyString(), anyInt(), anyLong())).thenReturn(1);
+
         assertEquals(true, savedItemDao.outComeSavedItem(savedItem, quantity));
     }
 
@@ -263,7 +288,9 @@ public class SavedItemDaoImplTest {
         savedItem.setId(2L);
         savedItem.setQuantity(5);
         int quantity = 5;
+
         when(jdbcTemplate.update(anyString(), anyInt(), anyLong())).thenReturn(0);
+
         SavedItemNotFoundException exception = assertThrows(SavedItemNotFoundException.class,
             () -> savedItemDao.outComeSavedItem(savedItem, quantity));
         assertEquals("Failed to get savedItem during `update` {quantity = " + savedItem.getQuantity() + "warehouse_id" +
@@ -276,8 +303,10 @@ public class SavedItemDaoImplTest {
         savedItem.setId(2L);
         savedItem.setQuantity(5);
         int quantity = 5;
+
         when(jdbcTemplate.update(anyString(), anyInt(), anyLong())).thenThrow(new DataAccessException("") {
         });
+
         CRUDException exception = assertThrows(CRUDException.class,
             () -> savedItemDao.outComeSavedItem(savedItem, quantity));
         assertEquals("Error during `update` {quantity = " + savedItem.getQuantity() + "warehouse_id" + "}",
@@ -288,7 +317,9 @@ public class SavedItemDaoImplTest {
     void updateSavedItem_successFlow() {
         Long warehouseId = 40L;
         Long savedItemId = 108L;
+
         when(jdbcTemplate.update(anyString(), anyLong(), anyLong())).thenReturn(1);
+
         assertEquals(true, savedItemDao.updateSavedItem(warehouseId, savedItemId));
     }
 
@@ -296,7 +327,9 @@ public class SavedItemDaoImplTest {
     void updateSavedItem_omittedFlowNotFound() {
         Long warehouseId = 40L;
         Long savedItemId = 108L;
+
         when(jdbcTemplate.update(anyString(), anyLong(), anyLong())).thenReturn(0);
+
         SavedItemNotFoundException exception = assertThrows(SavedItemNotFoundException.class,
             () -> savedItemDao.updateSavedItem(warehouseId, savedItemId));
         assertEquals("Failed to get savedItem during `update` {warehouse_id = " + warehouseId + "id" + savedItemId +
@@ -307,8 +340,10 @@ public class SavedItemDaoImplTest {
     void updateSavedItem_omittedFlowCRUDException() {
         Long warehouseId = 40L;
         Long savedItemId = 108L;
+
         when(jdbcTemplate.update(anyString(), anyLong(), anyLong())).thenThrow(new DataAccessException("") {
         });
+
         CRUDException exception = assertThrows(CRUDException.class,
             () -> savedItemDao.updateSavedItem(warehouseId, savedItemId));
         assertEquals("Error during `update` {warehouse_id = " + warehouseId + " id " + savedItemId + "}",
@@ -318,14 +353,18 @@ public class SavedItemDaoImplTest {
     @Test
     void deleteSavedItem_successFlow() {
         Long savedItemId = 38L;
+
         when(jdbcTemplate.update(anyString(), anyLong())).thenReturn(1);
+
         assertEquals(true, savedItemDao.deleteSavedItem(savedItemId));
     }
 
     @Test
     void deleteSavedItem_omittedFlowNotFound() {
         Long savedItemId = 38L;
+
         when(jdbcTemplate.update(anyString(), anyLong())).thenReturn(0);
+
         SavedItemNotFoundException exception = assertThrows(SavedItemNotFoundException.class,
             () -> savedItemDao.deleteSavedItem(savedItemId));
         assertEquals("Failed to get soft delete savedItem during `delete` {id = " + savedItemId + "}",
@@ -335,8 +374,10 @@ public class SavedItemDaoImplTest {
     @Test
     void deleteSavedItem_omittedFlowCRUDException() {
         Long savedItemId = 38L;
+
         when(jdbcTemplate.update(anyString(), anyLong())).thenThrow(new DataAccessException("") {
         });
+
         CRUDException exception = assertThrows(CRUDException.class,
             () -> savedItemDao.deleteSavedItem(savedItemId));
         assertEquals("Error during  `delete` {id = " + savedItemId + "}", exception.getMessage());
@@ -347,8 +388,10 @@ public class SavedItemDaoImplTest {
         SavedItem savedItem = new SavedItem();
         Long itemId = 18L;
         Long warehouseId = 40L;
+
         when(jdbcTemplate.queryForObject(anyString(), ArgumentMatchers.<SavedItemRowMapper>any(), anyLong(),
             anyLong())).thenReturn(savedItem);
+
         assertEquals(Optional.of(savedItem), savedItemDao.findSavedItemByItemIdAndWarehouseId(itemId, warehouseId));
     }
 
@@ -356,8 +399,10 @@ public class SavedItemDaoImplTest {
     void findSavedItemByItemIdAndWarehouseId_omittedFlowNotFound() {
         Long itemId = 18L;
         Long warehouseId = 40L;
+
         when(jdbcTemplate.queryForObject(anyString(), ArgumentMatchers.<SavedItemRowMapper>any(), anyLong(),
             anyLong())).thenThrow(EmptyResultDataAccessException.class);
+
         assertEquals(Optional.empty(), savedItemDao.findSavedItemByItemIdAndWarehouseId(itemId, warehouseId));
     }
 
@@ -365,9 +410,10 @@ public class SavedItemDaoImplTest {
     void findSavedItemByItemIdAndWarehouseId_omittedFlowCRUDException() {
         Long itemId = 18L;
         Long warehouseId = 40L;
+
         when(jdbcTemplate.queryForObject(anyString(), ArgumentMatchers.<SavedItemRowMapper>any(), anyLong(),
-            anyLong())).thenThrow(new DataAccessException("") {
-        });
+            anyLong())).thenThrow(new DataAccessException("") {});
+
         CRUDException exception = assertThrows(CRUDException.class, () ->
             savedItemDao.findSavedItemByItemIdAndWarehouseId(itemId, warehouseId));
         assertEquals("Failed during `select` {itemId = " + itemId + " warehouse_id = " + warehouseId + "}",
@@ -377,14 +423,18 @@ public class SavedItemDaoImplTest {
     @Test
     void hardDelete_successFlow() {
         Long accountId = 2L;
+
         when(jdbcTemplate.update(anyString(), anyLong())).thenReturn(1);
+
         savedItemDao.hardDelete(accountId);
+
         verify(jdbcTemplate, times(1)).update(anyString(), anyLong());
     }
 
     @Test
     void hardDelete_omittedFlowCRUDException() {
         Long accountId = 2L;
+
         when(jdbcTemplate.update(anyString(), anyLong())).thenThrow(new DataAccessException("") {
         });
 

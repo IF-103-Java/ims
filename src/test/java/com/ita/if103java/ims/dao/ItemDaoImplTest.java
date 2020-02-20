@@ -67,6 +67,7 @@ public class ItemDaoImplTest {
     @BeforeEach
     void setUp() throws SQLException {
         MockitoAnnotations.initMocks(this);
+
         when(this.jdbcTemplate.getDataSource()).thenReturn(dataSource);
         when(this.dataSource.getConnection()).thenReturn(this.connection);
         when(this.connection.prepareStatement(anyString(), anyInt())).thenReturn(this.preparedStatement);
@@ -122,53 +123,61 @@ public class ItemDaoImplTest {
     @Test
     void testCreate_omittedNotNullFields() {
         when(this.keyHolder.getKey()).thenReturn(null);
+
         item = new Item();
+
         assertThrows(CRUDException.class, () -> itemDaoImpl.addItem(item));
     }
 
     @Test
     void testGetItems_successFlow() {
-        for (Item item : items) {
-            itemDaoImpl.addItem(item);
-        }
         List<Item> newItems = new ArrayList<>();
         newItems.add(items.get(0));
+
         PageRequest pageable = PageRequest.of(0, 3, Sort.Direction.ASC, "id");
+
         when(jdbcTemplate
             .query(anyString(), ArgumentMatchers.<ItemRowMapper>any(), eq(accountId), eq(pageable.getPageSize()),
                 eq(pageable.getOffset())))
             .thenReturn(newItems);
+
         Integer expectedCount = 1;
+
         List<Item> resultList = itemDaoImpl.getItems(accountId, pageable.getPageSize(), pageable.getOffset(),
             pageable.getSort());
+
         assertEquals(expectedCount, resultList.size());
     }
 
     @Test
     void testGetItems_omittedFlowNotSorted() {
-        for (Item item : items) {
-            itemDaoImpl.addItem(item);
-        }
         List<Item> newItems = new ArrayList<>();
         newItems.add(items.get(0));
+
         PageRequest pageable = PageRequest.of(0, 3);
+
         when(jdbcTemplate
             .query(anyString(), ArgumentMatchers.<ItemRowMapper>any(), eq(accountId), eq(pageable.getPageSize()),
                 eq(pageable.getOffset())))
             .thenReturn(newItems);
+
         Integer expectedCount = 1;
+
         List<Item> resultList = itemDaoImpl.getItems(accountId, pageable.getPageSize(), pageable.getOffset(),
             pageable.getSort());
+
         assertEquals(expectedCount, resultList.size());
     }
 
     @Test
     void testGetItems_omittedFlowCRUDException() {
         PageRequest pageable = PageRequest.of(0, 3);
+
         when(jdbcTemplate
             .query(anyString(), ArgumentMatchers.<ItemRowMapper>any(), eq(accountId), eq(pageable.getPageSize()),
                 eq(pageable.getOffset()))).thenThrow(new DataAccessException("") {
         });
+
         assertThrows(CRUDException.class, () -> itemDaoImpl.getItems(accountId, pageable.getPageSize(),
             pageable.getOffset(), pageable.getSort()));
     }
@@ -176,8 +185,10 @@ public class ItemDaoImplTest {
     @Test
     public void testCountItemsById_successFlow() {
         Integer count = 3;
+
         when(this.jdbcTemplate.queryForObject(anyString(), eq(Integer.class), anyLong()))
             .thenReturn(count);
+
         assertEquals(count, itemDaoImpl.countItemsById(accountId));
     }
 
@@ -186,6 +197,7 @@ public class ItemDaoImplTest {
         when(this.jdbcTemplate.queryForObject(anyString(), eq(Integer.class), anyLong()))
             .thenThrow(new DataAccessException("") {
             });
+
         assertThrows(CRUDException.class, () -> itemDaoImpl.countItemsById(accountId));
     }
 
@@ -194,6 +206,7 @@ public class ItemDaoImplTest {
         when(jdbcTemplate.queryForObject(anyString(), ArgumentMatchers.<ItemRowMapper>any(), anyLong(),
             anyString()))
             .thenReturn(item);
+
         assertEquals(item, itemDaoImpl.findItemByName(item.getName(), accountId));
     }
 
@@ -202,6 +215,7 @@ public class ItemDaoImplTest {
         when(jdbcTemplate.queryForObject(anyString(), ArgumentMatchers.<ItemRowMapper>any(), anyLong(),
             anyString())).thenThrow(new EmptyResultDataAccessException(1) {
         });
+
         assertNull(itemDaoImpl.findItemByName(item.getName(), accountId));
     }
 
@@ -210,6 +224,7 @@ public class ItemDaoImplTest {
         when(jdbcTemplate.queryForObject(anyString(), ArgumentMatchers.<ItemRowMapper>any(), anyLong(),
             anyString())).thenThrow(new DataAccessException("") {
         });
+
         CRUDException exception = assertThrows(CRUDException.class, () -> itemDaoImpl.findItemByName(item.getName(),
             accountId));
         assertEquals(exception.getMessage(), "Failed during `select` {name = " + item.getName() + "}");
@@ -219,6 +234,7 @@ public class ItemDaoImplTest {
     public void testFindItemByAccountId_successFlow() {
         when(jdbcTemplate.query(anyString(), ArgumentMatchers.<ItemRowMapper>any(), anyLong()))
             .thenReturn(items);
+
         assertEquals(items, itemDaoImpl.findItemByAccountId(accountId));
     }
 
@@ -227,6 +243,7 @@ public class ItemDaoImplTest {
         when(jdbcTemplate.query(anyString(), ArgumentMatchers.<ItemRowMapper>any(), anyLong()))
             .thenThrow(new EmptyResultDataAccessException(1) {
             });
+
         ItemNotFoundException exception =
             assertThrows(ItemNotFoundException.class, () -> itemDaoImpl.findItemByAccountId(accountId));
         assertEquals(exception.getMessage(), "Failed to get item during `select` {account_id = " + accountId + "}");
@@ -237,6 +254,7 @@ public class ItemDaoImplTest {
         when(jdbcTemplate.query(anyString(), ArgumentMatchers.<ItemRowMapper>any(), anyLong()))
             .thenThrow(new DataAccessException("") {
             });
+
         CRUDException exception = assertThrows(CRUDException.class, () -> itemDaoImpl.findItemByAccountId(accountId));
         assertEquals(exception.getMessage(), "Failed during `select` {account_id = " + accountId + "}");
     }
@@ -244,17 +262,21 @@ public class ItemDaoImplTest {
     @Test
     void findItemById_successFlow() {
         Long itemId = 2L;
+
         when(jdbcTemplate.queryForObject(anyString(), ArgumentMatchers.<ItemRowMapper>any(), anyLong(),
             anyLong())).thenReturn(item);
+
         assertEquals(item, itemDaoImpl.findItemById(itemId, accountId));
     }
 
     @Test
     void findItemById_omittedFlow() {
         Long itemId = 2L;
+
         when(jdbcTemplate.queryForObject(anyString(), ArgumentMatchers.<ItemRowMapper>any(), anyLong(),
             anyLong())).thenThrow(new EmptyResultDataAccessException(1) {
         });
+
         ItemNotFoundException exception =
             assertThrows(ItemNotFoundException.class, () -> itemDaoImpl.findItemById(itemId,
                 accountId));
@@ -264,9 +286,11 @@ public class ItemDaoImplTest {
     @Test
     void findItemById_omittedFlowCRUDException() {
         Long itemId = 2L;
+
         when(jdbcTemplate.queryForObject(anyString(), ArgumentMatchers.<ItemRowMapper>any(), anyLong(),
             anyLong())).thenThrow(new DataAccessException("") {
         });
+
         CRUDException exception = assertThrows(CRUDException.class, () -> itemDaoImpl.findItemById(itemId,
             accountId));
         assertEquals(exception.getMessage(), "Failed during `select` {id = " + itemId + "}");
@@ -275,17 +299,21 @@ public class ItemDaoImplTest {
     @Test
     void findItemsById_successFlow() {
         String ids = "1, 4, 8";
+
         when(jdbcTemplate.query(anyString(), ArgumentMatchers.<ItemRowMapper>any(), anyLong()))
             .thenReturn(items);
+
         assertEquals(items, itemDaoImpl.findItemsById(ids, accountId));
     }
 
     @Test
     void findItemsById_omittedFlow() {
         String ids = "1, 4, 8";
+
         when(jdbcTemplate.query(anyString(), ArgumentMatchers.<ItemRowMapper>any(), anyLong()))
             .thenThrow(new EmptyResultDataAccessException(1) {
             });
+
         ItemNotFoundException exception = assertThrows(ItemNotFoundException.class, () -> itemDaoImpl.findItemsById(ids,
             accountId));
         assertEquals(exception.getMessage(), "Failed to get item during `select` {id = " + ids + "}");
@@ -294,9 +322,11 @@ public class ItemDaoImplTest {
     @Test
     void findItemsById_omittedFlowCRUDException() {
         String ids = "1, 4, 8";
+
         when(jdbcTemplate.query(anyString(), ArgumentMatchers.<ItemRowMapper>any(), anyLong()))
             .thenThrow(new DataAccessException("") {
             });
+
         CRUDException exception = assertThrows(CRUDException.class, () -> itemDaoImpl.findItemsById(ids,
             accountId));
         assertEquals(exception.getMessage(), "Failed during `select` {id = " + ids + "}");
@@ -305,17 +335,21 @@ public class ItemDaoImplTest {
     @Test
     void isExistItemById_successFlow() {
         Long itemId = 2L;
+
         when(jdbcTemplate.queryForObject(anyString(), ArgumentMatchers.<RowMapper<Boolean>>any(), anyLong(),
             anyLong())).thenReturn(true);
+
         assertEquals(true, itemDaoImpl.isExistItemById(itemId, accountId));
     }
 
     @Test
     void isExistItemById_omittedFlow() {
         Long itemId = 2L;
+
         when(jdbcTemplate.queryForObject(anyString(), ArgumentMatchers.<RowMapper<Boolean>>any(), anyLong(),
             anyLong())).thenThrow(new EmptyResultDataAccessException(1) {
         });
+
         ItemNotFoundException exception = assertThrows(ItemNotFoundException.class,
             () -> itemDaoImpl.isExistItemById(itemId,
                 accountId));
@@ -325,9 +359,11 @@ public class ItemDaoImplTest {
     @Test
     void isExistItemById_omittedFlowCRUDException() {
         Long itemId = 2L;
+
         when(jdbcTemplate.queryForObject(anyString(), ArgumentMatchers.<RowMapper<Boolean>>any(), anyLong(),
             anyLong())).thenThrow(new DataAccessException("") {
         });
+
         CRUDException exception = assertThrows(CRUDException.class,
             () -> itemDaoImpl.isExistItemById(itemId,
                 accountId));
@@ -337,16 +373,20 @@ public class ItemDaoImplTest {
     @Test
     void softDeleteItem_successFlow() {
         Long itemId = 2L;
+
         when(jdbcTemplate.update(anyString(), eq(false), anyLong(),
             anyLong())).thenReturn(1);
+
         assertEquals(true, itemDaoImpl.softDeleteItem(itemId, accountId));
     }
 
     @Test
     void softDeleteItem_omittedFlow() {
         Long itemId = 2L;
+
         when(jdbcTemplate.update(anyString(), eq(false), anyLong(),
             anyLong())).thenReturn(0);
+
         assertThrows(ItemNotFoundException.class,
             () -> itemDaoImpl.softDeleteItem(itemId, accountId));
     }
@@ -354,9 +394,11 @@ public class ItemDaoImplTest {
     @Test
     void softDeleteItem_omittedFlowCRUDException() {
         Long itemId = 2L;
+
         when(jdbcTemplate.update(anyString(), eq(false), anyLong(),
             anyLong())).thenThrow(new DataAccessException("") {
         });
+
         CRUDException exception =
             assertThrows(CRUDException.class, () -> itemDaoImpl.softDeleteItem(itemId, accountId));
         assertEquals("Error during soft `delete` {name = " + itemId + "}", exception.getMessage());
@@ -365,7 +407,9 @@ public class ItemDaoImplTest {
     @Test
     void hardDeleteItem_successFlow() {
         when(jdbcTemplate.update(anyString(), anyLong())).thenReturn(1);
+
         itemDaoImpl.hardDelete(accountId);
+
         verify(jdbcTemplate, times(1)).update(anyString(), eq(accountId));
     }
 
@@ -373,6 +417,7 @@ public class ItemDaoImplTest {
     void hardDeleteItem_omittedFlowCRUDException() {
         when(jdbcTemplate.update(anyString(), anyLong())).thenThrow(new DataAccessException("") {
         });
+
         CRUDException exception = assertThrows(CRUDException.class, () -> itemDaoImpl.hardDelete(accountId));
         assertEquals("Error during hard `delete` item {accountId = " + accountId + "}", exception.getMessage());
     }
@@ -380,43 +425,53 @@ public class ItemDaoImplTest {
     @Test
     void findItemsByNameQuery_successFlow() {
         String query = "Fish";
+
         when(jdbcTemplate.query(anyString(), ArgumentMatchers.<ItemRowMapper>any(), anyString(), anyLong()))
             .thenReturn(items);
+
         assertEquals(items, itemDaoImpl.findItemsByNameQuery(query, accountId));
     }
 
     @Test
     void findItemsByNameQuery_omittedFlowCRUDException() {
         String query = "Fish";
+
         when(jdbcTemplate.query(anyString(), ArgumentMatchers.<ItemRowMapper>any(), anyString(), anyLong()))
             .thenThrow(new DataAccessException("") {
             });
+
         assertThrows(CRUDException.class, () -> itemDaoImpl.findItemsByNameQuery(query, accountId));
     }
 
     @Test
     void updateItem_successFlow() {
         item.setId(1L);
+
         when(jdbcTemplate.update(anyString(), anyString(), anyString(), anyString(), anyInt(), anyLong(),
             anyLong())).thenReturn(1);
+
         assertEquals(item, itemDaoImpl.updateItem(item));
     }
 
     @Test
     void updateItem_omittedFlow() {
         item.setId(1L);
+
         when(jdbcTemplate.update(anyString(), anyString(), anyString(), anyString(), anyInt(), anyLong(),
             anyLong())).thenReturn(0);
+
         ItemNotFoundException exception = assertThrows(ItemNotFoundException.class, () -> itemDaoImpl.updateItem(item));
-        assertEquals("Failed to get savedItem during `update` {id" + item.getId() + "}", exception.getMessage());
+        assertEquals("Failed to get item during `update` {id" + item.getId() + "}", exception.getMessage());
     }
 
     @Test
     void updateItem_omittedFlowCRUDException() {
         item.setId(1L);
+
         when(jdbcTemplate.update(anyString(), anyString(), anyString(), anyString(), anyInt(), anyLong(),
             anyLong())).thenThrow(new DataAccessException("") {
         });
+
         CRUDException exception = assertThrows(CRUDException.class, () -> itemDaoImpl.updateItem(item));
         assertEquals("Error during `update` {id " + item.getId() + "}", exception.getMessage());
     }

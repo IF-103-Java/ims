@@ -147,7 +147,7 @@ public class ItemDaoImpl implements ItemDao {
         statement.setString(++i, item.getDescription());
         statement.setInt(++i, item.getVolume());
         statement.setBoolean(++i, item.isActive());
-        statement.setObject(++i, item.getAccountId());
+        statement.setLong(++i, item.getAccountId());
         return statement;
     }
 
@@ -196,7 +196,7 @@ public class ItemDaoImpl implements ItemDao {
             throw new CRUDException("Error during `update` {id " + item.getId() + "}", e);
         }
         if (status == 0) {
-            throw new ItemNotFoundException("Failed to get savedItem during `update` {id" + item.getId() + "}");
+            throw new ItemNotFoundException("Failed to get item during `update` {id" + item.getId() + "}");
         }
         return item;
     }
