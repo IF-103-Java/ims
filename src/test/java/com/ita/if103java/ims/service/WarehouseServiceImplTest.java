@@ -13,6 +13,7 @@ import com.ita.if103java.ims.entity.Role;
 import com.ita.if103java.ims.entity.SavedItem;
 import com.ita.if103java.ims.entity.User;
 import com.ita.if103java.ims.entity.Warehouse;
+import com.ita.if103java.ims.exception.service.MaxWarehouseDepthLimitReachedException;
 import com.ita.if103java.ims.exception.service.WarehouseDeleteException;
 import com.ita.if103java.ims.exception.service.WarehouseUpdateException;
 import com.ita.if103java.ims.mapper.dto.AddressDtoMapper;
@@ -43,6 +44,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -103,6 +106,7 @@ public class WarehouseServiceImplTest {
         int quantity = 2;
         int level = 0;
         int maxQuantity = userDetails.getAccountType().getMaxWarehouses();
+        WarehouseDto result = new WarehouseDto(1L, "WarehouseTop", "auto parts", 0, false, null,1L, null, true, addressDto);
         Warehouse warehouseCreate = new Warehouse(1L, "WarehouseTop", "auto parts", 0, false, null, 1L, null, true);
         warehouseDto.setParentID(null);
         Long accountId = topWarehouseDto.getAccountID();
@@ -124,6 +128,9 @@ public class WarehouseServiceImplTest {
         when(warehouseDtoMapper.toDto(warehouseCreate)).thenReturn(topWarehouseDto);
         topWarehouseDto.setAddressDto(addressDto);
 
+        assertEquals(result, topWarehouseDto );
+
+
     }
 
     @Test
@@ -137,14 +144,14 @@ public class WarehouseServiceImplTest {
         accountId = userDetails.getUser().getAccountId();
         int maxDepth = userDetails.getAccountType().getMaxWarehouseDepth();
         assertNotNull(warehouseDto.getParentID());
-        when(warehouseDao.findById(warehouseDto.getParentID(), accountId)).thenReturn(level3);
+        when(warehouseDao.findById(anyLong(), eq(accountId))).thenReturn(level3);
         when(warehouseDao.findLevelByParentID(level4DTO.getParentID())).thenReturn(3);
         assertFalse(level < maxDepth);
-//        MaxWarehouseDepthLimitReachedException exception = assertThrows(MaxWarehouseDepthLimitReachedException.class, () -> {
-//            warehouseService.add(level4DTO, userDetails);
-//        });
-//        assertEquals("The maximum depth of warehouse's levels has been reached for this" +
-//        "{accountId = " + accountId + "}", exception.getMessage());
+        MaxWarehouseDepthLimitReachedException exception = assertThrows(MaxWarehouseDepthLimitReachedException.class, () -> {
+            warehouseService.add(level4DTO, userDetails);
+        });
+        assertEquals("The maximum depth of warehouse's levels has been reached for this" +
+        "{accountId = " + accountId + "}", exception.getMessage());
 
     }
 
