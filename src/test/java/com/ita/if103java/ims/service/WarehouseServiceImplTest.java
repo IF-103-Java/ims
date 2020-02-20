@@ -214,26 +214,6 @@ public class WarehouseServiceImplTest {
     }
 
     @Test
-    void update_notAllowChangeParent() {
-        Warehouse updatedWarehouse = new Warehouse(12L, "updatedWarehouse", "auto parts", 20, true, 5L, 1L, 4L, true);
-        Warehouse dBWarehouse = new Warehouse(12L, "dBWarehouse", "auto parts", 20, true, 5L, 1L, 4L, true);
-        warehouseDto = new WarehouseDto(12L, "WarehouseTest", "auto parts", 20, true, 5L, 1L, 4L, true, null);
-
-        when(warehouseDtoMapper.toEntity(warehouseDto)).thenReturn(updatedWarehouse);
-        when(warehouseDao.findById(updatedWarehouse.getId(), updatedWarehouse.getAccountID())).thenReturn(dBWarehouse);
-        warehouseDto.setId(3L);
-        assertTrue(updatedWarehouse.isActive());
-        updatedWarehouse.setActive(true);
-        if (!updatedWarehouse.getParentID().equals(dBWarehouse.getParentID())) {
-            WarehouseUpdateException exception = assertThrows(WarehouseUpdateException.class, () -> {
-                warehouseService.update(warehouseDto, userDetails);
-            });
-            assertEquals("You can't change parent warehouse!", exception.getMessage());
-        }
-    }
-
-
-    @Test
     void findWarehousesByTopLevelId_Test() {
         List<Warehouse> warehouseList = Arrays.asList(
             new Warehouse(4L, "Store2", "auto parts", 0, false, 2L, 2L,
