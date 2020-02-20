@@ -41,11 +41,11 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertLinesMatch;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertLinesMatch;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
@@ -107,9 +107,8 @@ public class WarehouseServiceImplTest {
     @Test
     public void add_successFlow() {
         int quantity = 2;
-        int level = 0;
         int maxQuantity = userDetails.getAccountType().getMaxWarehouses();
-        WarehouseDto result = new WarehouseDto(1L, "WarehouseTop", "auto parts", 0, false, null,1L, null, true, addressDto);
+        WarehouseDto result = new WarehouseDto(1L, "WarehouseTop", "auto parts", 0, false, null, 1L, null, true, addressDto);
         Warehouse warehouseCreate = new Warehouse(1L, "WarehouseTop", "auto parts", 0, false, null, 1L, null, true);
         warehouseDto.setParentID(null);
         Long accountId = topWarehouseDto.getAccountID();
@@ -123,17 +122,14 @@ public class WarehouseServiceImplTest {
         when(addressDtoMapper.toDto(address)).thenReturn(addressDto);
 
         Event event = new Event("Warehouse created " +
-            warehouse.getName(), accountId,
-            warehouse.getId(), 1L, EventName.WAREHOUSE_CREATED, 2L);
+            topWarehouseDto.getName(), accountId,
+            topWarehouseDto.getId(), 1L, EventName.WAREHOUSE_CREATED, 2L);
         doNothing().when(eventService).create(event);
 //      verify(eventService, times(1)).create(event);
 //         //form a return DTO
         when(warehouseDtoMapper.toDto(warehouseCreate)).thenReturn(topWarehouseDto);
         topWarehouseDto.setAddressDto(addressDto);
-
-//        assertEquals(result, topWarehouseDto );
-
-
+        assertEquals(warehouseService.add(result, userDetails), topWarehouseDto);
     }
 
     @Test
@@ -154,7 +150,7 @@ public class WarehouseServiceImplTest {
             warehouseService.add(level4DTO, userDetails);
         });
         assertEquals("The maximum depth of warehouse's levels has been reached for this" +
-        "{accountId = " + accountId + "}", exception.getMessage());
+            "{accountId = " + accountId + "}", exception.getMessage());
 
     }
 
@@ -204,30 +200,6 @@ public class WarehouseServiceImplTest {
         warehouseDtoList.get(1).setAddressDto(addressDto);
         warehouseDtoList.get(2).setAddressDto(addressDto);
         assertEquals(warehouseService.findAllTopLevel(pageable, userDetails), page);
-    }
-
-    @Test
-    void update_success(){
-        Warehouse topLevel = new Warehouse(4L, "updatedWarehouse", "auto parts", null, false, null, 1L, 4L, true);
-
-        Warehouse updatedWarehouse = new Warehouse(12L, "updatedWarehouse", "auto parts", 20, true, null, 1L, 4L, true);
-        Warehouse dBWarehouse = new Warehouse(12L, "dBWarehouse", "auto parts", 20, true, 5L, 1L, 4L, true);
-        warehouseDto = new WarehouseDto(12L, "WarehouseTest", "auto parts", 20, true, null, 1L, 4L, true, addressDto);
-
-        when(warehouseDtoMapper.toEntity(warehouseDto)).thenReturn(updatedWarehouse);
-        when(warehouseDao.findById(updatedWarehouse.getId(), dBWarehouse.getAccountID())).thenReturn(dBWarehouse);
-        assertTrue(dBWarehouse.isActive());
-        when(addressDtoMapper.toEntity(warehouseDto.getAddressDto())).thenReturn(address);
-        Event event = new Event("Warehouse edited " +
-            updatedWarehouse.getName(), updatedWarehouse.getAccountID(),
-            updatedWarehouse.getId(), 1L, EventName.WAREHOUSE_EDITED, 2L);
-        doNothing().when(eventService).create(event);
-        when(warehouseDao.update(dBWarehouse)).thenReturn(updatedWarehouse);
-        assertTrue(updatedWarehouse.isTopLevel());
-
-        when(warehouseDao.findLevelByParentID(dBWarehouse.getParentID())).thenReturn(2);
-        when(warehouseDao.findByTopWarehouseID(4L, 1L)).thenReturn(List.of());
-        assertEquals(warehouseService.update(warehouseDto, userDetails), updatedWarehouse);
     }
 
     @Test
@@ -383,7 +355,7 @@ public class WarehouseServiceImplTest {
     }
 
     @Test
-    void findUsefulWarehouses(){
+    void findUsefulWarehouses() {
         Long capacity = 8L;
         User user = new User();
         user.setAccountId(2L);
@@ -397,16 +369,16 @@ public class WarehouseServiceImplTest {
         usefulWarehouse.add(sectionB);
         List<Warehouse> usefulTopWarehouse = new ArrayList<>();
         Warehouse warehouseA = new Warehouse(1L, "WarehouseA", "some info", 0, false, null, 2L, 1L, true);
-        Warehouse warehouseB =new Warehouse(2L, "WarehouseB", "some info", 0, false, null, 2L, 2L, true);
+        Warehouse warehouseB = new Warehouse(2L, "WarehouseB", "some info", 0, false, null, 2L, 2L, true);
         usefulTopWarehouse.add(warehouseA);
         usefulTopWarehouse.add(warehouseB);
         usefulTopWarehouse.add(sectionA);
         usefulTopWarehouse.add(sectionB);
         when(warehouseDao.findUsefulTopWarehouse(capacity, accountId)).thenReturn(usefulWarehouse);
-        String ids =  usefulWarehouse.stream().
+        String ids = usefulWarehouse.stream().
             map(x -> x.getTopWarehouseID().toString()).collect(Collectors.joining(","));
         when(warehouseDao.findByTopWarehouseIDs(ids, accountId)).thenReturn(usefulTopWarehouse);
-        List<UsefulWarehouseDto> usefulWarehouseDtos =  warehouseService.findUsefulWarehouses(capacity, userDetails);
+        List<UsefulWarehouseDto> usefulWarehouseDtos = warehouseService.findUsefulWarehouses(capacity, userDetails);
         when(savedItemService.toVolumeOfPassSavedItems(anyLong(), anyLong())).thenReturn(5F);
         assertLinesMatch(usefulWarehouseDtos.get(0).getPath(), List.of("WarehouseA", "SectionA"));
         assertLinesMatch(usefulWarehouseDtos.get(1).getPath(), List.of("WarehouseB", "SectionB"));
