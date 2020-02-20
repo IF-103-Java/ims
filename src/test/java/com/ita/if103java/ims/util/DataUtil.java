@@ -1,4 +1,4 @@
-package com.ita.if103java.ims;
+package com.ita.if103java.ims.util;
 
 import com.ita.if103java.ims.entity.Role;
 import com.ita.if103java.ims.entity.User;

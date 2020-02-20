@@ -2,7 +2,6 @@ package com.ita.if103java.ims.dao;
 
 import com.ita.if103java.ims.config.GeneratedKeyHolderFactory;
 import com.ita.if103java.ims.dao.impl.UserDaoImpl;
-import com.ita.if103java.ims.entity.Role;
 import com.ita.if103java.ims.entity.User;
 import com.ita.if103java.ims.exception.dao.CRUDException;
 import com.ita.if103java.ims.exception.dao.UserNotFoundException;
@@ -29,10 +28,9 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
-import static com.ita.if103java.ims.DataUtil.getListOfUsers;
-import static com.ita.if103java.ims.DataUtil.getTestUser;
+import static com.ita.if103java.ims.util.DataUtil.getListOfUsers;
+import static com.ita.if103java.ims.util.DataUtil.getTestUser;
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -62,12 +60,16 @@ public class UserDaoImplTest {
     private GeneratedKeyHolderFactory generatedKeyHolderFactory;
     @Mock
     private PasswordEncoder passwordEncoder;
-
     @InjectMocks
     private UserDaoImpl userDao;
 
     private User user;
+    private Long fakeId;
     private ZonedDateTime currentDateTime = ZonedDateTime.now(ZoneId.systemDefault());
+
+    private final UserNotFoundException userNotFoundException = new UserNotFoundException();
+    private final CRUDException crudException = new CRUDException();
+
 
     @BeforeEach
     void setUp() throws SQLException {
@@ -84,6 +86,7 @@ public class UserDaoImplTest {
         // Initializing test user
         user = getTestUser();
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        fakeId = 100l;
     }
 
     @Test
@@ -121,11 +124,42 @@ public class UserDaoImplTest {
     }
 
     @Test
+    void testFindById_notFoundException() {
+        when(jdbcTemplate.queryForObject(anyString(), ArgumentMatchers.<UserRowMapper>any(), eq(fakeId)))
+            .thenThrow(userNotFoundException);
+
+        assertThrows(UserNotFoundException.class, () -> userDao.findById(fakeId));
+    }
+
+
+    @Test
+    void testFindById_crudException() {
+        String fakeQuery = """
+                SELECT *
+                FROM users
+                WHERE id = ?
+                AND active = 1
+            """;
+        when(jdbcTemplate.queryForObject(eq(fakeQuery), ArgumentMatchers.<UserRowMapper>any(), eq(user.getId())))
+            .thenThrow(crudException);
+
+        assertThrows(CRUDException.class, () -> userDao.findById(user.getId()));
+    }
+
+    @Test
     void testFindAdminByAccountId_successFlow() {
         when(this.jdbcTemplate.queryForObject(anyString(), ArgumentMatchers.<UserRowMapper>any(), anyLong()))
             .thenReturn(user);
 
         assertEquals(user, userDao.findAdminByAccountId(user.getAccountId()));
+    }
+
+    @Test
+    void testFindAdminByAccountId_notFoundException() {
+        when(jdbcTemplate.queryForObject(anyString(), ArgumentMatchers.<UserRowMapper>any(), eq(fakeId)))
+            .thenThrow(userNotFoundException);
+
+        assertThrows(UserNotFoundException.class, () -> userDao.findAdminByAccountId(fakeId));
     }
 
     @Test
@@ -145,7 +179,7 @@ public class UserDaoImplTest {
         when(jdbcTemplate.query(anyString(), ArgumentMatchers.<UserRowMapper>any(), anyLong(), anyInt(), anyLong()))
             .thenReturn(newList);
 
-        // First 3 users (should return 1, because there is only 1 user with role worker and is active in db)
+        // First 3 users (should return 1, because there is only 1 user with role WORKER and an active status in db)
         Integer expectedCount = 1;
         List<User> resultUserList = userDao.findAll(pageable, user.getAccountId());
         assertEquals(expectedCount, resultUserList.size());

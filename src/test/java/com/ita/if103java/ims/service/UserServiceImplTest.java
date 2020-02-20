@@ -38,9 +38,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.ita.if103java.ims.DataUtil.getListOfUsers;
-import static com.ita.if103java.ims.DataUtil.getTestUser;
-import static org.assertj.core.api.Assertions.assertThat;
+import static com.ita.if103java.ims.util.DataUtil.getListOfUsers;
+import static com.ita.if103java.ims.util.DataUtil.getTestUser;
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -238,16 +237,11 @@ public class UserServiceImplTest {
         when(userDao.findAll(pageable, userDto.getAccountId())).thenReturn(expectedUsers);
         when(userDao.countOfUsers(userDto.getAccountId())).thenReturn(expectedUsers.size());
 
-        // First 3 users (should return 1, because there is only 1 user with role worker and is active in db)
+        // First 3 users (should return 1, because there is only 1 user with role WORKER and an active status in db)
         Page<UserDto> resultUserList = userService.findAll(pageable, userDto.getAccountId());
         assertEquals(expectedUsers.size(), resultUserList.getContent().size());
 
-        for (int i = 0; i < expectedUsers.size(); i++) {
-            assertThat(expectedUsers.get(i)).isEqualToIgnoringGivenFields(
-                mapper.toEntity(resultUserList.getContent().get(i)),
-                "password", "emailUUID"
-            );
-        }
+        assertEquals(expectedUsers, mapper.toEntityList(resultUserList.getContent()));
 
     }
 

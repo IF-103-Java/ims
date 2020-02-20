@@ -1,7 +1,6 @@
-package com.ita.if103java.ims.contoller;
+package com.ita.if103java.ims.controller;
 
 
-import com.ita.if103java.ims.controller.EventController;
 import com.ita.if103java.ims.dto.EventDto;
 import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.EventService;

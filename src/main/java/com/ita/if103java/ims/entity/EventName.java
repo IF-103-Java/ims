@@ -75,4 +75,5 @@ public enum EventName {
     public boolean isNotification() {
         return isNotification;
     }
+
 }

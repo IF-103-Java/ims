@@ -96,7 +96,6 @@ public class DashboardDaoImpl implements DashboardDao {
     @Override
     public Page<EndingItemsDto> findEndedItemsByAccountId(Pageable pageable, int minQuantity, Long accountId) {
         try {
-
             List<EndingItemsDto> endingItems = jdbcTemplate.query(
                 String.format(Queries.SQL_FIND_ENDED_ITEMS_BY_ACCOUNT_ID, getOrder(pageable.getSort())),
                 endingItemsRowMapper, minQuantity, accountId, pageable.getPageSize(), pageable.getOffset());
@@ -119,9 +118,8 @@ public class DashboardDaoImpl implements DashboardDao {
         try {
             WarehousePremiumStructDto wpld = jdbcTemplate.queryForObject(Queries.SQL_WAREHOUSE_STRUCTURE_PRIMARY,
                 warehousePremiumStructRowMapper, id, accountId);
-            wpld.setLevel(0);
 
-            wpld.setChilds(findWarehouseStructureAndBottomLoad(id, id, wpld.getLevel(), accountId));
+            wpld.setChilds(findWarehouseStructureAndBottomLoad(id, id, accountId));
 
             recursiceWarehouseDataFiller(wpld);
 
@@ -135,14 +133,13 @@ public class DashboardDaoImpl implements DashboardDao {
     }
 
     private List<WarehousePremiumStructDto> findWarehouseStructureAndBottomLoad(Long id, Long topWarehouseId,
-                                                                                int level, Long accountId) {
+                                                                                Long accountId) {
         try {
             List<WarehousePremiumStructDto> wpld = jdbcTemplate.query(Queries.SQL_WAREHOUSE_STRUCTURE_SUB,
                 warehousePremiumStructRowMapper, id, accountId);
             for (WarehousePremiumStructDto warehouseItem : wpld) {
-                warehouseItem.setLevel(level + 1);
                 warehouseItem.setChilds(findWarehouseStructureAndBottomLoad(warehouseItem.getId(), topWarehouseId,
-                    warehouseItem.getLevel(), accountId));
+                    accountId));
                 if (warehouseItem.getChilds().size() == 0) {
                     ChargeCapacity chargeCapacity = jdbcTemplate.queryForObject(Queries.SQL_FIND_BOT_CAPACITY_CHARGE,
                         chargeCapacityRowMapper, topWarehouseId, warehouseItem.getId(), accountId);
@@ -176,8 +173,8 @@ public class DashboardDaoImpl implements DashboardDao {
     }
 
 
-    class Queries {
-        static final String SQL_FIND_POPULAR_ITEMS = """
+    public final class Queries {
+        public static final String SQL_FIND_POPULAR_ITEMS = """
                 SELECT it.name_item AS name,
                 sum(ts.quantity) AS quantity
                 FROM transactions ts
@@ -187,28 +184,28 @@ public class DashboardDaoImpl implements DashboardDao {
                 AND ts.account_id = ?
             """;
 
-        static final String SQL_POP_YEAR = """
+        public static final String SQL_POP_YEAR = """
                 AND year(?)=year(ts.timestamp)
             """;
 
-        static final String SQL_POP_MONTH = """
+        public static final String SQL_POP_MONTH = """
                 AND year(?)=year(ts.timestamp)
                 AND month(?)=month(ts.timestamp)
             """;
 
-        static final String SQL_ATR_POP = """
+        public static final String SQL_ATR_POP = """
                 GROUP BY ts.item_id, name
                 ORDER BY sum(ts.quantity) DESC, name DESC
                 LIMIT ?
             """;
 
-        static final String SQL_ATR_UNPOP = """
+        public static final String SQL_ATR_UNPOP = """
                 GROUP BY ts.item_id, name
                 ORDER BY sum(ts.quantity), name DESC
                 LIMIT ?
             """;
 
-        static final String SQL_FIND_WAREHOUSE_LOAD_BY_ACCOUNT_ID = """
+        public static final String SQL_FIND_WAREHOUSE_LOAD_BY_ACCOUNT_ID = """
                 SELECT top_warehouse_id id, cap.name, ifnull(sum(charge),0) charge, ifnull(sum(capacity),0) capacity
                  FROM
                  (SELECT warehouse_id, it.account_id, sum(quantity*volume) charge
@@ -228,7 +225,7 @@ public class DashboardDaoImpl implements DashboardDao {
                  GROUP BY top_warehouse_id
             """;
 
-        static final String SQL_FIND_ENDED_ITEMS_BY_ACCOUNT_ID = """
+        public static final String SQL_FIND_ENDED_ITEMS_BY_ACCOUNT_ID = """
                 SELECT wh.id, wh.name, it.name_item, si.quantity
                 FROM saved_items si
                 JOIN warehouses wh
@@ -241,7 +238,7 @@ public class DashboardDaoImpl implements DashboardDao {
                 LIMIT ?
                 OFFSET ?
             """;
-        static final String SQL_ROW_COUNT = """
+        public static final String SQL_ROW_COUNT = """
                 SELECT COUNT(wh.id)
                 FROM saved_items si
                 JOIN warehouses wh
@@ -252,7 +249,7 @@ public class DashboardDaoImpl implements DashboardDao {
                 AND wh.account_id = ?
             """;
 
-        static final String SQL_WAREHOUSE_STRUCTURE_PRIMARY = """
+        public static final String SQL_WAREHOUSE_STRUCTURE_PRIMARY = """
                 SELECT id, name
                 FROM warehouses
                 WHERE id=?
@@ -260,7 +257,7 @@ public class DashboardDaoImpl implements DashboardDao {
                 AND active = 1
             """;
 
-        static final String SQL_WAREHOUSE_STRUCTURE_SUB = """
+        public static final String SQL_WAREHOUSE_STRUCTURE_SUB = """
                 SELECT id, name
                 FROM warehouses
                 WHERE parent_id=?
@@ -268,7 +265,7 @@ public class DashboardDaoImpl implements DashboardDao {
                 AND active = 1
             """;
 
-        static final String SQL_FIND_BOT_CAPACITY_CHARGE = """
+        public static final String SQL_FIND_BOT_CAPACITY_CHARGE = """
                 SELECT id, ifnull(sum(charge),0) charge, ifnull(sum(capacity),0) capacity
                 FROM
                 (SELECT warehouse_id, it.account_id, sum(quantity*volume) charge

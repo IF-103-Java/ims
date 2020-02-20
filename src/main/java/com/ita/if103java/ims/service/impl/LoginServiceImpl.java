@@ -92,9 +92,9 @@ public class LoginServiceImpl implements LoginService {
             model.put("accountId", regUser.getAccountId().toString());
             model.put("accountType", type.getId().toString());
             model.put("role", regUser.getRole().toString());
-            return ok(model);
+            return ResponseEntity.ok(model);
         } catch (AuthenticationException e) {
-            throw new UserOrPasswordIncorrectException("Credential aren't correct", e);
+            throw new UserOrPasswordIncorrectException("Credentials aren't correct", e);
         }
 
     }
