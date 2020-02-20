@@ -1,10 +1,8 @@
 package com.ita.if103java.ims.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.ita.if103java.ims.dto.ItemDto;
-import com.ita.if103java.ims.exception.dao.CRUDException;
 import com.ita.if103java.ims.exception.dao.ItemNotFoundException;
 import com.ita.if103java.ims.exception.service.ItemDuplicateException;
 import com.ita.if103java.ims.handler.GlobalExceptionHandler;
@@ -41,7 +39,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -58,7 +55,6 @@ public class ItemControllerTest {
     private Pageable pageable;
     private ItemDuplicateException itemDuplicateException;
     private ItemNotFoundException itemNotFoundException;
-    private CRUDException crudException;
     private Long notValidId = 5L;
 
     @BeforeEach
@@ -88,8 +84,7 @@ public class ItemControllerTest {
         this.itemDto2.setVolume(5);
         this.itemDuplicateException = new ItemDuplicateException("Failed to create item, because exist the same ");
         this.itemNotFoundException = new ItemNotFoundException("Failed to get item during `select` {id = " + notValidId + "}");
-        this.crudException = new CRUDException("Failed to get item during `select` {id = " + notValidId + "}");
-    }
+      }
     @Test
     void addItem_successFlow() throws Exception {
         when(itemService.addItem(any(ItemDto.class), any(UserDetailsImpl.class))).thenReturn(itemDto);
