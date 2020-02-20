@@ -84,7 +84,8 @@ public class WarehouseServiceImpl implements WarehouseService {
                 throw new MaxWarehousesLimitReachedException("The maximum number of warehouses has been reached for this" +
                     "{accountId = " + accountId + "}");
             }
-        } else if (warehouseDao.findById(warehouseDto.getParentID(), accountId).isBottom()) {
+        }
+        else if (warehouseDao.findById(warehouseDto.getParentID(), accountId).isBottom()) {
             throw new WarehouseCreateException("The parent warehouse is bottom level");
         } else if (warehouseDto.isBottom() && warehouseDto.getCapacity() == 0) {
             throw new WarehouseCreateException("The capacity of bottom warehouse should be > 0");
@@ -143,7 +144,6 @@ public class WarehouseServiceImpl implements WarehouseService {
             warehouses.add(warehouseDto);
         }
         return new PageImpl<>(warehouses, pageable, warehouseQuantity);
-
     }
 
     @Override
@@ -236,10 +236,10 @@ public class WarehouseServiceImpl implements WarehouseService {
     @Override
     public boolean softDelete(Long id, UserDetailsImpl user) {
         Warehouse warehouse = warehouseDao.findById(id, user.getUser().getAccountId());
-        if (!CollectionUtils.isEmpty(warehouseDao.findChildrenById(warehouse.getParentID(), user.getUser().getAccountId()))) {
+        if (!CollectionUtils.isEmpty(warehouseDao.findChildrenById(id, user.getUser().getAccountId()))) {
             throw new WarehouseDeleteException("Warehouse has sub warehouses! Firstly you should delete them!");
         }
-        if (!savedItemDao.findSavedItemByWarehouseId(warehouse.getId()).isEmpty()) {
+        if (!CollectionUtils.isEmpty(savedItemDao.findSavedItemByWarehouseId(id))) {
             throw new WarehouseDeleteException("Warehouse is not empty! Firstly you should remove or transfer all items from that warehouse to another");
         }
         boolean isDelete = warehouseDao.softDelete(id);
@@ -279,7 +279,6 @@ public class WarehouseServiceImpl implements WarehouseService {
             Warehouse parentWarehouse = groupedWarehouses.get(warehouse.getParentID());
             List<String> parentPath;
             if (!parentWarehouse.getPath().isEmpty()) {
-
                 parentPath = parentWarehouse.getPath();
             } else {
                 parentPath = findPath(parentWarehouse, groupedWarehouses);
