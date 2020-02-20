@@ -1,6 +1,7 @@
 package com.ita.if103java.ims.controller;
 
 
+import com.ita.if103java.ims.dto.ResetPasswordDto;
 import com.ita.if103java.ims.dto.UserDto;
 import com.ita.if103java.ims.dto.transfer.ExistData;
 import com.ita.if103java.ims.mapper.dto.UserDtoMapper;
@@ -26,7 +27,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.NotNull;
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -51,7 +51,7 @@ public class UserController {
         return userService.findById(id);
     }
 
-    @GetMapping("/")
+    @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public UserDto findByEmail(@RequestParam("email") String email) {
         return userService.findByEmail(email);
@@ -93,11 +93,11 @@ public class UserController {
         return userService.activateUser(emailUUID);
     }
 
-    @PostMapping("/update-password")
+    @PutMapping("/update-password")
     @ResponseStatus(HttpStatus.OK)
     public boolean updatePassword(@AuthenticationPrincipal UserDetailsImpl user,
-                                  @Validated({ExistData.class}) @RequestBody @NotNull String newPassword) {
-        return userService.updatePassword(user.getUser().getId(), newPassword);
+                                  @Validated({ExistData.class})  @RequestBody ResetPasswordDto resetPasswordDto) {
+        return userService.updatePassword(mapper.toDto(user.getUser()), resetPasswordDto);
     }
 
     @GetMapping("/me")

@@ -1,7 +1,6 @@
 package com.ita.if103java.ims.entity;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -15,7 +14,6 @@ public class Warehouse {
     private Long accountID;
     private Long topWarehouseID;
     private boolean active;
-    private List<Warehouse> children;
     private List<String> path = new ArrayList<>();
 
     public Warehouse() {
@@ -32,7 +30,6 @@ public class Warehouse {
         this.accountID = accountID;
         this.topWarehouseID = topWarehouseID;
         this.active = active;
-        this.children = new ArrayList<>();
     }
 
     public boolean isTopLevel() {
@@ -111,10 +108,6 @@ public class Warehouse {
         this.active = active;
     }
 
-    public List<Warehouse> getChildren() {
-        return children;
-    }
-
     public List<String> getPath() {
         return path;
     }
@@ -134,7 +127,6 @@ public class Warehouse {
             ", parentID=" + parentID +
             ", accountID=" + accountID +
             ", active=" + active +
-            ", children=" + Arrays.toString(children.toArray()) +
             '}';
     }
 
@@ -150,13 +142,12 @@ public class Warehouse {
             accountID == warehouse.accountID &&
             capacity == warehouse.capacity &&
             isBottom == warehouse.isBottom &&
-            active == warehouse.active &&
-            Objects.equals(children, warehouse.children);
+            active == warehouse.active;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, info, capacity, isBottom, parentID, accountID, topWarehouseID, active, children);
+        return Objects.hash(name, info, capacity, isBottom, parentID, accountID, topWarehouseID, active);
     }
 }
 

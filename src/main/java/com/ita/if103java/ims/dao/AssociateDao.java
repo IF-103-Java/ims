@@ -1,9 +1,9 @@
 package com.ita.if103java.ims.dao;
 
 import com.ita.if103java.ims.entity.Associate;
+import com.ita.if103java.ims.entity.AssociateType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import com.ita.if103java.ims.entity.AssociateType;
 
 import java.util.List;
 
@@ -21,5 +21,7 @@ public interface AssociateDao {
 
     boolean delete(Long accountId, Long id);
 
-    List<Associate> getAssociatesByType(Long accountId,  AssociateType type);
+    boolean hardDelete(Long accountId);
+
+    List<Associate> getAssociatesByType(Long accountId, AssociateType type);
 }

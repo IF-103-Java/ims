@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/")
 public class LoginController {
@@ -27,8 +29,8 @@ public class LoginController {
         this.loginService = loginService;
     }
 
-    @PostMapping("/signin")
-    public ResponseEntity singIn(@RequestBody UserLoginDto userLoginDto) {
+    @PostMapping("/sign-in")
+    public ResponseEntity<Map<String, String>> singIn(@RequestBody UserLoginDto userLoginDto) {
         return loginService.signIn(userLoginDto);
     }
 

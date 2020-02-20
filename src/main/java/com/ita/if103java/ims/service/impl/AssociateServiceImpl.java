@@ -13,6 +13,7 @@ import com.ita.if103java.ims.entity.EventName;
 import com.ita.if103java.ims.exception.service.AssociateLimitReachedException;
 import com.ita.if103java.ims.mapper.dto.AddressDtoMapper;
 import com.ita.if103java.ims.mapper.dto.AssociateDtoMapper;
+import com.ita.if103java.ims.mapper.dto.SavedItemAssociateDtoMapper;
 import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.AssociateService;
 import com.ita.if103java.ims.service.EventService;
@@ -39,17 +40,20 @@ public class AssociateServiceImpl implements AssociateService {
     private AddressDtoMapper addressDtoMapper;
     private EventService eventService;
     private LocationService locationService;
+    private SavedItemAssociateDtoMapper savedItemAssociateDtoMapper;
 
     @Autowired
     public AssociateServiceImpl(AssociateDao associateDao, AddressDao addressDao,
                                 AssociateDtoMapper associateDtoMapper, AddressDtoMapper addressDtoMapper,
-                                EventService eventService, LocationService locationService) {
+                                EventService eventService, LocationService locationService,
+                                SavedItemAssociateDtoMapper savedItemAssociateDtoMapper) {
         this.associateDao = associateDao;
         this.addressDao = addressDao;
         this.associateDtoMapper = associateDtoMapper;
         this.addressDtoMapper = addressDtoMapper;
         this.eventService = eventService;
         this.locationService = locationService;
+        this.savedItemAssociateDtoMapper = savedItemAssociateDtoMapper;
     }
 
     @Override
@@ -177,7 +181,6 @@ public class AssociateServiceImpl implements AssociateService {
     @Override
     public List<SavedItemAssociateDto> getAssociatesByType(UserDetailsImpl user, AssociateType type) {
         return associateDao.getAssociatesByType(user.getUser().getAccountId(), type).stream().
-            map(x -> new SavedItemAssociateDto(x.getId(), x.getName(), x.getEmail(), x.getPhone())).
-            collect(Collectors.toList());
+            map(x -> savedItemAssociateDtoMapper.toDto(x)).collect(Collectors.toList());
     }
 }

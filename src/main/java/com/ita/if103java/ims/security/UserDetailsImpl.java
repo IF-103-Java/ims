@@ -47,6 +47,14 @@ public class UserDetailsImpl implements UserDetails {
         return accountType;
     }
 
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public void setAccountType(AccountType accountType) {
+        this.accountType = accountType;
+    }
+
     @Override
     public String getPassword() {
         return user.getPassword();

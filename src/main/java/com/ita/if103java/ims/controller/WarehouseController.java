@@ -1,5 +1,6 @@
 package com.ita.if103java.ims.controller;
 
+import com.ita.if103java.ims.dto.UsefulWarehouseDto;
 import com.ita.if103java.ims.dto.WarehouseDto;
 import com.ita.if103java.ims.security.UserDetailsImpl;
 import com.ita.if103java.ims.service.WarehouseService;
@@ -59,12 +60,11 @@ public class WarehouseController {
         return warehouseService.findWarehousesByTopLevelId(topWarehouseId, user);
     }
 
-    @PutMapping("/update/{id}")
+    @PutMapping("/update/")
     @ResponseStatus(HttpStatus.OK)
     public WarehouseDto update(@RequestBody WarehouseDto warehouseDto,
-                               @PathVariable("id") Long id,
                                @AuthenticationPrincipal UserDetailsImpl user) {
-        warehouseDto.setId(id);
+
         return warehouseService.update(warehouseDto, user);
     }
 
@@ -98,5 +98,11 @@ public class WarehouseController {
     public List<WarehouseDto> getAllTopLevelList(@AuthenticationPrincipal UserDetailsImpl user) {
         return warehouseService.findAllTopLevelList(user);
 
+    }
+
+    @GetMapping(path = "/usefulWarehouses/{capacity}")
+    public List<UsefulWarehouseDto> findUsefulWarehouses(@PathVariable("capacity") Long capacity,
+                                                         @AuthenticationPrincipal UserDetailsImpl user) {
+        return warehouseService.findUsefulWarehouses(capacity, user);
     }
 }

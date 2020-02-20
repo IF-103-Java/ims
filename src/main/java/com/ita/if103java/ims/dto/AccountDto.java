@@ -1,5 +1,7 @@
 package com.ita.if103java.ims.dto;
 
+import java.util.Objects;
+
 public class AccountDto {
     private Long id;
     private String name;
@@ -47,5 +49,31 @@ public class AccountDto {
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AccountDto that = (AccountDto) o;
+        return active == that.active &&
+            Objects.equals(id, that.id) &&
+            Objects.equals(name, that.name) &&
+            Objects.equals(typeId, that.typeId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, typeId, active);
+    }
+
+    @Override
+    public String toString() {
+        return "AccountDto{" +
+            "id=" + id +
+            ", name='" + name + '\'' +
+            ", typeId=" + typeId +
+            ", active=" + active +
+            '}';
     }
 }

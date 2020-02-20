@@ -33,8 +33,10 @@ public interface WarehouseDao {
 
     Integer findTotalCapacity(Long id, Long accountId);
 
-    List<Warehouse> findUsefulWarehouses(Long capacity, Long accountId);
+    void hardDelete(Long accountId);
 
+    List<Warehouse> findUsefulTopWarehouse(Long capacity, Long accountId);
+
+    List<Warehouse> findByTopWarehouseIDs(String ids, Long accountId);
 
 }
-

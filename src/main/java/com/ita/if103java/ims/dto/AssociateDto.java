@@ -2,6 +2,8 @@ package com.ita.if103java.ims.dto;
 
 import com.ita.if103java.ims.entity.AssociateType;
 
+import java.util.Objects;
+
 public class AssociateDto {
 
     private Long id;
@@ -11,12 +13,14 @@ public class AssociateDto {
     private String phone;
     private String additionalInfo;
     private AssociateType type;
+    private boolean active;
     private AddressDto addressDto;
 
     public AssociateDto() {
     }
 
-    public AssociateDto(Long id, Long accountId, String name, String email, String phone, String additionalInfo, AssociateType type, AddressDto addressDto) {
+    public AssociateDto(Long id, Long accountId, String name, String email, String phone, String additionalInfo,
+                        AssociateType type, boolean active, AddressDto addressDto) {
         this.id = id;
         this.accountId = accountId;
         this.name = name;
@@ -24,6 +28,7 @@ public class AssociateDto {
         this.phone = phone;
         this.additionalInfo = additionalInfo;
         this.type = type;
+        this.active = active;
         this.addressDto = addressDto;
     }
 
@@ -83,12 +88,41 @@ public class AssociateDto {
         this.type = type;
     }
 
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
     public AddressDto getAddressDto() {
         return addressDto;
     }
 
     public void setAddressDto(AddressDto addressDto) {
         this.addressDto = addressDto;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AssociateDto that = (AssociateDto) o;
+        return active == that.active &&
+            Objects.equals(id, that.id) &&
+            Objects.equals(accountId, that.accountId) &&
+            Objects.equals(name, that.name) &&
+            Objects.equals(email, that.email) &&
+            Objects.equals(phone, that.phone) &&
+            Objects.equals(additionalInfo, that.additionalInfo) &&
+            type == that.type &&
+            Objects.equals(addressDto, that.addressDto);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, accountId, name, email, phone, additionalInfo, type, active, addressDto);
     }
 
     @Override
@@ -101,6 +135,7 @@ public class AssociateDto {
             ", phone='" + phone + '\'' +
             ", additionalInfo='" + additionalInfo + '\'' +
             ", type=" + type +
+            ", active=" + active +
             ", addressDto=" + addressDto +
             '}';
     }

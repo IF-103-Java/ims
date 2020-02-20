@@ -3,9 +3,9 @@ package com.ita.if103java.ims.service.impl;
 import com.ita.if103java.ims.dao.AccountDao;
 import com.ita.if103java.ims.dao.AccountTypeDao;
 import com.ita.if103java.ims.dao.UserDao;
-import com.ita.if103java.ims.dto.AccountTypeDto;
 import com.ita.if103java.ims.dto.ForgotPasswordDto;
 import com.ita.if103java.ims.dto.UserLoginDto;
+import com.ita.if103java.ims.entity.Account;
 import com.ita.if103java.ims.entity.AccountType;
 import com.ita.if103java.ims.entity.User;
 import com.ita.if103java.ims.exception.service.UserOrPasswordIncorrectException;
@@ -74,7 +74,7 @@ public class LoginServiceImpl implements LoginService {
     }
 
     @Override
-    public ResponseEntity signIn(UserLoginDto user) {
+    public ResponseEntity<Map<String, String>> signIn(UserLoginDto user) {
         try {
             authManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
             User regUser = userDao.findByEmail(user.getUsername());
@@ -92,9 +92,9 @@ public class LoginServiceImpl implements LoginService {
             model.put("accountId", regUser.getAccountId().toString());
             model.put("accountType", type.getId().toString());
             model.put("role", regUser.getRole().toString());
-            return ok(model);
+            return ResponseEntity.ok(model);
         } catch (AuthenticationException e) {
-            throw new UserOrPasswordIncorrectException("Credential aren't correct", e);
+            throw new UserOrPasswordIncorrectException("Credentials aren't correct", e);
         }
 
     }
