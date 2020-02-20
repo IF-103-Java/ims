@@ -43,6 +43,7 @@ public class SavedItemControllerTest {
 
     @InjectMocks
     SavedItemController savedItemController;
+
     private SavedItemDto savedItemDto, savedItemDto2;
     private ItemTransactionRequestDto itemTransactionRequestDto;
     private SavedItemNotFoundException savedItemNotFoundException;
@@ -56,11 +57,13 @@ public class SavedItemControllerTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.initMocks(this);
+
         mockMvc = MockMvcBuilders
             .standaloneSetup(savedItemController)
             .setControllerAdvice(GlobalExceptionHandler.class)
             .setViewResolvers((viewName, locale) -> new MappingJackson2JsonView())
             .build();
+
         this.savedItemDto = new SavedItemDto();
         this.savedItemDto.setId(1L);
         this.savedItemDto.setWarehouseId(37L);
@@ -96,9 +99,11 @@ public class SavedItemControllerTest {
     @Test
     void addSavedItem_successFlow() throws Exception{
         when(itemService.addSavedItem(any(ItemTransactionRequestDto.class), any(UserDetailsImpl.class))).thenReturn(savedItemDto);
+
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         String resultJson = objectMapper.writeValueAsString(itemTransactionRequestDto);
+
         mockMvc.perform(post("/savedItems")
         .contentType(MediaType.APPLICATION_JSON)
         .content(resultJson))
@@ -114,9 +119,11 @@ public class SavedItemControllerTest {
     @Test
     void addSavedItem_failFlowNotValidInputs() throws Exception{
         when(itemService.addSavedItem(any(ItemTransactionRequestDto.class), any(UserDetailsImpl.class))).thenThrow(itemValidateInputException);
+
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         String resultJson = objectMapper.writeValueAsString(itemTransactionRequestDto);
+
         mockMvc.perform(post("/savedItems")
             .contentType(MediaType.APPLICATION_JSON)
             .content(resultJson))
@@ -129,9 +136,11 @@ public class SavedItemControllerTest {
     @Test
     void addSavedItem_failFlowNotEnoughCapacityInWarehouse() throws Exception {
         when(itemService.addSavedItem(any(ItemTransactionRequestDto.class), any(UserDetailsImpl.class))).thenThrow(itemNotEnoughCapacityInWarehouseException);
+
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         String resultJson = objectMapper.writeValueAsString(itemTransactionRequestDto);
+
         mockMvc.perform(post("/savedItems")
             .contentType(MediaType.APPLICATION_JSON)
             .content(resultJson))
@@ -144,50 +153,61 @@ public class SavedItemControllerTest {
     @Test
     void moveSavedItem_successFlow() throws Exception{
         when(itemService.moveItem(any(ItemTransactionRequestDto.class), any(UserDetailsImpl.class))).thenReturn(true);
+
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         String resultJson = objectMapper.writeValueAsString(itemTransactionRequestDto);
+
         mockMvc.perform(put("/savedItems/move")
             .contentType(MediaType.APPLICATION_JSON)
             .content(resultJson))
             .andExpect(status().isOk());
+
         verify(itemService, times(1)).moveItem(any(ItemTransactionRequestDto.class), any(UserDetailsImpl.class));
     }
 
     @Test
     void moveSavedItem_failFlowNotValidInputs() throws Exception{
         when(itemService.moveItem(any(ItemTransactionRequestDto.class), any(UserDetailsImpl.class))).thenThrow(itemValidateInputException);
+
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         String resultJson = objectMapper.writeValueAsString(itemTransactionRequestDto);
+
         mockMvc.perform(put("/savedItems/move")
             .contentType(MediaType.APPLICATION_JSON)
             .content(resultJson))
             .andExpect(status().isOk())
             .andExpect(jsonPath("message").value(itemValidateInputException.getLocalizedMessage()));
+
         verify(itemService, times(1)).moveItem(any(ItemTransactionRequestDto.class), any(UserDetailsImpl.class));
     }
 
     @Test
     void moveSavedItem_failFlowNotEnoughCapacityInWarehouse() throws Exception{
         when(itemService.moveItem(any(ItemTransactionRequestDto.class), any(UserDetailsImpl.class))).thenThrow(itemNotEnoughCapacityInWarehouseException);
+
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         String resultJson = objectMapper.writeValueAsString(itemTransactionRequestDto);
+
         mockMvc.perform(put("/savedItems/move")
             .contentType(MediaType.APPLICATION_JSON)
             .content(resultJson))
             .andExpect(status().isOk())
             .andExpect(jsonPath("message").value(itemNotEnoughCapacityInWarehouseException.getLocalizedMessage()));
+
         verify(itemService, times(1)).moveItem(any(ItemTransactionRequestDto.class), any(UserDetailsImpl.class));
     }
 
     @Test
     void outcomeItem_successFlow() throws Exception{
         when(itemService.outcomeItem(any(ItemTransactionRequestDto.class), any(UserDetailsImpl.class))).thenReturn(savedItemDto);
+
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         String resultJson = objectMapper.writeValueAsString(itemTransactionRequestDto);
+
         mockMvc.perform(put("/savedItems/outcome")
             .contentType(MediaType.APPLICATION_JSON)
             .content(resultJson))
@@ -201,11 +221,13 @@ public class SavedItemControllerTest {
     }
 
     @Test
-    void outcomeItem_omittedFlowNotValidInputs() throws Exception{
+    void outcomeItem_failFlowNotValidInputs() throws Exception{
         when(itemService.outcomeItem(any(ItemTransactionRequestDto.class), any(UserDetailsImpl.class))).thenThrow(itemValidateInputException);
+
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         String resultJson = objectMapper.writeValueAsString(itemTransactionRequestDto);
+
         mockMvc.perform(put("/savedItems/outcome")
             .contentType(MediaType.APPLICATION_JSON)
             .content(resultJson))
@@ -216,11 +238,13 @@ public class SavedItemControllerTest {
     }
 
     @Test
-    void outcomeItem_omittedFlowNotEnoughQuantity() throws Exception{
+    void outcomeItem_failFlowNotEnoughQuantity() throws Exception{
         when(itemService.outcomeItem(any(ItemTransactionRequestDto.class), any(UserDetailsImpl.class))).thenThrow(itemNotEnoughQuantityException);
+
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         String resultJson = objectMapper.writeValueAsString(itemTransactionRequestDto);
+
         mockMvc.perform(put("/savedItems/outcome")
             .contentType(MediaType.APPLICATION_JSON)
             .content(resultJson))
@@ -233,12 +257,55 @@ public class SavedItemControllerTest {
     @Test
     void findByItemId_successFlow() throws Exception{
         List<SavedItemDto> savedItemDtoList = List.of(savedItemDto, savedItemDto2);
+
         when(itemService.findByItemId(anyLong(), any(UserDetailsImpl.class))).thenReturn(savedItemDtoList);
-        mockMvc.perform(get("/savedItems/itemId/" + itemTransactionRequestDto.getItemId())
+
+        mockMvc.perform(get("/savedItems/itemId/" + savedItemDto.getItemId())
         .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.[0]").value(savedItemDtoList.get(0)))
-        .andExpect(jsonPath("$.[1]").value(savedItemDtoList.get(1)));
-        verify(itemService, times(1)).findByItemId(eq(itemTransactionRequestDto.getItemId()), any(UserDetailsImpl.class));
+        .andExpect(jsonPath("$.[0].id").value(savedItemDtoList.get(0).getId()))
+        .andExpect(jsonPath("$.[1].quantity").value(savedItemDtoList.get(1).getQuantity()));
+
+        verify(itemService, times(1)).findByItemId(eq(savedItemDto.getItemId()), any(UserDetailsImpl.class));
     }
+
+    @Test
+    void findByItemId_failFlowSavedItemNotFoundException() throws Exception{
+        when(itemService.findByItemId(anyLong(), any(UserDetailsImpl.class))).thenThrow(savedItemNotFoundException);
+
+        mockMvc.perform(get("/savedItems/itemId/" + savedItemDto.getItemId())
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("message").value(savedItemNotFoundException.getLocalizedMessage()));
+
+            verify(itemService, times(1)).findByItemId(eq(savedItemDto.getItemId()), any(UserDetailsImpl.class));
+    }
+
+    @Test
+    void findSavedItemById_successFlow() throws Exception {
+        when(itemService.findSavedItemById(anyLong(), any(UserDetailsImpl.class))).thenReturn(savedItemDto);
+
+        mockMvc.perform(get("/savedItems/" + savedItemDto.getItemId())
+        .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value(savedItemDto.getId()))
+            .andExpect(jsonPath("$.itemId").value(savedItemDto.getItemId()))
+            .andExpect(jsonPath("$.quantity").value(savedItemDto.getQuantity()))
+            .andExpect(jsonPath("$.warehouseId").value(savedItemDto.getWarehouseId()));
+
+        verify(itemService, times(1)).findSavedItemById(eq(savedItemDto.getItemId()), any(UserDetailsImpl.class));
+    }
+
+    @Test
+    void findSavedItemById_failFlow() throws Exception {
+        when(itemService.findSavedItemById(anyLong(), any(UserDetailsImpl.class))).thenThrow(savedItemNotFoundException);
+
+        mockMvc.perform(get("/savedItems/" + savedItemDto.getItemId())
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("message").value(savedItemNotFoundException.getLocalizedMessage()));
+
+        verify(itemService, times(1)).findSavedItemById(eq(savedItemDto.getItemId()), any(UserDetailsImpl.class));
+    }
+
 }

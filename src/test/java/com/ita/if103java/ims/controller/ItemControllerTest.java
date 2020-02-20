@@ -60,13 +60,16 @@ public class ItemControllerTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.initMocks(this);
+
         mockMvc = MockMvcBuilders
             .standaloneSetup(itemController)
             .setControllerAdvice(GlobalExceptionHandler.class)
             .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver())
             .setViewResolvers((viewName, locale) -> new MappingJackson2JsonView())
             .build();
+
         this.pageable = PageRequest.of(0, 10, Sort.Direction.ASC, "id");
+
         this.itemDto = new ItemDto();
         this.itemDto.setId(3L);
         this.itemDto.setName("Apple");
@@ -82,15 +85,18 @@ public class ItemControllerTest {
         this.itemDto2.setActive(true);
         this.itemDto2.setDescription("tasty apple2");
         this.itemDto2.setVolume(5);
+
         this.itemDuplicateException = new ItemDuplicateException("Failed to create item, because exist the same ");
         this.itemNotFoundException = new ItemNotFoundException("Failed to get item during `select` {id = " + notValidId + "}");
       }
     @Test
     void addItem_successFlow() throws Exception {
         when(itemService.addItem(any(ItemDto.class), any(UserDetailsImpl.class))).thenReturn(itemDto);
+
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         String resultJson = objectMapper.writeValueAsString(itemDto);
+
         mockMvc.perform(post("/items")
             .contentType(MediaType.APPLICATION_JSON)
             .content(resultJson))
@@ -102,15 +108,18 @@ public class ItemControllerTest {
             .andExpect(jsonPath("$.description").value(itemDto.getDescription()))
             .andExpect(jsonPath("$.volume").value(itemDto.getVolume()))
             .andExpect(jsonPath("$.active").value(itemDto.isActive()));
+
         verify(itemService, times(1)).addItem(any(ItemDto.class), any(UserDetailsImpl.class));
     }
 
     @Test
     void addItem_duplicateFlow() throws Exception {
         when(itemService.addItem(any(ItemDto.class), any(UserDetailsImpl.class))).thenThrow(itemDuplicateException);
+
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         String resultJson = objectMapper.writeValueAsString(itemDto);
+
         mockMvc.perform(post("/items")
             .contentType(MediaType.APPLICATION_JSON)
             .content(resultJson))
@@ -123,7 +132,9 @@ public class ItemControllerTest {
     @Test
     void sort_successFlow() throws Exception {
         Page page = new PageImpl<>(Collections.singletonList(itemDto));
+
         when(itemService.findSortedItems(any(PageRequest.class), any(UserDetailsImpl.class))).thenReturn(page);
+
         mockMvc.perform(get("/items?page=" + pageable.getPageNumber() + "&size=" + pageable.getPageSize() +
             "&sort=" + pageable.getSort().toString())
              .contentType(MediaType.APPLICATION_JSON))
@@ -138,6 +149,7 @@ public class ItemControllerTest {
     @Test
     void findById_successFlow() throws Exception {
         when(itemService.findById(any(Long.class), any(UserDetailsImpl.class))).thenReturn(itemDto);
+
         mockMvc.perform(get("/items/" + itemDto.getId())
         .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
@@ -148,46 +160,58 @@ public class ItemControllerTest {
             .andExpect(jsonPath("$.description").value(itemDto.getDescription()))
             .andExpect(jsonPath("$.volume").value(itemDto.getVolume()))
             .andExpect(jsonPath("$.active").value(itemDto.isActive()));
+
         verify(itemService, times(1)).findById(eq(itemDto.getId()), any(UserDetailsImpl.class));
     }
 
     @Test
     void findById_failFlow() throws Exception {
         when(itemService.findById(any(Long.class), any(UserDetailsImpl.class))).thenThrow(itemNotFoundException);
+
         mockMvc.perform(get("/items/" + itemDto.getId())
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isNotFound())
             .andExpect(jsonPath("message").value(itemNotFoundException.getLocalizedMessage()));
+
         verify(itemService, times(1)).findById(eq(itemDto.getId()), any(UserDetailsImpl.class));
     }
 
     @Test
     void softDelete_successFlow() throws Exception{
         when(itemService.softDelete(anyLong(), any(UserDetailsImpl.class))).thenReturn(true);
+
         mockMvc.perform(delete("/items/" + itemDto.getId())
         .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk());
+
+        verify(itemService, times(1)).softDelete(eq(itemDto.getId()), any(UserDetailsImpl.class));
     }
 
     @Test
     void softDelete_failFlow() throws Exception{
         when(itemService.softDelete(anyLong(), any(UserDetailsImpl.class))).thenThrow(itemNotFoundException);
+
         mockMvc.perform(delete("/items/" + itemDto.getId())
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isNotFound())
             .andExpect(jsonPath("message").value(itemNotFoundException.getLocalizedMessage()));
+
+        verify(itemService, times(1)).softDelete(eq(itemDto.getId()), any(UserDetailsImpl.class));
     }
 
     @Test
     void findItemsByNameQuery_successFlow() throws Exception {
         String query = "Apple";
         List<ItemDto> itemDtoList = List.of(itemDto, itemDto2);
+
         when(itemService.findItemsByNameQuery(anyString(), any(UserDetailsImpl.class))).thenReturn(itemDtoList);
+
         mockMvc.perform(get("/items/name?q=" + query)
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.[0]").value(itemDtoList.get(0)))
             .andExpect(jsonPath("$.[1]").value(itemDtoList.get(1)));
+
         verify(itemService, times(1)).findItemsByNameQuery(eq(query), any(UserDetailsImpl.class));
 
     }
@@ -195,9 +219,11 @@ public class ItemControllerTest {
     @Test
     void updateItem_successFlow() throws Exception{
         when(itemService.updateItem(any(ItemDto.class), any(UserDetailsImpl.class))).thenReturn(itemDto);
+
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         String resultJson = objectMapper.writeValueAsString(itemDto);
+
         mockMvc.perform(put("/items")
         .contentType(MediaType.APPLICATION_JSON)
         .content(resultJson))
@@ -209,20 +235,24 @@ public class ItemControllerTest {
         .andExpect(jsonPath("$.description").value(itemDto.getDescription()))
         .andExpect(jsonPath("$.volume").value(itemDto.getVolume()))
         .andExpect(jsonPath("$.active").value(itemDto.isActive()));
+
         verify(itemService, times(1)).updateItem(eq(itemDto), any(UserDetailsImpl.class));
     }
 
     @Test
     void updateItem_failFlow() throws Exception{
         when(itemService.updateItem(any(ItemDto.class), any(UserDetailsImpl.class))).thenThrow(itemNotFoundException);
+
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         String resultJson = objectMapper.writeValueAsString(itemDto);
+
         mockMvc.perform(put("/items")
             .contentType(MediaType.APPLICATION_JSON)
             .content(resultJson))
             .andExpect(status().isNotFound())
             .andExpect(jsonPath("message").value(itemNotFoundException.getLocalizedMessage()));
+
         verify(itemService, times(1)).updateItem(eq(itemDto), any(UserDetailsImpl.class));
     }
 }
