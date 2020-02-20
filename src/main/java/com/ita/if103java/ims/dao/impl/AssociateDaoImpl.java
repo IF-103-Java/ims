@@ -142,10 +142,7 @@ public class AssociateDaoImpl implements AssociateDao {
     @Override
     public boolean hardDelete(Long accountId) {
         try {
-            final int rowsAffected = jdbcTemplate.update(Queries.SQL_DELETE_ASSOCIATES_BY_ID, accountId);
-            if (rowsAffected == 0) {
-                throw new AssociateEntityNotFoundException("Failed to obtain associate during hard `delete` {id = " + accountId + "}");
-            }
+            jdbcTemplate.update(Queries.SQL_DELETE_ASSOCIATES_BY_ID, accountId);
         } catch (DataAccessException e) {
             throw new CRUDException("Error during hard `delete` associate {accountId = " + accountId + "}", e);
         }
