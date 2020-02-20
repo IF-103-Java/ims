@@ -304,12 +304,6 @@ public class WarehouseServiceImplTest {
         verify(eventService).create(any(Event.class));
     }
 
-    @Test
-    public void findTotalCapacityTest() {
-        when(warehouseDao.findTotalCapacity(1L, 2L)).thenReturn(5);
-
-    }
-
     private List<WarehouseDto> getListOfWarehouseDtos() {
         Long accountId = userDetails.getUser().getAccountId();
         List<WarehouseDto> warehouseDtos = new ArrayList<>();
