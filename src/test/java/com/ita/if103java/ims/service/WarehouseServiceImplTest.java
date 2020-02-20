@@ -120,13 +120,10 @@ public class WarehouseServiceImplTest {
         assertTrue(warehouseCreate.isTopLevel());
         when(addressDao.createWarehouseAddress(warehouseCreate.getId(), address)).thenReturn(address);
         when(addressDtoMapper.toDto(address)).thenReturn(addressDto);
-
         Event event = new Event("Warehouse created " +
             topWarehouseDto.getName(), accountId,
             topWarehouseDto.getId(), 1L, EventName.WAREHOUSE_CREATED, 2L);
         doNothing().when(eventService).create(event);
-//      verify(eventService, times(1)).create(event);
-//         //form a return DTO
         when(warehouseDtoMapper.toDto(warehouseCreate)).thenReturn(topWarehouseDto);
         topWarehouseDto.setAddressDto(addressDto);
         assertEquals(warehouseService.add(result, userDetails), topWarehouseDto);
@@ -151,7 +148,6 @@ public class WarehouseServiceImplTest {
         });
         assertEquals("The maximum depth of warehouse's levels has been reached for this" +
             "{accountId = " + accountId + "}", exception.getMessage());
-
     }
 
     @Test
@@ -167,18 +163,6 @@ public class WarehouseServiceImplTest {
         when(addressDtoMapper.toDto(address)).thenReturn(addressDto);
 
         assertEquals(warehouseService.findById(1L, userDetails), warehouseDto);
-    }
-
-    @Test
-    void findByIdTest_isNotWarehouseTopLevel() {
-        Warehouse bottom = new Warehouse(12L, "Bottom", "auto parts", 20, true, 5L, 1L, 4L, true);
-
-        when(warehouseDao.findById(1L, 1L)).thenReturn(bottom);
-        when(warehouseDtoMapper.toDto(bottom)).thenReturn(warehouseDto);
-        assertFalse(bottom.isTopLevel());
-
-        //populate path
-        when(warehouseDao.findByTopWarehouseID(2L, 1L)).thenReturn(Collections.emptyList());
     }
 
     @Test
@@ -201,6 +185,7 @@ public class WarehouseServiceImplTest {
         warehouseDtoList.get(2).setAddressDto(addressDto);
         assertEquals(warehouseService.findAllTopLevel(pageable, userDetails), page);
     }
+
 
     @Test
     void update_notActive() {
