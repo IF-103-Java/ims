@@ -49,6 +49,7 @@ public class AssociateController {
     public void delete(@AuthenticationPrincipal UserDetailsImpl user, @PathVariable("id") Long id) {
         associateService.delete(user, id);
     }
+
     @GetMapping
     public List<SavedItemAssociateDto> getAssociatesByType(@AuthenticationPrincipal UserDetailsImpl user,
                                                            @RequestParam("type") AssociateType type) {
