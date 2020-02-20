@@ -6,7 +6,6 @@ import com.ita.if103java.ims.dto.WarehousePremiumStructDto;
 import com.ita.if103java.ims.entity.DateType;
 import com.ita.if103java.ims.entity.PopType;
 import com.ita.if103java.ims.exception.dao.DashboardDataNotFoundException;
-import com.ita.if103java.ims.mapper.jdbc.ChargeCapacityRowMapper;
 import com.ita.if103java.ims.mapper.jdbc.EndingItemsRowMapper;
 import com.ita.if103java.ims.mapper.jdbc.PopularItemsRowMapper;
 import com.ita.if103java.ims.mapper.jdbc.WarehouseLoadRowMapper;
@@ -39,12 +38,14 @@ public class DashboardDaoImplTest {
     @Mock
     private WarehousePremiumStructRowMapper warehousePremiumStructRowMapper;
     @Mock
-    private ChargeCapacityRowMapper chargeCapacityRowMapper;
-    @Mock
     JdbcTemplate jdbcTemplate;
 
     @InjectMocks
     DashboardDaoImpl dashboardDaoImpl;
+
+    private Long fakeAccountId = 1L;
+    private Long fakeWarehouseId = 4L;
+    private int fakeMinQuantity = 5;
 
     @BeforeEach
     public void setUp() {
@@ -53,19 +54,19 @@ public class DashboardDaoImplTest {
 
     @Test
     public void testWarehouseLoad(){
-        dashboardDaoImpl.findWarehouseLoadByAccountId(1L);
+        dashboardDaoImpl.findWarehouseLoadByAccountId(fakeAccountId);
         verify(jdbcTemplate, times(1))
             .query(
-                DashboardDaoImpl.Queries.SQL_FIND_WAREHOUSE_LOAD_BY_ACCOUNT_ID, warehouseLoadRowMapper, 1L
+                DashboardDaoImpl.Queries.SQL_FIND_WAREHOUSE_LOAD_BY_ACCOUNT_ID, warehouseLoadRowMapper, fakeAccountId
             );
     }
 
     @Test
     public void testWarehouseLoad_DBNotResponding(){
         when(jdbcTemplate.query(
-            DashboardDaoImpl.Queries.SQL_FIND_WAREHOUSE_LOAD_BY_ACCOUNT_ID, warehouseLoadRowMapper, -1L))
+            DashboardDaoImpl.Queries.SQL_FIND_WAREHOUSE_LOAD_BY_ACCOUNT_ID, warehouseLoadRowMapper, -fakeAccountId))
             .thenThrow(EmptyResultDataAccessException.class);
-        assertThrows(DashboardDataNotFoundException.class, () -> dashboardDaoImpl.findWarehouseLoadByAccountId(-1L));
+        assertThrows(DashboardDataNotFoundException.class, () -> dashboardDaoImpl.findWarehouseLoadByAccountId(-fakeAccountId));
 
     }
 
@@ -74,14 +75,14 @@ public class DashboardDaoImplTest {
         PopularItemsRequestDto popularItems =
             new PopularItemsRequestDto(3, DateType.YEAR, PopType.TOP, "17-02-2020");
 
-        dashboardDaoImpl.findPopularItems(popularItems, 1L);
+        dashboardDaoImpl.findPopularItems(popularItems, fakeAccountId);
 
         verify(jdbcTemplate, times(1))
             .query(
                 DashboardDaoImpl.Queries.SQL_FIND_POPULAR_ITEMS + DashboardDaoImpl.Queries.SQL_POP_YEAR +
                     DashboardDaoImpl.Queries.SQL_ATR_POP,
                 popularItemsRowMapper,
-                1L, popularItems.getDate(), popularItems.getQuantity()
+                fakeAccountId, popularItems.getDate(), popularItems.getQuantity()
             );
     }
 
@@ -90,14 +91,14 @@ public class DashboardDaoImplTest {
         PopularItemsRequestDto popularItems =
             new PopularItemsRequestDto(9, DateType.MONTH, PopType.BOT, "17-02-2019");
 
-        dashboardDaoImpl.findPopularItems(popularItems, 1L);
+        dashboardDaoImpl.findPopularItems(popularItems, fakeAccountId);
 
         verify(jdbcTemplate, times(1))
             .query(
                 DashboardDaoImpl.Queries.SQL_FIND_POPULAR_ITEMS +
                     DashboardDaoImpl.Queries.SQL_POP_MONTH + DashboardDaoImpl.Queries.SQL_ATR_UNPOP,
                 popularItemsRowMapper,
-                1L, popularItems.getDate(), popularItems.getDate(), popularItems.getQuantity()
+                fakeAccountId, popularItems.getDate(), popularItems.getDate(), popularItems.getQuantity()
             );
     }
 
@@ -107,13 +108,13 @@ public class DashboardDaoImplTest {
         PopularItemsRequestDto popularItems =
             new PopularItemsRequestDto(15, DateType.ALL, PopType.BOT, "13-06-2019");
 
-        dashboardDaoImpl.findPopularItems(popularItems, 1L);
+        dashboardDaoImpl.findPopularItems(popularItems, fakeAccountId);
 
         verify(jdbcTemplate, times(1))
             .query(
                 DashboardDaoImpl.Queries.SQL_FIND_POPULAR_ITEMS + DashboardDaoImpl.Queries.SQL_ATR_UNPOP,
                 popularItemsRowMapper,
-                1L, popularItems.getQuantity()
+                fakeAccountId, popularItems.getQuantity()
             );
     }
 
@@ -125,12 +126,12 @@ public class DashboardDaoImplTest {
             .query(
                 DashboardDaoImpl.Queries.SQL_FIND_POPULAR_ITEMS + DashboardDaoImpl.Queries.SQL_ATR_UNPOP,
                 popularItemsRowMapper,
-                1L, popularItems.getQuantity()
+                fakeAccountId, popularItems.getQuantity()
             ))
             .thenThrow(EmptyResultDataAccessException.class);
 
         assertThrows(DashboardDataNotFoundException.class, () ->
-            dashboardDaoImpl.findPopularItems(popularItems, 1L));
+            dashboardDaoImpl.findPopularItems(popularItems, fakeAccountId));
     }
 
     @Test
@@ -138,19 +139,19 @@ public class DashboardDaoImplTest {
         PageRequest pageable = PageRequest.of(1, 4, Sort.by("quantity,DESC"));
 
         when(jdbcTemplate.queryForObject(DashboardDaoImpl.Queries.SQL_ROW_COUNT,
-            new Object[]{5, 1L}, Integer.class)).thenReturn(1);
+            new Object[]{fakeMinQuantity, fakeAccountId}, Integer.class)).thenReturn(1);
 
-        dashboardDaoImpl.findEndedItemsByAccountId(pageable, 5, 1L);
+        dashboardDaoImpl.findEndedItemsByAccountId(pageable, fakeMinQuantity, fakeAccountId);
 
         verify(jdbcTemplate, times(1))
             .query(
                 String.format(DashboardDaoImpl.Queries.SQL_FIND_ENDED_ITEMS_BY_ACCOUNT_ID, getOrder(pageable.getSort())),
-                endingItemsRowMapper, 5, 1L, pageable.getPageSize(), pageable.getOffset()
+                endingItemsRowMapper, fakeMinQuantity, fakeAccountId, pageable.getPageSize(), pageable.getOffset()
             );
         verify(jdbcTemplate, times(1))
             .queryForObject(
                 DashboardDaoImpl.Queries.SQL_ROW_COUNT,
-                new Object[]{5, 1L}, Integer.class
+                new Object[]{fakeMinQuantity, fakeAccountId}, Integer.class
             );
     }
     @Test
@@ -160,12 +161,12 @@ public class DashboardDaoImplTest {
         when(jdbcTemplate
             .query(
                 String.format(DashboardDaoImpl.Queries.SQL_FIND_ENDED_ITEMS_BY_ACCOUNT_ID, getOrder(pageable.getSort())),
-                endingItemsRowMapper, 5, 1L, pageable.getPageSize(), pageable.getOffset()
+                endingItemsRowMapper, fakeMinQuantity, fakeAccountId, pageable.getPageSize(), pageable.getOffset()
             )
         ).thenThrow(DashboardDataNotFoundException.class);
 
         assertThrows(DashboardDataNotFoundException.class, () ->
-            dashboardDaoImpl.findEndedItemsByAccountId(pageable, 5, 1L));
+            dashboardDaoImpl.findEndedItemsByAccountId(pageable, fakeMinQuantity, fakeAccountId));
     }
     @Test
     public void testEndedItems_DBNotRespondToFindRowCount() {
@@ -173,28 +174,29 @@ public class DashboardDaoImplTest {
 
         when(jdbcTemplate
             .queryForObject(
-                DashboardDaoImpl.Queries.SQL_ROW_COUNT, new Object[]{5, 1L}, Integer.class
+                DashboardDaoImpl.Queries.SQL_ROW_COUNT, new Object[]{fakeMinQuantity, fakeAccountId}, Integer.class
             )
         ).thenThrow(DashboardDataNotFoundException.class);
 
         assertThrows(DashboardDataNotFoundException.class, () ->
-            dashboardDaoImpl.findEndedItemsByAccountId(pageable, 5, 1L));
+            dashboardDaoImpl.findEndedItemsByAccountId(pageable, fakeMinQuantity, fakeAccountId));
     }
     @Test
     public void testPremiumLoad(){
         when(jdbcTemplate.queryForObject(
             DashboardDaoImpl.Queries.SQL_WAREHOUSE_STRUCTURE_PRIMARY,
-            warehousePremiumStructRowMapper, 4L, 1L
+            warehousePremiumStructRowMapper, fakeWarehouseId, fakeAccountId
         )).thenReturn(new WarehousePremiumStructDto());
 
         when(jdbcTemplate.query(DashboardDaoImpl.Queries.SQL_WAREHOUSE_STRUCTURE_SUB,
-            warehousePremiumStructRowMapper, 4L, 1L)).thenReturn(new ArrayList<>());
+            warehousePremiumStructRowMapper, fakeWarehouseId, fakeAccountId)).thenReturn(new ArrayList<>());
 
-        dashboardDaoImpl.getPreLoadByAccounId(4L, 1L);
+        dashboardDaoImpl.getPreLoadByAccounId(fakeWarehouseId, fakeAccountId);
 
         verify(jdbcTemplate, times(1))
             .queryForObject(
-                DashboardDaoImpl.Queries.SQL_WAREHOUSE_STRUCTURE_PRIMARY, warehousePremiumStructRowMapper, 4L, 1L
+                DashboardDaoImpl.Queries.SQL_WAREHOUSE_STRUCTURE_PRIMARY,
+                warehousePremiumStructRowMapper, fakeWarehouseId, fakeAccountId
             );
     }
 
@@ -202,24 +204,24 @@ public class DashboardDaoImplTest {
     public void testPremiumLoad_DBNotRespondToFindPrimaryWarehouse(){
         when(jdbcTemplate.queryForObject(
             DashboardDaoImpl.Queries.SQL_WAREHOUSE_STRUCTURE_PRIMARY,
-            warehousePremiumStructRowMapper, 4L, 1L
+            warehousePremiumStructRowMapper, fakeWarehouseId, fakeAccountId
         )).thenThrow(DashboardDataNotFoundException.class);
 
         assertThrows(DashboardDataNotFoundException.class, () ->
-            dashboardDaoImpl.getPreLoadByAccounId(4L, 1L));
+            dashboardDaoImpl.getPreLoadByAccounId(fakeWarehouseId, fakeAccountId));
     }
 
     @Test
     public void testPremiumLoad_DBNotRespondToFindWarehouseStructure(){
         when(jdbcTemplate.queryForObject(
             DashboardDaoImpl.Queries.SQL_WAREHOUSE_STRUCTURE_PRIMARY,
-            warehousePremiumStructRowMapper, 4L, 1L
+            warehousePremiumStructRowMapper, fakeWarehouseId, fakeAccountId
         )).thenReturn(new WarehousePremiumStructDto());
 
         when(jdbcTemplate.query(DashboardDaoImpl.Queries.SQL_WAREHOUSE_STRUCTURE_SUB,
-            warehousePremiumStructRowMapper, 4L, 1L)).thenThrow(DashboardDataNotFoundException.class);
+            warehousePremiumStructRowMapper, fakeWarehouseId, fakeAccountId)).thenThrow(DashboardDataNotFoundException.class);
 
         assertThrows(DashboardDataNotFoundException.class, () ->
-            dashboardDaoImpl.getPreLoadByAccounId(4L, 1L));
+            dashboardDaoImpl.getPreLoadByAccounId(fakeWarehouseId, fakeAccountId));
     }
 }
