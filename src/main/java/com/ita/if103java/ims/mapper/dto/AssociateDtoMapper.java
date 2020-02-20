@@ -20,6 +20,7 @@ public class AssociateDtoMapper extends AbstractEntityDtoMapper<Associate, Assoc
             associate.setPhone(dto.getPhone());
             associate.setAdditionalInfo(dto.getAdditionalInfo());
             associate.setType(dto.getType());
+            associate.setActive(dto.isActive());
 
             return associate;
         }
@@ -38,6 +39,7 @@ public class AssociateDtoMapper extends AbstractEntityDtoMapper<Associate, Assoc
             associateDto.setPhone(entity.getPhone());
             associateDto.setAdditionalInfo(entity.getAdditionalInfo());
             associateDto.setType(entity.getType());
+            associateDto.setActive(entity.isActive());
 
             return associateDto;
         }

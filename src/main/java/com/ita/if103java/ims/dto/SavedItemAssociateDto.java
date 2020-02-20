@@ -2,6 +2,7 @@ package com.ita.if103java.ims.dto;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.Objects;
 
 public class SavedItemAssociateDto {
     @NotNull
@@ -53,5 +54,31 @@ public class SavedItemAssociateDto {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SavedItemAssociateDto that = (SavedItemAssociateDto) o;
+        return Objects.equals(id, that.id) &&
+            Objects.equals(name, that.name) &&
+            Objects.equals(email, that.email) &&
+            Objects.equals(phone, that.phone);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, email, phone);
+    }
+
+    @Override
+    public String toString() {
+        return "SavedItemAssociateDto{" +
+            "id=" + id +
+            ", name='" + name + '\'' +
+            ", email='" + email + '\'' +
+            ", phone='" + phone + '\'' +
+            '}';
     }
 }
