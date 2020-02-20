@@ -84,7 +84,8 @@ public class WarehouseServiceImpl implements WarehouseService {
                 throw new MaxWarehousesLimitReachedException("The maximum number of warehouses has been reached for this" +
                     "{accountId = " + accountId + "}");
             }
-        } else if (warehouseDao.findById(warehouseDto.getParentID(), accountId).isBottom()) {
+        }
+        else if (warehouseDao.findById(warehouseDto.getParentID(), accountId).isBottom()) {
             throw new WarehouseCreateException("The parent warehouse is bottom level");
         } else if (warehouseDto.isBottom() && warehouseDto.getCapacity() == 0) {
             throw new WarehouseCreateException("The capacity of bottom warehouse should be > 0");
